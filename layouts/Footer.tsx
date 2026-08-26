@@ -28,10 +28,10 @@ const RESOURCES = [
 
 const SUPPORT = [
   { label: 'Contact', to: '/contact' },
+  { label: 'Customer Support', to: '/customer-support' },
+  { label: 'Testimonials', to: '/testimonials' },
   { label: 'Affiliates', to: '/affiliates' },
-  { label: 'Sitemap', to: '/sitemap' },
   { label: 'Cancelation Policy', to: '/cancelation' },
-  { label: 'Pricing', to: '/pricing' },
 ]
 
 function FooterColumn({ title, links }: { title: string; links: { label: string; to: string }[] }) {

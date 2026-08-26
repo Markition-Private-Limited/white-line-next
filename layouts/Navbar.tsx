@@ -13,7 +13,6 @@ const NAV_LINKS = [
   { label: 'Services', to: '/services', dropdown: true },
   { label: 'Fleet', to: '/fleet' },
   { label: 'B2B', to: '/b2b' },
-  { label: 'Testimonials', to: '/testimonials' },
   { label: 'Contact Us', to: '/contact' },
 ]
 

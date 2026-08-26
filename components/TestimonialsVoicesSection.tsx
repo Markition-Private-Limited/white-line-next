@@ -41,7 +41,7 @@ function VoiceCard({ voice, scrollYProgress }: { voice: typeof VOICES[0]; scroll
       <div
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(180deg, rgba(255,255,255,0) 11.34%, rgba(255,255,255,0) 52%, #FFFFFF 100%)',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0) 11.34%, rgba(255,255,255,0) 62%, rgba(255,255,255,0.82) 100%)',
           zIndex: 1,
         }}
       />
