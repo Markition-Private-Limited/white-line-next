@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import Navbar from '../layouts/Navbar'
 import Image from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
-import contactBanner from '../assets/contact_us/contact_banner.jpg'
+import contactBanner from '../assets/contact_us/contact_banner.webp'
 
 export default function ContactHero() {
   const { trans } = useLanguage()
