@@ -1,21 +1,7 @@
-﻿'use client'
+'use client'
 import { useEffect, useRef, useState } from 'react'
+import { useLanguage } from '../context/LanguageContext'
 import masteryImg from '../assets/about_us/about_us_mastery.jpg'
-
-const cards = [
-  {
-    title: 'Mastery Behind the Wheel',
-    desc: 'Every chauffeur in our network is handpicked and rigorously trained beyond ordinary driving standards — ensuring each journey is handled with expertise and grace.',
-  },
-  {
-    title: 'Punctuality as a Standard',
-    desc: 'We treat time as the most valuable currency. Zero-compromise scheduling, real-time tracking, and proactive adjustments keep every arrival precisely on time.',
-  },
-  {
-    title: 'Sanctuaries of Quiet Luxury',
-    desc: 'Our fleet represents the pinnacle of automotive comfort. Each vehicle undergoes multi-point inspections and pristine detailing before every assignment.',
-  },
-]
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLElement>(null)
@@ -45,10 +31,11 @@ function useIsMobile() {
 }
 
 export default function AboutMasterySection() {
+  const { trans } = useLanguage()
+  const { mastery } = trans.about
   const { ref: sectionRef, inView } = useInView(0.08)
   const isMobile = useIsMobile()
 
-  // Mouse parallax — "Discerning Standards" only
   const headingAreaRef = useRef<HTMLDivElement>(null)
   const [mouse, setMouse] = useState({ x: 0, y: 0 })
 
@@ -56,14 +43,10 @@ export default function AboutMasterySection() {
     const el = headingAreaRef.current
     if (!el) return
     const rect = el.getBoundingClientRect()
-    setMouse({
-      x: (e.clientX - rect.left) / rect.width - 0.5,
-      y: (e.clientY - rect.top) / rect.height - 0.5,
-    })
+    setMouse({ x: (e.clientX - rect.left) / rect.width - 0.5, y: (e.clientY - rect.top) / rect.height - 0.5 })
   }
   const handleMouseLeave = () => setMouse({ x: 0, y: 0 })
 
-  // Scroll parallax for the image
   const containerRef = useRef<HTMLDivElement>(null)
   const [imgOffset, setImgOffset] = useState(0)
 
@@ -86,11 +69,12 @@ export default function AboutMasterySection() {
     transition: `opacity 0.85s ease ${delay}s, transform 0.85s ease ${delay}s`,
   })
 
-  // Shared card renderer used in both layouts
+  const imgSrc = (masteryImg as any).src ?? masteryImg
+
   const CardList = ({ withFade = true }: { withFade?: boolean }) =>
-    cards.map((card, i) => (
+    mastery.cards.map((card, i) => (
       <div
-        key={card.title}
+        key={i}
         className="mastery-card"
         style={{
           ...(withFade ? fadeUp(0.2 + i * 0.13) : {}),
@@ -106,20 +90,10 @@ export default function AboutMasterySection() {
           justifyContent: 'space-between',
         }}
       >
-        <p
-          className="font-semibold text-white"
-          style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(13px, 1.4vw, 16px)' }}
-        >
+        <p className="font-semibold text-white" style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(13px, 1.4vw, 16px)' }}>
           {card.title}
         </p>
-        <p
-          className="leading-relaxed"
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 'clamp(11px, 1.1vw, 13px)',
-            color: 'rgba(255,255,255,0.72)',
-          }}
-        >
+        <p className="leading-relaxed" style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(11px, 1.1vw, 13px)', color: 'rgba(255,255,255,0.72)' }}>
           {card.desc}
         </p>
       </div>
@@ -131,7 +105,7 @@ export default function AboutMasterySection() {
       className="w-full bg-white"
       style={{ paddingBottom: '96px' }}
     >
-      {/* ── Heading ─────────────────────────────────────────────────────────── */}
+      {/* Heading */}
       <div
         ref={headingAreaRef}
         className="text-center px-6"
@@ -141,11 +115,8 @@ export default function AboutMasterySection() {
       >
         <div className="flex items-center justify-center gap-3 mb-6" style={fadeUp(0)}>
           <span className="block h-px w-8" style={{ background: '#005C66' }} />
-          <span
-            className="text-xs tracking-[0.22em] uppercase font-medium"
-            style={{ fontFamily: 'Inter, sans-serif', color: '#005C66' }}
-          >
-            Mastery Behind the Wheel
+          <span className="text-xs tracking-[0.22em] uppercase font-medium" style={{ fontFamily: 'Inter, sans-serif', color: '#005C66' }}>
+            {mastery.label}
           </span>
         </div>
 
@@ -153,7 +124,7 @@ export default function AboutMasterySection() {
           className="text-[#111118] leading-tight mb-5"
           style={{ ...fadeUp(0.1), fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(28px, 4.5vw, 50px)' }}
         >
-          <span style={{ fontWeight: 300 }}>Engineered For </span>
+          <span style={{ fontWeight: 300 }}>{mastery.h1} </span>
           <span
             style={{
               fontWeight: 800,
@@ -164,115 +135,61 @@ export default function AboutMasterySection() {
               willChange: 'transform',
             }}
           >
-            Discerning Standards
+            {mastery.h2}
           </span>
         </h2>
 
         <p
           className="mx-auto leading-relaxed"
-          style={{
-            ...fadeUp(0.2),
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 'clamp(13px, 1.4vw, 15px)',
-            color: '#828282',
-            maxWidth: '620px',
-          }}
+          style={{ ...fadeUp(0.2), fontFamily: 'Inter, sans-serif', fontSize: 'clamp(13px, 1.4vw, 15px)', color: '#828282', maxWidth: '620px' }}
         >
-          At White Line, luxury is not merely an aesthetic—it is a discipline. We believe that
-          true executive travel requires an uncompromising dedication to precision, where every
-          minute detail is anticipated.
+          {mastery.sub}
         </p>
       </div>
 
-      {/* ── Image + cards ────────────────────────────────────────────────────── */}
+      {/* Image + cards */}
       <div className="mx-auto px-4 sm:px-6 lg:px-10" style={{ maxWidth: '1320px' }}>
-
-        {/* ── MOBILE layout: image above, cards below ───────────────────────── */}
         {isMobile && (
-          <div
-            style={{ borderRadius: 'clamp(14px, 3vw, 20px)', overflow: 'hidden' }}
-          >
-            {/* Image block */}
-            <div
-              ref={containerRef}
-              style={{ position: 'relative', height: '280px', overflow: 'hidden' }}
-            >
+          <div style={{ borderRadius: 'clamp(14px, 3vw, 20px)', overflow: 'hidden' }}>
+            <div ref={containerRef} style={{ position: 'relative', height: '280px', overflow: 'hidden' }}>
               <img
-                src={(masteryImg as any).src ?? masteryImg}
+                src={imgSrc}
                 alt="White Line chauffeur service"
                 style={{
-                  position: 'absolute',
-                  width: '100%',
-                  height: '130%',
-                  top: '-15%',
-                  objectFit: 'cover',
-                  objectPosition: 'center',
+                  position: 'absolute', width: '100%', height: '130%', top: '-15%',
+                  objectFit: 'cover', objectPosition: 'center',
                   transform: `scaleX(-1) translateY(${imgOffset}px)`,
-                  transition: 'transform 0.1s linear',
-                  willChange: 'transform',
+                  transition: 'transform 0.1s linear', willChange: 'transform',
                 }}
               />
-              {/* Bottom fade into the dark card section below */}
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'linear-gradient(to bottom, transparent 40%, rgba(10,12,20,0.95) 100%)',
-                }}
-              />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(10,12,20,0.95) 100%)' }} />
             </div>
-
-            {/* Cards block below image */}
-            <div
-              style={{
-                background: '#0a0c14',
-                padding: '28px 20px 32px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
-              }}
-            >
+            <div style={{ background: '#0a0c14', padding: '28px 20px 32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <CardList withFade={false} />
             </div>
           </div>
         )}
 
-        {/* ── DESKTOP layout: image fills container, cards overlaid on left ─── */}
         {!isMobile && (
           <div
             ref={containerRef}
             className="relative overflow-hidden"
-            style={{
-              borderRadius: 'clamp(14px, 1.5vw, 20px)',
-              height: 'clamp(540px, 68vh, 780px)',
-            }}
+            style={{ borderRadius: 'clamp(14px, 1.5vw, 20px)', height: 'clamp(540px, 68vh, 780px)' }}
           >
             <img
-              src={(masteryImg as any).src ?? masteryImg}
+              src={imgSrc}
               alt="White Line chauffeur service"
               style={{
-                position: 'absolute',
-                width: '100%',
-                height: '130%',
-                top: '-15%',
-                objectFit: 'cover',
-                objectPosition: 'center',
+                position: 'absolute', width: '100%', height: '130%', top: '-15%',
+                objectFit: 'cover', objectPosition: 'center',
                 transform: `scaleX(-1) translateY(${imgOffset}px)`,
-                transition: 'transform 0.1s linear',
-                willChange: 'transform',
+                transition: 'transform 0.1s linear', willChange: 'transform',
               }}
             />
-
-            {/* Gradient darkens left side where cards sit */}
             <div
               className="absolute inset-0"
-              style={{
-                background:
-                  'linear-gradient(to right, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.08) 100%)',
-              }}
+              style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.08) 100%)' }}
             />
-
-            {/* Cards overlaid on left half */}
             <div
               className="absolute inset-y-0 left-0 flex flex-col justify-center gap-4"
               style={{ padding: 'clamp(24px, 3vw, 48px)', maxWidth: '52%' }}
@@ -285,5 +202,3 @@ export default function AboutMasterySection() {
     </section>
   )
 }
-
-

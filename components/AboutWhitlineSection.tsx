@@ -1,13 +1,10 @@
-﻿'use client'
+'use client'
 import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
+import { useLanguage } from '../context/LanguageContext'
 import aboutImg from '../assets/about_us/about_whiteline.jpg'
 
-const stats = [
-  { num: 50,   suffix: 'K+',   label: 'Successfully\nCompleted Rides' },
-  { num: 500,  suffix: '+',    label: 'Elite\nChauffeurs' },
-  { num: 99,   suffix: '%',    label: 'On-Time\nRating' },
-  { num: null, suffix: '24/7', label: 'Dedicated\nSupport' },
-]
+const STAT_NUMS = [50, 500, 99, null]
 
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLElement>(null)
@@ -65,11 +62,19 @@ function useCountUp(target: number | null, inView: boolean, duration = 2400) {
 }
 
 function StatNumber({ num, suffix, inView, delay }: { num: number | null; suffix: string; inView: boolean; delay: number }) {
+  const { lang } = useLanguage()
   const count = useCountUp(num, inView, 2400 + delay * 150)
-  return <span>{num === null ? suffix : `${count}${suffix}`}</span>
+  const formatted = count === null ? null : count.toLocaleString(lang === 'ar' ? 'ar-SA' : 'en-US')
+  return (
+    <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+      {num === null ? suffix : `${formatted}${suffix}`}
+    </span>
+  )
 }
 
 function StatsRow() {
+  const { trans } = useLanguage()
+  const stats = trans.about.whiteline.stats.map((s, i) => ({ ...s, num: STAT_NUMS[i] }))
   const { ref, inView } = useStatsInView()
   return (
     <div
@@ -79,7 +84,7 @@ function StatsRow() {
     >
       {stats.map((s, i) => (
         <div
-          key={s.suffix}
+          key={i}
           className={`py-8 px-6 sm:px-10 ${i < stats.length - 1 ? 'border-r border-gray-200' : ''}`}
         >
           <p
@@ -110,9 +115,10 @@ function StatsRow() {
 }
 
 export default function AboutWhitlineSection() {
+  const { trans } = useLanguage()
+  const { whiteline: wl } = trans.about
   const { ref, inView } = useInView(0.1)
 
-  // ── Scroll parallax for the right-side image ──────────────────────────────
   const imgContainerRef = useRef<HTMLDivElement>(null)
   const [imgOffset, setImgOffset] = useState(0)
 
@@ -141,40 +147,26 @@ export default function AboutWhitlineSection() {
       className="w-full bg-white"
       style={{ paddingTop: '96px', paddingBottom: '80px' }}
     >
-      {/* Two-column: text | image */}
       <div className="px-6 sm:px-12 lg:px-20 flex flex-col lg:flex-row gap-12 lg:gap-20 items-center mb-20">
-
-        {/* Left: text */}
+        {/* Text */}
         <div className="flex-1 max-w-xl" style={fadeUp(0)}>
           <h2
             className="text-[#111118] leading-tight mb-6"
-            style={{
-              fontFamily: 'Montserrat, sans-serif',
-              fontSize: 'clamp(28px, 4vw, 46px)',
-            }}
+            style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(28px, 4vw, 46px)' }}
           >
-            <span style={{ fontWeight: 300 }}>Engineered For</span>
+            <span style={{ fontWeight: 300 }}>{wl.h1}</span>
             <br />
-            <span style={{ fontWeight: 800, fontStyle: 'italic' }}>Discerning Standards</span>
+            <span style={{ fontWeight: 800, fontStyle: 'italic' }}>{wl.h2}</span>
           </h2>
-
           <p
             className="leading-relaxed"
-            style={{
-              fontFamily: 'Inter, sans-serif',
-              fontSize: 'clamp(13px, 1.4vw, 15px)',
-              color: '#828282',
-            }}
+            style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(13px, 1.4vw, 15px)', color: '#828282' }}
           >
-            At White Line, luxury is not merely an aesthetic—it is a discipline. We believe that
-            true executive travel requires an uncompromising dedication to precision, where every
-            minute detail is anticipated before you even step inside the vehicle. Our operational
-            framework is built from the ground up to serve leaders, dignitaries, and high-profile
-            individuals who demand absolute perfection from their environment.
+            {wl.sub}
           </p>
         </div>
 
-        {/* Right: image with scroll parallax */}
+        {/* Image */}
         <div
           ref={imgContainerRef}
           className="flex-shrink-0 w-full lg:w-[45%]"
@@ -183,36 +175,29 @@ export default function AboutWhitlineSection() {
             borderRadius: 'clamp(12px, 1.5vw, 20px)',
             overflow: 'hidden',
             position: 'relative',
-            // Fixed height so parallax has room to move
             height: 'clamp(280px, 38vw, 460px)',
           }}
         >
-          <img
-            src={(aboutImg as any).src ?? aboutImg}
+          <Image
+            src={aboutImg}
             alt="White Line chauffeur in vehicle"
+            fill
+            placeholder="blur"
+            sizes="(max-width: 1024px) 100vw, 45vw"
             style={{
-              position: 'absolute',
-              width: '100%',
-              // Taller than container so translateY never reveals bg
-              height: '130%',
-              top: '-15%',
               objectFit: 'cover',
               objectPosition: 'center',
               transform: `translateY(${imgOffset}px)`,
               transition: 'transform 0.1s linear',
               willChange: 'transform',
-              display: 'block',
             }}
           />
         </div>
       </div>
 
-      {/* Stats row */}
       <div className="px-6 sm:px-12 lg:px-20" style={fadeUp(0.35)}>
         <StatsRow />
       </div>
     </section>
   )
 }
-
-

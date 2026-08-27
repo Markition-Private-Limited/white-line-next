@@ -2,6 +2,7 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 import s1 from '../assets/services_1/s_1.jpg'
 import s2 from '../assets/services_1/s_2.jpg'
 import s3 from '../assets/services_1/s_3.png'
@@ -10,72 +11,12 @@ import s5 from '../assets/services_1/s_5.jpg'
 
 const _src = (i: unknown): string => (i as any).src ?? (i as string)
 
-const SERVICES = [
-  {
-    label: 'One-Way Ride',
-    heading: (
-      <>
-        Direct{' '}
-        <span style={{ fontWeight: 800, fontStyle: 'italic' }}>Point-To-Point</span>
-        <br />Urban Transportation
-      </>
-    ),
-    body: 'Experience seamless, point-to-point urban transportation meticulously designed for efficiency and elegance. Whether you are heading to a high-stakes corporate briefing, a private appointment, or a critical engagement across town, our direct transit service ensures you arrive promptly and completely composed, eliminating the stress of navigation, traffic management, and unnecessary detours.',
-    img: _src(s1),
-    imgRight: true,
-  },
-  {
-    label: 'Hourly Chauffeur',
-    heading: (
-      <>
-        On-Demand Hourly
-        <br />
-        <span style={{ fontWeight: 800, fontStyle: 'italic' }}>Chauffeur Service</span>
-      </>
-    ),
-    body: 'Enjoy the ultimate convenience of dedicated mobility with a private chauffeur entirely at your disposal throughout the day. Designed for dynamic, ever-changing itineraries and multiple consecutive stops, this bespoke service offers unmatched flexibility, allowing you to move through your schedule at your own pace while your vehicle and driver remain ready and waiting nearby.',
-    img: _src(s2),
-    imgRight: false,
-  },
-  {
-    label: 'City To City',
-    heading: (
-      <>
-        <span style={{ fontWeight: 800, fontStyle: 'italic' }}>Long-Distance</span>{' '}
-        Intercity
-        <br />Executive Travel
-      </>
-    ),
-    body: 'Bridge the distance between major metropolitan hubs in absolute comfort and tranquility. Our intercity travel service provides a smooth, private environment within an elite luxury vehicle, allowing you to relax, prepare for upcoming engagements, or conduct confidential business uninterrupted while traveling seamlessly across regions.',
-    img: _src(s3),
-    imgRight: true,
-  },
-  {
-    label: 'Day Service',
-    heading: (
-      <>
-        Dedicated Full-Day
-        <br />
-        <span style={{ fontWeight: 800, fontStyle: 'italic' }}>Professional Transport</span>
-      </>
-    ),
-    body: "Secure a dedicated professional transportation partner for your entire day's schedule. Perfect for back-to-back corporate meetings, VIP hosting, and complex multi-location event itineraries, this comprehensive service guarantees continuous vehicle availability, flawless coordination, and uncompromised discretion from your first morning departure until late into the evening.",
-    img: _src(s4),
-    imgRight: false,
-  },
-  {
-    label: 'Airport Transfer',
-    heading: (
-      <>
-        Seamless{' '}
-        <span style={{ fontWeight: 800, fontStyle: 'italic' }}>Airport Transfers</span>
-        <br />&amp; Flight Tracking
-      </>
-    ),
-    body: 'Start or conclude your international journey with absolute peace of mind through our premier airport transfer service. Featuring real-time flight tracking, proactive schedule adjustments for delayed flights, and professional luggage assistance, our chauffeurs ensure a smooth, effortless transition between the terminal and your final destination.',
-    img: _src(s5),
-    imgRight: true,
-  },
+const STATIC = [
+  { img: _src(s1), imgRight: true },
+  { img: _src(s2), imgRight: false },
+  { img: _src(s3), imgRight: true },
+  { img: _src(s4), imgRight: false },
+  { img: _src(s5), imgRight: true },
 ]
 
 function ParallaxImage({ src, alt }: { src: string; alt: string }) {
@@ -112,15 +53,39 @@ function ParallaxImage({ src, alt }: { src: string; alt: string }) {
   )
 }
 
+type ServiceItem = {
+  label: string
+  h1a: string; h1b: string; h1c: string
+  h2a: string; h2b: string
+  body: string
+}
+
+function ServiceHeading({ item }: { item: ServiceItem }) {
+  return (
+    <>
+      {item.h1a}
+      {item.h1b && <span style={{ fontWeight: 800, fontStyle: 'italic' }}>{item.h1b}</span>}
+      {item.h1c}
+      <br />
+      {item.h2a}
+      {item.h2b && <span style={{ fontWeight: 800, fontStyle: 'italic' }}>{item.h2b}</span>}
+    </>
+  )
+}
+
 function ServiceBlock({
-  service,
+  item,
+  img,
+  imgRight,
+  explore,
   index,
 }: {
-  service: (typeof SERVICES)[0]
+  item: ServiceItem
+  img: string
+  imgRight: boolean
+  explore: string
   index: number
 }) {
-  const isImgRight = service.imgRight
-
   const textBlock = (
     <motion.div
       className="flex flex-col justify-center w-full lg:flex-1 min-w-0"
@@ -129,7 +94,6 @@ function ServiceBlock({
       viewport={{ once: true, margin: '-8% 0px' }}
       transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
     >
-      {/* Label */}
       <div className="flex items-center gap-2.5 mb-4">
         <span className="block h-px w-7 flex-shrink-0" style={{ background: '#005C66' }} />
         <span
@@ -142,11 +106,10 @@ function ServiceBlock({
             color: '#005C66',
           }}
         >
-          {service.label}
+          {item.label}
         </span>
       </div>
 
-      {/* Heading */}
       <h2
         style={{
           fontFamily: 'Montserrat, sans-serif',
@@ -157,10 +120,9 @@ function ServiceBlock({
           marginBottom: 'clamp(14px, 2vw, 20px)',
         }}
       >
-        {service.heading}
+        <ServiceHeading item={item} />
       </h2>
 
-      {/* Body */}
       <p
         style={{
           fontFamily: 'Inter, sans-serif',
@@ -171,21 +133,20 @@ function ServiceBlock({
           maxWidth: 480,
         }}
       >
-        {service.body}
+        {item.body}
       </p>
 
-      {/* CTA */}
       <button
         className="group relative inline-flex h-11 items-center justify-center overflow-hidden rounded-full self-start"
         style={{ fontFamily: 'Inter, sans-serif', background: '#005C66', border: 'none', cursor: 'pointer', minWidth: 160 }}
       >
         <span className="inline-flex h-11 items-center justify-center gap-2 px-6 text-white text-sm font-semibold transition duration-500 group-hover:-translate-y-[150%]">
-          Explore Service <ArrowRight size={14} />
+          {explore} <ArrowRight size={14} />
         </span>
         <span className="absolute inline-flex h-11 w-full translate-y-full items-center justify-center gap-2 transition duration-500 group-hover:translate-y-0">
           <span className="absolute h-full w-full translate-y-full skew-y-12 scale-y-0 bg-[#004d57] transition duration-500 group-hover:translate-y-0 group-hover:scale-150" />
           <span className="relative z-10 inline-flex items-center gap-2 text-white text-sm font-semibold">
-            Explore Service <ArrowRight size={14} />
+            {explore} <ArrowRight size={14} />
           </span>
         </span>
       </button>
@@ -200,13 +161,13 @@ function ServiceBlock({
       viewport={{ once: true, margin: '-8% 0px' }}
       transition={{ duration: 0.85, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
     >
-      <ParallaxImage src={service.img} alt={service.label} />
+      <ParallaxImage src={img} alt={item.label} />
     </motion.div>
   )
 
   return (
     <div
-      className={`flex flex-col gap-10 lg:gap-14 items-center ${isImgRight ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}
+      className={`flex flex-col gap-10 lg:gap-14 items-center ${imgRight ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}
       style={{
         paddingBlock: 'clamp(40px, 5vw, 72px)',
         borderTop: index === 0 ? 'none' : '1px solid rgba(0,0,0,0.07)',
@@ -219,11 +180,13 @@ function ServiceBlock({
 }
 
 export default function ServicesListSection() {
+  const { trans } = useLanguage()
+  const { list } = trans.servicesPage
+
   return (
     <section className="w-full bg-white" style={{ padding: 'clamp(72px, 9vw, 120px) 0 clamp(48px, 6vw, 80px)' }}>
       <div className="px-4 sm:px-6 lg:px-6 mx-auto" style={{ maxWidth: 1400 }}>
 
-        {/* Section header */}
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 28 }}
@@ -243,7 +206,7 @@ export default function ServicesListSection() {
                 color: '#005C66',
               }}
             >
-              Our Services
+              {list.label}
             </span>
           </div>
 
@@ -257,9 +220,9 @@ export default function ServicesListSection() {
               marginBottom: 'clamp(14px, 2vw, 20px)',
             }}
           >
-            One Destination Or Many.
+            {list.h1}
             <br />
-            <span style={{ fontWeight: 800, fontStyle: 'italic' }}>We&apos;ve Got The Ride.</span>
+            <span style={{ fontWeight: 800, fontStyle: 'italic' }}>{list.h2}</span>
           </h2>
 
           <p
@@ -272,15 +235,19 @@ export default function ServicesListSection() {
               maxWidth: 560,
             }}
           >
-            WhiteLine delivers premium chauffeur transportation for people who value comfort,
-            reliability, and exceptional service. From airport transfers to corporate journeys,
-            every ride is designed to make growing more effortless.
+            {list.sub}
           </p>
         </motion.div>
 
-        {/* Service blocks */}
-        {SERVICES.map((s, i) => (
-          <ServiceBlock key={s.label} service={s} index={i} />
+        {list.items.map((item, i) => (
+          <ServiceBlock
+            key={i}
+            item={item}
+            img={STATIC[i].img}
+            imgRight={STATIC[i].imgRight}
+            explore={list.explore}
+            index={i}
+          />
         ))}
 
       </div>

@@ -2,9 +2,9 @@
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import Navbar from '../layouts/Navbar'
+import Image from 'next/image'
+import { useLanguage } from '../context/LanguageContext'
 import serviceBanner from '../assets/services_1/service_1_banner.jpg'
-
-const bannerSrc = typeof serviceBanner === 'string' ? serviceBanner : (serviceBanner as { src: string }).src
 
 function SlideButton({ label, variant = 'filled', icon }: { label: string; variant?: 'filled' | 'outline'; icon?: React.ReactNode }) {
   const isFilled = variant === 'filled'
@@ -27,11 +27,21 @@ function SlideButton({ label, variant = 'filled', icon }: { label: string; varia
 }
 
 export default function ServicesHero() {
+  const { trans } = useLanguage()
+  const { hero } = trans.servicesPage
+
   return (
     <div style={{ background: '#ffffff', padding: 'clamp(6px, 0.8vw, 10px)' }}>
       <section className="relative min-h-screen bg-[#0d0d14]" style={{ borderRadius: 'clamp(14px, 1.5vw, 20px)' }}>
         <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 'inherit' }}>
-          <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${bannerSrc})` }} />
+          <Image
+            src={serviceBanner}
+            alt="White Line services"
+            fill
+            priority
+            sizes="100vw"
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
+          />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d14]/90 via-[#0d0d14]/55 to-[#0d0d14]/10" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d14]/70 via-transparent to-transparent" />
         </div>
@@ -52,9 +62,9 @@ export default function ServicesHero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
-              <span style={{ fontWeight: 300 }}>Every Journey</span>
+              <span style={{ fontWeight: 300 }}>{hero.h1a}</span>
               <br />
-              <span style={{ fontWeight: 800, fontStyle: 'italic' }}>Deserves A Better Way.</span>
+              <span style={{ fontWeight: 800, fontStyle: 'italic' }}>{hero.h1b}</span>
             </motion.h1>
 
             <motion.p
@@ -64,8 +74,7 @@ export default function ServicesHero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, delay: 0.35, ease: 'easeOut' }}
             >
-              From the moment you land to the moment you arrive, WhiteLine delivers premium chauffeur
-              transportation with privacy, precision and a service experience designed around you.
+              {hero.sub}
             </motion.p>
 
             <motion.div
@@ -74,8 +83,8 @@ export default function ServicesHero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.55, ease: 'easeOut' }}
             >
-              <SlideButton label="Explore Our Services" variant="filled" icon={<ArrowRight size={14} />} />
-              <SlideButton label="Book Your Ride" variant="outline" />
+              <SlideButton label={hero.btn1} variant="filled" icon={<ArrowRight size={14} />} />
+              <SlideButton label={hero.btn2} variant="outline" />
             </motion.div>
           </motion.div>
         </div>

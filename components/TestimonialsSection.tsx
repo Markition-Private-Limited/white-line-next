@@ -1,77 +1,25 @@
 ﻿'use client'
 import { motion, useInView } from 'framer-motion'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
+import type { StaticImageData } from 'next/image'
+import { useLanguage } from '../context/LanguageContext'
 
 import farah from '../assets/home_customers/farah.jpg'
 import raza2 from '../assets/home_customers/raza-2.jpg'
 import raza from '../assets/home_customers/raza.jpg'
 import sultan from '../assets/home_customers/sultan.jpg'
 
-const _getSrc = (i: unknown): string => (i as any).src ?? i as string
-const REVIEWS = [
-  {
-    img: _getSrc(raza),
-    name: 'Raza Hussain',
-    role: 'Consultant',
-    stars: 5,
-    text: 'Park next busy ever. Elinor her his secure far twenty eat object. Any far saw size want man. Which way you wrong.',
-  },
-  {
-    img: _getSrc(sultan),
-    name: 'Sultan Ali',
-    role: 'Business Traveller',
-    stars: 5,
-    text: 'Ten the hastened steepest feelings pleasant few surprise property. An brother he do colonel against.',
-  },
-  {
-    img: _getSrc(farah),
-    name: 'Farah Khan',
-    role: 'Operations Manager',
-    stars: 5,
-    text: 'Can how elinor warmly mrs basket marked. Led raising expense yet demesne weather musical. Me mr what.',
-  },
-  {
-    img: _getSrc(raza2),
-    name: 'Raza Hussain',
-    role: 'Executive Director',
-    stars: 5,
-    text: 'Park next busy ever. Elinor her his secure far twenty eat object. Any far saw size want man. Which way you wrong.',
-  },
-  {
-    img: _getSrc(sultan),
-    name: 'Khalid Al-Rashid',
-    role: 'CEO',
-    stars: 5,
-    text: 'Absolute excellence in service. Every journey has been seamless — the professionalism is unmatched.',
-  },
-  {
-    img: _getSrc(farah),
-    name: 'Noor Al-Sayed',
-    role: 'VIP Guest',
-    stars: 5,
-    text: 'The discretion and punctuality set Whiteline apart. I would not use any other chauffeur service.',
-  },
-  {
-    img: _getSrc(raza),
-    name: 'Abdullah Hassan',
-    role: 'Senior Manager',
-    stars: 5,
-    text: 'Reliable, comfortable, and always on time. A truly premium experience from booking to arrival.',
-  },
-  {
-    img: _getSrc(raza2),
-    name: 'Mohammed Tariq',
-    role: 'Corporate Client',
-    stars: 5,
-    text: 'Outstanding fleet and exceptional drivers. My clients are always impressed. Highly recommended.',
-  },
-]
+// Images in the same order as translations.testimonials.reviews
+const REVIEW_IMAGES: StaticImageData[] = [raza, sultan, farah, raza2, sultan, farah, raza, raza2]
 
 const GAP = 12
 const DESKTOP_VISIBLE = 4
 const MOBILE_VISIBLE = 1
 
-function TestimonialCard({ r }: { r: typeof REVIEWS[0] }) {
+type ReviewItem = { img: StaticImageData; name: string; role: string; stars: number; text: string }
+
+function TestimonialCard({ r }: { r: ReviewItem }) {
   return (
     <div
       className="flex flex-col h-full overflow-hidden"
@@ -89,7 +37,7 @@ function TestimonialCard({ r }: { r: typeof REVIEWS[0] }) {
         }}
       >
         <img
-          src={r.img}
+          src={(r.img as any).src ?? r.img}
           alt={r.name}
           style={{
             width: 80,
@@ -186,6 +134,10 @@ function TestimonialCard({ r }: { r: typeof REVIEWS[0] }) {
 }
 
 export default function TestimonialsSection() {
+  const { trans, dir } = useLanguage()
+  const { testimonials: t } = trans
+  const REVIEWS: ReviewItem[] = t.reviews.map((r, i) => ({ ...r, img: REVIEW_IMAGES[i], stars: 5 }))
+
   const sectionRef = useRef<HTMLElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const inView = useInView(sectionRef, { once: true, margin: '-8% 0px' })
@@ -263,7 +215,7 @@ export default function TestimonialsSection() {
             className="text-xs tracking-[0.22em] uppercase font-medium"
             style={{ fontFamily: 'Inter, sans-serif', color: '#005C66' }}
           >
-            The Whiteline Experience
+            {t.label}
           </span>
         </motion.div>
 
@@ -276,9 +228,9 @@ export default function TestimonialsSection() {
             fontSize: 'clamp(26px, 5vw, 46px)',
           }}
         >
-          What Our{' '}
-          <span style={{ fontWeight: 700, fontStyle: 'italic' }}>Customers</span>
-          {' '}Say
+          {t.h1}{' '}
+          <span style={{ fontWeight: 700, fontStyle: 'italic' }}>{t.h2}</span>
+          {t.h3 ? <>{' '}{t.h3}</> : null}
         </motion.h2>
 
         <motion.p
@@ -290,8 +242,7 @@ export default function TestimonialsSection() {
             maxWidth: 620,
           }}
         >
-          Trusted by leaders, dignitaries, and frequent travelers across Saudi Arabia.
-          Read how our unwavering commitment to discretion and punctuality shapes every journey.
+          {t.sub}
         </motion.p>
       </div>
 
@@ -299,6 +250,7 @@ export default function TestimonialsSection() {
       <motion.div {...fadeUp(0.24)}>
         <div
           className="overflow-hidden"
+          dir="ltr"
           style={{ paddingTop: 32, paddingBottom: 32 }}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
@@ -316,6 +268,7 @@ export default function TestimonialsSection() {
               {REVIEWS.map((r, i) => (
                 <div
                   key={i}
+                  dir={dir}
                   style={{
                     width: cardWidth > 0
                       ? cardWidth

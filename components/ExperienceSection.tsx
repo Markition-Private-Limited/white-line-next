@@ -1,5 +1,8 @@
 ﻿'use client'
 import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
+import type { StaticImageData } from 'next/image'
+import { useLanguage } from '../context/LanguageContext'
 
 import carouselImg1 from '../assets/home_carousel/carousel-image-1.png'
 import carouselImg2 from '../assets/home_carousel/carousel-image-2.png'
@@ -9,12 +12,8 @@ import carouselImg5 from '../assets/home_carousel/carousel-image.jpg'
 
 const IMAGES = [carouselImg1, carouselImg2, carouselImg3, carouselImg4, carouselImg5].map(i => (i as any).src ?? i) as string[]
 
-const stats = [
-  { num: 50,   suffix: 'K+',  label: 'Successfully\nCompleted Rides' },
-  { num: 500,  suffix: '+',   label: 'Elite\nChauffeurs' },
-  { num: 99,   suffix: '%',   label: 'On-Time\nRating' },
-  { num: null, suffix: '24/7',label: 'Dedicated\nSupport' },
-]
+// Numeric values stay constant; labels come from translations
+const STAT_NUMS = [50, 500, 99, null]
 
 const TOTAL = 5
 
@@ -76,10 +75,12 @@ function useCountUp(target: number | null, inView: boolean, duration = 2400) {
 }
 
 function StatNumber({ num, suffix, inView, delay }: { num: number | null; suffix: string; inView: boolean; delay: number }) {
+  const { lang } = useLanguage()
   const count = useCountUp(num, inView, 2400 + delay * 150)
+  const formatted = count === null ? null : count.toLocaleString(lang === 'ar' ? 'ar-SA' : 'en-US')
   return (
-    <span>
-      {num === null ? suffix : `${count}${suffix}`}
+    <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+      {num === null ? suffix : `${formatted}${suffix}`}
     </span>
   )
 }
@@ -119,6 +120,8 @@ function getCardStyle(index: number, active: number, isMobile: boolean): React.C
 }
 
 export function StatsRow() {
+  const { trans } = useLanguage()
+  const stats = trans.experience.stats.map((s, i) => ({ ...s, num: STAT_NUMS[i] }))
   const { ref, inView } = useStatsInView()
   return (
     <div
@@ -128,7 +131,7 @@ export function StatsRow() {
     >
       {stats.map((s, i) => (
         <div
-          key={s.suffix}
+          key={i}
           className={`py-8 px-6 sm:px-10 ${i < stats.length - 1 ? 'border-r border-gray-200' : ''}`}
         >
           <p
@@ -159,6 +162,8 @@ export function StatsRow() {
 }
 
 export default function ExperienceSection() {
+  const { trans } = useLanguage()
+  const { experience: exp } = trans
   const [active, setActive] = useState(2)
   const { ref, inView } = useInView()
   const isMobile = useIsMobile()
@@ -203,11 +208,11 @@ export default function ExperienceSection() {
             className="text-xs tracking-[0.22em] uppercase font-medium"
             style={{ fontFamily: 'Inter, sans-serif', color: '#005C66' }}
           >
-            The Whiteline Experience
+            {exp.label}
           </span>
         </div>
 
-        {/* Heading — lighter weight */}
+        {/* Heading */}
         <h2
           className="text-[#111118] leading-tight mb-5"
           style={{
@@ -216,12 +221,11 @@ export default function ExperienceSection() {
             fontSize: 'clamp(28px, 5vw, 46px)',
           }}
         >
-          More Than A Ride. A
+          {exp.h1}
           <br />
-          <span style={{ fontWeight: 600, fontStyle: 'italic' }}>Better Way To Move.</span>
+          <span style={{ fontWeight: 600, fontStyle: 'italic' }}>{exp.h2}</span>
         </h2>
 
-        {/* Subtext — full container width */}
         <p
           className="text-gray-400 leading-relaxed mb-14 mx-auto px-6 sm:px-16 lg:px-28"
           style={{
@@ -229,9 +233,7 @@ export default function ExperienceSection() {
             fontSize: 'clamp(13px, 1.5vw, 15px)',
           }}
         >
-          WhiteLane delivers premium chauffeur transportation for people who value comfort,
-          reliability, and exceptional service. From airport transfers to corporate journeys,
-          every ride is designed to make growing more effortless.
+          {exp.sub}
         </p>
       </div>
 

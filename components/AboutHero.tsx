@@ -2,6 +2,8 @@
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import Navbar from '../layouts/Navbar'
+import Image from 'next/image'
+import { useLanguage } from '../context/LanguageContext'
 import aboutBanner from '../assets/about_us/about_us_banner.png'
 
 function SlideButton({ label, variant = 'filled', icon }: { label: string; variant?: 'filled' | 'outline'; icon?: React.ReactNode }) {
@@ -25,12 +27,21 @@ function SlideButton({ label, variant = 'filled', icon }: { label: string; varia
 }
 
 export default function AboutHero() {
-  const bannerSrc = typeof aboutBanner === 'string' ? aboutBanner : (aboutBanner as { src: string }).src
+  const { trans } = useLanguage()
+  const { hero } = trans.about
+
   return (
     <div style={{ background: '#ffffff', padding: 'clamp(6px, 0.8vw, 10px)' }}>
       <section className="relative min-h-screen bg-[#0d0d14]" style={{ borderRadius: 'clamp(14px, 1.5vw, 20px)' }}>
         <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 'inherit' }}>
-          <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${bannerSrc})` }} />
+          <Image
+            src={aboutBanner}
+            alt="About White Line"
+            fill
+            priority
+            sizes="100vw"
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
+          />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d14]/90 via-[#0d0d14]/55 to-[#0d0d14]/10" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d14]/70 via-transparent to-transparent" />
         </div>
@@ -38,15 +49,15 @@ export default function AboutHero() {
         <div className="relative z-10 flex min-h-screen flex-col justify-center px-6 pb-10 pt-32 sm:px-10 lg:px-16">
           <motion.div className="max-w-2xl lg:max-w-4xl" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}>
             <motion.h1 className="mb-6 text-4xl font-medium leading-tight text-white sm:text-5xl lg:text-6xl" style={{ fontFamily: 'Montserrat, sans-serif' }} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}>
-              Redefining Executive<br />
-              <span className="font-extrabold italic">Travel In The Kingdom</span>
+              {hero.h1}<br />
+              <span className="font-extrabold italic">{hero.h2}</span>
             </motion.h1>
             <motion.p className="mb-10 max-w-2xl text-sm leading-relaxed text-white/70 sm:text-base" style={{ fontFamily: 'Inter, sans-serif' }} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.35, ease: 'easeOut' }}>
-              Beyond a ride&#8202;&mdash;&#8202;we engineer seamless journeys. From single airport transfers to full-scale corporate delegations, our curated fleet and professional chauffeurs ensure you travel in absolute comfort, privacy, and punctuality across Saudi Arabia.
+              {hero.sub}
             </motion.p>
             <motion.div className="flex flex-wrap gap-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.55, ease: 'easeOut' }}>
-              <SlideButton label="Explore Our Services" variant="filled" icon={<ArrowRight size={14} />} />
-              <SlideButton label="Book Your Ride" variant="outline" />
+              <SlideButton label={hero.btn1} variant="filled" icon={<ArrowRight size={14} />} />
+              <SlideButton label={hero.btn2} variant="outline" />
             </motion.div>
           </motion.div>
         </div>

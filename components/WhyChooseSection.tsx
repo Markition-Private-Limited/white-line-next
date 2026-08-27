@@ -3,6 +3,8 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
+import { useLanguage } from '../context/LanguageContext'
 
 import img1 from '../assets/home_why_choose/1.jpg'
 import img2 from '../assets/home_why_choose/2.jpg'
@@ -44,6 +46,8 @@ function useInView(threshold = 0.2) {
 
 export default function WhyChooseSection() {
   const router = useRouter()
+  const { trans } = useLanguage()
+  const { whyChoose: wc } = trans
   const { ref, inView } = useInView(0.15)
 
   // Parallax scroll tracking on the section itself
@@ -81,8 +85,8 @@ export default function WhyChooseSection() {
                 fontSize: 'clamp(28px, 4vw, 44px)',
               }}
             >
-              Why Choose{' '}
-              <span style={{ fontWeight: 700, fontStyle: 'italic' }}>Whiteline</span>
+              {wc.h1}{' '}
+              <span style={{ fontWeight: 700, fontStyle: 'italic' }}>{wc.brand}</span>
             </motion.h2>
 
             <motion.p
@@ -93,13 +97,11 @@ export default function WhyChooseSection() {
                 fontSize: 'clamp(13px, 1.4vw, 15px)',
               }}
             >
-              Elevate your travel experience with White Line, where distinction between standard
-              transit &amp; premium service is found in every meticulously detail. We replace
-              uncertainty of traditional transport with uncompromising reliability.
+              {wc.sub}
             </motion.p>
 
             <motion.div {...fadeUp(0.28)}>
-              <SlideButton label="Read More" icon={<ArrowRight size={14} />} onClick={() => router.push('/why-choose-us')} />
+              <SlideButton label={wc.readMore} icon={<ArrowRight size={14} />} onClick={() => router.push('/why-choose-us')} />
             </motion.div>
           </div>
 

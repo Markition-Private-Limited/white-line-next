@@ -1,38 +1,13 @@
+'use client'
 import Link from 'next/link'
 import logoSvg from '../assets/fav_icon_black.svg'
+import { useLanguage } from '../context/LanguageContext'
 
-const ENTITY_TYPES = [
-  { label: 'Knowledge base', to: '/knowledge-base' },
-  { label: 'Security', to: '/security' },
-  { label: 'Privacy Policy', to: '/privacy' },
-  { label: 'Partners', to: '/partners' },
-  { label: 'About us', to: '/about' },
-]
-
-const SERVICES = [
-  { label: 'Contact Us', to: '/contact' },
-  { label: 'Press', to: '/press' },
-  { label: 'Payrool', to: '/payrool' },
-  { label: 'Library', to: '/library' },
-  { label: 'Blog', to: '/blog' },
-  { label: 'Help Center', to: '/help' },
-]
-
-const RESOURCES = [
-  { label: 'Pricing', to: '/pricing' },
-  { label: 'FAQs', to: '/faq' },
-  { label: 'Contact Support', to: '/contact' },
-  { label: 'Privacy Policy', to: '/privacy' },
-  { label: 'Terms', to: '/terms' },
-]
-
-const SUPPORT = [
-  { label: 'Contact', to: '/contact' },
-  { label: 'Customer Support', to: '/customer-support' },
-  { label: 'Testimonials', to: '/testimonials' },
-  { label: 'Affiliates', to: '/affiliates' },
-  { label: 'Cancelation Policy', to: '/cancelation' },
-]
+// hrefs never change — only labels come from translations
+const ENTITY_TYPE_HREFS = ['/knowledge-base', '/security', '/privacy', '/partners', '/about']
+const SERVICE_HREFS      = ['/contact', '/press', '/payrool', '/library', '/blog', '/help']
+const RESOURCE_HREFS     = ['/pricing', '/faq', '/contact', '/privacy', '/terms']
+const SUPPORT_HREFS      = ['/contact', '/customer-support', '/testimonials', '/affiliates', '/cancelation']
 
 function FooterColumn({ title, links }: { title: string; links: { label: string; to: string }[] }) {
   return (
@@ -42,7 +17,7 @@ function FooterColumn({ title, links }: { title: string; links: { label: string;
       </h4>
       <ul className="flex flex-col gap-3 list-none m-0 p-0">
         {links.map((link) => (
-          <li key={link.label}>
+          <li key={link.to}>
             <Link href={link.to} className="text-sm transition-colors hover:text-[#005C66]" style={{ color: '#6b7280', fontFamily: 'Inter, sans-serif' }}>
               {link.label}
             </Link>
@@ -65,6 +40,17 @@ function SocialIcon({ href, label, children }: { href: string; label: string; ch
 }
 
 export default function Footer() {
+  const { trans } = useLanguage()
+  const { footer: f } = trans
+  const { company, services, resources, support } = f.columns
+
+  const columns = [
+    { col: company,   hrefs: ENTITY_TYPE_HREFS },
+    { col: services,  hrefs: SERVICE_HREFS },
+    { col: resources, hrefs: RESOURCE_HREFS },
+    { col: support,   hrefs: SUPPORT_HREFS },
+  ]
+
   return (
     <footer className="w-full border-t border-[var(--border)] bg-[#f9f9f9]">
       <div className="mx-auto max-w-7xl px-6 py-14">
@@ -77,7 +63,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-sm leading-relaxed max-w-[220px]" style={{ color: '#6b7280', fontFamily: 'Inter, sans-serif' }}>
-              Optix seamlessly connects your members with the community, resources.
+              {f.tagline}
             </p>
             <div className="flex items-center gap-2.5">
               <SocialIcon href="#" label="Facebook">
@@ -95,10 +81,13 @@ export default function Footer() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-4">
-            <FooterColumn title="Entity types" links={ENTITY_TYPES} />
-            <FooterColumn title="Services" links={SERVICES} />
-            <FooterColumn title="Resources" links={RESOURCES} />
-            <FooterColumn title="Support" links={SUPPORT} />
+            {columns.map(({ col, hrefs }) => (
+              <FooterColumn
+                key={col.title}
+                title={col.title}
+                links={col.links.map((label, i) => ({ label, to: hrefs[i] ?? '#' }))}
+              />
+            ))}
           </div>
         </div>
       </div>

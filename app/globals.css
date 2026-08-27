@@ -74,3 +74,23 @@ body {
 *::-webkit-scrollbar {
   display: none;
 }
+
+/* RTL — switch all text elements to Cairo (overrides inline fontFamily styles) */
+[dir="rtl"] p,
+[dir="rtl"] span,
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] h4,
+[dir="rtl"] h5,
+[dir="rtl"] h6,
+[dir="rtl"] button,
+[dir="rtl"] a,
+[dir="rtl"] li,
+[dir="rtl"] label {
+  font-family: var(--font-cairo, 'Cairo', sans-serif) !important;
+  letter-spacing: 0 !important;
+}
+
+/* RTL — standard Tailwind logical-property helpers */
+[dir="rtl"] .rtl\:flex-row-reverse { flex-direction: row-reverse; }

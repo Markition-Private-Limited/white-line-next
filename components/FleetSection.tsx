@@ -1,24 +1,24 @@
 ﻿'use client'
 import { motion, useInView } from 'framer-motion'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
+import type { StaticImageData } from 'next/image'
+import { useLanguage } from '../context/LanguageContext'
 
 import car0 from '../assets/home_cars/car_image_0.png'
 import car1 from '../assets/home_cars/car_image_1.png'
 import car2 from '../assets/home_cars/car_image_2.png'
 
-const _getSrc = (i: unknown) => (i as any).src ?? i as string
-const CARS = [
-  { img: _getSrc(car0), title: 'Premium SUV', desc: 'Spacious, versatile, and elegant. Perfect for small groups, families, and extra luggage capacity.' },
-  { img: _getSrc(car1), title: 'Executive Class', desc: 'Uncompromised style and modern design. Tailored for individuals and business leaders.' },
-  { img: _getSrc(car2), title: 'Luxury Sedan', desc: 'The absolute standard of executive comfort. Sleek profile with premium interior amenities.' },
-  { img: _getSrc(car0), title: 'Business SUV', desc: 'Ideal for corporate events and group transfers. Combining power, comfort, and refined style.' },
-  { img: _getSrc(car1), title: 'Corporate Sedan', desc: 'Sleek performance meets executive privilege. A seamless experience for the modern professional.' },
-  { img: _getSrc(car2), title: 'VIP Limousine', desc: 'The pinnacle of luxury ground travel. Discreet, spacious, and impeccably appointed.' },
-]
+// Images only — titles/descs come from translations (same order)
+const CAR_IMAGES: StaticImageData[] = [car0, car1, car2, car0, car1, car2]
 
 const GAP = 16
 
 export default function FleetSection() {
+  const { trans, dir } = useLanguage()
+  const { fleet } = trans
+  const CARS = fleet.cars.map((c, i) => ({ ...c, img: CAR_IMAGES[i] }))
+
   const sectionRef = useRef<HTMLElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const inView = useInView(sectionRef, { once: true, margin: '-8% 0px' })
@@ -103,7 +103,7 @@ export default function FleetSection() {
             className="text-xs tracking-[0.22em] uppercase font-medium"
             style={{ fontFamily: 'Inter, sans-serif', color: '#005C66' }}
           >
-            The Whiteline Fleet
+            {fleet.label}
           </span>
         </motion.div>
 
@@ -116,8 +116,8 @@ export default function FleetSection() {
             fontSize: 'clamp(26px, 5vw, 46px)',
           }}
         >
-          Travel In Exceptional{' '}
-          <span style={{ fontWeight: 700, fontStyle: 'italic' }}>Comfort.</span>
+          {fleet.h1}{' '}
+          <span style={{ fontWeight: 700, fontStyle: 'italic' }}>{fleet.h2}</span>
         </motion.h2>
 
         <motion.p
@@ -129,8 +129,7 @@ export default function FleetSection() {
             maxWidth: 640,
           }}
         >
-          A meticulously maintained collection of luxury sedans and executive vehicles,
-          engineered for utmost comfort, privacy, and seamless travel across the Kingdom.
+          {fleet.sub}
         </motion.p>
       </div>
 
@@ -139,6 +138,7 @@ export default function FleetSection() {
         {/* Clip window — touch handlers enable swipe on mobile */}
         <div
           className="overflow-hidden px-5 sm:px-0"
+          dir="ltr"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
@@ -155,6 +155,7 @@ export default function FleetSection() {
               {CARS.map((car, i) => (
                 <div
                   key={i}
+                  dir={dir}
                   style={{
                     // fall back to equal width before JS measures container
                     width: cardWidth > 0
@@ -174,7 +175,7 @@ export default function FleetSection() {
                     {/* Image with white bottom fade */}
                     <div className="relative w-full" style={{ aspectRatio: '4 / 3' }}>
                       <img
-                        src={car.img}
+                        src={(car.img as any).src ?? car.img}
                         alt={car.title}
                         className="w-full h-full object-cover object-center"
                         draggable={false}

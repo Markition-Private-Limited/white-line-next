@@ -1,15 +1,13 @@
 ﻿'use client'
 import { motion, useInView } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
+import { useLanguage } from '../context/LanguageContext'
 
 import bannerImg from '../assets/home_unknown_section/banner.jpg'
 import rightIcon from '../assets/home_unknown_section/right_icon_under_banner.png'
 
-const stats = [
-  { num: 50, suffix: 'K+', label: 'Completed Rides' },
-  { num: 500, suffix: '+', label: 'Elite Chauffeurs' },
-  { num: 99, suffix: '%', label: 'On-Time Rating' },
-]
+const STAT_NUMS = [50, 500, 99]
 
 const BG = '#0d3535'
 
@@ -48,7 +46,9 @@ function AnimatedStat({
   delay: number
   inView: boolean
 }) {
+  const { lang } = useLanguage()
   const count = useCountUp(num, inView, 2400 + delay * 150)
+  const formatted = count.toLocaleString(lang === 'ar' ? 'ar-SA' : 'en-US')
 
   return (
     <motion.div
@@ -59,14 +59,16 @@ function AnimatedStat({
     >
       <p
         className="text-white"
+        dir="ltr"
         style={{
           fontFamily: 'Montserrat, sans-serif',
           fontWeight: 600,
           fontSize: 'clamp(36px, 4vw, 56px)',
           lineHeight: 1.1,
+          unicodeBidi: 'isolate',
         }}
       >
-        {count}{suffix}
+        {formatted}{suffix}
       </p>
       <p
         className="text-white/45"
@@ -86,6 +88,9 @@ function AnimatedStat({
 }
 
 export default function JourneySection() {
+  const { trans } = useLanguage()
+  const { journey: jrn } = trans
+  const stats = jrn.stats.map((s, i) => ({ ...s, num: STAT_NUMS[i] }))
   const ref = useRef<HTMLElement>(null)
   const inView = useInView(ref, { once: true, margin: '-8% 0px' })
 
@@ -112,7 +117,7 @@ export default function JourneySection() {
             className="text-xs tracking-[0.22em] uppercase font-medium"
             style={{ fontFamily: 'Inter, sans-serif', color: '#4fa8a8' }}
           >
-            More Than Transportation
+            {jrn.label}
           </span>
         </motion.div>
 
@@ -125,9 +130,9 @@ export default function JourneySection() {
             fontSize: 'clamp(26px, 4vw, 44px)',
           }}
         >
-          Designed Around
+          {jrn.h1}
           <br />
-          <span style={{ fontWeight: 700, fontStyle: 'italic' }}>Your Journey.</span>
+          <span style={{ fontWeight: 700, fontStyle: 'italic' }}>{jrn.h2}</span>
         </motion.h2>
 
         <motion.p
@@ -139,8 +144,7 @@ export default function JourneySection() {
             maxWidth: 600,
           }}
         >
-          Every booking is managed to perfection, ensuring that you arrive refreshed,
-          relaxed, and strictly on time.
+          {jrn.sub}
         </motion.p>
       </div>
 

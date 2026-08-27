@@ -2,6 +2,9 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import { useRef } from 'react'
+import Image from 'next/image'
+import type { StaticImageData } from 'next/image'
+import { useLanguage } from '../context/LanguageContext'
 
 import airportImg from '../assets/home_service/banners/airport_transfer.jpg'
 import cityImg from '../assets/home_service/banners/city_to_city.jpg'
@@ -16,26 +19,30 @@ import icon4 from '../assets/home_service/banner_icon/4.svg'
 import icon5 from '../assets/home_service/banner_icon/5.svg'
 
 const _getSrc = (i: unknown): string => (i as any).src ?? i as string
-const CARDS = [
-  { num: '01', title: 'One-Way Ride', desc: 'Door-to-door premium transport from/to any destination, worry-less on budget.', img: _getSrc(oneWayImg), icon: _getSrc(icon1) },
-  { num: '02', title: 'Hourly Chauffeur', desc: 'Book a driver on the hour, flexible throughout your busy schedule.', img: _getSrc(chauffeurImg), icon: _getSrc(icon2) },
-  { num: '03', title: 'City to City', desc: 'Smooth and comfortable rides for all inter-city and regional trips.', img: _getSrc(cityImg), icon: _getSrc(icon3) },
-  { num: '04', title: 'Day Service', desc: 'Professional transportation for meetings, events, and excursions.', img: _getSrc(dayImg), icon: _getSrc(icon4) },
-  { num: '05', title: 'Airport Transfer', desc: 'Reliable and comfortable airport pick-ups and drop-offs with a professional chauffeur.', img: _getSrc(airportImg), icon: _getSrc(icon5) },
+
+// Static data: images + icons, in the same order as translations.services.cards
+const CARD_STATIC: { num: string; img: StaticImageData; icon: string }[] = [
+  { num: '01', img: oneWayImg,   icon: _getSrc(icon1) },
+  { num: '02', img: chauffeurImg,icon: _getSrc(icon2) },
+  { num: '03', img: cityImg,     icon: _getSrc(icon3) },
+  { num: '04', img: dayImg,      icon: _getSrc(icon4) },
+  { num: '05', img: airportImg,  icon: _getSrc(icon5) },
 ]
 
-const TOTAL = CARDS.length
+type CardData = { num: string; img: StaticImageData; icon: string; title: string; desc: string; explore: string }
 
 function ServiceCard({
   card,
   index,
   containerRef,
+  total,
 }: {
-  card: (typeof CARDS)[0]
+  card: CardData
   index: number
   containerRef: React.RefObject<HTMLDivElement>
+  total: number
 }) {
-  const targetScale = 1 - (TOTAL - 1 - index) * 0.03
+  const targetScale = 1 - (total - 1 - index) * 0.03
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -44,7 +51,7 @@ function ServiceCard({
 
   const cardScale = useTransform(
     scrollYProgress,
-    [index / TOTAL, 1],
+    [index / total, 1],
     [1, targetScale]
   )
 
@@ -69,7 +76,7 @@ function ServiceCard({
           {/* Image layer — overflow-hidden isolated so only the image is clipped */}
           <div className="absolute inset-0 overflow-hidden rounded-2xl">
             <img
-              src={card.img}
+              src={(card.img as any).src ?? card.img}
               alt={card.title}
               className="w-full h-full object-cover object-center"
             />
@@ -143,7 +150,7 @@ function ServiceCard({
                 color: '#D4FBFF',
               }}
             >
-              Explore Service <ArrowRight size={13} color="#D4FBFF" />
+              {card.explore} <ArrowRight size={13} color="#D4FBFF" />
             </a>
           </div>
         </div>
@@ -153,7 +160,16 @@ function ServiceCard({
 }
 
 export default function ServicesSection() {
+  const { trans } = useLanguage()
+  const { services: svc } = trans
   const containerRef = useRef<HTMLDivElement>(null)
+
+  const cards: CardData[] = CARD_STATIC.map((s, i) => ({
+    ...s,
+    title: svc.cards[i].title,
+    desc: svc.cards[i].desc,
+    explore: svc.explore,
+  }))
 
   return (
     <section className="w-full bg-white">
@@ -165,7 +181,7 @@ export default function ServicesSection() {
             className="text-xs tracking-[0.22em] uppercase font-medium"
             style={{ fontFamily: 'Inter, sans-serif', color: '#005C66' }}
           >
-            Our Services
+            {svc.label}
           </span>
         </div>
         <h2
@@ -176,9 +192,9 @@ export default function ServicesSection() {
             fontSize: 'clamp(26px, 5vw, 46px)',
           }}
         >
-          One Destination Or Many.
+          {svc.h1}
           <br />
-          <span style={{ fontWeight: 600, fontStyle: 'italic' }}>We&apos;ve Got The Ride.</span>
+          <span style={{ fontWeight: 600, fontStyle: 'italic' }}>{svc.h2}</span>
         </h2>
         <p
           className="text-gray-400 leading-relaxed mx-auto px-6 sm:px-16 lg:px-28"
@@ -187,23 +203,22 @@ export default function ServicesSection() {
             fontSize: 'clamp(13px, 1.5vw, 15px)',
           }}
         >
-          WhiteLane delivers premium chauffeur transportation for people who value comfort,
-          reliability, and exceptional service. From airport transfers to corporate journeys,
-          every ride is designed to make growing more effortless.
+          {svc.sub}
         </p>
       </div>
 
-      {/* Sticky-stack scroll container — full width, modest horizontal padding */}
+      {/* Sticky-stack scroll container */}
       <div
         ref={containerRef}
         className="relative px-5 sm:px-8 lg:px-14"
-        style={{ height: `${TOTAL * 75}vh` }}
+        style={{ height: `${cards.length * 75}vh` }}
       >
-        {CARDS.map((card, i) => (
+        {cards.map((card, i) => (
           <ServiceCard
             key={card.num}
             card={card}
             index={i}
+            total={cards.length}
             containerRef={containerRef as React.RefObject<HTMLDivElement>}
           />
         ))}

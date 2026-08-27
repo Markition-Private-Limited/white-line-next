@@ -1,6 +1,8 @@
 ﻿'use client'
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
+import Image from 'next/image'
+import { useLanguage } from '../context/LanguageContext'
 import appImg    from '../assets/global_app/app.png'
 import appleIcon from '../assets/global_app/apple-logo-svgrepo-com.svg'
 import playIcon  from '../assets/global_app/google-play-svgrepo-com.svg'
@@ -64,7 +66,7 @@ function RadarGraphic({ className, style }: { className?: string; style?: React.
 }
 
 /* ── Store button ────────────────────────────────────────────────── */
-function StoreButton({ variant, compact }: { variant: 'apple' | 'google'; compact?: boolean }) {
+function StoreButton({ variant, compact, sub, main }: { variant: 'apple' | 'google'; compact?: boolean; sub: string; main: string }) {
   const isApple = variant === 'apple'
   return (
     <a
@@ -88,10 +90,10 @@ function StoreButton({ variant, compact }: { variant: 'apple' | 'google'; compac
       />
       <div>
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, margin: 0, lineHeight: 1, color: '#111', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-          {isApple ? 'Download on the' : 'Get it on'}
+          {sub}
         </p>
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 700, margin: 0, lineHeight: 1.3, color: '#111' }}>
-          {isApple ? 'App Store' : 'Google Play'}
+          {main}
         </p>
       </div>
     </a>
@@ -105,6 +107,9 @@ function StoreButton({ variant, compact }: { variant: 'apple' | 'google'; compac
  * Drop <AppSection /> anywhere — no props needed.
  */
 export default function AppSection() {
+  const { trans, dir } = useLanguage()
+  const { app } = trans
+  const isRtl = dir === 'rtl'
   const sectionRef = useRef<HTMLElement>(null)
   const inView = useInView(sectionRef, { once: true, margin: '-10% 0px' })
 
@@ -134,17 +139,17 @@ export default function AppSection() {
               alignItems: 'center',
             }}
           >
-            {/* Radar — anchored to bottom-right corner of the card */}
+            {/* Radar — anchored to the phone side */}
             <RadarGraphic
               style={{
                 position: 'absolute',
-                right: '-6%',
+                ...(isRtl ? { left: '-6%' } : { right: '-6%' }),
                 bottom: '0%',
                 width: 'clamp(280px, 24%, 580px)',
                 opacity: 0.7,
                 pointerEvents: 'none',
                 zIndex: 0,
-                transform: 'rotate(275deg)',
+                transform: isRtl ? 'rotate(85deg)' : 'rotate(275deg)',
               }}
             />
 
@@ -170,10 +175,10 @@ export default function AppSection() {
                 transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
               >
                 <span style={{ whiteSpace: 'nowrap' }}>
-                  Professional{' '}
-                  <em style={{ fontWeight: 800, fontStyle: 'italic' }}>chauffeurs</em>
+                  {app.h1a}{' '}
+                  <em style={{ fontWeight: 800, fontStyle: 'italic' }}>{app.h1b}</em>
                 </span>
-                <br />at your fingertips
+                <br />{app.h2}
               </motion.h2>
 
               <motion.p
@@ -189,7 +194,7 @@ export default function AppSection() {
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.8, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
               >
-                Download the Whiteline Chauffeur Hailing™ app to hail chauffeurs on demand in select cities.
+                {app.sub}
               </motion.p>
 
               <motion.div
@@ -198,8 +203,8 @@ export default function AppSection() {
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
               >
-                <StoreButton variant="apple" />
-                <StoreButton variant="google" />
+                <StoreButton variant="apple" sub={app.apple.sub} main={app.apple.main} />
+                <StoreButton variant="google" sub={app.google.sub} main={app.google.main} />
               </motion.div>
             </div>
           </div>
@@ -208,7 +213,7 @@ export default function AppSection() {
           <div
             style={{
               position: 'absolute',
-              right: '3%',
+              ...(isRtl ? { left: '3%' } : { right: '3%' }),
               top: '50%',
               transform: 'translateY(-50%)',
               height: '148%',
@@ -222,7 +227,7 @@ export default function AppSection() {
               src={(appImg as any).src ?? appImg}
               alt="Whiteline app screens"
               style={{ height: '100%', width: 'auto', display: 'block' }}
-              initial={{ opacity: 0, x: 130, scale: 0.95 }}
+              initial={{ opacity: 0, x: isRtl ? -130 : 130, scale: 0.95 }}
               animate={inView ? { opacity: 1, x: 0, scale: 1 } : {}}
               transition={{ duration: 1.1, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
             />
@@ -236,12 +241,12 @@ export default function AppSection() {
           className="relative overflow-hidden"
           style={{ borderRadius: 20, background: '#0b3330' }}
         >
-          {/* Radar — bottom-right corner */}
+          {/* Radar — bottom corner (phone side) */}
           <RadarGraphic
             style={{
               position: 'absolute',
               bottom: '-10%',
-              right: '-12%',
+              ...(isRtl ? { left: '-12%' } : { right: '-12%' }),
               width: '75%',
               opacity: 0.55,
               pointerEvents: 'none',
@@ -264,9 +269,9 @@ export default function AppSection() {
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
-              Professional{' '}
-              <em style={{ fontWeight: 700, fontStyle: 'italic' }}>Chauffeurs</em>
-              <br />At Your Fingertips
+              {app.hMob1}{' '}
+              <em style={{ fontWeight: 700, fontStyle: 'italic' }}>{app.hMob2}</em>
+              <br />{app.hMob3}
             </motion.h2>
 
             <motion.p
@@ -281,7 +286,7 @@ export default function AppSection() {
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
-              Download the Whiteline Chauffeur Hailing™ app to hail chauffeurs on demand in select cities.
+              {app.sub}
             </motion.p>
 
             <motion.div
@@ -291,20 +296,20 @@ export default function AppSection() {
               transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
               style={{ marginBottom: 32 }}
             >
-              <StoreButton variant="apple" compact />
-              <StoreButton variant="google" compact />
+              <StoreButton variant="apple" compact sub={app.apple.sub} main={app.apple.main} />
+              <StoreButton variant="google" compact sub={app.google.sub} main={app.google.main} />
             </motion.div>
 
             <motion.img
               src={(appImg as any).src ?? appImg}
               alt="Whiteline app screens"
-              initial={{ opacity: 0, x: 60 }}
+              initial={{ opacity: 0, x: isRtl ? -60 : 60 }}
               animate={inView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
               style={{
                 display: 'block',
                 width: '110%',
-                marginLeft: '-5%',
+                ...(isRtl ? { marginRight: '-5%' } : { marginLeft: '-5%' }),
                 objectFit: 'contain',
               }}
             />

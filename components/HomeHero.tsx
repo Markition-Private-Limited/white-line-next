@@ -3,24 +3,20 @@ import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import { useRef, useState } from 'react'
 import Navbar from '../layouts/Navbar'
-import heroBanner from '../assets/home/home_banner.png'
+import { useLanguage } from '../context/LanguageContext'
+import heroBanner from '../assets/home/home_banner.webp'
 import card1 from '../assets/home/home_page_banner_Sub_images/1.jpg'
 import card2 from '../assets/home/home_page_banner_Sub_images/2.jpg'
 import card3 from '../assets/home/home_page_banner_Sub_images/3.jpg'
 import card4 from '../assets/home/home_page_banner_Sub_images/4.jpg'
 import card5 from '../assets/home/home_page_banner_Sub_images/5.jpg'
 
-const services = [
-  { img: card4, title: 'Airport Transfer', desc: 'Airport pickups and drop-offs.' },
-  { img: card2, title: 'One Way Ride', desc: 'Simple point-to-point travel.' },
-  { img: card3, title: 'City-to-City', desc: 'Comfortable intercity travel.' },
-  { img: card1, title: 'Day Service', desc: 'Full-day vehicle block.' },
-  { img: card5, title: 'Hourly Chauffeur', desc: 'Keep your chauffeur by the hour.' },
-]
+// Images mapped in the same order as translations.hero.services
+const CARD_IMAGES = [card4, card2, card3, card1, card5]
 
 type Tilt = { rotX: number; rotY: number; imgX: number; imgY: number }
 
-function ParallaxCard({ img, title, desc, objectPosition = 'center' }: { img: { src: string } | string; title: string; desc: string; objectPosition?: string }) {
+function ParallaxCard({ img, title, desc, bookNow, objectPosition = 'center' }: { img: { src: string } | string; title: string; desc: string; bookNow: string; objectPosition?: string }) {
   const cardRef = useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = useState<Tilt>({ rotX: 0, rotY: 0, imgX: 0, imgY: 0 })
   const [active, setActive] = useState(false)
@@ -112,13 +108,16 @@ function ParallaxCard({ img, title, desc, objectPosition = 'center' }: { img: { 
           transition: 'opacity 0.4s ease, letter-spacing 0.4s ease',
         }}
       >
-        Book Now <ArrowRight size={12} />
+        {bookNow} <ArrowRight size={12} />
       </a>
     </div>
   )
 }
 
 export default function HomeHero() {
+  const { trans } = useLanguage()
+  const { hero } = trans
+
   return (
     <div style={{ background: '#ffffff', padding: 'clamp(6px, 0.8vw, 10px)' }}>
       <section className="relative min-h-screen bg-[#0d0d14]" style={{ borderRadius: 'clamp(14px, 1.5vw, 20px)' }}>
@@ -147,9 +146,9 @@ export default function HomeHero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.5, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
-              Luxury Travel With
+              {hero.line1}
               <br />
-              <span className="font-extrabold italic">Purpose &amp; Precision.</span>
+              <span className="font-extrabold italic">{hero.line2}</span>
             </motion.h1>
             <motion.p
               className="max-w-xl text-sm leading-relaxed text-white/70 sm:text-base"
@@ -158,8 +157,7 @@ export default function HomeHero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.3, delay: 0.55, ease: 'easeOut' }}
             >
-              White Lane brings together premium chauffeur services and modern technology to create a
-              transportation experience built around comfort, reliability, privacy, and exceptional service.
+              {hero.sub}
             </motion.p>
           </motion.div>
 
@@ -172,9 +170,9 @@ export default function HomeHero() {
               visible: { transition: { staggerChildren: 0.1, delayChildren: 0.75 } },
             }}
           >
-            {services.map((s, i) => (
+            {hero.services.map((s, i) => (
               <motion.div
-                key={s.title}
+                key={i}
                 className="relative"
                 variants={{
                   hidden: { opacity: 0, y: 28 },
@@ -183,15 +181,16 @@ export default function HomeHero() {
               >
                 <div className="rounded-2xl p-3 pointer-events-none select-none" style={{ visibility: 'hidden' }} aria-hidden="true">
                   <div className="mb-3 w-full" style={{ paddingBottom: '40%' }} />
-                  <p className="mb-0.5 text-sm font-semibold" style={{ fontFamily: 'Inter, sans-serif' }}>&nbsp;</p>
-                  <p className="mb-3 text-xs leading-snug" style={{ fontFamily: 'Inter, sans-serif' }}>&nbsp;</p>
-                  <span className="text-sm font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>&nbsp;</span>
+                  <p className="mb-0.5 text-sm font-semibold">&nbsp;</p>
+                  <p className="mb-3 text-xs leading-snug">&nbsp;</p>
+                  <span className="text-sm font-medium">&nbsp;</span>
                 </div>
                 <div className="absolute inset-x-0 bottom-0">
                   <ParallaxCard
-                    img={s.img}
+                    img={CARD_IMAGES[i]}
                     title={s.title}
                     desc={s.desc}
+                    bookNow={hero.bookNow}
                     objectPosition={i === 3 ? '50% 15%' : 'center'}
                   />
                 </div>
