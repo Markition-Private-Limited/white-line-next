@@ -42,7 +42,7 @@ function LangDropdown({ solid }: { solid: boolean }) {
           color: solid ? '#374151' : 'rgba(255,255,255,0.9)',
         }}
       >
-        <span style={{ fontSize: 16, lineHeight: 1 }}>{current.flag}</span>
+        <span className={`fi fi-${current.flagCode}`} style={{ fontSize: 18, borderRadius: 3 }} />
         <span>{current.nativeLabel}</span>
         <ChevronDown
           size={14}
@@ -82,7 +82,7 @@ function LangDropdown({ solid }: { solid: boolean }) {
                   borderBottom: '1px solid rgba(255,255,255,0.05)',
                 }}
               >
-                <span style={{ fontSize: 16 }}>{meta.flag}</span>
+                <span className={`fi fi-${meta.flagCode}`} style={{ fontSize: 18, borderRadius: 3 }} />
                 <span>{meta.nativeLabel}</span>
                 {lang === code && (
                   <span className="ms-auto" style={{ color: '#005C66', fontSize: 10 }}>✓</span>
@@ -115,7 +115,7 @@ function MobileLangSwitcher() {
             border: lang === code ? '1px solid rgba(0,92,102,0.6)' : '1px solid rgba(255,255,255,0.1)',
           }}
         >
-          <span style={{ fontSize: 14 }}>{meta.flag}</span>
+          <span className={`fi fi-${meta.flagCode}`} style={{ fontSize: 16, borderRadius: 2 }} />
           <span>{meta.nativeLabel}</span>
         </button>
       ))}

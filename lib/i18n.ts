@@ -5,12 +5,13 @@ export interface LangMeta {
   label: string
   nativeLabel: string
   dir: 'ltr' | 'rtl'
-  flag: string // emoji flag
+  flag: string     // emoji flag (fallback)
+  flagCode: string // ISO 3166-1 alpha-2 country code for flag-icons
 }
 
 export const LANG_META: Record<LangCode, LangMeta> = {
-  en: { label: 'English',  nativeLabel: 'English',  dir: 'ltr', flag: '🇺🇸' },
-  ar: { label: 'Arabic',   nativeLabel: 'العربية',  dir: 'rtl', flag: '🇸🇦' },
+  en: { label: 'English',  nativeLabel: 'English',  dir: 'ltr', flag: '🇺🇸', flagCode: 'us' },
+  ar: { label: 'Arabic',   nativeLabel: 'العربية',  dir: 'rtl', flag: '🇸🇦', flagCode: 'sa' },
 }
 
 // ─── Canonical English shape ──────────────────────────────────────────────────
