@@ -2,6 +2,8 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import { useRef } from 'react'
+import Image from 'next/image'
+import type { StaticImageData } from 'next/image'
 
 import airportImg from '../assets/home_service/banners/airport_transfer.jpg'
 import cityImg from '../assets/home_service/banners/city_to_city.jpg'
@@ -16,12 +18,12 @@ import icon4 from '../assets/home_service/banner_icon/4.svg'
 import icon5 from '../assets/home_service/banner_icon/5.svg'
 
 const _getSrc = (i: unknown): string => (i as any).src ?? i as string
-const CARDS = [
-  { num: '01', title: 'One-Way Ride', desc: 'Door-to-door premium transport from/to any destination, worry-less on budget.', img: _getSrc(oneWayImg), icon: _getSrc(icon1) },
-  { num: '02', title: 'Hourly Chauffeur', desc: 'Book a driver on the hour, flexible throughout your busy schedule.', img: _getSrc(chauffeurImg), icon: _getSrc(icon2) },
-  { num: '03', title: 'City to City', desc: 'Smooth and comfortable rides for all inter-city and regional trips.', img: _getSrc(cityImg), icon: _getSrc(icon3) },
-  { num: '04', title: 'Day Service', desc: 'Professional transportation for meetings, events, and excursions.', img: _getSrc(dayImg), icon: _getSrc(icon4) },
-  { num: '05', title: 'Airport Transfer', desc: 'Reliable and comfortable airport pick-ups and drop-offs with a professional chauffeur.', img: _getSrc(airportImg), icon: _getSrc(icon5) },
+const CARDS: { num: string; title: string; desc: string; img: StaticImageData; icon: string }[] = [
+  { num: '01', title: 'One-Way Ride', desc: 'Door-to-door premium transport from/to any destination, worry-less on budget.', img: oneWayImg, icon: _getSrc(icon1) },
+  { num: '02', title: 'Hourly Chauffeur', desc: 'Book a driver on the hour, flexible throughout your busy schedule.', img: chauffeurImg, icon: _getSrc(icon2) },
+  { num: '03', title: 'City to City', desc: 'Smooth and comfortable rides for all inter-city and regional trips.', img: cityImg, icon: _getSrc(icon3) },
+  { num: '04', title: 'Day Service', desc: 'Professional transportation for meetings, events, and excursions.', img: dayImg, icon: _getSrc(icon4) },
+  { num: '05', title: 'Airport Transfer', desc: 'Reliable and comfortable airport pick-ups and drop-offs with a professional chauffeur.', img: airportImg, icon: _getSrc(icon5) },
 ]
 
 const TOTAL = CARDS.length
@@ -68,10 +70,13 @@ function ServiceCard({
         >
           {/* Image layer — overflow-hidden isolated so only the image is clipped */}
           <div className="absolute inset-0 overflow-hidden rounded-2xl">
-            <img
+            <Image
               src={card.img}
               alt={card.title}
-              className="w-full h-full object-cover object-center"
+              fill
+              placeholder="blur"
+              sizes="(max-width: 768px) 100vw, 80vw"
+              style={{ objectFit: 'cover', objectPosition: 'center' }}
             />
             <div
               className="absolute inset-0"

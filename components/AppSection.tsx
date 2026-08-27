@@ -1,9 +1,12 @@
 ﻿'use client'
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
+import Image from 'next/image'
 import appImg    from '../assets/global_app/app.png'
 import appleIcon from '../assets/global_app/apple-logo-svgrepo-com.svg'
 import playIcon  from '../assets/global_app/google-play-svgrepo-com.svg'
+
+const MotionImage = motion.create(Image)
 
 /* ── Radar SVG (coded — matches the concentric-circle sonar look) ── */
 function RadarGraphic({ className, style }: { className?: string; style?: React.CSSProperties }) {
@@ -218,9 +221,10 @@ export default function AppSection() {
               zIndex: 10,
             }}
           >
-            <motion.img
-              src={(appImg as any).src ?? appImg}
+            <MotionImage
+              src={appImg}
               alt="Whiteline app screens"
+              placeholder="blur"
               style={{ height: '100%', width: 'auto', display: 'block' }}
               initial={{ opacity: 0, x: 130, scale: 0.95 }}
               animate={inView ? { opacity: 1, x: 0, scale: 1 } : {}}
@@ -295,9 +299,10 @@ export default function AppSection() {
               <StoreButton variant="google" compact />
             </motion.div>
 
-            <motion.img
-              src={(appImg as any).src ?? appImg}
+            <MotionImage
+              src={appImg}
               alt="Whiteline app screens"
+              placeholder="blur"
               initial={{ opacity: 0, x: 60 }}
               animate={inView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}

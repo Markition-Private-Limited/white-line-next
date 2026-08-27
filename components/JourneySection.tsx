@@ -1,6 +1,7 @@
 ﻿'use client'
 import { motion, useInView } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 
 import bannerImg from '../assets/home_unknown_section/banner.jpg'
 import rightIcon from '../assets/home_unknown_section/right_icon_under_banner.png'
@@ -159,10 +160,13 @@ export default function JourneySection() {
           animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -36 }}
           transition={{ duration: 0.95, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
-          <img
-            src={(bannerImg as any).src ?? bannerImg}
+          <Image
+            src={bannerImg}
             alt="Passenger in luxury vehicle"
-            className="w-full h-full object-cover object-center"
+            fill
+            placeholder="blur"
+            sizes="(max-width: 1024px) 100vw, 67vw"
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
           />
         </motion.div>
 
@@ -174,10 +178,7 @@ export default function JourneySection() {
           transition={{ duration: 0.95, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           {/* Decorative watermark — smaller on desktop */}
-          <img
-            src={(rightIcon as any).src ?? rightIcon}
-            alt=""
-            aria-hidden
+          <div
             className="hidden lg:block absolute pointer-events-none select-none"
             style={{
               opacity: 0.25,
@@ -186,9 +187,18 @@ export default function JourneySection() {
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              objectFit: 'contain',
             }}
-          />
+            aria-hidden
+          >
+            <Image
+              src={rightIcon}
+              alt=""
+              fill
+              placeholder="blur"
+              sizes="20vw"
+              style={{ objectFit: 'contain' }}
+            />
+          </div>
 
           {stats.map((s, i) => (
             <AnimatedStat

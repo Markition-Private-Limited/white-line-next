@@ -1,19 +1,20 @@
 ﻿'use client'
 import { motion, useInView } from 'framer-motion'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
+import type { StaticImageData } from 'next/image'
 
 import car0 from '../assets/home_cars/car_image_0.png'
 import car1 from '../assets/home_cars/car_image_1.png'
 import car2 from '../assets/home_cars/car_image_2.png'
 
-const _getSrc = (i: unknown) => (i as any).src ?? i as string
-const CARS = [
-  { img: _getSrc(car0), title: 'Premium SUV', desc: 'Spacious, versatile, and elegant. Perfect for small groups, families, and extra luggage capacity.' },
-  { img: _getSrc(car1), title: 'Executive Class', desc: 'Uncompromised style and modern design. Tailored for individuals and business leaders.' },
-  { img: _getSrc(car2), title: 'Luxury Sedan', desc: 'The absolute standard of executive comfort. Sleek profile with premium interior amenities.' },
-  { img: _getSrc(car0), title: 'Business SUV', desc: 'Ideal for corporate events and group transfers. Combining power, comfort, and refined style.' },
-  { img: _getSrc(car1), title: 'Corporate Sedan', desc: 'Sleek performance meets executive privilege. A seamless experience for the modern professional.' },
-  { img: _getSrc(car2), title: 'VIP Limousine', desc: 'The pinnacle of luxury ground travel. Discreet, spacious, and impeccably appointed.' },
+const CARS: { img: StaticImageData; title: string; desc: string }[] = [
+  { img: car0, title: 'Premium SUV', desc: 'Spacious, versatile, and elegant. Perfect for small groups, families, and extra luggage capacity.' },
+  { img: car1, title: 'Executive Class', desc: 'Uncompromised style and modern design. Tailored for individuals and business leaders.' },
+  { img: car2, title: 'Luxury Sedan', desc: 'The absolute standard of executive comfort. Sleek profile with premium interior amenities.' },
+  { img: car0, title: 'Business SUV', desc: 'Ideal for corporate events and group transfers. Combining power, comfort, and refined style.' },
+  { img: car1, title: 'Corporate Sedan', desc: 'Sleek performance meets executive privilege. A seamless experience for the modern professional.' },
+  { img: car2, title: 'VIP Limousine', desc: 'The pinnacle of luxury ground travel. Discreet, spacious, and impeccably appointed.' },
 ]
 
 const GAP = 16
@@ -173,10 +174,13 @@ export default function FleetSection() {
                   >
                     {/* Image with white bottom fade */}
                     <div className="relative w-full" style={{ aspectRatio: '4 / 3' }}>
-                      <img
+                      <Image
                         src={car.img}
                         alt={car.title}
-                        className="w-full h-full object-cover object-center"
+                        fill
+                        placeholder="blur"
+                        sizes="(max-width: 640px) 90vw, 33vw"
+                        style={{ objectFit: 'cover', objectPosition: 'center' }}
                         draggable={false}
                       />
                       <div

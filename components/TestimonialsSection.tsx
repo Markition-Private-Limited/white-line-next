@@ -1,65 +1,66 @@
 ﻿'use client'
 import { motion, useInView } from 'framer-motion'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
+import type { StaticImageData } from 'next/image'
 
 import farah from '../assets/home_customers/farah.jpg'
 import raza2 from '../assets/home_customers/raza-2.jpg'
 import raza from '../assets/home_customers/raza.jpg'
 import sultan from '../assets/home_customers/sultan.jpg'
 
-const _getSrc = (i: unknown): string => (i as any).src ?? i as string
-const REVIEWS = [
+const REVIEWS: { img: StaticImageData; name: string; role: string; stars: number; text: string }[] = [
   {
-    img: _getSrc(raza),
+    img: raza,
     name: 'Raza Hussain',
     role: 'Consultant',
     stars: 5,
     text: 'Park next busy ever. Elinor her his secure far twenty eat object. Any far saw size want man. Which way you wrong.',
   },
   {
-    img: _getSrc(sultan),
+    img: sultan,
     name: 'Sultan Ali',
     role: 'Business Traveller',
     stars: 5,
     text: 'Ten the hastened steepest feelings pleasant few surprise property. An brother he do colonel against.',
   },
   {
-    img: _getSrc(farah),
+    img: farah,
     name: 'Farah Khan',
     role: 'Operations Manager',
     stars: 5,
     text: 'Can how elinor warmly mrs basket marked. Led raising expense yet demesne weather musical. Me mr what.',
   },
   {
-    img: _getSrc(raza2),
+    img: raza2,
     name: 'Raza Hussain',
     role: 'Executive Director',
     stars: 5,
     text: 'Park next busy ever. Elinor her his secure far twenty eat object. Any far saw size want man. Which way you wrong.',
   },
   {
-    img: _getSrc(sultan),
+    img: sultan,
     name: 'Khalid Al-Rashid',
     role: 'CEO',
     stars: 5,
     text: 'Absolute excellence in service. Every journey has been seamless — the professionalism is unmatched.',
   },
   {
-    img: _getSrc(farah),
+    img: farah,
     name: 'Noor Al-Sayed',
     role: 'VIP Guest',
     stars: 5,
     text: 'The discretion and punctuality set Whiteline apart. I would not use any other chauffeur service.',
   },
   {
-    img: _getSrc(raza),
+    img: raza,
     name: 'Abdullah Hassan',
     role: 'Senior Manager',
     stars: 5,
     text: 'Reliable, comfortable, and always on time. A truly premium experience from booking to arrival.',
   },
   {
-    img: _getSrc(raza2),
+    img: raza2,
     name: 'Mohammed Tariq',
     role: 'Corporate Client',
     stars: 5,
@@ -88,12 +89,13 @@ function TestimonialCard({ r }: { r: typeof REVIEWS[0] }) {
           minHeight: 120,
         }}
       >
-        <img
+        <Image
           src={r.img}
           alt={r.name}
+          width={80}
+          height={80}
+          placeholder="blur"
           style={{
-            width: 80,
-            height: 80,
             objectFit: 'cover',
             objectPosition: 'center 21%',
             borderRadius: 7,

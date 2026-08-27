@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import { useRef, useState } from 'react'
+import Image from 'next/image'
 import Navbar from '../layouts/Navbar'
 import heroBanner from '../assets/home/home_banner.png'
 import card1 from '../assets/home/home_page_banner_Sub_images/1.jpg'
@@ -20,7 +21,7 @@ const services = [
 
 type Tilt = { rotX: number; rotY: number; imgX: number; imgY: number }
 
-function ParallaxCard({ img, title, desc, objectPosition = 'center' }: { img: { src: string } | string; title: string; desc: string; objectPosition?: string }) {
+function ParallaxCard({ img, title, desc, objectPosition = 'center' }: { img: Parameters<typeof Image>[0]['src']; title: string; desc: string; objectPosition?: string }) {
   const cardRef = useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = useState<Tilt>({ rotX: 0, rotY: 0, imgX: 0, imgY: 0 })
   const [active, setActive] = useState(false)
@@ -38,8 +39,6 @@ function ParallaxCard({ img, title, desc, objectPosition = 'center' }: { img: { 
     setActive(false)
     setTilt({ rotX: 0, rotY: 0, imgX: 0, imgY: 0 })
   }
-
-  const imgSrc = typeof img === 'string' ? img : img.src
 
   return (
     <div
@@ -67,11 +66,14 @@ function ParallaxCard({ img, title, desc, objectPosition = 'center' }: { img: { 
           animate={{ paddingBottom: active ? '100%' : '40%' }}
           transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
         />
-        <img
-          src={imgSrc}
+        <Image
+          src={img}
           alt={title}
-          className="absolute inset-0 w-full h-full object-cover"
+          fill
+          placeholder="blur"
+          sizes="(max-width: 640px) 50vw, 20vw"
           style={{
+            objectFit: 'cover',
             objectPosition,
             transform: `translate(${tilt.imgX}px, ${tilt.imgY}px) scale(1.08)`,
             filter: active ? 'grayscale(0%)' : 'grayscale(100%)',
@@ -123,9 +125,13 @@ export default function HomeHero() {
     <div style={{ background: '#ffffff', padding: 'clamp(6px, 0.8vw, 10px)' }}>
       <section className="relative min-h-screen bg-[#0d0d14]" style={{ borderRadius: 'clamp(14px, 1.5vw, 20px)' }}>
         <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 'inherit' }}>
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${typeof heroBanner === 'string' ? heroBanner : heroBanner.src})` }}
+          <Image
+            src={heroBanner}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d14]/90 via-[#0d0d14]/50 to-[#0d0d14]/10" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d14]/70 via-transparent to-transparent" />

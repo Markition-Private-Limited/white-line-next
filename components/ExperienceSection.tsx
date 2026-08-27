@@ -1,5 +1,7 @@
 ﻿'use client'
 import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
+import type { StaticImageData } from 'next/image'
 
 import carouselImg1 from '../assets/home_carousel/carousel-image-1.png'
 import carouselImg2 from '../assets/home_carousel/carousel-image-2.png'
@@ -7,7 +9,7 @@ import carouselImg3 from '../assets/home_carousel/carousel-image-3.png'
 import carouselImg4 from '../assets/home_carousel/carousel-image-4.png'
 import carouselImg5 from '../assets/home_carousel/carousel-image.jpg'
 
-const IMAGES = [carouselImg1, carouselImg2, carouselImg3, carouselImg4, carouselImg5].map(i => (i as any).src ?? i) as string[]
+const IMAGES: StaticImageData[] = [carouselImg1, carouselImg2, carouselImg3, carouselImg4, carouselImg5]
 
 const stats = [
   { num: 50,   suffix: 'K+',  label: 'Successfully\nCompleted Rides' },
@@ -261,13 +263,17 @@ export default function ExperienceSection() {
                   height: 224,
                   borderRadius: 18,
                   overflow: 'hidden',
+                  position: 'absolute',
                   ...getCardStyle(i, active, true),
                 }}
               >
-                <img
+                <Image
                   src={IMAGES[i]}
                   alt={`carousel ${i + 1}`}
-                  className="w-full h-full object-cover object-center"
+                  fill
+                  placeholder="blur"
+                  sizes="158px"
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
                   draggable={false}
                 />
               </div>
@@ -328,12 +334,13 @@ export default function ExperienceSection() {
                       cursor: abs === 0 ? 'default' : 'pointer',
                     }}
                   >
-                    <img
+                    <Image
                       src={IMAGES[i]}
                       alt={`carousel ${i + 1}`}
+                      fill
+                      placeholder="blur"
+                      sizes="(max-width: 1200px) 348px, 348px"
                       style={{
-                        width: '100%',
-                        height: '100%',
                         objectFit: 'cover',
                         display: 'block',
                         transform: isEdge ? 'scaleX(-1)' : 'none',

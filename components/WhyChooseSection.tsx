@@ -3,10 +3,13 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 import img1 from '../assets/home_why_choose/1.jpg'
 import img2 from '../assets/home_why_choose/2.jpg'
 import img3 from '../assets/home_why_choose/3.jpg'
+
+const MotionImage = motion.create(Image)
 
 function SlideButton({ label, icon, onClick }: { label: string; icon?: React.ReactNode; onClick?: () => void }) {
   return (
@@ -116,36 +119,42 @@ export default function WhyChooseSection() {
             transition={{ duration: 0.9, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             {/* Large image — spans both rows */}
-            <div className="overflow-hidden rounded-2xl" style={{ gridRow: '1 / 3' }}>
-              <motion.img
-                src={(img1 as any).src ?? img1}
+            <div className="overflow-hidden rounded-2xl relative" style={{ gridRow: '1 / 3' }}>
+              <MotionImage
+                src={img1}
                 alt="Luxury car on city street"
-                className="w-full h-full object-cover object-center"
-                style={{ y: y1, scale: 1.18 }}
+                fill
+                placeholder="blur"
+                sizes="(max-width: 1024px) 60vw, 35vw"
+                style={{ objectFit: 'cover', objectPosition: 'center', y: y1, scale: 1.18 }}
                 whileHover={{ scale: 1.26 }}
                 transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
               />
             </div>
 
             {/* Top-right — fills exactly the first row */}
-            <div className="overflow-hidden rounded-2xl">
-              <motion.img
-                src={(img2 as any).src ?? img2}
+            <div className="overflow-hidden rounded-2xl relative">
+              <MotionImage
+                src={img2}
                 alt="Chauffeur opening car door"
-                className="w-full h-full object-cover object-center"
-                style={{ y: y2, scale: 1.18 }}
+                fill
+                placeholder="blur"
+                sizes="(max-width: 1024px) 40vw, 22vw"
+                style={{ objectFit: 'cover', objectPosition: 'center', y: y2, scale: 1.18 }}
                 whileHover={{ scale: 1.26 }}
                 transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
               />
             </div>
 
             {/* Bottom-right — fills exactly the second row */}
-            <div className="overflow-hidden rounded-2xl">
-              <motion.img
-                src={(img3 as any).src ?? img3}
+            <div className="overflow-hidden rounded-2xl relative">
+              <MotionImage
+                src={img3}
                 alt="Chauffeur assisting passenger"
-                className="w-full h-full object-cover object-center"
-                style={{ y: y3, scale: 1.18 }}
+                fill
+                placeholder="blur"
+                sizes="(max-width: 1024px) 40vw, 22vw"
+                style={{ objectFit: 'cover', objectPosition: 'center', y: y3, scale: 1.18 }}
                 whileHover={{ scale: 1.26 }}
                 transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
               />
