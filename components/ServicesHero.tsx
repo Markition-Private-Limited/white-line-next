@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react'
 import Navbar from '../layouts/Navbar'
 import Image from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
-import serviceBanner from '../assets/services_1/service_1_banner.jpg'
+import serviceBanner from '../assets/services_1/service_1_banner.webp'
 
 function SlideButton({ label, variant = 'filled', icon }: { label: string; variant?: 'filled' | 'outline'; icon?: React.ReactNode }) {
   const isFilled = variant === 'filled'
