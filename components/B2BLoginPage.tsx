@@ -68,8 +68,8 @@ export default function B2BLoginPage() {
           </div>
         </div>
 
-        {/* Bottom: tagline */}
-        <div className="absolute bottom-14 lg:bottom-16 left-0 right-0 px-6 lg:px-10 z-10 text-center lg:text-left">
+        {/* Bottom: tagline — centered */}
+        <div className="absolute bottom-14 lg:bottom-16 left-0 right-0 px-6 lg:px-10 z-10 flex flex-col items-center text-center">
           <p
             style={{
               fontFamily: 'Montserrat, sans-serif',
@@ -88,11 +88,9 @@ export default function B2BLoginPage() {
               fontFamily: 'Inter, sans-serif',
               fontSize: 'clamp(12px, 1.1vw, 14px)',
               color: 'rgba(255,255,255,0.6)',
-              maxWidth: 420,
+              maxWidth: 560,
               lineHeight: 1.6,
-              margin: '0 auto',
             }}
-            className="lg:mx-0"
           >
             The command center for the world's most elite chauffeur logistics operations.
           </p>
