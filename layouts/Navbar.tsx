@@ -123,7 +123,6 @@ export default function Navbar({ solid = false }: { solid?: boolean }) {
                   }}
                 >
                   {item.label}
-                  {item.dropdown && <ChevronDown size={14} className="opacity-70" />}
                 </Link>
               </li>
             ))}
@@ -249,10 +248,7 @@ export default function Navbar({ solid = false }: { solid?: boolean }) {
                         }}
                       >
                         {item.label}
-                        {item.dropdown
-                          ? <ChevronDown size={15} style={{ opacity: 0.35 }} />
-                          : <span style={{ opacity: 0.2, fontSize: 18 }}>›</span>
-                        }
+                        <span style={{ opacity: 0.2, fontSize: 18 }}>›</span>
                       </Link>
                     </motion.li>
                   ))}
