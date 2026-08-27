@@ -7,12 +7,49 @@ import { usePathname } from 'next/navigation'
 import hamburgerSvg from '../assets/home/hamburger.svg'
 import logoSvg from '../assets/fav_icon_black.svg'
 
+function USFlag() {
+  const W = 22, H = 16
+  const sh = H / 13
+  const cw = W * 0.385
+  const ch = sh * 7
+
+  // 50 stars: 9 rows alternating 6 and 5
+  const stars: [number, number][] = []
+  const rows = [6, 5, 6, 5, 6, 5, 6, 5, 6]
+  const rh = ch / 10
+  rows.forEach((count, r) => {
+    const gap = cw / (count + 1)
+    for (let c = 0; c < count; c++) {
+      stars.push([gap * (c + 1), rh * 0.75 + r * rh])
+    }
+  })
+
+  return (
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 2, flexShrink: 0, display: 'block' }}>
+      <defs>
+        <clipPath id="uf">
+          <rect width={W} height={H} rx="1.6" />
+        </clipPath>
+      </defs>
+      <g clipPath="url(#uf)">
+        {Array.from({ length: 13 }, (_, i) => (
+          <rect key={i} x={0} y={i * sh} width={W} height={sh} fill={i % 2 === 0 ? '#B22234' : '#FFFFFF'} />
+        ))}
+        <rect x={0} y={0} width={cw} height={ch} fill="#3C3B6E" />
+        {stars.map(([x, y], i) => (
+          <circle key={i} cx={x} cy={y} r={0.55} fill="#FFFFFF" />
+        ))}
+      </g>
+    </svg>
+  )
+}
+
 const NAV_LINKS = [
   { label: 'Home', to: '/' },
   { label: 'About', to: '/about' },
-  { label: 'Services', to: '/services', dropdown: true },
+  { label: 'Services', to: '/services' },
   { label: 'Fleet', to: '/fleet' },
-  { label: 'B2B', to: '/b2b' },
+  { label: 'B2B', to: '/b2b/login' },
   { label: 'Contact Us', to: '/contact' },
 ]
 
@@ -21,7 +58,7 @@ const BUTTON_BG = [
   'linear-gradient(238.54deg, rgba(77,77,77,0.45) 4.12%, rgba(218,218,218,0.45) 48.47%, rgba(77,77,77,0.45) 86.31%)',
 ].join(', ')
 
-export default function Navbar() {
+export default function Navbar({ solid = false }: { solid?: boolean }) {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const pathname = usePathname()
 
@@ -44,17 +81,31 @@ export default function Navbar() {
 
   const isActive = (to: string) => to === '/' ? pathname === '/' : pathname.startsWith(to)
 
+  const linkColor = solid
+    ? (to: string) => isActive(to) ? '#005C66' : '#374151'
+    : (to: string) => isActive(to) ? '#ffffff' : 'rgba(255,255,255,0.75)'
+
   return (
     <>
-      <nav className="absolute top-0 left-0 right-0 z-20 px-6 py-4">
+      <nav
+        className={solid ? 'relative z-20 w-full' : 'absolute top-0 left-0 right-0 z-20'}
+        style={solid ? { background: '#ffffff', borderBottom: '1px solid #e5e7eb', padding: '0 clamp(16px, 3vw, 40px)' } : { padding: '16px 24px' }}
+      >
         <div
-          className="mx-auto flex max-w-7xl items-center justify-between rounded-full px-5 py-3"
-          style={{ background: 'transparent', border: '1px solid #4A4F4B' }}
+          className="mx-auto flex max-w-7xl items-center justify-between"
+          style={solid ? { height: 64 } : { background: 'transparent', border: '1px solid #4A4F4B', borderRadius: 999, padding: '12px 20px' }}
         >
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5">
-            <img src={logoSvg.src ?? logoSvg} alt="White Line logo" style={{ width: 28, height: 30, filter: 'brightness(0) invert(1)' }} />
-            <span className="text-white font-semibold tracking-[0.18em] text-sm uppercase" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+            <img
+              src={logoSvg.src ?? logoSvg}
+              alt="White Line logo"
+              style={{ width: 28, height: 30, filter: solid ? 'none' : 'brightness(0) invert(1)' }}
+            />
+            <span
+              className="font-semibold tracking-[0.18em] text-sm uppercase"
+              style={{ fontFamily: 'Montserrat, sans-serif', color: solid ? '#111118' : '#fff' }}
+            >
               White Line
             </span>
           </Link>
@@ -68,7 +119,7 @@ export default function Navbar() {
                   className="flex items-center gap-1 transition-colors text-sm font-medium"
                   style={{
                     fontFamily: 'Inter, sans-serif',
-                    color: isActive(item.to) ? '#ffffff' : 'rgba(255,255,255,0.75)',
+                    color: linkColor(item.to),
                   }}
                 >
                   {item.label}
@@ -81,32 +132,44 @@ export default function Navbar() {
           {/* Right side */}
           <div className="flex items-center gap-3">
             <button
-              className="hidden md:flex items-center gap-1.5 text-white/90 hover:text-white text-sm transition-colors"
-              style={{ fontFamily: 'Inter, sans-serif' }}
+              className="hidden md:flex items-center gap-1.5 text-sm transition-colors"
+              style={{ fontFamily: 'Inter, sans-serif', color: solid ? '#374151' : 'rgba(255,255,255,0.9)' }}
             >
-              <span>🇺🇸</span>
+              <USFlag />
               <span>English</span>
               <ChevronDown size={14} className="opacity-70" />
             </button>
 
             <button
-              className="group hidden sm:inline-flex relative h-10 items-center justify-center overflow-hidden rounded-full text-white text-sm font-semibold"
-              style={{ fontFamily: 'Inter, sans-serif', background: BUTTON_BG, border: '1px solid rgba(255,255,255,0.18)', minWidth: 140 }}
+              className="group hidden sm:inline-flex relative h-10 items-center justify-center overflow-hidden rounded-full text-sm font-semibold"
+              style={{
+                fontFamily: 'Inter, sans-serif',
+                background: solid ? '#005C66' : BUTTON_BG,
+                border: solid ? 'none' : '1px solid rgba(255,255,255,0.18)',
+                color: '#fff',
+                minWidth: 140,
+              }}
             >
               <span className="inline-flex items-center px-5 transition duration-500 group-hover:-translate-y-[150%]">Download Now</span>
               <span className="absolute inline-flex h-full w-full translate-y-[100%] items-center justify-center transition duration-500 group-hover:translate-y-0">
-                <span className="absolute inset-0 translate-y-full skew-y-12 scale-y-0 bg-white/20 transition duration-500 group-hover:translate-y-0 group-hover:scale-150" />
+                <span className={`absolute inset-0 translate-y-full skew-y-12 scale-y-0 transition duration-500 group-hover:translate-y-0 group-hover:scale-150 ${solid ? 'bg-[#004d57]' : 'bg-white/20'}`} />
                 <span className="relative z-10 inline-flex items-center gap-1.5">Download Now <ArrowUpRight size={13} /></span>
               </span>
             </button>
 
             <button
-              className="lg:hidden flex items-center justify-center w-10 h-10 rounded-full transition-colors hover:bg-white/10"
-              style={{ border: '1px solid rgba(255,255,255,0.15)' }}
+              className="lg:hidden flex items-center justify-center w-10 h-10 rounded-full transition-colors"
+              style={{
+                border: solid ? '1px solid #e5e7eb' : '1px solid rgba(255,255,255,0.15)',
+              }}
               onClick={() => setDrawerOpen(true)}
               aria-label="Open menu"
             >
-              <img src={hamburgerSvg.src ?? hamburgerSvg} alt="" style={{ width: 18, height: 18 }} />
+              <img
+                src={hamburgerSvg.src ?? hamburgerSvg}
+                alt=""
+                style={{ width: 18, height: 18, filter: solid ? 'brightness(0)' : 'none' }}
+              />
             </button>
           </div>
         </div>
@@ -204,7 +267,7 @@ export default function Navbar() {
               >
                 <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', marginBottom: 4 }} />
                 <button className="flex items-center gap-2 text-white/40 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
-                  <span>🇺🇸</span>
+                  <USFlag />
                   <span>English</span>
                   <ChevronDown size={12} style={{ opacity: 0.6 }} />
                 </button>

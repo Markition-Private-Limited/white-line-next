@@ -18,6 +18,14 @@ export function useLenis() {
 
     rafId = requestAnimationFrame(raf)
 
+    // Recalculate scroll height after all content/images have loaded
+    const onLoad = () => lenis.resize()
+    window.addEventListener('load', onLoad)
+
+    // Also recalculate on resize (handles iOS address bar show/hide)
+    const onResize = () => lenis.resize()
+    window.addEventListener('resize', onResize)
+
     const stop = () => lenis.stop()
     const start = () => lenis.start()
     window.addEventListener('lenis:stop', stop)
@@ -25,6 +33,8 @@ export function useLenis() {
 
     return () => {
       cancelAnimationFrame(rafId)
+      window.removeEventListener('load', onLoad)
+      window.removeEventListener('resize', onResize)
       window.removeEventListener('lenis:stop', stop)
       window.removeEventListener('lenis:start', start)
       lenis.destroy()

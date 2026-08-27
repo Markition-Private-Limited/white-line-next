@@ -1,4 +1,7 @@
 import type { Metadata } from 'next'
+import ServicesHero from '@/components/ServicesHero'
+import ServicesListSection from '@/components/ServicesListSection'
+import AppSection from '@/components/AppSection'
 
 export const metadata: Metadata = {
   title: 'Services',
@@ -7,9 +10,10 @@ export const metadata: Metadata = {
 
 export default function ServicesPage() {
   return (
-    <div className="mx-auto max-w-6xl px-6 py-24">
-      <h1 className="text-3xl font-bold text-[var(--text-h)] mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>Services</h1>
-      <p className="text-[var(--text)]" style={{ fontFamily: 'Inter, sans-serif' }}>Services page — coming soon.</p>
-    </div>
+    <>
+      <ServicesHero />
+      <ServicesListSection />
+      <AppSection />
+    </>
   )
 }

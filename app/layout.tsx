@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Montserrat } from 'next/font/google'
 import LenisProvider from '@/providers/LenisProvider'
 import Footer from '@/layouts/Footer'
+import ScrollReset from '@/components/ScrollReset'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} ${montserrat.variable}`}>
       <body suppressHydrationWarning>
         <LenisProvider>
+          <ScrollReset />
           {children}
           <Footer />
         </LenisProvider>
