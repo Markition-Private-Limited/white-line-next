@@ -3,18 +3,21 @@ import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useLanguage } from '../context/LanguageContext'
 
-import img1 from '../assets/fleet/fleet_cars/d7a80bcb54b44c54b0df892188432ffdfc7832d8.png'
-import img2 from '../assets/fleet/fleet_cars/691599485e74e1d3cbb8f6c39f49aeb5578fd6ce.png'
-import img3 from '../assets/fleet/fleet_cars/9730275ce37a79d956cf97018fd5d7efff9eb072.png'
-import img4 from '../assets/fleet/fleet_cars/208b727d44b0f0f364eab26b26e4a6c6f4dd1023.png'
-import img5 from '../assets/fleet/fleet_cars/b72b5ee7a8943ff9d478aabe4a4bbd0fa23fccdf.png'
-import img6 from '../assets/fleet/fleet_cars/36800e847a857961e3d7c0fd3cc8835aee05145c.png'
-import img7 from '../assets/fleet/fleet_cars/25cd92e464b804bdfc7f4a27308ef114179684b0.png'
-import img8 from '../assets/fleet/fleet_cars/6a75308906f8c67411508668713c07fe55f39793.png'
-import img9 from '../assets/fleet/fleet_cars/639d18797c086fe84ce95ce7557301142d447951.png'
-import img10 from '../assets/fleet/fleet_cars/4c70f4f03240041de539d03744139b66eda22a26.png'
-import img11 from '../assets/fleet/fleet_cars/cc573eb83a069359eb0890037edea448a1c9a76a.png'
-import img12 from '../assets/fleet/fleet_cars/e2c45cff1dc5b2dd448267afe5a2b1566baba0f7.png'
+import img1 from '../assets/fleet/fleet_cars/Mercedes-Benz E-Class.png'
+import img2 from '../assets/fleet/fleet_cars/BMW 7 Series.png'
+import img3 from '../assets/fleet/fleet_cars/Mercedes-Benz E-Class (AMG).png'
+import img4 from '../assets/fleet/fleet_cars/BMW 5 Series.png'
+import img5 from '../assets/fleet/fleet_cars/benz_v_class.png'
+import img6 from '../assets/fleet/fleet_cars/Chevrolet Suburban.png'
+import img7 from '../assets/fleet/fleet_cars/Chevrolet Tahoe.png'
+import img8 from '../assets/fleet/fleet_cars/GMC Yukon XL.png'
+import img9 from '../assets/fleet/fleet_cars/GMC Yukon.png'
+import img10 from '../assets/fleet/fleet_cars/Lexus ES350.png'
+import img11 from '../assets/fleet/fleet_cars/staria.png'
+import img12 from '../assets/fleet/fleet_cars/toyoata coaster.png'
+import img13 from '../assets/fleet/fleet_cars/luxury_coaster.png'
+import img14 from '../assets/fleet/fleet_cars/tarus.png'
+import img15 from '../assets/fleet/fleet_cars/hiace.png'
 
 const _src = (i: unknown): string => (i as any).src ?? (i as string)
 
@@ -23,18 +26,27 @@ type Category = 'All' | 'First Class' | 'Business Class' | 'SUV' | 'Sedan' | 'Va
 const FILTER_KEYS: Category[] = ['All', 'First Class', 'Business Class', 'SUV', 'Sedan', 'Van', 'Coaster & Bus']
 
 const CARS: { name: string; luggages: number; persons: number; category: Exclude<Category, 'All'>; img: string }[] = [
-  { name: 'Mercedes-Benz E-Class', luggages: 2, persons: 5, category: 'SUV', img: _src(img1) },
-  { name: 'BMW 7 Series', luggages: 2, persons: 5, category: 'First Class', img: _src(img2) },
-  { name: 'Mercedes-Benz E-Class (AMG)', luggages: 2, persons: 5, category: 'Business Class', img: _src(img3) },
-  { name: 'BMW 5 Series', luggages: 2, persons: 5, category: 'SUV', img: _src(img4) },
-  { name: 'Mercedes-Benz V-Class', luggages: 2, persons: 5, category: 'Business Class', img: _src(img5) },
-  { name: 'Chevrolet Suburban', luggages: 2, persons: 5, category: 'First Class', img: _src(img6) },
-  { name: 'Chevrolet Tahoe', luggages: 2, persons: 5, category: 'SUV', img: _src(img7) },
-  { name: 'GMC Yukon XL', luggages: 2, persons: 5, category: 'Business Class', img: _src(img8) },
-  { name: 'GMC Yukon', luggages: 2, persons: 5, category: 'First Class', img: _src(img9) },
-  { name: 'Lexus ES350', luggages: 2, persons: 5, category: 'Sedan', img: _src(img10) },
-  { name: 'Hyundai Staria', luggages: 2, persons: 5, category: 'Van', img: _src(img11) },
-  { name: 'Toyota Coaster', luggages: 2, persons: 5, category: 'Coaster & Bus', img: _src(img12) },
+  // First Class
+  { name: 'Mercedes-Benz S-Class', luggages: 2, persons: 3,  category: 'First Class', img: _src(img1) },
+  { name: 'BMW 7 Series',          luggages: 2, persons: 3,  category: 'First Class', img: _src(img2) },
+  // Business Class
+  { name: 'Mercedes-Benz E-Class', luggages: 2, persons: 3,  category: 'Business Class', img: _src(img3) },
+  { name: 'BMW 5 Series',          luggages: 2, persons: 3,  category: 'Business Class', img: _src(img4) },
+  { name: 'Mercedes-Benz V-Class', luggages: 4, persons: 6,  category: 'Business Class', img: _src(img5) },
+  // SUV
+  { name: 'Chevrolet Suburban', luggages: 4, persons: 6,  category: 'SUV', img: _src(img6) },
+  { name: 'Chevrolet Tahoe',    luggages: 4, persons: 6,  category: 'SUV', img: _src(img7) },
+  { name: 'GMC Yukon XL',       luggages: 4, persons: 6,  category: 'SUV', img: _src(img8) },
+  { name: 'GMC Yukon',          luggages: 4, persons: 6,  category: 'SUV', img: _src(img9) },
+  // Sedan
+  { name: 'Lexus ES350',  luggages: 2, persons: 3,  category: 'Sedan', img: _src(img10) },
+  { name: 'Ford Taurus',  luggages: 2, persons: 3,  category: 'Sedan', img: _src(img14) },
+  // Van
+  { name: 'Hyundai Staria', luggages: 4, persons: 7,  category: 'Van', img: _src(img11) },
+  { name: 'Toyota Hiace',   luggages: 6, persons: 13, category: 'Van', img: _src(img15) },
+  // Coaster & Bus
+  { name: 'Toyota Coaster', luggages: 8,  persons: 23, category: 'Coaster & Bus', img: _src(img12) },
+  { name: 'Bus',             luggages: 20, persons: 40, category: 'Coaster & Bus', img: _src(img13) },
 ]
 
 function LuggageIcon() {

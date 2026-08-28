@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import { useRef, useEffect, useState } from 'react'
@@ -17,29 +17,28 @@ import icon3 from '../assets/home_service/banner_icon/3.svg'
 import icon4 from '../assets/home_service/banner_icon/4.svg'
 import icon5 from '../assets/home_service/banner_icon/5.svg'
 
-function useIsMobile() {
-  const [mobile, setMobile] = useState(false)
-  useEffect(() => {
-    const check = () => setMobile(window.innerWidth < 640)
-    check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
-  return mobile
-}
-
 const _getSrc = (i: unknown): string => (i as any).src ?? i as string
 
-// Static data: images + icons, in the same order as translations.services.cards
 const CARD_STATIC: { num: string; img: StaticImageData; icon: string }[] = [
-  { num: '01', img: oneWayImg,   icon: _getSrc(icon1) },
-  { num: '02', img: chauffeurImg,icon: _getSrc(icon2) },
-  { num: '03', img: cityImg,     icon: _getSrc(icon3) },
-  { num: '04', img: dayImg,      icon: _getSrc(icon4) },
-  { num: '05', img: airportImg,  icon: _getSrc(icon5) },
+  { num: '01', img: oneWayImg,    icon: _getSrc(icon1) },
+  { num: '02', img: chauffeurImg, icon: _getSrc(icon2) },
+  { num: '03', img: cityImg,      icon: _getSrc(icon3) },
+  { num: '04', img: dayImg,       icon: _getSrc(icon4) },
+  { num: '05', img: airportImg,   icon: _getSrc(icon5) },
 ]
 
 type CardData = { num: string; img: StaticImageData; icon: string; title: string; desc: string; explore: string }
+
+function useVh() {
+  const [vh, setVh] = useState(0)
+  useEffect(() => {
+    const update = () => setVh(window.innerHeight)
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
+  return vh
+}
 
 function ServiceCard({
   card,
@@ -74,7 +73,6 @@ function ServiceCard({
         style={{ scale: cardScale, transformOrigin: 'top center' }}
         className="w-full"
       >
-        {/* Card — no overflow-hidden here so icon badge border-radius isn't clipped */}
         <div
           className="relative w-full rounded-2xl"
           style={{
@@ -83,7 +81,6 @@ function ServiceCard({
             height: 'clamp(340px, 55vw, 580px)',
           }}
         >
-          {/* Image layer — overflow-hidden isolated so only the image is clipped */}
           <div className="absolute inset-0 overflow-hidden rounded-2xl">
             <img
               src={(card.img as any).src ?? card.img}
@@ -98,7 +95,6 @@ function ServiceCard({
             />
           </div>
 
-          {/* Number badge — top left */}
           <span
             className="absolute top-5 left-5 text-white/50 text-sm tracking-widest select-none"
             style={{ fontFamily: 'Inter, sans-serif', fontVariantNumeric: 'tabular-nums' }}
@@ -106,7 +102,6 @@ function ServiceCard({
             {card.num}
           </span>
 
-          {/* Icon badge — top right, circle unaffected by parent overflow */}
           <div
             className="absolute top-4 right-4 flex items-center justify-center rounded-full"
             style={{
@@ -120,7 +115,7 @@ function ServiceCard({
           >
             <img src={card.icon} alt="" style={{ width: 18, height: 18 }} />
           </div>
-          {/* Liquid glass text panel — floats over bottom of image */}
+
           <div
             className="absolute bottom-4 left-4 right-4"
             style={{
@@ -173,7 +168,7 @@ export default function ServicesSection() {
   const { trans } = useLanguage()
   const { services: svc } = trans
   const containerRef = useRef<HTMLDivElement>(null)
-  const isMobile = useIsMobile()
+  const vh = useVh()
 
   const cards: CardData[] = CARD_STATIC.map((s, i) => ({
     ...s,
@@ -182,9 +177,13 @@ export default function ServicesSection() {
     explore: svc.explore,
   }))
 
+  // On mobile (portrait), each card gets ~50vh of scroll; on larger screens 75vh.
+  // vh===0 means SSR / not yet measured — fall back to 75vh so desktop SSR is correct.
+  const perCard = vh > 0 && vh < 700 ? 50 : 75
+  const sectionHeight = `${cards.length * perCard}vh`
+
   return (
     <section className="w-full bg-white">
-      {/* Section header */}
       <div className="px-4 sm:px-8 pt-20 pb-12 text-center">
         <div className="flex items-center justify-center gap-3 mb-5">
           <span className="block h-px w-8" style={{ background: '#005C66' }} />
@@ -218,11 +217,10 @@ export default function ServicesSection() {
         </p>
       </div>
 
-      {/* Sticky-stack scroll container — shorter on mobile to cut trailing dead scroll */}
       <div
         ref={containerRef}
         className="relative px-5 sm:px-8 lg:px-14"
-        style={{ height: `${cards.length * (isMobile ? 52 : 75)}vh` }}
+        style={{ height: sectionHeight }}
       >
         {cards.map((card, i) => (
           <ServiceCard
@@ -239,5 +237,3 @@ export default function ServicesSection() {
     </section>
   )
 }
-
-
