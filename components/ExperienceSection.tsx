@@ -102,7 +102,7 @@ function getCardStyle(index: number, active: number, isMobile: boolean): React.C
   const norm = wrapped > 2 ? wrapped - TOTAL : wrapped
   const abs = Math.abs(norm)
 
-  const spacing = isMobile ? 108 : 180
+  const spacing = isMobile ? 155 : 180
   const scale = abs === 0 ? 1 : abs === 1 ? 0.76 : 0.56
   const tx = norm * spacing
   const ty = abs === 0 ? 0 : abs === 1 ? 28 : 78
@@ -197,7 +197,7 @@ export default function ExperienceSection() {
     <section
       ref={ref as React.RefObject<HTMLElement>}
       className="w-full bg-white"
-      style={{ paddingTop: '80px', paddingBottom: '72px' }}
+      style={{ paddingTop: 'clamp(40px, 6vw, 80px)', paddingBottom: 'clamp(40px, 6vw, 72px)' }}
     >
       {/* Header */}
       <div className="px-6 text-center" style={fadeUp(0)}>
@@ -227,7 +227,7 @@ export default function ExperienceSection() {
         </h2>
 
         <p
-          className="text-gray-400 leading-relaxed mb-14 mx-auto px-6 sm:px-16 lg:px-28"
+          className="text-gray-400 leading-relaxed mb-4 sm:mb-14 mx-auto px-6 sm:px-16 lg:px-28"
           style={{
             fontFamily: 'Inter, sans-serif',
             fontSize: 'clamp(13px, 1.5vw, 15px)',
@@ -244,7 +244,7 @@ export default function ExperienceSection() {
         {isMobile && (
           <div
             className="relative mx-auto flex items-end justify-center"
-            style={{ height: 310, overflow: 'hidden' }}
+            style={{ height: 252, overflow: 'hidden' }}
           >
             {/* White glow — mobile only */}
             <div

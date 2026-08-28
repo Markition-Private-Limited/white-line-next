@@ -6,6 +6,17 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
 
+function useIsMobile() {
+  const [mobile, setMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setMobile(window.innerWidth < 640)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+  return mobile
+}
+
 import img1 from '../assets/home_why_choose/1.jpg'
 import img2 from '../assets/home_why_choose/2.jpg'
 import img3 from '../assets/home_why_choose/3.jpg'
@@ -51,6 +62,8 @@ export default function WhyChooseSection() {
   const { ref, inView } = useInView(0.15)
 
   // Parallax scroll tracking on the section itself
+  const isMobile = useIsMobile()
+
   const { scrollYProgress } = useScroll({
     target: ref as React.RefObject<HTMLElement>,
     offset: ['start end', 'end start'],
@@ -109,7 +122,7 @@ export default function WhyChooseSection() {
           <motion.div
             className="flex-1 grid gap-3"
             style={{
-              gridTemplateColumns: '1.55fr 1fr',
+              gridTemplateColumns: '1fr 1fr',
               gridTemplateRows: '1fr 1fr',
               height: 'clamp(300px, 42vw, 480px)',
             }}
@@ -135,7 +148,7 @@ export default function WhyChooseSection() {
                 src={(img2 as any).src ?? img2}
                 alt="Chauffeur opening car door"
                 className="w-full h-full object-cover object-center"
-                style={{ y: y2, scale: 1.18 }}
+                style={{ y: isMobile ? 0 : y2, scale: 1.18 }}
                 whileHover={{ scale: 1.26 }}
                 transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
               />
@@ -147,7 +160,7 @@ export default function WhyChooseSection() {
                 src={(img3 as any).src ?? img3}
                 alt="Chauffeur assisting passenger"
                 className="w-full h-full object-cover object-center"
-                style={{ y: y3, scale: 1.18 }}
+                style={{ y: isMobile ? 0 : y3, scale: 1.18 }}
                 whileHover={{ scale: 1.26 }}
                 transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
               />

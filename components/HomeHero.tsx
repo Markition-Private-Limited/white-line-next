@@ -1,10 +1,12 @@
-﻿'use client'
+'use client'
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import { useRef, useState } from 'react'
+import Image from 'next/image'
 import Navbar from '../layouts/Navbar'
 import { useLanguage } from '../context/LanguageContext'
 import heroBanner from '../assets/home/home_banner.webp'
+import heroBannerMobile from '../assets/home/home_banner_mobile.png'
 import card1 from '../assets/home/home_page_banner_Sub_images/1.jpg'
 import card2 from '../assets/home/home_page_banner_Sub_images/2.jpg'
 import card3 from '../assets/home/home_page_banner_Sub_images/3.jpg'
@@ -16,7 +18,21 @@ const CARD_IMAGES = [card4, card2, card3, card1, card5]
 
 type Tilt = { rotX: number; rotY: number; imgX: number; imgY: number }
 
-function ParallaxCard({ img, title, desc, bookNow, objectPosition = 'center' }: { img: { src: string } | string; title: string; desc: string; bookNow: string; objectPosition?: string }) {
+function ParallaxCard({
+  img,
+  title,
+  desc,
+  bookNow,
+  objectPosition = 'center',
+  defaultPb = '40%',
+}: {
+  img: { src: string } | string
+  title: string
+  desc: string
+  bookNow: string
+  objectPosition?: string
+  defaultPb?: string
+}) {
   const cardRef = useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = useState<Tilt>({ rotX: 0, rotY: 0, imgX: 0, imgY: 0 })
   const [active, setActive] = useState(false)
@@ -60,7 +76,7 @@ function ParallaxCard({ img, title, desc, bookNow, objectPosition = 'center' }: 
       <div className="overflow-hidden rounded-lg mb-3 relative w-full">
         <motion.div
           className="w-full"
-          animate={{ paddingBottom: active ? '100%' : '40%' }}
+          animate={{ paddingBottom: active ? '100%' : defaultPb }}
           transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
         />
         <img
@@ -114,6 +130,11 @@ function ParallaxCard({ img, title, desc, bookNow, objectPosition = 'center' }: 
   )
 }
 
+const cardVariants = {
+  hidden: { opacity: 0, y: 28 },
+  visible: { opacity: 1, y: 0, transition: { duration: 1.1, ease: [0.25, 0.46, 0.45, 0.94] as const } },
+}
+
 export default function HomeHero() {
   const { trans } = useLanguage()
   const { hero } = trans
@@ -121,10 +142,28 @@ export default function HomeHero() {
   return (
     <div style={{ background: '#ffffff', padding: 'clamp(6px, 0.8vw, 10px)' }}>
       <section className="relative min-h-screen bg-[#0d0d14]" style={{ borderRadius: 'clamp(14px, 1.5vw, 20px)' }}>
+
+        {/* Banner — next/image for proper responsive loading */}
         <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 'inherit' }}>
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${typeof heroBanner === 'string' ? heroBanner : heroBanner.src})` }}
+          {/* Mobile portrait crop — prevents upscale pixelation */}
+          <Image
+            src={heroBannerMobile}
+            alt="White Line luxury fleet"
+            fill
+            priority
+            sizes="100vw"
+            className="block sm:hidden"
+            style={{ objectFit: 'cover', objectPosition: 'center top' }}
+          />
+          {/* Desktop landscape */}
+          <Image
+            src={heroBanner}
+            alt="White Line luxury fleet"
+            fill
+            priority
+            sizes="100vw"
+            className="hidden sm:block"
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d14]/90 via-[#0d0d14]/50 to-[#0d0d14]/10" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d14]/70 via-transparent to-transparent" />
@@ -133,6 +172,8 @@ export default function HomeHero() {
         <Navbar />
 
         <div className="relative z-10 flex min-h-screen flex-col justify-between px-6 pb-10 pt-32 sm:px-10 lg:px-16">
+
+          {/* Heading */}
           <motion.div
             className="max-w-xl lg:max-w-2xl"
             initial={{ opacity: 0, y: 40 }}
@@ -161,46 +202,50 @@ export default function HomeHero() {
             </motion.p>
           </motion.div>
 
+          {/* Cards */}
           <motion.div
-            className="mt-16 grid grid-cols-2 gap-4 sm:gap-3 sm:grid-cols-3 lg:grid-cols-5"
+            className="mt-10 sm:mt-16 grid grid-cols-2 gap-4 sm:gap-3 sm:grid-cols-3 lg:grid-cols-5"
             initial="hidden"
             animate="visible"
-            variants={{
-              hidden: {},
-              visible: { transition: { staggerChildren: 0.1, delayChildren: 0.75 } },
-            }}
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1, delayChildren: 0.75 } } }}
           >
             {hero.services.map((s, i) => (
-              <motion.div
-                key={i}
-                className="relative"
-                variants={{
-                  hidden: { opacity: 0, y: 28 },
-                  visible: { opacity: 1, y: 0, transition: { duration: 1.1, ease: [0.25, 0.46, 0.45, 0.94] } },
-                }}
-              >
-                <div className="rounded-2xl p-3 pointer-events-none select-none" style={{ visibility: 'hidden' }} aria-hidden="true">
-                  <div className="mb-3 w-full" style={{ paddingBottom: '40%' }} />
-                  <p className="mb-0.5 text-sm font-semibold">&nbsp;</p>
-                  <p className="mb-3 text-xs leading-snug">&nbsp;</p>
-                  <span className="text-sm font-medium">&nbsp;</span>
-                </div>
-                <div className="absolute inset-x-0 bottom-0">
+              <motion.div key={i} className="relative" variants={cardVariants}>
+                {/* ── Mobile: direct render, taller image ── */}
+                <div className="sm:hidden">
                   <ParallaxCard
                     img={CARD_IMAGES[i]}
                     title={s.title}
                     desc={s.desc}
                     bookNow={hero.bookNow}
+                    defaultPb="70%"
                     objectPosition={i === 3 ? '50% 15%' : 'center'}
                   />
+                </div>
+                {/* ── Sm+: ghost sizes the cell; card expands upward on hover ── */}
+                <div className="hidden sm:block">
+                  <div className="rounded-2xl p-3 pointer-events-none select-none" style={{ visibility: 'hidden' }} aria-hidden="true">
+                    <div className="mb-3 w-full" style={{ paddingBottom: '40%' }} />
+                    <p className="mb-0.5 text-sm font-semibold">&nbsp;</p>
+                    <p className="mb-3 text-xs leading-snug">&nbsp;</p>
+                    <span className="text-sm font-medium">&nbsp;</span>
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0">
+                    <ParallaxCard
+                      img={CARD_IMAGES[i]}
+                      title={s.title}
+                      desc={s.desc}
+                      bookNow={hero.bookNow}
+                      objectPosition={i === 3 ? '50% 15%' : 'center'}
+                    />
+                  </div>
                 </div>
               </motion.div>
             ))}
           </motion.div>
+
         </div>
       </section>
     </div>
   )
 }
-
-

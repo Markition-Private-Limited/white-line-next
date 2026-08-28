@@ -1,8 +1,7 @@
 ﻿'use client'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
-import { useRef } from 'react'
-import Image from 'next/image'
+import { useRef, useEffect, useState } from 'react'
 import type { StaticImageData } from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
 
@@ -17,6 +16,17 @@ import icon2 from '../assets/home_service/banner_icon/2.svg'
 import icon3 from '../assets/home_service/banner_icon/3.svg'
 import icon4 from '../assets/home_service/banner_icon/4.svg'
 import icon5 from '../assets/home_service/banner_icon/5.svg'
+
+function useIsMobile() {
+  const [mobile, setMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setMobile(window.innerWidth < 640)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+  return mobile
+}
 
 const _getSrc = (i: unknown): string => (i as any).src ?? i as string
 
@@ -163,6 +173,7 @@ export default function ServicesSection() {
   const { trans } = useLanguage()
   const { services: svc } = trans
   const containerRef = useRef<HTMLDivElement>(null)
+  const isMobile = useIsMobile()
 
   const cards: CardData[] = CARD_STATIC.map((s, i) => ({
     ...s,
@@ -207,11 +218,11 @@ export default function ServicesSection() {
         </p>
       </div>
 
-      {/* Sticky-stack scroll container */}
+      {/* Sticky-stack scroll container — shorter on mobile to cut trailing dead scroll */}
       <div
         ref={containerRef}
         className="relative px-5 sm:px-8 lg:px-14"
-        style={{ height: `${cards.length * 75}vh` }}
+        style={{ height: `${cards.length * (isMobile ? 52 : 75)}vh` }}
       >
         {cards.map((card, i) => (
           <ServiceCard
