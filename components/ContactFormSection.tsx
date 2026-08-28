@@ -83,7 +83,8 @@ const inputError: React.CSSProperties = { borderColor: '#fca5a5', background: '#
 const SELECT_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`
 
 export default function ContactFormSection() {
-  const { trans } = useLanguage()
+  const { trans, dir } = useLanguage()
+  const isRtl = dir === 'rtl'
   const { info, form: f } = trans.contactPage
   const { ref, inView } = useInView()
 
@@ -238,7 +239,7 @@ export default function ContactFormSection() {
                   className="flex items-center gap-2.5 font-semibold transition-opacity hover:opacity-85 active:scale-[0.98]"
                   style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#fff', background: '#0A3B3C', border: 'none', borderRadius: 50, padding: '13px 28px', cursor: 'pointer', transition: 'opacity 0.2s ease, transform 0.15s ease' }}>
                   {f.sendBtn}
-                  <Send size={15} />
+                  <Send size={15} style={{ transform: isRtl ? 'scaleX(-1)' : undefined }} />
                 </button>
               </form>
             </>
