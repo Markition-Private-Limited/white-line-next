@@ -19,6 +19,9 @@ import icon5 from '../assets/home_service/banner_icon/5.svg'
 
 const _getSrc = (i: unknown): string => (i as any).src ?? i as string
 
+const AR_DIGITS = '٠١٢٣٤٥٦٧٨٩'
+const toArabicNumerals = (s: string) => s.replace(/\d/g, d => AR_DIGITS[+d])
+
 const CARD_STATIC: { num: string; img: StaticImageData; icon: string }[] = [
   { num: '01', img: oneWayImg,    icon: _getSrc(icon1) },
   { num: '02', img: chauffeurImg, icon: _getSrc(icon2) },
@@ -105,7 +108,7 @@ function ServiceCard({
               ...(isRtl ? { right: '20px' } : { left: '20px' }),
             }}
           >
-            {card.num}
+            {isRtl ? toArabicNumerals(card.num) : card.num}
           </span>
 
           <div
