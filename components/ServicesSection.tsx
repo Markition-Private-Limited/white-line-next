@@ -1,6 +1,6 @@
 'use client'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ArrowLeft } from 'lucide-react'
 import { useRef, useEffect, useState } from 'react'
 import type { StaticImageData } from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
@@ -45,11 +45,13 @@ function ServiceCard({
   index,
   containerRef,
   total,
+  isRtl,
 }: {
   card: CardData
   index: number
   containerRef: React.RefObject<HTMLDivElement>
   total: number
+  isRtl: boolean
 }) {
   const targetScale = 1 - (total - 1 - index) * 0.03
 
@@ -96,14 +98,18 @@ function ServiceCard({
           </div>
 
           <span
-            className="absolute top-5 left-5 text-white/50 text-sm tracking-widest select-none"
-            style={{ fontFamily: 'Inter, sans-serif', fontVariantNumeric: 'tabular-nums' }}
+            className="absolute top-5 text-white/50 text-sm tracking-widest select-none"
+            style={{
+              fontFamily: 'Inter, sans-serif',
+              fontVariantNumeric: 'tabular-nums',
+              ...(isRtl ? { right: '20px' } : { left: '20px' }),
+            }}
           >
             {card.num}
           </span>
 
           <div
-            className="absolute top-4 right-4 flex items-center justify-center rounded-full"
+            className="absolute top-4 flex items-center justify-center rounded-full"
             style={{
               width: 40,
               height: 40,
@@ -111,6 +117,7 @@ function ServiceCard({
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
               border: '1px solid rgba(255,255,255,0.35)',
+              ...(isRtl ? { left: '16px' } : { right: '16px' }),
             }}
           >
             <img src={card.icon} alt="" style={{ width: 18, height: 18 }} />
@@ -155,7 +162,7 @@ function ServiceCard({
                 color: '#D4FBFF',
               }}
             >
-              {card.explore} <ArrowRight size={13} color="#D4FBFF" />
+              {card.explore} {isRtl ? <ArrowLeft size={13} color="#D4FBFF" /> : <ArrowRight size={13} color="#D4FBFF" />}
             </a>
           </div>
         </div>
@@ -165,7 +172,8 @@ function ServiceCard({
 }
 
 export default function ServicesSection() {
-  const { trans } = useLanguage()
+  const { trans, dir } = useLanguage()
+  const isRtl = dir === 'rtl'
   const { services: svc } = trans
   const containerRef = useRef<HTMLDivElement>(null)
   const vh = useVh()
@@ -229,6 +237,7 @@ export default function ServicesSection() {
             index={i}
             total={cards.length}
             containerRef={containerRef as React.RefObject<HTMLDivElement>}
+            isRtl={isRtl}
           />
         ))}
       </div>

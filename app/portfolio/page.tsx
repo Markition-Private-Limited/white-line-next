@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import PageTitle from '@/components/PageTitle'
 
 export const metadata: Metadata = {
   title: 'Portfolio',
@@ -8,6 +9,7 @@ export const metadata: Metadata = {
 export default function PortfolioPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-24">
+      <PageTitle en="Portfolio | White Line" ar="أعمالنا | White Line" />
       <h1 className="text-3xl font-bold text-[var(--text-h)] mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>Portfolio</h1>
       <p className="text-[var(--text)]" style={{ fontFamily: 'Inter, sans-serif' }}>Portfolio page — coming soon.</p>
     </div>

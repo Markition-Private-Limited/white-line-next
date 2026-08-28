@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import PageTitle from '@/components/PageTitle'
 import TestimonialsHero from '@/components/TestimonialsHero'
 import TestimonialsCustomerStoriesSection from '@/components/TestimonialsCustomerStoriesSection'
 import TestimonialsSection from '@/components/TestimonialsSection'
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 export default function TestimonialsPage() {
   return (
     <>
+      <PageTitle en="Testimonials | White Line" ar="آراء العملاء | White Line" />
       <TestimonialsHero />
       <TestimonialsCustomerStoriesSection />
       <TestimonialsSection />

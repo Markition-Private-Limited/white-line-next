@@ -66,7 +66,7 @@ function RadarGraphic({ className, style }: { className?: string; style?: React.
 }
 
 /* ── Store button ────────────────────────────────────────────────── */
-function StoreButton({ variant, compact, sub, main }: { variant: 'apple' | 'google'; compact?: boolean; sub: string; main: string }) {
+function StoreButton({ variant, compact, sub, main, isRtl }: { variant: 'apple' | 'google'; compact?: boolean; sub: string; main: string; isRtl?: boolean }) {
   const isApple = variant === 'apple'
   return (
     <a
@@ -80,6 +80,7 @@ function StoreButton({ variant, compact, sub, main }: { variant: 'apple' | 'goog
         border: '1px solid rgba(0,0,0,0.10)',
         flex: compact ? '1 1 0' : undefined,
         minWidth: 0,
+        flexDirection: isRtl ? 'row-reverse' : undefined,
       }}
     >
       <img
@@ -88,7 +89,7 @@ function StoreButton({ variant, compact, sub, main }: { variant: 'apple' | 'goog
         aria-hidden="true"
         style={{ width: compact ? 26 : 36, height: compact ? 26 : 36, objectFit: 'contain', flexShrink: 0 }}
       />
-      <div>
+      <div style={{ textAlign: isRtl ? 'right' : undefined }}>
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, margin: 0, lineHeight: 1, color: '#111', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
           {sub}
         </p>
@@ -203,8 +204,8 @@ export default function AppSection() {
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
               >
-                <StoreButton variant="apple" sub={app.apple.sub} main={app.apple.main} />
-                <StoreButton variant="google" sub={app.google.sub} main={app.google.main} />
+                <StoreButton variant="apple" sub={app.apple.sub} main={app.apple.main} isRtl={isRtl} />
+                <StoreButton variant="google" sub={app.google.sub} main={app.google.main} isRtl={isRtl} />
               </motion.div>
             </div>
           </div>
@@ -296,8 +297,8 @@ export default function AppSection() {
               transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
               style={{ marginBottom: 32 }}
             >
-              <StoreButton variant="apple" compact sub={app.apple.sub} main={app.apple.main} />
-              <StoreButton variant="google" compact sub={app.google.sub} main={app.google.main} />
+              <StoreButton variant="apple" compact sub={app.apple.sub} main={app.apple.main} isRtl={isRtl} />
+              <StoreButton variant="google" compact sub={app.google.sub} main={app.google.main} isRtl={isRtl} />
             </motion.div>
 
             <motion.img

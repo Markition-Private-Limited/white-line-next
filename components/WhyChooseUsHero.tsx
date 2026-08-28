@@ -1,7 +1,8 @@
 ﻿'use client'
 import { motion } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ArrowLeft } from 'lucide-react'
 import Navbar from '../layouts/Navbar'
+import { useLanguage } from '../context/LanguageContext'
 import banner from '../assets/why_chose_us/banner.jpg'
 
 function SlideButton({ label, variant = 'filled', icon }: { label: string; variant?: 'filled' | 'outline'; icon?: React.ReactNode }) {
@@ -25,13 +26,15 @@ function SlideButton({ label, variant = 'filled', icon }: { label: string; varia
 }
 
 export default function WhyChooseUsHero() {
+  const { dir } = useLanguage()
+  const isRtl = dir === 'rtl'
   const bannerSrc = typeof banner === 'string' ? banner : (banner as { src: string }).src
   return (
     <div style={{ background: '#ffffff', padding: 'clamp(6px, 0.8vw, 10px)' }}>
       <section className="relative min-h-screen bg-[#0d0d14]" style={{ borderRadius: 'clamp(14px, 1.5vw, 20px)' }}>
         <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 'inherit' }}>
-          <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${bannerSrc})` }} />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d14]/90 via-[#0d0d14]/55 to-[#0d0d14]/10" />
+          <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${bannerSrc})`, transform: isRtl ? 'scaleX(-1)' : undefined }} />
+          <div className={`absolute inset-0 ${isRtl ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-[#0d0d14]/90 via-[#0d0d14]/55 to-[#0d0d14]/10`} />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d14]/70 via-transparent to-transparent" />
         </div>
         <Navbar />
@@ -56,7 +59,7 @@ export default function WhyChooseUsHero() {
               and exceptional service.
             </motion.p>
             <motion.div className="flex flex-wrap gap-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.55, ease: 'easeOut' }}>
-              <SlideButton label="Explore Our Services" variant="filled" icon={<ArrowRight size={14} />} />
+              <SlideButton label="Explore Our Services" variant="filled" icon={isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />} />
               <SlideButton label="About Our Cars" variant="outline" />
             </motion.div>
           </motion.div>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import PageTitle from '@/components/PageTitle'
 import FleetHero from '@/components/FleetHero'
 import FleetCarsSection from '@/components/FleetCarsSection'
 import AppSection from '@/components/AppSection'
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 export default function FleetPage() {
   return (
     <>
+      <PageTitle en="Our Fleet | White Line" ar="أسطولنا | White Line" />
       <FleetHero />
       <FleetCarsSection />
       <AppSection />

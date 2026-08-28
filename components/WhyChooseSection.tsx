@@ -1,6 +1,6 @@
 ﻿'use client'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ArrowLeft } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
@@ -57,7 +57,8 @@ function useInView(threshold = 0.2) {
 
 export default function WhyChooseSection() {
   const router = useRouter()
-  const { trans } = useLanguage()
+  const { trans, dir } = useLanguage()
+  const isRtl = dir === 'rtl'
   const { whyChoose: wc } = trans
   const { ref, inView } = useInView(0.15)
 
@@ -114,7 +115,7 @@ export default function WhyChooseSection() {
             </motion.p>
 
             <motion.div {...fadeUp(0.28)}>
-              <SlideButton label={wc.readMore} icon={<ArrowRight size={14} />} onClick={() => router.push('/why-choose-us')} />
+              <SlideButton label={wc.readMore} icon={isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />} onClick={() => router.push('/why-choose-us')} />
             </motion.div>
           </div>
 

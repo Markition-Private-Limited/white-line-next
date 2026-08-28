@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { Eye, EyeOff, Lock, Mail, ArrowRight } from 'lucide-react'
+import { Eye, EyeOff, Lock, Mail, ArrowRight, ArrowLeft } from 'lucide-react'
 import Navbar from '../layouts/Navbar'
 import { useLanguage } from '../context/LanguageContext'
 import b2bBanner from '../assets/b2b/b2b_login.png'
@@ -10,7 +10,8 @@ const bannerSrc = (b2bBanner as any).src ?? b2bBanner
 const logoSrc = (logoSvg as any).src ?? logoSvg
 
 export default function B2BLoginPage() {
-  const { trans } = useLanguage()
+  const { trans, dir } = useLanguage()
+  const isRtl = dir === 'rtl'
   const t = trans.b2bLogin
 
   const [tab, setTab] = useState<'login' | 'signup'>('login')
@@ -158,12 +159,12 @@ export default function B2BLoginPage() {
               style={{ height: 52, borderRadius: 999, background: '#005C66', border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 600, color: '#fff' }}
             >
               <span className="inline-flex items-center gap-2 transition duration-500 group-hover:-translate-y-[150%]">
-                {t.loginBtn} <ArrowRight size={16} />
+                {t.loginBtn} {isRtl ? <ArrowLeft size={16} /> : <ArrowRight size={16} />}
               </span>
               <span className="absolute inset-0 inline-flex items-center justify-center gap-2 translate-y-full transition duration-500 group-hover:translate-y-0">
                 <span className="absolute inset-0 skew-y-12 scale-y-0 bg-[#004d57] transition duration-500 translate-y-full group-hover:translate-y-0 group-hover:scale-150" />
                 <span className="relative z-10 inline-flex items-center gap-2 text-white font-semibold">
-                  {t.loginBtn} <ArrowRight size={16} />
+                  {t.loginBtn} {isRtl ? <ArrowLeft size={16} /> : <ArrowRight size={16} />}
                 </span>
               </span>
             </button>

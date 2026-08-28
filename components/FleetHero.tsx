@@ -1,6 +1,6 @@
 'use client'
 import { motion } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ArrowLeft } from 'lucide-react'
 import Navbar from '../layouts/Navbar'
 import Image from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
@@ -24,7 +24,8 @@ function SlideButton({ label, icon }: { label: string; icon?: React.ReactNode })
 }
 
 export default function FleetHero() {
-  const { trans } = useLanguage()
+  const { trans, dir } = useLanguage()
+  const isRtl = dir === 'rtl'
   const { hero } = trans.fleetPage
 
   return (
@@ -37,9 +38,9 @@ export default function FleetHero() {
             fill
             priority
             sizes="100vw"
-            style={{ objectFit: 'cover', objectPosition: 'center' }}
+            style={{ objectFit: 'cover', objectPosition: 'center', transform: isRtl ? 'scaleX(-1)' : undefined }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d14]/90 via-[#0d0d14]/55 to-[#0d0d14]/10" />
+          <div className={`absolute inset-0 ${isRtl ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-[#0d0d14]/90 via-[#0d0d14]/55 to-[#0d0d14]/10`} />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d14]/70 via-transparent to-transparent" />
         </div>
 
@@ -82,7 +83,7 @@ export default function FleetHero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.55, ease: 'easeOut' }}
             >
-              <SlideButton label={hero.btn} icon={<ArrowRight size={14} className="ml-1" />} />
+              <SlideButton label={hero.btn} icon={isRtl ? <ArrowLeft size={14} className="mr-1" /> : <ArrowRight size={14} className="ml-1" />} />
             </motion.div>
           </motion.div>
         </div>

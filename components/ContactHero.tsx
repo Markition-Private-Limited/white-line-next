@@ -6,7 +6,8 @@ import { useLanguage } from '../context/LanguageContext'
 import contactBanner from '../assets/contact_us/contact_banner.webp'
 
 export default function ContactHero() {
-  const { trans } = useLanguage()
+  const { trans, dir } = useLanguage()
+  const isRtl = dir === 'rtl'
   const { hero } = trans.contactPage
 
   return (
@@ -19,9 +20,9 @@ export default function ContactHero() {
             fill
             priority
             sizes="100vw"
-            style={{ objectFit: 'cover', objectPosition: 'center' }}
+            style={{ objectFit: 'cover', objectPosition: 'center', transform: isRtl ? 'scaleX(-1)' : undefined }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d14]/88 via-[#0d0d14]/50 to-[#0d0d14]/10" />
+          <div className={`absolute inset-0 ${isRtl ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-[#0d0d14]/88 via-[#0d0d14]/50 to-[#0d0d14]/10`} />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d14]/60 via-transparent to-transparent" />
         </div>
 

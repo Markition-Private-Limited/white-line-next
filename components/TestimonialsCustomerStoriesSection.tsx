@@ -8,7 +8,8 @@ import reviewerImg from '../assets/home_customers/sultan.jpg'
 const _src = (i: unknown): string => (i as any).src ?? (i as string)
 
 export default function TestimonialsCustomerStoriesSection() {
-  const { trans } = useLanguage()
+  const { trans, dir } = useLanguage()
+  const isRtl = dir === 'rtl'
   const { stories } = trans.testimonialsPage
 
   const imgRef = useRef<HTMLDivElement>(null)
@@ -56,7 +57,7 @@ export default function TestimonialsCustomerStoriesSection() {
           <motion.div {...fadeUp(0.2)} className="flex-1 flex">
             <div className="w-full flex flex-col justify-center rounded-2xl" style={{ background: '#f6f6f6', padding: 'clamp(32px, 4vw, 52px)' }}>
               <div className="flex items-center justify-center mb-8 flex-shrink-0" style={{ width: 44, height: 44, borderRadius: 10, background: 'rgba(0,92,102,0.10)' }}>
-                <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ transform: isRtl ? 'scaleX(-1)' : undefined }}>
                   <path d="M0 16V9.6C0 4.267 3.2 1.067 9.6 0L10.4 1.6C7.733 2.133 5.867 3.2 4.8 4.8 3.733 6.4 3.2 8 3.2 9.6H6.4V16H0ZM11.2 16V9.6C11.2 4.267 14.4 1.067 20.8 0L21.6 1.6C18.933 2.133 17.067 3.2 16 4.8 14.933 6.4 14.4 8 14.4 9.6H17.6V16H11.2Z" fill="#005C66" />
                 </svg>
               </div>
