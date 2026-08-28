@@ -3,6 +3,7 @@ import { Inter, Montserrat, Cairo } from 'next/font/google'
 import LenisProvider from '@/providers/LenisProvider'
 import { LanguageProvider } from '@/context/LanguageContext'
 import Footer from '@/layouts/Footer'
+import FloatingNav from '@/layouts/FloatingNav'
 import ScrollReset from '@/components/ScrollReset'
 import './globals.css'
 
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <LanguageProvider>
           <LenisProvider>
             <ScrollReset />
+            <FloatingNav />
             {children}
             <Footer />
           </LenisProvider>

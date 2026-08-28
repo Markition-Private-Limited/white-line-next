@@ -29,15 +29,15 @@ const CARD_STATIC: { num: string; img: StaticImageData; icon: string }[] = [
 
 type CardData = { num: string; img: StaticImageData; icon: string; title: string; desc: string; explore: string }
 
-function useVh() {
-  const [vh, setVh] = useState(0)
+function useViewport() {
+  const [size, setSize] = useState({ vh: 0, vw: 0 })
   useEffect(() => {
-    const update = () => setVh(window.innerHeight)
+    const update = () => setSize({ vh: window.innerHeight, vw: window.innerWidth })
     update()
     window.addEventListener('resize', update)
     return () => window.removeEventListener('resize', update)
   }, [])
-  return vh
+  return size
 }
 
 function ServiceCard({
@@ -168,7 +168,7 @@ export default function ServicesSection() {
   const { trans } = useLanguage()
   const { services: svc } = trans
   const containerRef = useRef<HTMLDivElement>(null)
-  const vh = useVh()
+  const { vw } = useViewport()
 
   const cards: CardData[] = CARD_STATIC.map((s, i) => ({
     ...s,
@@ -177,9 +177,9 @@ export default function ServicesSection() {
     explore: svc.explore,
   }))
 
-  // On mobile (portrait), each card gets ~50vh of scroll; on larger screens 75vh.
-  // vh===0 means SSR / not yet measured — fall back to 75vh so desktop SSR is correct.
-  const perCard = vh > 0 && vh < 700 ? 50 : 75
+  // Mobile (portrait phones < 768px wide) needs less scroll; desktop gets more.
+  // vw===0 means SSR — fall back to 75vh so desktop SSR renders correctly.
+  const perCard = vw > 0 && vw < 768 ? 50 : 75
   const sectionHeight = `${cards.length * perCard}vh`
 
   return (
