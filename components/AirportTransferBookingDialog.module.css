@@ -1,0 +1,519 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 18px;
+  background: rgba(0, 0, 0, 0.68);
+  overscroll-behavior: contain;
+}
+
+.dialog {
+  position: relative;
+  width: min(718px, 100%);
+  max-height: calc(100dvh - 36px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  color: #fff;
+  border-radius: 18px;
+ background-color: rgba(36, 36, 36, 0.90);
+  background-image: linear-gradient(
+    203.23deg,
+    rgba(255, 255, 255, 0.4) 99.31%,
+    rgba(196, 196, 196, 0.42) 100%
+  );
+
+  /* background: linear-gradient(203.23deg, #666 1.31%, #454545 98.19%); */
+  /* background: linear-gradient(203.23deg, rgba(255, 255, 255, 0.86) 1.31%, rgba(196, 196, 196, 0.76) 98.19%); */
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+ backdrop-filter: blur(52px) saturate(120%);
+  -webkit-backdrop-filter: blur(52px) saturate(990%);
+}
+
+.dialog::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: linear-gradient(110.21deg, rgba(255, 255, 255, 0.2) 2.78%, rgba(191, 233, 238, 0.2) 58.48%, rgba(0, 92, 102, 0.2) 72.66%, rgba(255, 255, 255, 0.17) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  min-height: 498px;
+  padding: 22px 25px 18px;
+  font-family: var(--font-inter), sans-serif;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.subtitle {
+  margin: 7px 0 22px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.fieldGrid,
+.choiceGrid,
+.paymentGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px 11px;
+}
+
+.field label,
+.sectionLabel {
+  display: block;
+  margin-bottom: 12px;
+  color: rgba(255, 255, 255, 0.96);
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.control {
+  position: relative;
+  display: flex;
+  min-height: 39px;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,.34);
+  border-radius: 11px;
+  background: rgba(255,255,255,.20);
+}
+
+.control input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  padding: 0 46px 0 21px;
+  color: #fff;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+}
+
+.control input::placeholder { color: rgba(255,255,255,.62); }
+
+.controlIcon {
+  position: absolute;
+  right: 7px;
+  top: 50%;
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 50%;
+  color: #00717e;
+  background: #fff;
+  transform: translateY(-50%);
+}
+
+.flightRoute {
+  position: relative;
+  display: grid;
+  width: calc(100% - 6px);
+  height: 42px;
+  min-height: 42px;
+  grid-template-columns: 1fr 1fr;
+  align-self: end;
+  justify-self: end;
+  align-items: center;
+  overflow: visible;
+  border-radius: 11px;
+  color: #303238;
+  background: #fff;
+  text-align: center;
+}
+
+.flightRoute::before,
+.flightRoute::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 12px;
+  height: 6px;
+  background: rgba(174,174,174,.98);
+  transform: translateX(-50%);
+}
+.flightRoute::before { top: -1px; border-radius: 0 0 6px 6px; }
+.flightRoute::after { bottom: -1px; border-radius: 6px 6px 0 0; }
+
+.routeHalf { font-size: 9px; line-height: 1.2; }
+.plane { position: absolute; left: 50%; width: 39px; height: auto; transform: translateX(-50%); }
+
+.durationField { position: relative; z-index: 10; margin-top: 22px; }
+.durationField > label { display: block; margin-bottom: 8px; color: rgba(255,255,255,.96); font-size: 14px; font-weight: 500; text-transform: uppercase; }
+.durationControl { display: flex; width: 100%; min-height: 39px; align-items: center; justify-content: space-between; padding: 0 19px 0 21px; border: 1px solid rgba(255,255,255,.34); border-radius: 11px; color: #fff; background: rgba(255,255,255,.20); font: inherit; font-size: 12px; cursor: pointer; }
+.durationControl svg { transition: transform .22s ease; }
+.durationChevronOpen { transform: rotate(180deg); }
+.durationMenu { position: absolute; z-index: 30; top: calc(100% + 7px); left: 0; width: 100%; max-height: 322px; overflow-y: auto; border-radius: 12px; background: #fff; box-shadow: 0 18px 45px rgba(0,0,0,.28); transform-origin: top; scrollbar-width: thin; scrollbar-color: #aeb6bc transparent; }
+.durationMenu button { display: block; width: 100%; min-height: 45px; padding: 0 17px; border: 0; border-bottom: 1px solid #edf0f2; color: #303238; background: #fff; font: inherit; font-size: 12px; text-align: left; cursor: pointer; transition: color .18s ease, background-color .18s ease; }
+.durationMenu button:hover,
+.durationOptionActive { color: #017b87 !important; background: #effbfc !important; }
+.durationMenu button:last-child { border-bottom: 0; }
+.durationInfo { display: grid; min-height: 51px; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; margin-top: 23px; padding: 8px 16px; border-radius: 15px; color: #27383c; background: #e5f8fc; }
+.durationInfo > svg:first-child { color: #008a98; }
+.durationInfo > span { min-width: 0; }
+.durationInfo strong,
+.durationInfo small { display: block; }
+.durationInfo strong { margin-bottom: 3px; font-size: 10px; font-weight: 500; }
+.durationInfo small { color: #5d686d; font-size: 9px; }
+
+.dayDurationField { margin-bottom: 22px; }
+.dayDurationField > p { margin: 0 0 12px; color: rgba(255,255,255,.96); font-size: 14px; font-weight: 500; text-transform: uppercase; }
+.dayDurationGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.dayDurationOption { position: relative; display: flex; min-height: 53px; align-items: center; gap: 11px; padding: 7px 14px 7px 7px; border: 1px solid rgba(255,255,255,.85); border-radius: 15px; color: #fff; background: rgba(45,45,45,.24); font: inherit; text-align: left; cursor: pointer; transition: color .28s ease, background-color .28s ease, border-color .28s ease, box-shadow .28s ease, transform .28s cubic-bezier(.22, 1, .36, 1); }
+.dayDurationOption:hover { transform: translateY(-1px); }
+.dayDurationOption > span:nth-child(2) { min-width: 0; }
+.dayDurationOption strong,
+.dayDurationOption small { display: block; }
+.dayDurationOption strong { font-size: 13px; font-weight: 600; }
+.dayDurationOption small { margin-top: 2px; color: rgba(255,255,255,.72); font-size: 8px; }
+.dayDurationIcon { display: grid; width: 34px; height: 34px; flex: 0 0 34px; place-items: center; border-radius: 10px; color: #008b99; background: #fff; }
+.dayDurationActive { border-color: #c5f8ff; color: #21464a; background: #c5f6fc; box-shadow: 0 7px 18px rgba(0,92,102,.14); transform: translateY(-1px); }
+.dayDurationActive small { color: #52767a; }
+.dayDurationActive .dayDurationIcon { color: #fff; background: #82d5df; }
+.dayDurationCheck { position: absolute; top: 8px; right: 9px; padding: 1px; border-radius: 50%; color: #82d5df; background: #fff; }
+
+.bookingQuestion {
+  margin: 23px 0 20px;
+  font-size: 14px;
+}
+
+.choice {
+  display: flex;
+  min-height: 62px;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 15px;
+  border: 1px solid rgba(255,255,255,.42);
+  border-radius: 10px;
+  color: #fff;
+  background: rgba(255,255,255,.15);
+  text-align: left;
+  cursor: pointer;
+}
+
+.choiceActive {
+  border-color: #00717e;
+  background: #00717e;
+}
+
+.choiceIcon {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  place-items: center;
+  border-radius: 50%;
+  color: #00717e;
+  background: #fff;
+}
+
+.choiceCopy { flex: 1; }
+.choiceCopy strong { display: block; font-size: 13px; }
+.choiceCopy small { display: block; margin-top: 2px; font-size: 8px; letter-spacing: .1em; text-transform: uppercase; }
+
+.guestPanel,
+.vehiclePanel,
+.otpPanel {
+  margin-top: 22px;
+  border: 1px solid #00717e;
+  border-radius: 19px;
+  background: rgba(0, 92, 102, .18);
+}
+
+.guestPanel { padding: 22px 32px 23px; }
+.guestPanel h3 { margin: 0 0 8px; font-family: var(--font-inter), sans-serif; font-size: 18px; }
+.guestPanel p { margin: 0 0 12px; font-size: 11px; }
+.guestPanel .field + .field { margin-top: 17px; }
+.guestPanel .field label { margin-bottom: 5px; }
+.guestPanel .control { min-height: 38px; }
+
+.footerActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 23px;
+}
+
+.back,
+.continue {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: 0;
+  color: #fff;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.back { padding: 10px 2px; font-size: 15px; }
+.continue {
+  min-height: 41px;
+  padding: 0 21px;
+  border-radius: 999px;
+  background: #00717e;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.categoryIntro { margin: 0 0 21px; font-size: 14px; }
+.categoryGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px 17px; }
+.categoryCard {
+  position: relative;
+  min-height: 72px;
+  overflow: hidden;
+  padding: 9px;
+  border: 1px solid rgba(255,255,255,.6);
+  border-radius: 8px;
+  color: #4c5961;
+  background: #eef1f5;
+  text-align: left;
+  cursor: pointer;
+  transition: color .28s ease, background-color .28s ease, border-color .28s ease, box-shadow .28s ease, transform .28s cubic-bezier(.22, 1, .36, 1);
+}
+.categoryCard::after { content: ''; position: absolute; z-index: 0; right: -42px; bottom: -53px; width: 128px; height: 128px; border-radius: 50%; background: #dfe3e9; pointer-events: none; transition: background-color .28s ease, transform .35s cubic-bezier(.22, 1, .36, 1); }
+.categoryCard strong { position: relative; z-index: 2; display: block; font-size: 12px; font-weight: 500; }
+.categoryCard small { position: relative; z-index: 2; display: block; width: 62%; margin-top: 10px; color: #8b9297; font-size: 8px; line-height: 1.25; }
+.categoryCard img { position: absolute; z-index: 1; right: -4px; bottom: -5px; width: 48%; height: 60px; object-fit: contain; transition: transform .35s cubic-bezier(.22, 1, .36, 1); }
+.categoryCard:hover { transform: translateY(-1px); }
+.categoryCard:active { transform: translateY(0) scale(.99); }
+.categoryActive { border-color: #00717e; color: #fff; background: #00717e; box-shadow: 0 7px 16px rgba(0,0,0,.2); transform: translateY(-2px) scale(1.01); }
+.categoryActive::after { background: rgba(0, 180, 194, .34); transform: scale(1.08); }
+.categoryActive img { transform: translateX(-2px) scale(1.04); }
+.categoryActive small { color: rgba(255,255,255,.84); }
+
+.vehiclePanel { margin-top: 23px; padding: 15px 19px 14px; }
+.vehiclePanel > p { margin: 0 0 10px; font-size: 11px; }
+.vehicleGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.vehicleCard {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 80px 1fr;
+  gap: 8px;
+  padding: 5px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: #4e5054;
+  background: #dfe3e9;
+  text-align: left;
+  cursor: pointer;
+}
+.vehicleCard img { width: 80px; height: 51px; border-radius: 6px; object-fit: cover; }
+.vehicleCard strong { display: block; overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.vehicleCard small { display: block; margin: 4px 0 2px; font-size: 8px; }
+.vehicleSpecs { display: flex !important; align-items: center; gap: 8px; margin-top: 7px !important; }
+.vehicleSpec { display: inline-flex; align-items: center; gap: 3px; padding: 0; background: transparent; white-space: nowrap; }
+.vehicleSpecIcon { display: grid; width: 13px; height: 13px; place-items: center; border-radius: 50%; color: #687177; background: rgba(255,255,255,.72); }
+.vehicleSelected .vehicleSpecIcon { color: #017b87; background: #fff; }
+.vehicleSelected {
+  border-radius: 7px;
+  color: #fff;
+  background: #017b87;
+}
+
+.reviewTitle { margin: 23px 0 22px; font-family: var(--font-montserrat), sans-serif; font-size: 18px; }
+.summaryCard { overflow: hidden; border: 1px solid rgba(255,255,255,.72); border-radius: 17px; }
+.routeSummary {
+  display: grid;
+  min-height: 49px;
+  grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  padding: 7px 26px 6px;
+  color: #54555a;
+  background: #f4f4f4;
+}
+.routeSummary > svg { align-self: center; justify-self: center; }
+.routeSummary div:last-child { text-align: right; }
+.routeSummary small { display: block; margin-bottom: 3px; color: #9b9c9e; font-size: 8px; line-height: 1; letter-spacing: .12em; text-transform: uppercase; }
+.routeSummary strong { display: block; font-size: 11px; line-height: 1.2; }
+.summaryRow { display: flex; min-height: 34px; align-items: center; justify-content: space-between; padding: 0 22px; border-top: 1px solid rgba(255,255,255,.5); background: rgba(182,182,181,.84); font-size: 12px; font-weight: 600; }
+
+.fareCard { overflow: hidden; margin-top: 10px; border: 1px solid rgba(255,255,255,.75); border-radius: 17px; }
+.fareRow { display: flex; min-height: 40px; align-items: center; justify-content: space-between; padding: 0 28px; border-bottom: 1px solid rgba(255,255,255,.55); background: rgba(182,182,181,.84); font-size: 12px; font-weight: 600; }
+.fareTotal { min-height: 50px; color: #4b4b4e; background: #f1f1f1; font-family: var(--font-montserrat), sans-serif; font-size: 15px; }
+.paymentMethodRow { display: flex; align-items: center; gap: 13px; margin: 18px 0 15px; }
+.paymentTitle { margin: 0; font-family: var(--font-montserrat), sans-serif; font-size: 14px; font-weight: 600; }
+.brands { display: flex; gap: 10px; align-items: center; margin: 0; }
+.brand { display: grid; height: 20px; min-width: 0; place-items: center; padding: 0; background: transparent; overflow: hidden; }
+.brand img { max-height: 18px; width: auto; object-fit: contain; }
+.paymentGrid { align-items: stretch; font-family: var(--font-montserrat), sans-serif; }
+.cardFields { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.cardFieldsWide { grid-column: 1 / -1; }
+.cardFields .control { min-height: 56px; background: transparent; }
+.cardFields .control input { padding-top: 19px; }
+.floatingLabel { position: absolute; top: 8px; left: 15px; font-family: var(--font-montserrat), sans-serif; font-size: 11px; font-weight: 600; }
+.fieldIcon { position: absolute; right: 10px; top: 50%; display: grid; place-items: center; transform: translateY(-50%); }
+.cardMiniGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.otpPanel { display: grid; place-items: center; margin-top: 0; padding: 13px; border: .68px solid var(--Teal, #005c66); text-align: center; }
+.otpPanel h4 { margin: 8px 0 11px; font-size: 11px; }
+.otpPanel p { margin: 0 0 12px; font-size: 9px; }
+.otpIcon { display: grid; width: 25px; height: 25px; place-items: center; border-radius: 50%; color: #00717e; background: #bdebf0; }
+.otpBoxes { display: flex; gap: 4px; margin: 2px 0 15px; }
+.otpBoxes input { width: 26px; height: 30px; border: 1px solid #fff; border-radius: 7px; outline: 0; color: #333; background: rgba(255,255,255,.55); text-align: center; }
+.resend { border: 0; color: #c9f5fa; background: transparent; font-size: 9px; font-weight: 700; cursor: pointer; }
+
+.successBody { min-height: 445px; }
+.successCenter { display: grid; place-items: center; margin-top: 23px; text-align: center; }
+.successCheck { display: grid; width: 23px; height: 23px; place-items: center; border-radius: 50%; color: #087b69; background: #78ffa2; }
+.successCenter h3 { margin: 10px 0 10px; font-size: 14px; font-weight: 500; }
+.successCenter p { margin: 0 0 7px; color: rgba(255,255,255,.78); font-size: 10px; }
+.reference { padding: 6px 9px; border-radius: 5px; color: #127487; background: #e6fbff; font-size: 9px; }
+.appBanner { position: relative; min-height: 122px; margin-top: 38px; overflow: visible; padding: 15px 18px; border-radius: 17px; background: #0b3330; }
+.appBanner h3 { position: relative; z-index: 2; margin: 0 0 7px; font-family: var(--font-montserrat), sans-serif; font-size: 18px; font-weight: 300; line-height: 1.2; }
+.appBanner p { position: relative; z-index: 2; max-width: 390px; margin: 0 0 10px; color: rgba(255,255,255,.72); font-size: 9px; line-height: 1.45; }
+.stores { position: relative; z-index: 3; display: flex; align-items: center; gap: 9px; }
+.appRadarClip { position: absolute; z-index: 0; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; }
+.appRadar { position: absolute; right: 13%; bottom: -112%; width: 260px; opacity: .55; pointer-events: none; transform: rotate(275deg); }
+.appPhones { position: absolute; z-index: 2; right: 20px; bottom: -31px; width: 176px; height: auto; }
+.successBody .footerActions { margin-top: 36px; }
+
+@media (max-width: 640px) {
+  .overlay {
+    display: block;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  }
+
+  .dialog {
+    width: 100%;
+    height: auto;
+    min-height: calc(100dvh - 16px);
+    max-height: none;
+    margin: 0 auto;
+    overflow: visible;
+    border-radius: 14px;
+  }
+
+  .content {
+    min-height: 100%;
+    box-sizing: border-box;
+    padding: 18px 16px 14px;
+  }
+
+  .subtitle { margin-bottom: 17px; }
+
+  .dayDurationGrid { gap: 9px; }
+  .dayDurationOption { min-height: 58px; }
+
+  .fieldGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 13px 10px;
+  }
+
+  .fieldGrid > :nth-child(1),
+  .fieldGrid > :nth-child(2),
+  .fieldGrid > :nth-child(5),
+  .fieldGrid > :nth-child(6) {
+    grid-column: 1 / -1;
+  }
+
+  .field,
+  .choice,
+  .categoryCard,
+  .vehicleCard,
+  .routeSummary > div,
+  .cardFields,
+  .cardMiniGrid {
+    min-width: 0;
+  }
+
+  .field label { margin-bottom: 7px; font-size: 12px; }
+  .control { min-height: 44px; }
+  .control input { min-width: 0; padding-left: 15px; }
+  .flightRoute { width: 100%; height: 44px; min-height: 44px; justify-self: stretch; }
+
+  .bookingQuestion { margin: 17px 0 13px; line-height: 1.4; }
+  .choiceGrid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .choice { min-height: 68px; padding: 9px 10px; gap: 8px; }
+  .choice > svg { display: none; }
+  .choiceCopy strong { font-size: 12px; }
+  .choiceCopy small { font-size: 7px; line-height: 1.35; }
+
+  .guestPanel { padding: 18px 16px; }
+  .footerActions { margin-top: 17px; padding-bottom: env(safe-area-inset-bottom); }
+  .back, .continue { min-height: 44px; }
+  .back { padding-inline: 4px; }
+  .continue { padding-inline: 20px; }
+
+  .categoryGrid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .categoryCard { min-height: 86px; }
+  .categoryCard small { width: 66%; }
+
+  .vehiclePanel { padding: 14px 12px; }
+  .vehicleGrid { grid-template-columns: 1fr; }
+  .vehicleCard { grid-template-columns: 84px minmax(0, 1fr); min-height: 64px; }
+  .vehicleCard img { width: 84px; height: 54px; }
+  .vehicleCard strong { white-space: normal; }
+
+  .routeSummary { padding-inline: 12px; gap: 5px; }
+  .routeSummary strong { overflow-wrap: anywhere; }
+  .summaryRow, .fareRow { padding-inline: 14px; }
+
+  .paymentMethodRow { flex-wrap: wrap; }
+  .paymentGrid { grid-template-columns: 1fr; gap: 16px; }
+  .cardFieldsWide { grid-column: auto; }
+  .cardMiniGrid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .otpPanel { min-height: 190px; }
+
+  .appBanner { min-height: 150px; padding: 16px; }
+  .appBanner h3 { max-width: 75%; font-size: 16px; }
+  .appBanner p { max-width: 70%; }
+  .appRadar { right: -8%; opacity: .35; }
+  .appPhones { width: 145px; opacity: .48; right: -18px; bottom: -18px; }
+  .appBanner h3, .appBanner p, .stores { position: relative; z-index: 3; }
+  .successBody .footerActions { margin-top: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .categoryCard,
+  .categoryCard::after,
+  .categoryCard img,
+  .dayDurationOption { transition: none; }
+}
+
+@media (max-width: 350px) {
+  .content { padding-inline: 13px; }
+  .choiceGrid { grid-template-columns: 1fr; }
+  .dayDurationGrid { grid-template-columns: 1fr; }
+  .choice { min-height: 58px; }
+  .choice > svg { display: block; }
+  .categoryGrid { grid-template-columns: 1fr; }
+  .categoryCard { min-height: 74px; }
+  .categoryCard small { margin-top: 7px; }
+  .routeSummary { grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr); padding-inline: 9px; }
+  .routeSummary strong { font-size: 10px; }
+  .cardMiniGrid { grid-template-columns: 1fr; }
+}

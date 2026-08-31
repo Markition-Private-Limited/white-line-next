@@ -5,6 +5,7 @@ import { useRef, useState } from 'react'
 import Image from 'next/image'
 import Navbar from '../layouts/Navbar'
 import { useLanguage } from '../context/LanguageContext'
+import AirportTransferBookingDialog, { type BookingService } from './AirportTransferBookingDialog'
 import heroBanner from '../assets/home/home_banner.webp'
 import heroBannerMobile from '../assets/home/home_banner_mobile.webp'
 import card1 from '../assets/home/home_page_banner_Sub_images/1.jpg'
@@ -26,6 +27,7 @@ function ParallaxCard({
   isRtl = false,
   objectPosition = 'center',
   defaultPb = '40%',
+  onBook,
 }: {
   img: { src: string } | string
   title: string
@@ -34,6 +36,7 @@ function ParallaxCard({
   isRtl?: boolean
   objectPosition?: string
   defaultPb?: string
+  onBook?: () => void
 }) {
   const cardRef = useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = useState<Tilt>({ rotX: 0, rotY: 0, imgX: 0, imgY: 0 })
@@ -58,6 +61,7 @@ function ParallaxCard({
   return (
     <div
       ref={cardRef}
+      onClick={onBook}
       onMouseMove={handleMove}
       onMouseEnter={() => setActive(true)}
       onMouseLeave={reset}
@@ -73,6 +77,7 @@ function ParallaxCard({
         position: 'relative',
         zIndex: active ? 10 : 1,
         transition: 'box-shadow 0.4s ease',
+        cursor: onBook ? 'pointer' : undefined,
       }}
     >
       <div className="overflow-hidden rounded-lg mb-3 relative w-full">
@@ -81,9 +86,11 @@ function ParallaxCard({
           animate={{ paddingBottom: active ? '100%' : defaultPb }}
           transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
         />
-        <img
+        <Image
           src={imgSrc}
           alt={title}
+          fill
+          sizes="(max-width: 640px) 50vw, 20vw"
           className="absolute inset-0 w-full h-full object-cover"
           style={{
             objectPosition,
@@ -115,8 +122,9 @@ function ParallaxCard({
       >
         {desc}
       </p>
-      <a
-        href="#"
+      <button
+        type="button"
+        onClick={event => { event.stopPropagation(); onBook?.() }}
         className="inline-flex items-center gap-1 text-sm font-medium underline underline-offset-2"
         style={{
           fontFamily: 'Inter, sans-serif',
@@ -127,7 +135,7 @@ function ParallaxCard({
         }}
       >
         {bookNow} {isRtl ? <ArrowLeft size={12} /> : <ArrowRight size={12} />}
-      </a>
+      </button>
     </div>
   )
 }
@@ -141,6 +149,16 @@ export default function HomeHero() {
   const { trans, dir } = useLanguage()
   const isRtl = dir === 'rtl'
   const { hero } = trans
+  const [bookingType, setBookingType] = useState<BookingService | null>(null)
+
+  const bookingForCard = (index: number) => {
+    if (index === 0) return () => setBookingType('airport')
+    if (index === 1) return () => setBookingType('oneWay')
+    if (index === 2) return () => setBookingType('city')
+    if (index === 3) return () => setBookingType('day')
+    if (index === 4) return () => setBookingType('hourly')
+    return undefined
+  }
 
   return (
     <div style={{ background: '#ffffff', padding: 'clamp(6px, 0.8vw, 10px)' }}>
@@ -224,6 +242,7 @@ export default function HomeHero() {
                     isRtl={isRtl}
                     defaultPb="70%"
                     objectPosition={i === 3 ? '50% 15%' : 'center'}
+                    onBook={bookingForCard(i)}
                   />
                 </div>
                 {/* ── Sm+: ghost sizes the cell; card expands upward on hover ── */}
@@ -242,6 +261,7 @@ export default function HomeHero() {
                       bookNow={hero.bookNow}
                       isRtl={isRtl}
                       objectPosition={i === 3 ? '50% 15%' : 'center'}
+                      onBook={bookingForCard(i)}
                     />
                   </div>
                 </div>
@@ -251,6 +271,7 @@ export default function HomeHero() {
 
         </div>
       </section>
+      <AirportTransferBookingDialog open={bookingType !== null} service={bookingType ?? 'airport'} onClose={() => setBookingType(null)} />
     </div>
   )
 }

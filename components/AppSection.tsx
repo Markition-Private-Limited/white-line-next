@@ -8,7 +8,7 @@ import appleIcon from '../assets/global_app/apple-logo-svgrepo-com.svg'
 import playIcon  from '../assets/global_app/google-play-svgrepo-com.svg'
 
 /* ── Radar SVG (coded — matches the concentric-circle sonar look) ── */
-function RadarGraphic({ className, style }: { className?: string; style?: React.CSSProperties }) {
+export function RadarGraphic({ className, style }: { className?: string; style?: React.CSSProperties }) {
   /* Cars/planes along the arcs — positions are [cx, cy, rotateDeg] */
   const icons = [
     { cx: 138, cy: 52,  r: -30 },
@@ -66,34 +66,37 @@ function RadarGraphic({ className, style }: { className?: string; style?: React.
 }
 
 /* ── Store button ────────────────────────────────────────────────── */
-function StoreButton({ variant, compact, sub, main, isRtl }: { variant: 'apple' | 'google'; compact?: boolean; sub: string; main: string; isRtl?: boolean }) {
+export function StoreButton({ variant, compact, mini, sub, main, isRtl }: { variant: 'apple' | 'google'; compact?: boolean; mini?: boolean; sub: string; main: string; isRtl?: boolean }) {
   const isApple = variant === 'apple'
   return (
     <a
       href="#"
-      className="flex items-center rounded-xl"
+      className="flex items-center"
       style={{
         background: '#fff',
-        padding: compact ? '8px 12px' : '10px 18px',
-        gap: compact ? 8 : 10,
+        padding: mini ? '4px 7px' : compact ? '8px 12px' : '10px 18px',
+        gap: mini ? 5 : compact ? 8 : 10,
         textDecoration: 'none',
         border: '1px solid rgba(0,0,0,0.10)',
+        borderRadius: mini ? 4 : 12,
         flex: compact ? '1 1 0' : undefined,
         minWidth: 0,
         flexDirection: isRtl ? 'row-reverse' : undefined,
       }}
     >
-      <img
-        src={isApple ? (appleIcon as any).src ?? appleIcon : (playIcon as any).src ?? playIcon}
+      <Image
+        src={isApple ? appleIcon.src : playIcon.src}
         alt=""
         aria-hidden="true"
-        style={{ width: compact ? 26 : 36, height: compact ? 26 : 36, objectFit: 'contain', flexShrink: 0 }}
+        width={mini ? 18 : compact ? 26 : 36}
+        height={mini ? 18 : compact ? 26 : 36}
+        style={{ width: mini ? 18 : compact ? 26 : 36, height: mini ? 18 : compact ? 26 : 36, objectFit: 'contain', flexShrink: 0 }}
       />
       <div style={{ textAlign: isRtl ? 'right' : undefined }}>
-        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, margin: 0, lineHeight: 1, color: '#111', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: mini ? 6 : 9, margin: 0, lineHeight: 1, color: '#111', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
           {sub}
         </p>
-        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 700, margin: 0, lineHeight: 1.3, color: '#111' }}>
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: mini ? 10 : 15, fontWeight: 700, margin: 0, lineHeight: 1.3, color: '#111' }}>
           {main}
         </p>
       </div>
@@ -225,7 +228,7 @@ export default function AppSection() {
             }}
           >
             <motion.img
-              src={(appImg as any).src ?? appImg}
+              src={appImg.src}
               alt="Whiteline app screens"
               style={{ height: '100%', width: 'auto', display: 'block' }}
               initial={{ opacity: 0, x: isRtl ? -130 : 130, scale: 0.95 }}
@@ -302,7 +305,7 @@ export default function AppSection() {
             </motion.div>
 
             <motion.img
-              src={(appImg as any).src ?? appImg}
+              src={appImg.src}
               alt="Whiteline app screens"
               initial={{ opacity: 0, x: isRtl ? -60 : 60 }}
               animate={inView ? { opacity: 1, x: 0 } : {}}
