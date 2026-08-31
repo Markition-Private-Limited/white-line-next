@@ -1,15 +1,6 @@
-﻿'use client'
+'use client'
 import { motion } from 'framer-motion'
-
-const PLAIN = 'True Security Is Invisible Yet Ever-Present. At White Line, We Believe That Absolute Peace Of Mind Cannot Be Achieved'
-const BOLD  = 'Through Ordinary Measures—It Requires A Seamless Integration Of Advanced Vehicle Tracking, Rigorous Vetting.'
-
-const plainWords = PLAIN.split(' ')
-const boldWords  = BOLD.split(' ')
-const allWords   = [
-  ...plainWords.map(w => ({ text: w, bold: false })),
-  ...boldWords.map(w =>  ({ text: w, bold: true  })),
-]
+import { useLanguage } from '../context/LanguageContext'
 
 const container = {
   hidden: {},
@@ -29,6 +20,16 @@ const word = {
 }
 
 export default function WhyChooseQuoteSection() {
+  const { trans } = useLanguage()
+  const { quote } = trans.whyChooseUsPage
+
+  const plainWords = quote.plain.split(' ')
+  const boldWords = quote.bold.split(' ')
+  const allWords = [
+    ...plainWords.map(w => ({ text: w, bold: false })),
+    ...boldWords.map(w => ({ text: w, bold: true })),
+  ]
+
   return (
     <section
       className="w-full flex items-center justify-center"
@@ -59,7 +60,7 @@ export default function WhyChooseQuoteSection() {
             variants={word}
             style={{
               display: 'inline-block',
-              marginRight: '0.28em',
+              marginInlineEnd: '0.28em',
               fontWeight: w.bold ? 700 : 300,
             }}
           >
@@ -70,4 +71,3 @@ export default function WhyChooseQuoteSection() {
     </section>
   )
 }
-

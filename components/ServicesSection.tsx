@@ -17,30 +17,33 @@ import icon3 from '../assets/home_service/banner_icon/3.svg'
 import icon4 from '../assets/home_service/banner_icon/4.svg'
 import icon5 from '../assets/home_service/banner_icon/5.svg'
 
-const _getSrc = (i: unknown): string => (i as any).src ?? i as string
+const getSrc = (image: StaticImageData | string): string =>
+  typeof image === 'string' ? image : image.src
 
 const AR_DIGITS = '٠١٢٣٤٥٦٧٨٩'
 const toArabicNumerals = (s: string) => s.replace(/\d/g, d => AR_DIGITS[+d])
 
 const CARD_STATIC: { num: string; img: StaticImageData; icon: string }[] = [
-  { num: '01', img: airportImg,   icon: _getSrc(icon1) },
-  { num: '02', img: oneWayImg,    icon: _getSrc(icon2) },
-  { num: '03', img: cityImg,      icon: _getSrc(icon3) },
-  { num: '04', img: dayImg,       icon: _getSrc(icon4) },
-  { num: '05', img: chauffeurImg, icon: _getSrc(icon5) },
+  { num: '01', img: oneWayImg,    icon: getSrc(icon1) },
+  { num: '02', img: chauffeurImg, icon: getSrc(icon2) },
+  { num: '03', img: cityImg,      icon: getSrc(icon3) },
+  { num: '04', img: dayImg,       icon: getSrc(icon4) },
+  { num: '05', img: airportImg,   icon: getSrc(icon5) },
 ]
 
 type CardData = { num: string; img: StaticImageData; icon: string; title: string; desc: string; explore: string }
 
-function useVh() {
-  const [vh, setVh] = useState(0)
+function useIsMobileViewport() {
+  const [isMobile, setIsMobile] = useState(false)
+
   useEffect(() => {
-    const update = () => setVh(window.innerHeight)
+    const update = () => setIsMobile(window.innerWidth < 640)
     update()
     window.addEventListener('resize', update)
     return () => window.removeEventListener('resize', update)
   }, [])
-  return vh
+
+  return isMobile
 }
 
 function ServiceCard({
@@ -88,7 +91,7 @@ function ServiceCard({
         >
           <div className="absolute inset-0 overflow-hidden rounded-2xl">
             <img
-              src={(card.img as any).src ?? card.img}
+              src={card.img.src}
               alt={card.title}
               className="w-full h-full object-cover object-center"
             />
@@ -179,7 +182,7 @@ export default function ServicesSection() {
   const isRtl = dir === 'rtl'
   const { services: svc } = trans
   const containerRef = useRef<HTMLDivElement>(null)
-  const vh = useVh()
+  const isMobileViewport = useIsMobileViewport()
 
   const cards: CardData[] = CARD_STATIC.map((s, i) => ({
     ...s,
@@ -188,9 +191,9 @@ export default function ServicesSection() {
     explore: svc.explore,
   }))
 
-  // On mobile (portrait), each card gets ~50vh of scroll; on larger screens 75vh.
-  // vh===0 means SSR / not yet measured — fall back to 75vh so desktop SSR is correct.
-  const perCard = vh > 0 && vh < 700 ? 50 : 75
+  // Browser zoom reduces the CSS viewport height, so height alone cannot identify
+  // a mobile layout. Keep wide viewports on the full desktop scroll track.
+  const perCard = isMobileViewport ? 50 : 75
   const sectionHeight = `${cards.length * perCard}vh`
 
   return (
@@ -231,7 +234,12 @@ export default function ServicesSection() {
       <div
         ref={containerRef}
         className="relative px-5 sm:px-8 lg:px-14"
-        style={{ height: sectionHeight }}
+        style={{
+          height: sectionHeight,
+          // Never let the explicit scroll track become shorter than its cards.
+          // Otherwise the cards overflow into the following WhyChooseSection.
+          minHeight: `calc(${cards.length} * clamp(340px, 55vw, 580px))`,
+        }}
       >
         {cards.map((card, i) => (
           <ServiceCard
