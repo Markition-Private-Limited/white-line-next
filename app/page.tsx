@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import PageTitle from '@/components/PageTitle'
 import HomeHero from '@/components/HomeHero'
 import ExperienceSection from '@/components/ExperienceSection'
 import ServicesSection from '@/components/ServicesSection'
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
+      <PageTitle en="White Line" ar="White Line" />
       <HomeHero />
       <ExperienceSection />
       <ServicesSection />

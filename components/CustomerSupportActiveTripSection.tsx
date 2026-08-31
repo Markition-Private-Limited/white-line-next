@@ -1,6 +1,6 @@
 'use client'
 import { motion } from 'framer-motion'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, ChevronLeft } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 
 const fadeUp = (delay = 0) => ({
@@ -11,7 +11,8 @@ const fadeUp = (delay = 0) => ({
 })
 
 export default function CustomerSupportActiveTripSection() {
-  const { trans } = useLanguage()
+  const { trans, dir } = useLanguage()
+  const isRtl = dir === 'rtl'
   const { activeTrip: a } = trans.customerSupportPage
 
   const FIELDS = [
@@ -49,11 +50,11 @@ export default function CustomerSupportActiveTripSection() {
             <button className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full text-sm font-medium"
               style={{ fontFamily: 'Inter, sans-serif', background: '#ffffff', color: '#0c2626', minWidth: 180 }}>
               <div className="inline-flex h-12 translate-y-0 items-center justify-center gap-2 px-6 transition duration-500 group-hover:-translate-y-[150%] text-[#0c2626]">
-                {a.btn} <ChevronRight size={14} />
+                {a.btn} {isRtl ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
               </div>
               <div className="absolute inline-flex h-12 w-full translate-y-[100%] items-center justify-center gap-2 text-white transition duration-500 group-hover:translate-y-0">
                 <span className="absolute h-full w-full translate-y-full skew-y-12 scale-y-0 bg-[#3ab0bc] transition duration-500 group-hover:translate-y-0 group-hover:scale-150" />
-                <span className="z-10 inline-flex items-center gap-2">{a.btn} <ChevronRight size={14} /></span>
+                <span className="z-10 inline-flex items-center gap-2">{a.btn} {isRtl ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}</span>
               </div>
             </button>
           </motion.div>

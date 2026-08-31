@@ -1,21 +1,22 @@
 'use client'
 import { motion } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ArrowLeft } from 'lucide-react'
 import Navbar from '../layouts/Navbar'
 import Image from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
 import banner from '../assets/customer_Support/banner_customer.png'
 
 export default function CustomerSupportHero() {
-  const { trans } = useLanguage()
+  const { trans, dir } = useLanguage()
+  const isRtl = dir === 'rtl'
   const { hero } = trans.customerSupportPage
 
   return (
     <div style={{ background: '#ffffff', padding: 'clamp(6px, 0.8vw, 10px)' }}>
       <section className="relative bg-[#0d0d14]" style={{ borderRadius: 'clamp(14px, 1.5vw, 20px)', minHeight: 'clamp(420px, 55vw, 680px)' }}>
         <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 'inherit' }}>
-          <Image src={banner} alt="Customer Support" fill priority sizes="100vw" style={{ objectFit: 'cover', objectPosition: 'center' }} />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d14]/88 via-[#0d0d14]/50 to-[#0d0d14]/10" />
+          <Image src={banner} alt="Customer Support" fill priority sizes="100vw" style={{ objectFit: 'cover', objectPosition: 'center', transform: isRtl ? 'scaleX(-1)' : undefined }} />
+          <div className={`absolute inset-0 ${isRtl ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-[#0d0d14]/88 via-[#0d0d14]/50 to-[#0d0d14]/10`} />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d14]/60 via-transparent to-transparent" />
         </div>
 
@@ -42,7 +43,7 @@ export default function CustomerSupportHero() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5, ease: 'easeOut' }}>
               <button className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full font-medium transition-shadow bg-white text-[#0d0d14] border-2 border-white" style={{ fontFamily: 'Inter, sans-serif', minWidth: '180px' }}>
                 <div className="inline-flex h-12 translate-y-0 items-center justify-center gap-2 px-6 transition duration-500 group-hover:-translate-y-[150%] text-[#0d0d14]">
-                  {hero.btn} <ArrowRight size={14} />
+                  {hero.btn} {isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />}
                 </div>
                 <div className="absolute inline-flex h-12 w-full translate-y-[100%] items-center justify-center gap-2 text-white transition duration-500 group-hover:translate-y-0">
                   <span className="absolute h-full w-full translate-y-full skew-y-12 scale-y-0 bg-[#0d0d14] transition duration-500 group-hover:translate-y-0 group-hover:scale-150" />

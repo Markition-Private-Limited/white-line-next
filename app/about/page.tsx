@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import PageTitle from '@/components/PageTitle'
 import AboutHero from '@/components/AboutHero'
 import AboutWhitlineSection from '@/components/AboutWhitlineSection'
 import AboutMasterySection from '@/components/AboutMasterySection'
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
+      <PageTitle en="About Us | White Line" ar="من نحن | White Line" />
       <AboutHero />
       <AboutWhitlineSection />
       <AboutMasterySection />

@@ -31,7 +31,8 @@ function useIsMobile() {
 }
 
 export default function AboutMasterySection() {
-  const { trans } = useLanguage()
+  const { trans, dir } = useLanguage()
+  const isRtl = dir === 'rtl'
   const { mastery } = trans.about
   const { ref: sectionRef, inView } = useInView(0.08)
   const isMobile = useIsMobile()
@@ -188,11 +189,13 @@ export default function AboutMasterySection() {
             />
             <div
               className="absolute inset-0"
-              style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.08) 100%)' }}
+              style={{ background: isRtl
+                ? 'linear-gradient(to left, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.08) 100%)'
+                : 'linear-gradient(to right, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.08) 100%)' }}
             />
             <div
-              className="absolute inset-y-0 left-0 flex flex-col justify-center gap-4"
-              style={{ padding: 'clamp(24px, 3vw, 48px)', maxWidth: '52%' }}
+              className="absolute inset-y-0 flex flex-col justify-center gap-4"
+              style={{ padding: 'clamp(24px, 3vw, 48px)', maxWidth: '52%', [isRtl ? 'right' : 'left']: 0 }}
             >
               <CardList />
             </div>

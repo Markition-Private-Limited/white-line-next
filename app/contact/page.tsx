@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import PageTitle from '@/components/PageTitle'
 import ContactHero from '@/components/ContactHero'
 import ContactFormSection from '@/components/ContactFormSection'
 
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <>
+      <PageTitle en="Contact Us | White Line" ar="تواصل معنا | White Line" />
       <ContactHero />
       <ContactFormSection />
       <div className="w-full bg-white" style={{ padding: '0 0 80px' }}>

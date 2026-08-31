@@ -1,6 +1,6 @@
 'use client'
 import { motion } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ArrowLeft } from 'lucide-react'
 import { useRef, useState } from 'react'
 import Image from 'next/image'
 import Navbar from '../layouts/Navbar'
@@ -23,6 +23,7 @@ function ParallaxCard({
   title,
   desc,
   bookNow,
+  isRtl = false,
   objectPosition = 'center',
   defaultPb = '40%',
 }: {
@@ -30,6 +31,7 @@ function ParallaxCard({
   title: string
   desc: string
   bookNow: string
+  isRtl?: boolean
   objectPosition?: string
   defaultPb?: string
 }) {
@@ -124,7 +126,7 @@ function ParallaxCard({
           transition: 'opacity 0.4s ease, letter-spacing 0.4s ease',
         }}
       >
-        {bookNow} <ArrowRight size={12} />
+        {bookNow} {isRtl ? <ArrowLeft size={12} /> : <ArrowRight size={12} />}
       </a>
     </div>
   )
@@ -136,7 +138,8 @@ const cardVariants = {
 }
 
 export default function HomeHero() {
-  const { trans } = useLanguage()
+  const { trans, dir } = useLanguage()
+  const isRtl = dir === 'rtl'
   const { hero } = trans
 
   return (
@@ -153,7 +156,7 @@ export default function HomeHero() {
             priority
             sizes="100vw"
             className="block sm:hidden"
-            style={{ objectFit: 'cover', objectPosition: 'center top' }}
+            style={{ objectFit: 'cover', objectPosition: 'center top', transform: isRtl ? 'scaleX(-1)' : undefined }}
           />
           {/* Desktop landscape */}
           <Image
@@ -163,9 +166,9 @@ export default function HomeHero() {
             priority
             sizes="100vw"
             className="hidden sm:block"
-            style={{ objectFit: 'cover', objectPosition: 'center' }}
+            style={{ objectFit: 'cover', objectPosition: 'center', transform: isRtl ? 'scaleX(-1)' : undefined }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d14]/90 via-[#0d0d14]/50 to-[#0d0d14]/10" />
+          <div className={`absolute inset-0 ${isRtl ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-[#0d0d14]/90 via-[#0d0d14]/50 to-[#0d0d14]/10`} />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d14]/70 via-transparent to-transparent" />
         </div>
 
@@ -218,6 +221,7 @@ export default function HomeHero() {
                     title={s.title}
                     desc={s.desc}
                     bookNow={hero.bookNow}
+                    isRtl={isRtl}
                     defaultPb="70%"
                     objectPosition={i === 3 ? '50% 15%' : 'center'}
                   />
@@ -236,6 +240,7 @@ export default function HomeHero() {
                       title={s.title}
                       desc={s.desc}
                       bookNow={hero.bookNow}
+                      isRtl={isRtl}
                       objectPosition={i === 3 ? '50% 15%' : 'center'}
                     />
                   </div>

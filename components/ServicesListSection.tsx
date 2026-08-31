@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ArrowLeft } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 import s1 from '../assets/services_1/s_1.jpg'
 import s2 from '../assets/services_1/s_2.jpg'
@@ -83,6 +83,7 @@ function ServiceBlock({
   explore,
   index,
   slug,
+  isRtl,
 }: {
   item: ServiceItem
   img: string
@@ -90,6 +91,7 @@ function ServiceBlock({
   explore: string
   index: number
   slug: string
+  isRtl: boolean
 }) {
   const textBlock = (
     <motion.div
@@ -146,12 +148,12 @@ function ServiceBlock({
         style={{ fontFamily: 'Inter, sans-serif', background: '#005C66', border: 'none', cursor: 'pointer', minWidth: 160 }}
       >
         <span className="inline-flex h-11 items-center justify-center gap-2 px-6 text-white text-sm font-semibold transition duration-500 group-hover:-translate-y-[150%]">
-          {explore} <ArrowRight size={14} />
+          {explore} {isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />}
         </span>
         <span className="absolute inline-flex h-11 w-full translate-y-full items-center justify-center gap-2 transition duration-500 group-hover:translate-y-0">
           <span className="absolute h-full w-full translate-y-full skew-y-12 scale-y-0 bg-[#004d57] transition duration-500 group-hover:translate-y-0 group-hover:scale-150" />
           <span className="relative z-10 inline-flex items-center gap-2 text-white text-sm font-semibold">
-            {explore} <ArrowRight size={14} />
+            {explore} {isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />}
           </span>
         </span>
       </button>
@@ -187,7 +189,8 @@ function ServiceBlock({
 }
 
 export default function ServicesListSection() {
-  const { trans } = useLanguage()
+  const { trans, dir } = useLanguage()
+  const isRtl = dir === 'rtl'
   const { list } = trans.servicesPage
 
   useEffect(() => {
@@ -264,6 +267,7 @@ export default function ServicesListSection() {
             explore={list.explore}
             index={i}
             slug={SLUGS[i]}
+            isRtl={isRtl}
           />
         ))}
 

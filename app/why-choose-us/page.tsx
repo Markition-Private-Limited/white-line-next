@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import PageTitle from '@/components/PageTitle'
 import WhyChooseUsHero from '@/components/WhyChooseUsHero'
 import WhyChooseDetailSection from '@/components/WhyChooseDetailSection'
 import WhyChooseQuoteSection from '@/components/WhyChooseQuoteSection'
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 export default function WhyChooseUsPage() {
   return (
     <>
+      <PageTitle en="Why Choose Us | White Line" ar="لماذا White Line" />
       <WhyChooseUsHero />
       <WhyChooseDetailSection />
       <WhyChooseQuoteSection />

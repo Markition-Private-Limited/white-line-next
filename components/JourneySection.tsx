@@ -88,7 +88,8 @@ function AnimatedStat({
 }
 
 export default function JourneySection() {
-  const { trans } = useLanguage()
+  const { trans, dir } = useLanguage()
+  const isRtl = dir === 'rtl'
   const { journey: jrn } = trans
   const stats = jrn.stats.map((s, i) => ({ ...s, num: STAT_NUMS[i] }))
   const ref = useRef<HTMLElement>(null)
@@ -167,6 +168,7 @@ export default function JourneySection() {
             src={(bannerImg as any).src ?? bannerImg}
             alt="Passenger in luxury vehicle"
             className="w-full h-full object-cover object-center"
+            style={{ transform: isRtl ? 'scaleX(-1)' : undefined }}
           />
         </motion.div>
 

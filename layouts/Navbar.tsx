@@ -1,6 +1,6 @@
 'use client'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowUpRight, ChevronDown, X } from 'lucide-react'
+import { ArrowUpRight, ArrowUpLeft, ChevronDown, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -16,7 +16,8 @@ const BUTTON_BG = [
 
 // ── Language dropdown ──────────────────────────────────────────────────────────
 function LangDropdown({ solid }: { solid: boolean }) {
-  const { lang, setLang } = useLanguage()
+  const { lang, setLang, dir } = useLanguage()
+  const isRtl = dir === 'rtl'
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -40,6 +41,7 @@ function LangDropdown({ solid }: { solid: boolean }) {
         style={{
           fontFamily: 'Inter, sans-serif',
           color: solid ? '#374151' : 'rgba(255,255,255,0.9)',
+          flexDirection: isRtl ? 'row-reverse' : undefined,
         }}
       >
         <span className={`fi fi-${current.flagCode}`} style={{ fontSize: 18, borderRadius: 3 }} />
@@ -125,7 +127,8 @@ function MobileLangSwitcher() {
 
 // ── Navbar ────────────────────────────────────────────────────────────────────
 export default function Navbar({ solid = false }: { solid?: boolean }) {
-  const { trans } = useLanguage()
+  const { trans, dir } = useLanguage()
+  const isRtl = dir === 'rtl'
   const [drawerOpen, setDrawerOpen] = useState(false)
   const pathname = usePathname()
 
@@ -218,7 +221,7 @@ export default function Navbar({ solid = false }: { solid?: boolean }) {
               <span className="absolute inline-flex h-full w-full translate-y-[100%] items-center justify-center transition duration-500 group-hover:translate-y-0">
                 <span className={`absolute inset-0 translate-y-full skew-y-12 scale-y-0 transition duration-500 group-hover:translate-y-0 group-hover:scale-150 ${solid ? 'bg-[#004d57]' : 'bg-white/20'}`} />
                 <span className="relative z-10 inline-flex items-center gap-1.5">
-                  {trans.nav.download} <ArrowUpRight size={13} />
+                  {trans.nav.download} {isRtl ? <ArrowUpLeft size={13} /> : <ArrowUpRight size={13} />}
                 </span>
               </span>
             </button>
@@ -339,7 +342,7 @@ export default function Navbar({ solid = false }: { solid?: boolean }) {
                   <span className="absolute inset-0 inline-flex items-center justify-center translate-y-[100%] transition duration-500 group-hover:translate-y-0">
                     <span className="absolute inset-0 translate-y-full skew-y-12 scale-y-0 bg-white/20 transition duration-500 group-hover:translate-y-0 group-hover:scale-150" />
                     <span className="relative z-10 inline-flex items-center gap-1.5">
-                      {trans.nav.download} <ArrowUpRight size={13} />
+                      {trans.nav.download} {isRtl ? <ArrowUpLeft size={13} /> : <ArrowUpRight size={13} />}
                     </span>
                   </span>
                 </button>
