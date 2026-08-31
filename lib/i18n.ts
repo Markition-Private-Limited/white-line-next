@@ -191,7 +191,7 @@ const en = {
   footer: {
     tagline: 'Premium chauffeur services built on comfort, reliability, and discretion.',
     columns: {
-      company:   { title: 'Company',   links: ['About Us','Partners','Cancellation Policy','Privacy Policy',  ] },
+      company:   { title: 'Company',   links: ['About Us', 'Partners', 'Terms & Conditions', 'Privacy Policy'] },
       services:  { title: 'Services',  links: ['One Way Ride', 'Hourly Chauffeur', 'City-To-City', 'Day Service', 'Airport Transfer'] },
       resources: { title: 'Our Fleet', links: ['First Class', 'Business Class', 'SUV', 'Sedan', 'Van', 'Coaster & Bus'] },
       support:   { title: 'Support',   links: ['Contact Us', 'Customer Support', 'Testimonials', 'FAQs', 'Help Center'] },
@@ -759,6 +759,315 @@ const en = {
       ],
     },
   },
+
+  privacyPage: {
+    hero: {
+      h1a: 'Privacy',
+      h1b: 'Policy',
+      sub: 'At White Line, we deeply value your privacy and are committed to safeguarding the personal and professional information you entrust to us. This Privacy Policy outlines how we collect, use, disclose, and protect your data when you interact with our executive transport platforms, applications, and services.',
+    },
+    effectiveDate: 'Effective Date: August 17, 2026',
+    intro: 'At White Lane ("White Line," "we," "us," or "our"), we are committed to protecting your privacy and safeguarding the personal and professional information you entrust to us. This Privacy Policy explains how we collect, use, process, store, disclose, and protect your information when you access or use our website, mobile applications, customer portals, corporate/B2B platforms, and luxury chauffeur and ride-hailing services (collectively, the "Services"). By accessing or using our Services, you acknowledge that you have read and understood this Privacy Policy. If you do not agree with the practices described in this Privacy Policy, please discontinue use of our Services.',
+    sections: [
+      {
+        title: '1. Information We Collect',
+        body: 'We may collect different categories of information, depending on how you interact with White Lane, including when you create an account, book a ride, request customer support, use our website or mobile application, or communicate with us.',
+        subsections: [
+          {
+            title: '1.1 Personal Information',
+            body: 'When you create an account, make a booking, or otherwise interact with our Services, we may collect:',
+            items: ['Full name', 'Email address', 'Phone number', 'Residential or business address', 'Account login and profile information', 'Date of birth or other identification information where required for service verification', 'Communication preferences', 'Information provided when contacting customer support'],
+          },
+          {
+            title: '1.2 Booking and Transportation Information',
+            body: 'To provide our chauffeur and transportation services, we may collect information associated with your bookings, including:',
+            items: ['Pickup and drop-off locations', 'Pickup and drop-off times', 'Travel dates', 'Booking history', 'Passenger information', 'Number of passengers', 'Special transportation requests', 'Chauffeur or vehicle preferences', 'Flight information when provided for airport transfers', 'Additional instructions provided during the booking process', 'Information relating to ride cancellations, modifications, or disputes'],
+          },
+          {
+            title: '1.3 Location Information',
+            body: 'Because White Line provides chauffeur and ride-hailing services, location information is an important part of our Services. Depending on the features you use and the permissions you provide, we may collect precise location information, including:',
+            items: ['Pickup location', 'Drop-off location', 'Current or approximate device location', 'Vehicle location while a ride is in progress', 'Route and trip information', 'Location information associated with booking and dispatch activities'],
+            footer: 'Location information may be used to match passengers with available chauffeurs, facilitate pickups and drop-offs, monitor active trips, improve routing, provide customer support, and enhance the safety and reliability of our Services. You may be able to control certain location permissions through your device settings. However, disabling location services may affect your ability to use certain features of our Services.',
+          },
+          {
+            title: '1.4 Payment and Billing Information',
+            body: 'When you make a payment for our Services, we may collect information necessary to process and manage your transaction, such as:',
+            items: ['Billing name', 'Billing address', 'Payment method', 'Transaction amount', 'Transaction date and time', 'Payment status', 'Invoice and receipt information'],
+            footer: 'Credit and debit card information may be processed through third-party payment processors and certified payment gateways. White Line does not store complete payment card information on its own systems where such information can be securely processed by our authorized payment providers.',
+          },
+          {
+            title: '1.5 Corporate and B2B Information',
+            body: 'If you use our corporate transportation services or B2B portal, we may collect additional business-related information, including:',
+            items: ['Company name', 'Business address', 'Corporate account information', 'Authorized personal details', 'Employee or passenger information', 'Business email addresses', 'Billing and invoicing information', 'Corporate travel preferences', 'Booking and transportation history', 'Account administrators and authorized users'],
+            footer: 'Corporate customers are responsible for ensuring that they have the appropriate authority and permissions to provide personal information to White Line on behalf of their employees, customers, or other authorized passengers.',
+          },
+          {
+            title: '1.6 Communications and Support Information',
+            body: 'When you contact White Line, we may collect information contained in your communications, including:',
+            items: ['Emails', 'Customer support requests', 'Chat messages', 'Phone or other communications', 'Feedback', 'Complaints', 'Service-related inquiries', 'Information you voluntarily provide to our support team'],
+            footer: 'We use this information to respond to your requests, investigate issues, improve our Services, and maintain appropriate records of customer interactions.',
+          },
+          {
+            title: '1.7 Device and Technical Information',
+            body: 'When you access our website or applications, certain technical information may be collected automatically, including:',
+            items: ['IP address', 'Browser type and version', 'Operating system', 'Device type', 'Device identifiers', 'Language preferences', 'Time zone', 'Access dates and times', 'Referring and exit pages', 'Application usage information', 'Diagnostic and performance information'],
+            footer: 'This information helps us operate and improve our servers, troubleshoot, and enhance the overall performance and security of our Services.',
+          },
+        ],
+      },
+      {
+        title: '2. How We Use Your Information',
+        body: 'We use the information we collect to provide, maintain, and improve our Services, and to fulfill our obligations to you. Specifically, we may use your information to:',
+        subsections: [
+          {
+            title: '',
+            body: '',
+            items: ['Process and manage your bookings and reservations', 'Dispatch and coordinate chauffeur services', 'Facilitate real-time trip tracking and navigation', 'Process payments and send invoices or receipts', 'Communicate with you about your bookings, account, or inquiries', 'Send service-related notifications and updates', 'Provide customer support and resolve disputes', 'Verify your identity and maintain account security', 'Comply with applicable laws and regulatory requirements', 'Detect, investigate, and prevent fraud or unauthorized activity', 'Improve the functionality, safety, and quality of our Services', 'Conduct internal analytics, research, and service development', 'Personalize your experience based on your preferences and usage history', 'Manage our corporate and B2B client relationships'],
+          },
+        ],
+      },
+      {
+        title: '3. Sharing of Information',
+        body: 'We do not sell your personal information. We may share your information in the following limited circumstances:',
+        subsections: [
+          {
+            title: '3.1 With Chauffeurs and Service Partners',
+            body: 'We share relevant booking and contact information with the chauffeur assigned to your trip to facilitate pickup, navigation, and service delivery.',
+            items: [],
+          },
+          {
+            title: '3.2 With Third-Party Service Providers',
+            body: 'We engage trusted third-party vendors to assist in operating our platform, including payment processors, cloud infrastructure providers, communication platforms, mapping and navigation services, and customer support tools. These providers are contractually obligated to protect your information and use it only for the purposes we specify.',
+            items: [],
+          },
+          {
+            title: '3.3 With Corporate Account Administrators',
+            body: 'If your account is linked to a corporate or B2B account, the authorized administrator of that account may have access to your booking history, travel activity, and related billing information.',
+            items: [],
+          },
+          {
+            title: '3.4 For Legal Compliance and Safety',
+            body: 'We may disclose your information when required by law, court order, or governmental authority, or when we believe disclosure is necessary to protect the rights, property, or safety of White Line, our users, chauffeurs, or the public.',
+            items: [],
+          },
+          {
+            title: '3.5 Business Transfers',
+            body: 'In the event of a merger, acquisition, restructuring, or sale of assets, your information may be transferred as part of the transaction. We will notify you of any such change and ensure continued protection of your information.',
+            items: [],
+          },
+        ],
+      },
+      {
+        title: '4. Data Retention',
+        body: 'We retain your personal information for as long as necessary to provide our Services, comply with legal obligations, resolve disputes, and enforce our agreements. When your information is no longer required, we will securely delete or anonymize it in accordance with our data retention policies.',
+        subsections: [],
+      },
+      {
+        title: '5. Data Security',
+        body: 'We implement industry-standard technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. These measures include encryption of data in transit and at rest, access controls, and regular security assessments. While we take reasonable precautions, no method of transmission over the internet or electronic storage is completely secure.',
+        subsections: [],
+      },
+      {
+        title: '6. Your Rights and Choices',
+        body: 'Depending on your jurisdiction, you may have the following rights with respect to your personal information:',
+        subsections: [
+          {
+            title: '',
+            body: '',
+            items: ['The right to access and receive a copy of the information we hold about you', 'The right to correct or update inaccurate or incomplete information', 'The right to request deletion of your personal information, subject to applicable legal requirements', 'The right to withdraw consent where processing is based on your consent', 'The right to restrict or object to certain processing activities', 'The right to data portability', 'The right to lodge a complaint with a relevant data protection authority'],
+            footer: 'To exercise any of these rights, please contact us using the details provided in Section 9. We will respond to your request in accordance with applicable data protection laws.',
+          },
+        ],
+      },
+      {
+        title: '7. Cookies and Tracking Technologies',
+        body: 'Our website and applications may use cookies, web beacons, and similar tracking technologies to enhance functionality, analyze usage patterns, and personalize your experience. You may manage your cookie preferences through your browser settings or our cookie consent tool. Disabling certain cookies may limit some features of our Services.',
+        subsections: [],
+      },
+      {
+        title: '8. Children\'s Privacy',
+        body: 'Our Services are not directed to individuals under the age of 18. We do not knowingly collect personal information from minors. If you believe we have inadvertently collected information from a minor, please contact us and we will promptly delete such information.',
+        subsections: [],
+      },
+      {
+        title: '9. Contact Us',
+        body: 'If you have any questions, concerns, or requests regarding this Privacy Policy or the handling of your personal information, please contact our Privacy Team at:',
+        subsections: [
+          {
+            title: '',
+            body: '',
+            items: ['White Line Transportation', 'Email: privacy@whiteline.sa', 'Phone: +966 XX XXX XXXX', 'Address: Riyadh, Kingdom of Saudi Arabia'],
+          },
+        ],
+      },
+      {
+        title: '10. Updates to This Policy',
+        body: 'We may update this Privacy Policy from time to time to reflect changes in our practices, legal requirements, or Service offerings. When we make material changes, we will notify you by updating the effective date at the top of this page and, where appropriate, providing additional notice through the application or email. Your continued use of our Services following such changes constitutes your acceptance of the updated policy.',
+        subsections: [],
+      },
+    ],
+  },
+
+  termsPage: {
+    hero: {
+      h1a: 'Terms',
+      h1b: '& Conditions',
+      sub: 'Welcome to White Lane. By accessing our platform, booking our executive transport services, or interacting with our digital applications, you agree to comply with and be bound by these Terms & Conditions. Please review them carefully before utilizing our services.',
+    },
+    effectiveDate: 'Effective Date: August 17, 2026',
+    intro: 'These Terms & Conditions ("Terms") constitute a legally binding agreement between you ("User," "you," or "your") and White Line Transportation ("White Line," "we," "us," or "our"). By accessing or using any part of our platform, mobile applications, corporate portals, or requesting any of our chauffeur or transportation services, you acknowledge that you have read, understood, and agree to be bound by these Terms. If you do not agree, please discontinue use immediately.',
+    sections: [
+      {
+        title: '1. Acceptance of Terms',
+        body: 'By creating an account, making a booking, or using any White Line service, you confirm that you are at least 18 years of age, have the legal capacity to enter into a binding agreement, and accept these Terms in full. If you are using our services on behalf of a company or organization, you represent that you have the authority to bind that entity to these Terms.',
+        subsections: [],
+      },
+      {
+        title: '2. Services Provided',
+        body: 'White Line offers premium chauffeur and executive transportation services, including but not limited to:',
+        subsections: [
+          {
+            title: '',
+            body: '',
+            items: ['One-Way Ride — Point-to-point urban transportation', 'Hourly Chauffeur — Dedicated driver service billed by the hour', 'City-to-City — Intercity executive travel', 'Day Service — Full-day dedicated vehicle and driver', 'Airport Transfer — Arrivals, departures, and flight-tracked pickups'],
+            footer: 'All services are subject to availability, pricing, and the specific terms communicated at the time of booking. White Line reserves the right to modify, suspend, or discontinue any service at any time without prior notice.',
+          },
+        ],
+      },
+      {
+        title: '3. Booking & Reservations',
+        body: '',
+        subsections: [
+          {
+            title: '3.1 Booking Process',
+            body: 'Bookings may be made through our mobile application, website, or by contacting our concierge team directly. A booking is confirmed only upon receipt of a written or in-app confirmation from White Line. We reserve the right to decline any booking request at our sole discretion.',
+            items: [],
+          },
+          {
+            title: '3.2 Accuracy of Information',
+            body: 'You are responsible for providing accurate and complete information when making a booking, including pickup and drop-off locations, travel dates, passenger count, and any special requirements. White Line shall not be liable for service failures resulting from inaccurate information provided by the user.',
+            items: [],
+          },
+          {
+            title: '3.3 Booking Modifications',
+            body: 'Modifications to confirmed bookings must be requested through the app or by contacting support. Changes are subject to availability and may result in fare adjustments. White Line will communicate any pricing changes transparently before they are applied.',
+            items: [],
+          },
+        ],
+      },
+      {
+        title: '4. Pricing & Payment',
+        body: '',
+        subsections: [
+          {
+            title: '4.1 Fares',
+            body: 'All fares are quoted in the applicable local currency and are inclusive of applicable taxes unless otherwise stated. Quoted fares include standard route charges and, where specified, airport fees and tolls. Waiting time charges, route deviations, or additional stops may result in supplementary charges communicated to the user.',
+            items: [],
+          },
+          {
+            title: '4.2 Payment Methods',
+            body: 'White Line accepts payments through approved methods including credit and debit cards, digital wallets, and corporate invoicing for authorized accounts. Payment is due at the time of booking or as otherwise agreed for corporate accounts.',
+            items: [],
+          },
+          {
+            title: '4.3 Corporate & B2B Billing',
+            body: 'Approved corporate clients may be issued monthly invoices in accordance with their account agreements. Corporate accounts are subject to credit limits and payment terms outlined in their individual service agreements.',
+            items: [],
+          },
+        ],
+      },
+      {
+        title: '5. Cancellation & Refund Policy',
+        body: '',
+        subsections: [
+          {
+            title: '5.1 User Cancellations',
+            body: 'Cancellations made within the permitted timeframe as communicated at booking will be processed without penalty. Late cancellations or no-shows may be subject to a cancellation fee equivalent to a portion or the full fare of the booked service, as detailed in our Cancellation Policy.',
+            items: [],
+          },
+          {
+            title: '5.2 White Line Cancellations',
+            body: 'In rare circumstances where White Line must cancel a confirmed booking due to operational constraints, force majeure, or safety concerns, we will notify the user as soon as possible and offer either a full refund or rebooking at no additional charge.',
+            items: [],
+          },
+          {
+            title: '5.3 Refunds',
+            body: 'Eligible refunds will be processed to the original payment method within 5–10 business days, subject to the policies of the relevant payment provider. White Line is not responsible for delays caused by third-party payment processors.',
+            items: [],
+          },
+        ],
+      },
+      {
+        title: '6. User Conduct & Responsibilities',
+        body: 'When using White Line services, you agree to:',
+        subsections: [
+          {
+            title: '',
+            body: '',
+            items: ['Treat all White Line chauffeurs and staff with dignity and respect', 'Not engage in any illegal, abusive, or threatening behavior inside or outside the vehicle', 'Not consume alcohol or controlled substances inside the vehicle unless explicitly permitted', 'Not smoke or vape inside any White Line vehicle', 'Ensure all passengers in your booking comply with these conduct standards', 'Compensate White Line for any damage caused to the vehicle by you or your party', 'Comply with all applicable laws, regulations, and local ordinances during your journey'],
+            footer: 'White Line reserves the right to terminate a journey and refuse future service to any user who violates these conduct standards.',
+          },
+        ],
+      },
+      {
+        title: '7. Chauffeur Conduct & Standards',
+        body: 'All White Line chauffeurs are professionally trained, background-checked, and held to strict service standards. Our chauffeurs are committed to punctuality, discretion, and delivering a premium passenger experience. White Line continuously monitors chauffeur performance through passenger feedback and internal quality reviews.',
+        subsections: [],
+      },
+      {
+        title: '8. Limitation of Liability',
+        body: '',
+        subsections: [
+          {
+            title: '8.1 Service Disruptions',
+            body: 'White Line shall not be liable for delays, cancellations, or service interruptions caused by circumstances beyond our reasonable control, including but not limited to traffic conditions, road closures, severe weather, acts of God, or third-party service failures.',
+            items: [],
+          },
+          {
+            title: '8.2 Indirect Damages',
+            body: 'To the fullest extent permitted by applicable law, White Line shall not be liable for any indirect, incidental, consequential, or punitive damages arising from your use of our services, including loss of business opportunities, missed flights or appointments, or similar consequential losses.',
+            items: [],
+          },
+          {
+            title: '8.3 Maximum Liability',
+            body: "White Line's total liability to you for any claim arising from or related to our services shall not exceed the amount paid by you for the specific booking giving rise to the claim.",
+            items: [],
+          },
+        ],
+      },
+      {
+        title: '9. Intellectual Property',
+        body: 'All content on the White Line platform, including but not limited to logos, trademarks, design elements, text, images, and software, is the exclusive property of White Line Transportation and is protected by applicable intellectual property laws. You may not reproduce, distribute, or create derivative works from any White Line content without express written permission.',
+        subsections: [],
+      },
+      {
+        title: '10. Privacy',
+        body: 'Your use of White Line services is also governed by our Privacy Policy, which is incorporated into these Terms by reference. By using our services, you consent to the collection, use, and sharing of your information as described in the Privacy Policy.',
+        subsections: [],
+      },
+      {
+        title: '11. Governing Law & Dispute Resolution',
+        body: 'These Terms shall be governed by and construed in accordance with the laws of the Kingdom of Saudi Arabia. Any dispute arising out of or in connection with these Terms shall first be subject to good-faith negotiation. If unresolved, disputes shall be submitted to the competent courts of Riyadh, Kingdom of Saudi Arabia.',
+        subsections: [],
+      },
+      {
+        title: '12. Amendments',
+        body: 'White Line reserves the right to update or modify these Terms at any time. Changes will be communicated by updating the effective date at the top of this page. Your continued use of our services following any amendment constitutes your acceptance of the revised Terms.',
+        subsections: [],
+      },
+      {
+        title: '13. Contact Us',
+        body: 'If you have any questions or concerns regarding these Terms & Conditions, please contact us at:',
+        subsections: [
+          {
+            title: '',
+            body: '',
+            items: ['White Line Transportation', 'Email: legal@whiteline.sa', 'Phone: +966 XX XXX XXXX', 'Address: Riyadh, Kingdom of Saudi Arabia'],
+          },
+        ],
+      },
+    ],
+  },
 }
 
 // ─── Arabic translations (Riyadh / Saudi dialect in formal written form) ──────
@@ -962,7 +1271,7 @@ const ar: typeof en = {
   footer: {
     tagline: 'خدمات سائق راقية مبنية على الراحة والموثوقية والخصوصية.',
     columns: {
-      company:   { title: 'الشركة',   links: ['سياسة الخصوصية', 'الشركاء', 'من نحن'] },
+      company:   { title: 'الشركة',   links: ['من نحن', 'الشركاء', 'الشروط والأحكام', 'سياسة الخصوصية'] },
       services:  { title: 'الخدمات', links: ['رحلة أحادية', 'سائق بالساعة', 'بين المدن', 'خدمة اليوم', 'نقل المطار'] },
       resources: { title: 'أسطولنا', links: ['الدرجة الأولى', 'درجة الأعمال', 'إس يو في', 'سيدان', 'فان', 'كوستر وباص'] },
       support:   { title: 'الدعم',   links: ['تواصل معنا', 'خدمة العملاء', 'التقييمات', 'المنتسبون', 'سياسة الإلغاء'] },
@@ -1505,6 +1814,87 @@ const ar: typeof en = {
         { q: 'هل سائقو وايت لاين مدربون باحترافية؟', a: 'كل سائق يخضع لفحص خلفية صارم وشهادة قيادة دفاعية وتدريب على خدمة العملاء قبل الانضمام لأسطولنا. نراجع الأداء بانتظام عبر تقييمات الركاب ومراجعات الجودة الداخلية.' },
       ],
     },
+  },
+
+  privacyPage: {
+    hero: {
+      h1a: 'الخصوصية',
+      h1b: 'سياسة',
+      sub: 'في وايت لاين، نُولي خصوصيتك أهمية قصوى ونلتزم بحماية معلوماتك الشخصية والمهنية التي تعهد بها إلينا. توضح سياسة الخصوصية هذه كيفية جمعنا لبياناتك واستخدامها والإفصاح عنها وحمايتها عند تعاملك مع منصاتنا وتطبيقاتنا وخدمات النقل الفاخرة.',
+    },
+    effectiveDate: 'تاريخ السريان: 17 أغسطس 2026',
+    intro: 'في وايت لاين، نلتزم بحماية خصوصيتك وصون المعلومات الشخصية والمهنية التي تعهد بها إلينا. تشرح سياسة الخصوصية هذه كيفية جمعنا لمعلوماتك واستخدامها ومعالجتها وتخزينها والإفصاح عنها وحمايتها عند وصولك إلى خدماتنا أو استخدامها، بما يشمل الموقع الإلكتروني والتطبيقات ومنصات B2B وخدمات التوصيل الفاخرة.',
+    sections: [
+      {
+        title: '1. المعلومات التي نجمعها',
+        body: 'قد نجمع فئات مختلفة من المعلومات وفقاً لطريقة تفاعلك مع وايت لاين، بما يشمل إنشاء الحساب وحجز الرحلات وطلب الدعم واستخدام الموقع أو التطبيق.',
+        subsections: [
+          { title: '1.1 المعلومات الشخصية', body: 'عند إنشاء حساب أو إجراء حجز أو التفاعل مع خدماتنا، قد نجمع:', items: ['الاسم الكامل', 'عنوان البريد الإلكتروني', 'رقم الهاتف', 'العنوان السكني أو التجاري', 'بيانات تسجيل الدخول وملف الحساب', 'تاريخ الميلاد أو معلومات التحقق من الهوية', 'تفضيلات التواصل', 'المعلومات المقدمة عند التواصل مع خدمة العملاء'] },
+          { title: '1.2 معلومات الحجز والنقل', body: 'لتقديم خدمات النقل، قد نجمع:', items: ['مواقع الاستلام والتسليم', 'أوقات الاستلام والتسليم', 'تواريخ السفر', 'سجل الحجوزات', 'معلومات الركاب', 'عدد الركاب', 'طلبات النقل الخاصة', 'تفضيلات السائق أو المركبة', 'معلومات الرحلة الجوية عند الطلب', 'تعليمات إضافية أثناء الحجز', 'معلومات الإلغاء أو التعديل أو النزاعات'] },
+          { title: '1.3 معلومات الموقع الجغرافي', body: 'نظراً لطبيعة خدمات التوصيل، تُعدّ معلومات الموقع جزءاً أساسياً من خدماتنا. قد نجمع:', items: ['موقع الاستلام', 'موقع التسليم', 'الموقع التقريبي للجهاز', 'موقع المركبة أثناء الرحلة', 'معلومات المسار والرحلة', 'معلومات الموقع المرتبطة بالحجز والإرسال'], footer: 'قد تُستخدم معلومات الموقع لمطابقة الركاب مع السائقين وتحسين التوجيه وتعزيز سلامة الخدمة. يمكنك التحكم في أذونات الموقع عبر إعدادات جهازك.' },
+          { title: '1.4 معلومات الدفع والفواتير', body: 'عند إجراء الدفع، قد نجمع:', items: ['اسم الفاتورة', 'عنوان الفاتورة', 'طريقة الدفع', 'مبلغ المعاملة', 'تاريخ ووقت المعاملة', 'حالة الدفع', 'الفواتير والإيصالات'], footer: 'قد تُعالج معلومات البطاقة عبر مزودي دفع خارجيين معتمدين. لا تخزّن وايت لاين بيانات البطاقة الكاملة على أنظمتها الخاصة.' },
+          { title: '1.5 معلومات الشركات وB2B', body: 'إذا كنت تستخدم خدماتنا المؤسسية، قد نجمع:', items: ['اسم الشركة', 'عنوان العمل', 'معلومات الحساب المؤسسي', 'بيانات الشخص المفوض', 'معلومات الموظفين أو الركاب', 'عناوين البريد الإلكتروني التجارية', 'معلومات الفواتير', 'تفضيلات السفر المؤسسي', 'سجل الحجوزات', 'المسؤولون والمستخدمون المعتمدون'], footer: 'يتحمل العملاء المؤسسيون مسؤولية الحصول على الصلاحيات اللازمة لمشاركة بيانات موظفيهم مع وايت لاين.' },
+          { title: '1.6 معلومات التواصل والدعم', body: 'عند تواصلك مع وايت لاين، قد نجمع:', items: ['الرسائل الإلكترونية', 'طلبات الدعم', 'رسائل الدردشة', 'المكالمات الهاتفية', 'الملاحظات والشكاوى', 'الاستفسارات المتعلقة بالخدمة', 'المعلومات التي تقدمها طوعاً لفريق الدعم'], footer: 'نستخدم هذه المعلومات للرد على طلباتك والتحقيق في المشكلات وتحسين الخدمات.' },
+          { title: '1.7 معلومات الجهاز والتقنية', body: 'عند استخدام الموقع أو التطبيق، قد يُجمع تلقائياً:', items: ['عنوان IP', 'نوع وإصدار المتصفح', 'نظام التشغيل', 'نوع الجهاز', 'معرّفات الجهاز', 'تفضيلات اللغة', 'المنطقة الزمنية', 'تواريخ وأوقات الوصول', 'الصفحات المرجعية وصفحات الخروج', 'معلومات استخدام التطبيق', 'معلومات التشخيص والأداء'], footer: 'تساعدنا هذه المعلومات في تشغيل خوادمنا وتحسين أداء وأمن خدماتنا.' },
+        ],
+      },
+      { title: '2. كيف نستخدم معلوماتك', body: 'نستخدم المعلومات التي نجمعها لتقديم خدماتنا وصيانتها وتحسينها، بما يشمل:', subsections: [{ title: '', body: '', items: ['معالجة وإدارة الحجوزات', 'إرسال وتنسيق خدمات السائق', 'تتبع الرحلات في الوقت الفعلي', 'معالجة المدفوعات وإرسال الإيصالات', 'التواصل بشأن الحجوزات والحساب', 'إرسال إشعارات الخدمة', 'تقديم دعم العملاء وحل النزاعات', 'التحقق من الهوية وأمان الحساب', 'الامتثال للمتطلبات القانونية', 'الكشف عن الاحتيال ومنعه', 'تحسين وظائف الخدمات وجودتها', 'إجراء التحليلات الداخلية وتطوير الخدمات', 'تخصيص تجربتك وفق تفضيلاتك', 'إدارة العلاقات مع العملاء المؤسسيين'] }] },
+      { title: '3. مشاركة المعلومات', body: 'لا نبيع معلوماتك الشخصية. قد نشارك معلوماتك في الحالات المحدودة التالية:', subsections: [
+        { title: '3.1 مع السائقين وشركاء الخدمة', body: 'نشارك معلومات الحجز والتواصل الضرورية مع السائق المعين لرحلتك لتسهيل الاستلام والتوصيل.', items: [] },
+        { title: '3.2 مع مزودي الخدمات الخارجيين', body: 'نتعاون مع جهات خارجية موثوقة لتشغيل منصتنا، بما يشمل معالجة المدفوعات والبنية التحتية السحابية وخدمات التواصل والخرائط. هذه الجهات ملزمة تعاقدياً بحماية معلوماتك.', items: [] },
+        { title: '3.3 مع مسؤولي الحسابات المؤسسية', body: 'إذا كان حسابك مرتبطاً بحساب مؤسسي، يحق للمسؤول المعتمد الاطلاع على سجل حجوزاتك ونشاط سفرك وبيانات الفواتير.', items: [] },
+        { title: '3.4 للامتثال القانوني والسلامة', body: 'قد نكشف عن معلوماتك عند الاقتضاء القانوني أو لحماية حقوق وسلامة وايت لاين ومستخدميها وسائقيها والعامة.', items: [] },
+        { title: '3.5 عمليات نقل الأعمال', body: 'في حالة الاندماج أو الاستحواذ أو بيع الأصول، قد تُنقل معلوماتك كجزء من الصفقة مع ضمان استمرار حمايتها.', items: [] },
+      ]},
+      { title: '4. الاحتفاظ بالبيانات', body: 'نحتفظ بمعلوماتك الشخصية طالما كان ذلك ضرورياً لتقديم خدماتنا والامتثال للالتزامات القانونية وحل النزاعات وإنفاذ اتفاقياتنا. عند انتهاء الحاجة إليها، نقوم بحذفها أو إخفاء هويتها بأمان.', subsections: [] },
+      { title: '5. أمان البيانات', body: 'نطبّق تدابير تقنية وتنظيمية وفق أفضل المعايير الصناعية لحماية معلوماتك من الوصول غير المصرح به أو التغيير أو الإفصاح أو التدمير، بما يشمل تشفير البيانات أثناء النقل وفي وضع الراحة وضوابط الوصول وتقييمات الأمان الدورية.', subsections: [] },
+      { title: '6. حقوقك وخياراتك', body: 'وفقاً لولايتك القضائية، قد تتمتع بالحقوق التالية:', subsections: [{ title: '', body: '', items: ['الحق في الوصول إلى نسخة من معلوماتك', 'الحق في تصحيح المعلومات غير الدقيقة', 'الحق في طلب حذف بياناتك وفق المتطلبات القانونية', 'الحق في سحب موافقتك', 'الحق في تقييد المعالجة أو الاعتراض عليها', 'الحق في نقل البيانات', 'الحق في تقديم شكوى إلى هيئة حماية البيانات'], footer: 'للممارسة أي من هذه الحقوق، يرجى التواصل معنا عبر التفاصيل الواردة في القسم التاسع.' }] },
+      { title: '7. ملفات تعريف الارتباط وتقنيات التتبع', body: 'قد يستخدم موقعنا وتطبيقاتنا ملفات تعريف الارتباط وإشارات الويب وتقنيات التتبع المماثلة لتعزيز الوظائف وتحليل أنماط الاستخدام وتخصيص تجربتك. يمكنك إدارة تفضيلات ملفات تعريف الارتباط من خلال إعدادات متصفحك.', subsections: [] },
+      { title: '8. خصوصية الأطفال', body: 'خدماتنا غير موجهة للأفراد دون سن 18 عاماً. إذا اعتقدت أننا جمعنا معلومات من قاصر عن غير قصد، يرجى التواصل معنا وسنحذف هذه المعلومات فوراً.', subsections: [] },
+      { title: '9. تواصل معنا', body: 'إذا كانت لديك أسئلة أو مخاوف أو طلبات تتعلق بسياسة الخصوصية أو التعامل مع معلوماتك الشخصية، يرجى التواصل مع فريق الخصوصية لدينا:', subsections: [{ title: '', body: '', items: ['وايت لاين للنقل', 'البريد الإلكتروني: privacy@whiteline.sa', 'الهاتف: XXXX XXX XX 966+', 'العنوان: الرياض، المملكة العربية السعودية'] }] },
+      { title: '10. تحديثات هذه السياسة', body: 'قد نُحدّث سياسة الخصوصية هذه بشكل دوري لتعكس التغييرات في ممارساتنا أو المتطلبات القانونية أو عروض الخدمات. عند إجراء تغييرات جوهرية، سنُخطرك بتحديث تاريخ السريان وتقديم إشعار إضافي حسب الاقتضاء. استمرارك في استخدام خدماتنا بعد هذه التغييرات يُعدّ قبولاً للسياسة المحدّثة.', subsections: [] },
+    ],
+  },
+
+  termsPage: {
+    hero: {
+      h1a: 'الشروط',
+      h1b: 'والأحكام',
+      sub: 'مرحباً بك في وايت لاين. بالوصول إلى منصتنا أو حجز خدمات النقل التنفيذية أو التفاعل مع تطبيقاتنا الرقمية، فإنك توافق على الالتزام بهذه الشروط والأحكام. يُرجى مراجعتها بعناية قبل استخدام خدماتنا.',
+    },
+    effectiveDate: 'تاريخ السريان: 17 أغسطس 2026',
+    intro: 'تُشكّل هذه الشروط والأحكام ("الشروط") اتفاقية ملزمة قانوناً بينك ("المستخدم") وبين وايت لاين للنقل ("وايت لاين"). باستخدام أي جزء من منصتنا أو تطبيقاتنا أو طلب أي من خدمات النقل لدينا، فإنك تُقرّ بأنك قرأت هذه الشروط وفهمتها وتوافق على الالتزام بها.',
+    sections: [
+      { title: '1. قبول الشروط', body: 'بإنشاء حساب أو إجراء حجز أو استخدام أي خدمة من خدمات وايت لاين، تُقرّ بأنك تجاوزت سن الثامنة عشرة، وتمتلك الأهلية القانونية لإبرام اتفاقية ملزمة، وتقبل هذه الشروط كاملة.', subsections: [] },
+      { title: '2. الخدمات المقدمة', body: 'تقدم وايت لاين خدمات نقل راقية ومتنوعة تشمل:', subsections: [{ title: '', body: '', items: ['رحلة أحادية — نقل مباشر من نقطة لأخرى', 'سائق بالساعة — سائق خاص مخصص يُحتسب بالساعة', 'بين المدن — سفر تنفيذي بين المدن', 'خدمة اليوم — مركبة وسائق مخصصان ليوم كامل', 'نقل المطار — استقبال وتوصيل مع تتبع الرحلات'], footer: 'جميع الخدمات خاضعة للتوفر والتسعير والشروط المحددة عند الحجز. تحتفظ وايت لاين بحق تعديل أو تعليق أو إيقاف أي خدمة في أي وقت.' }] },
+      { title: '3. الحجز والاستئجار', body: '', subsections: [
+        { title: '3.1 عملية الحجز', body: 'يمكن إجراء الحجوزات عبر التطبيق أو الموقع الإلكتروني أو التواصل مع فريق الكونسيرج. يُعدّ الحجز مؤكداً فقط عند استلام تأكيد مكتوب أو داخل التطبيق من وايت لاين.', items: [] },
+        { title: '3.2 دقة المعلومات', body: 'أنت مسؤول عن تقديم معلومات دقيقة وكاملة عند الحجز، بما تشمل مواقع الاستلام والتسليم والتواريخ وعدد الركاب وأي متطلبات خاصة.', items: [] },
+        { title: '3.3 تعديل الحجوزات', body: 'يجب طلب تعديلات الحجوزات المؤكدة عبر التطبيق أو بالتواصل مع الدعم. التعديلات خاضعة للتوفر وقد تستلزم تعديل الأسعار.', items: [] },
+      ]},
+      { title: '4. التسعير والدفع', body: '', subsections: [
+        { title: '4.1 الأسعار', body: 'تُعرض جميع الأسعار بالعملة المحلية المعمول بها وتشمل الضرائب المنطبقة ما لم يُذكر خلاف ذلك. قد تنشأ رسوم إضافية عن أوقات الانتظار أو الانحراف عن المسار أو المحطات الإضافية.', items: [] },
+        { title: '4.2 طرق الدفع', body: 'تقبل وايت لاين المدفوعات عبر بطاقات الائتمان والخصم والمحافظ الرقمية والفوترة المؤسسية للحسابات المعتمدة.', items: [] },
+        { title: '4.3 فواتير الشركات وB2B', body: 'يحق للعملاء المؤسسيين المعتمدين الحصول على فواتير شهرية وفق اتفاقيات حساباتهم وحدود الائتمان المحددة.', items: [] },
+      ]},
+      { title: '5. سياسة الإلغاء والاسترداد', body: '', subsections: [
+        { title: '5.1 الإلغاء من قبل المستخدم', body: 'الإلغاءات ضمن الإطار الزمني المسموح به لن تُطبَّق عليها أي رسوم. الإلغاء المتأخر أو عدم الحضور قد يُخضع لرسوم إلغاء تعادل جزءاً من الأجرة أو كاملها.', items: [] },
+        { title: '5.2 الإلغاء من قبل وايت لاين', body: 'في الحالات النادرة التي تضطر فيها وايت لاين لإلغاء حجز مؤكد، سنُخطرك فوراً ونقدم استرداداً كاملاً أو إعادة جدولة دون رسوم.', items: [] },
+        { title: '5.3 المبالغ المستردة', body: 'تُعالَج المبالغ المستردة المؤهلة على وسيلة الدفع الأصلية خلال 5–10 أيام عمل.', items: [] },
+      ]},
+      { title: '6. سلوك المستخدم ومسؤولياته', body: 'عند استخدام خدمات وايت لاين، توافق على:', subsections: [{ title: '', body: '', items: ['معاملة جميع السائقين والموظفين باحترام', 'عدم الانخراط في أي سلوك غير قانوني أو مسيء أو مهدد', 'عدم تناول الكحول أو المواد الخاضعة للرقابة داخل المركبة إلا بإذن صريح', 'عدم التدخين أو الاستخدام في أي مركبة تابعة لوايت لاين', 'ضمان امتثال جميع ركاب حجزك لهذه المعايير', 'تعويض وايت لاين عن أي أضرار تلحق بالمركبة', 'الامتثال لجميع القوانين واللوائح المعمول بها'], footer: 'تحتفظ وايت لاين بحق إنهاء الرحلة ورفض الخدمة مستقبلاً لأي مستخدم ينتهك هذه المعايير.' }] },
+      { title: '7. معايير السائقين', body: 'جميع سائقي وايت لاين مدربون مهنياً وخاضعون للتحقق من الخلفية ومُلزمون بمعايير خدمة صارمة. تراقب وايت لاين أداء السائقين باستمرار من خلال تقييمات الركاب ومراجعات الجودة الداخلية.', subsections: [] },
+      { title: '8. تحديد المسؤولية', body: '', subsections: [
+        { title: '8.1 انقطاع الخدمة', body: 'لا تتحمل وايت لاين المسؤولية عن التأخيرات أو الإلغاءات الناجمة عن ظروف خارجة عن إرادتها كأحوال المرور أو إغلاق الطرق أو الأحداث القاهرة.', items: [] },
+        { title: '8.2 الأضرار غير المباشرة', body: 'لا تتحمل وايت لاين بأي حال المسؤولية عن الأضرار غير المباشرة أو العرضية أو التبعية الناجمة عن استخدام خدماتنا.', items: [] },
+        { title: '8.3 الحد الأقصى للمسؤولية', body: 'لا تتجاوز المسؤولية الإجمالية لوايت لاين تجاهك المبلغ المدفوع مقابل الحجز المحدد المُسبّب للنزاع.', items: [] },
+      ]},
+      { title: '9. الملكية الفكرية', body: 'جميع المحتويات على منصة وايت لاين بما تشمل الشعارات والعلامات التجارية والنصوص والصور والبرمجيات هي الملك الحصري لوايت لاين للنقل ومحمية بموجب قوانين الملكية الفكرية المعمول بها.', subsections: [] },
+      { title: '10. الخصوصية', body: 'يخضع استخدامك لخدمات وايت لاين أيضاً لسياسة الخصوصية الخاصة بنا، المدمجة في هذه الشروط بالإشارة. باستخدام خدماتنا، توافق على جمع معلوماتك واستخدامها ومشاركتها وفق ما هو موضح في سياسة الخصوصية.', subsections: [] },
+      { title: '11. القانون الحاكم وحل النزاعات', body: 'تخضع هذه الشروط لقوانين المملكة العربية السعودية وتُفسَّر وفقها. تُحسم أي نزاعات عبر التفاوض حسن النية أولاً، وإن لم تُحسم، تُحال إلى المحاكم المختصة في الرياض.', subsections: [] },
+      { title: '12. التعديلات', body: 'تحتفظ وايت لاين بحق تحديث أو تعديل هذه الشروط في أي وقت. يُعدّ استمرارك في استخدام خدماتنا بعد أي تعديل قبولاً للشروط المعدّلة.', subsections: [] },
+      { title: '13. تواصل معنا', body: 'لأي استفسارات أو مخاوف تتعلق بهذه الشروط، يُرجى التواصل معنا:', subsections: [{ title: '', body: '', items: ['وايت لاين للنقل', 'البريد الإلكتروني: legal@whiteline.sa', 'الهاتف: XXXX XXX XX 966+', 'العنوان: الرياض، المملكة العربية السعودية'] }] },
+    ],
   },
 }
 

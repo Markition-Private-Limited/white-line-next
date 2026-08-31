@@ -23,27 +23,123 @@ const getSrc = (image: StaticImageData | string): string =>
 const AR_DIGITS = '٠١٢٣٤٥٦٧٨٩'
 const toArabicNumerals = (s: string) => s.replace(/\d/g, d => AR_DIGITS[+d])
 
-const CARD_STATIC: { num: string; img: StaticImageData; icon: string }[] = [
-  { num: '01', img: oneWayImg,    icon: getSrc(icon1) },
-  { num: '02', img: chauffeurImg, icon: getSrc(icon2) },
-  { num: '03', img: cityImg,      icon: getSrc(icon3) },
-  { num: '04', img: dayImg,       icon: getSrc(icon4) },
-  { num: '05', img: airportImg,   icon: getSrc(icon5) },
+const CARD_STATIC: { num: string; img: StaticImageData; icon: string; link: string }[] = [
+  { num: '01', img: oneWayImg,    icon: getSrc(icon1), link: '/services/one-way-ride' },
+  { num: '02', img: chauffeurImg, icon: getSrc(icon2), link: '/services/hourly-booking' },
+  { num: '03', img: cityImg,      icon: getSrc(icon3), link: '/services/city-to-city' },
+  { num: '04', img: dayImg,       icon: getSrc(icon4), link: '/services/day-service' },
+  { num: '05', img: airportImg,   icon: getSrc(icon5), link: '/services/airport-transfer' },
 ]
 
-type CardData = { num: string; img: StaticImageData; icon: string; title: string; desc: string; explore: string }
+type CardData = { num: string; img: StaticImageData; icon: string; link: string; title: string; desc: string; explore: string }
 
 function useIsMobileViewport() {
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    const update = () => setIsMobile(window.innerWidth < 640)
+    const update = () => setIsMobile(window.innerWidth < 768)
     update()
     window.addEventListener('resize', update)
     return () => window.removeEventListener('resize', update)
   }, [])
 
   return isMobile
+}
+
+function CardInner({ card, isRtl }: { card: CardData; isRtl: boolean }) {
+  return (
+    <div
+      className="relative w-full rounded-2xl"
+      style={{
+        background: '#111118',
+        boxShadow: '0 12px 48px rgba(0,0,0,0.5)',
+        height: 'clamp(340px, 55vw, 580px)',
+      }}
+    >
+      <div className="absolute inset-0 overflow-hidden rounded-2xl">
+        <img
+          src={card.img.src}
+          alt={card.title}
+          className="w-full h-full object-cover object-center"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(180deg, rgba(102, 102, 102, 0) 0%, rgba(0, 0, 0, 1) 100%)',
+          }}
+        />
+      </div>
+
+      <span
+        className="absolute top-5 text-white/50 text-sm tracking-widest select-none"
+        style={{
+          fontFamily: 'Inter, sans-serif',
+          fontVariantNumeric: 'tabular-nums',
+          ...(isRtl ? { right: '20px' } : { left: '20px' }),
+        }}
+      >
+        {isRtl ? toArabicNumerals(card.num) : card.num}
+      </span>
+
+      <div
+        className="absolute top-4 flex items-center justify-center rounded-full"
+        style={{
+          width: 40,
+          height: 40,
+          background: 'rgba(255,255,255,0.25)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255,255,255,0.35)',
+          ...(isRtl ? { left: '16px' } : { right: '16px' }),
+        }}
+      >
+        <img src={card.icon} alt="" style={{ width: 18, height: 18 }} />
+      </div>
+
+      <div
+        className="absolute bottom-4 left-4 right-4"
+        style={{
+          borderRadius: 16,
+          padding: 'clamp(14px, 2vw, 20px) clamp(16px, 2.5vw, 24px)',
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(196,196,196,0.06) 100%)',
+          backdropFilter: 'blur(22px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(22px) saturate(180%)',
+          border: '1px solid rgba(255,255,255,0.28)',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.35)',
+        }}
+      >
+        <h3
+          className="text-white font-semibold leading-tight mb-1.5"
+          style={{
+            fontFamily: 'Montserrat, sans-serif',
+            fontSize: 'clamp(16px, 2.5vw, 22px)',
+          }}
+        >
+          {card.title}
+        </h3>
+        <p
+          className="text-white/60 leading-relaxed mb-3"
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 'clamp(11px, 1.3vw, 13px)',
+          }}
+        >
+          {card.desc}
+        </p>
+        <a
+          href={card.link}
+          className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80 underline underline-offset-2"
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 'clamp(11px, 1.2vw, 13px)',
+            color: '#D4FBFF',
+          }}
+        >
+          {card.explore} {isRtl ? <ArrowLeft size={13} color="#D4FBFF" /> : <ArrowRight size={13} color="#D4FBFF" />}
+        </a>
+      </div>
+    </div>
+  )
 }
 
 function ServiceCard({
@@ -75,103 +171,13 @@ function ServiceCard({
   return (
     <div
       className="sticky"
-      style={{ top: `calc(80px + ${index * 28}px)` }}
+      style={{ top: `${80 + index * 28}px` }}
     >
       <motion.div
         style={{ scale: cardScale, transformOrigin: 'top center' }}
         className="w-full"
       >
-        <div
-          className="relative w-full rounded-2xl"
-          style={{
-            background: '#111118',
-            boxShadow: '0 12px 48px rgba(0,0,0,0.5)',
-            height: 'clamp(340px, 55vw, 580px)',
-          }}
-        >
-          <div className="absolute inset-0 overflow-hidden rounded-2xl">
-            <img
-              src={card.img.src}
-              alt={card.title}
-              className="w-full h-full object-cover object-center"
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(180deg, rgba(102, 102, 102, 0) 0%, rgba(0, 0, 0, 1) 100%)',
-              }}
-            />
-          </div>
-
-          <span
-            className="absolute top-5 text-white/50 text-sm tracking-widest select-none"
-            style={{
-              fontFamily: 'Inter, sans-serif',
-              fontVariantNumeric: 'tabular-nums',
-              ...(isRtl ? { right: '20px' } : { left: '20px' }),
-            }}
-          >
-            {isRtl ? toArabicNumerals(card.num) : card.num}
-          </span>
-
-          <div
-            className="absolute top-4 flex items-center justify-center rounded-full"
-            style={{
-              width: 40,
-              height: 40,
-              background: 'rgba(255,255,255,0.25)',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255,255,255,0.35)',
-              ...(isRtl ? { left: '16px' } : { right: '16px' }),
-            }}
-          >
-            <img src={card.icon} alt="" style={{ width: 18, height: 18 }} />
-          </div>
-
-          <div
-            className="absolute bottom-4 left-4 right-4"
-            style={{
-              borderRadius: 16,
-              padding: 'clamp(14px, 2vw, 20px) clamp(16px, 2.5vw, 24px)',
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(196,196,196,0.06) 100%)',
-              backdropFilter: 'blur(22px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(22px) saturate(180%)',
-              border: '1px solid rgba(255,255,255,0.28)',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.35)',
-            }}
-          >
-            <h3
-              className="text-white font-semibold leading-tight mb-1.5"
-              style={{
-                fontFamily: 'Montserrat, sans-serif',
-                fontSize: 'clamp(16px, 2.5vw, 22px)',
-              }}
-            >
-              {card.title}
-            </h3>
-            <p
-              className="text-white/60 leading-relaxed mb-3"
-              style={{
-                fontFamily: 'Inter, sans-serif',
-                fontSize: 'clamp(11px, 1.3vw, 13px)',
-              }}
-            >
-              {card.desc}
-            </p>
-            <a
-              href="#"
-              className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80 underline underline-offset-2"
-              style={{
-                fontFamily: 'Inter, sans-serif',
-                fontSize: 'clamp(11px, 1.2vw, 13px)',
-                color: '#D4FBFF',
-              }}
-            >
-              {card.explore} {isRtl ? <ArrowLeft size={13} color="#D4FBFF" /> : <ArrowRight size={13} color="#D4FBFF" />}
-            </a>
-          </div>
-        </div>
+        <CardInner card={card} isRtl={isRtl} />
       </motion.div>
     </div>
   )
@@ -231,27 +237,37 @@ export default function ServicesSection() {
         </p>
       </div>
 
-      <div
-        ref={containerRef}
-        className="relative px-5 sm:px-8 lg:px-14"
-        style={{
-          height: sectionHeight,
-          // Never let the explicit scroll track become shorter than its cards.
-          // Otherwise the cards overflow into the following WhyChooseSection.
-          minHeight: `calc(${cards.length} * clamp(340px, 55vw, 580px))`,
-        }}
-      >
-        {cards.map((card, i) => (
-          <ServiceCard
-            key={card.num}
-            card={card}
-            index={i}
-            total={cards.length}
-            containerRef={containerRef as React.RefObject<HTMLDivElement>}
-            isRtl={isRtl}
-          />
-        ))}
-      </div>
+      {isMobileViewport ? (
+        /* Mobile: simple vertical stack, no sticky stacking animation */
+        <div className="flex flex-col gap-4 px-4 pb-10">
+          {cards.map((card) => (
+            <div key={card.num} className="w-full">
+              <CardInner card={card} isRtl={isRtl} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* Desktop: sticky scroll-stacking animation */
+        <div
+          ref={containerRef}
+          className="relative px-5 sm:px-8 lg:px-14"
+          style={{
+            height: sectionHeight,
+            minHeight: `calc(${cards.length} * clamp(340px, 55vw, 580px))`,
+          }}
+        >
+          {cards.map((card, i) => (
+            <ServiceCard
+              key={card.num}
+              card={card}
+              index={i}
+              total={cards.length}
+              containerRef={containerRef as React.RefObject<HTMLDivElement>}
+              isRtl={isRtl}
+            />
+          ))}
+        </div>
+      )}
 
       <div className="h-20" />
     </section>

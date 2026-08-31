@@ -6,13 +6,13 @@ import { useLanguage } from '../context/LanguageContext'
 import { LANG_META } from '../lib/i18n'
 
 // hrefs never change — only labels come from translations
-const ENTITY_TYPE_HREFS = ['/privacy', '/partners', '/about']
+const ENTITY_TYPE_HREFS = ['/about', '/partners', '/terms', '/privacy']
 const SERVICE_HREFS      = [
-  '/services#airport-transfer',
-  '/services#one-way-ride',
-  '/services#city-to-city',
-  '/services#day-service',
-  '/services#hourly-chauffeur',
+  '/services/one-way-ride',
+  '/services/hourly-booking',
+  '/services/city-to-city',
+  '/services/day-service',
+  '/services/airport-transfer',
 ]
 const RESOURCE_HREFS     = [
   '/fleet?category=First%20Class',
