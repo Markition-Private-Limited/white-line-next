@@ -19,10 +19,10 @@ const en = {
   nav: {
     links: [
       { label: 'Home',       to: '/' },
-      { label: 'About',      to: '/about' },
-      { label: 'Services',   to: '/services' },
-      { label: 'Fleet',      to: '/fleet' },
-      { label: 'B2B',        to: '/b2b/login' },
+      { label: 'About Us',           to: '/about' },
+      { label: 'Our Services',       to: '/services' },
+      { label: 'Our Fleet',          to: '/fleet' },
+      { label: 'White Line Partners', to: '/b2b/login' },
       { label: 'Contact Us', to: '/contact' },
     ],
     download: 'Download Now',
@@ -62,11 +62,11 @@ const en = {
     sub: 'WhiteLane delivers premium chauffeur transportation for people who value comfort, reliability, and exceptional service. From airport transfers to corporate journeys, every ride is designed to make growing more effortless.',
     explore: 'Explore Service',
     cards: [
+      { title: 'Airport Transfer',   desc: 'Reliable and comfortable airport pick-ups and drop-offs with a professional chauffeur.' },
       { title: 'One-Way Ride',       desc: 'Door-to-door premium transport from/to any destination, worry-less on budget.' },
-      { title: 'Hourly Chauffeur',   desc: 'Book a driver on the hour, flexible throughout your busy schedule.' },
       { title: 'City to City',       desc: 'Smooth and comfortable rides for all inter-city and regional trips.' },
       { title: 'Day Service',        desc: 'Professional transportation for meetings, events, and excursions.' },
-      { title: 'Airport Transfer',   desc: 'Reliable and comfortable airport pick-ups and drop-offs with a professional chauffeur.' },
+      { title: 'Hourly Chauffeur',   desc: 'Book a driver on the hour, flexible throughout your busy schedule.' },
     ],
   },
 
@@ -191,10 +191,10 @@ const en = {
   footer: {
     tagline: 'Premium chauffeur services built on comfort, reliability, and discretion.',
     columns: {
-      company:   { title: 'Company',   links: ['Knowledge Base', 'Security', 'Privacy Policy', 'Partners', 'About Us'] },
-      services:  { title: 'Services',  links: ['Contact Us', 'Press', 'Payroll', 'Library', 'Blog', 'Help Center'] },
-      resources: { title: 'Resources', links: ['Pricing', 'FAQs', 'Contact Support', 'Privacy Policy', 'Terms'] },
-      support:   { title: 'Support',   links: ['Contact', 'Customer Support', 'Testimonials', 'Affiliates', 'Cancellation Policy'] },
+      company:   { title: 'Company',   links: ['About Us','Partners','Cancellation Policy','Privacy Policy',  ] },
+      services:  { title: 'Services',  links: ['Airport Transfer', 'One Way Ride', 'City-To-City', 'Day Service', 'Hourly Chauffeur'] },
+      resources: { title: 'Our Fleet', links: ['First Class', 'Business Class', 'SUV', 'Sedan', 'Van', 'Coaster & Bus'] },
+      support:   { title: 'Support',   links: ['Contact Us', 'Customer Support', 'Testimonials', 'FAQs', 'Help Center'] },
     },
   },
 
@@ -372,10 +372,10 @@ const ar: typeof en = {
   nav: {
     links: [
       { label: 'الرئيسية',   to: '/' },
-      { label: 'من نحن',     to: '/about' },
-      { label: 'الخدمات',    to: '/services' },
-      { label: 'الأسطول',   to: '/fleet' },
-      { label: 'للشركات',   to: '/b2b/login' },
+      { label: 'من نحن',         to: '/about' },
+      { label: 'خدماتنا',       to: '/services' },
+      { label: 'أسطولنا',       to: '/fleet' },
+      { label: 'شركاء وايت لاين', to: '/b2b/login' },
       { label: 'تواصل معنا', to: '/contact' },
     ],
     download: 'حمّل الآن',
@@ -415,11 +415,11 @@ const ar: typeof en = {
     sub: 'تقدم وايت لاين خدمات نقل فاخرة للذين يقدّرون الراحة والموثوقية والخدمة المتميزة. من نقل المطار إلى رحلات الأعمال، كل رحلة مصممة لتجعل حياتك أكثر سلاسة.',
     explore: 'استعرض الخدمة',
     cards: [
+      { title: 'نقل المطار',    desc: 'استقبال وتوصيل موثوق ومريح مع سائق محترف.' },
       { title: 'رحلة أحادية',   desc: 'نقل فاخر من وإلى أي وجهة، ودون قلق على الميزانية.' },
-      { title: 'سائق بالساعة', desc: 'احجز سائقاً بالساعة، مرونة تامة طوال يومك المزدحم.' },
       { title: 'بين المدن',     desc: 'رحلات سلسة ومريحة لجميع التنقلات بين المدن والمناطق.' },
       { title: 'خدمة اليوم',   desc: 'نقل احترافي للاجتماعات والفعاليات والمهمات الخاصة.' },
-      { title: 'نقل المطار',    desc: 'استقبال وتوصيل موثوق ومريح مع سائق محترف.' },
+      { title: 'سائق بالساعة', desc: 'احجز سائقاً بالساعة، مرونة تامة طوال يومك المزدحم.' },
     ],
   },
 
@@ -568,10 +568,10 @@ const ar: typeof en = {
   footer: {
     tagline: 'خدمات سائق راقية مبنية على الراحة والموثوقية والخصوصية.',
     columns: {
-      company:   { title: 'الشركة',   links: ['قاعدة المعرفة', 'الأمان', 'سياسة الخصوصية', 'الشركاء', 'من نحن'] },
-      services:  { title: 'الخدمات', links: ['تواصل معنا', 'الصحافة', 'الرواتب', 'المكتبة', 'المدونة', 'مركز المساعدة'] },
-      resources: { title: 'الموارد',  links: ['الأسعار', 'الأسئلة الشائعة', 'دعم العملاء', 'سياسة الخصوصية', 'الشروط والأحكام'] },
-      support:   { title: 'الدعم',   links: ['تواصل', 'خدمة العملاء', 'التقييمات', 'المنتسبون', 'سياسة الإلغاء'] },
+      company:   { title: 'الشركة',   links: ['سياسة الخصوصية', 'الشركاء', 'من نحن'] },
+      services:  { title: 'الخدمات', links: ['نقل المطار', 'رحلة أحادية', 'بين المدن', 'خدمة اليوم', 'سائق بالساعة'] },
+      resources: { title: 'أسطولنا', links: ['الدرجة الأولى', 'درجة الأعمال', 'إس يو في', 'سيدان', 'فان', 'كوستر وباص'] },
+      support:   { title: 'الدعم',   links: ['تواصل معنا', 'خدمة العملاء', 'التقييمات', 'المنتسبون', 'سياسة الإلغاء'] },
     },
   },
 
@@ -714,7 +714,7 @@ const ar: typeof en = {
       sub: 'مجموعتنا المُصانة بعناية من المركبات الفاخرة تمثل قمة الرفاهية في عالم السيارات. كل طراز في أسطولنا يخضع لفحوصات دقيقة متعددة النقاط وتجهيز احترافي.',
       luggages: 'حقيبة',
       persons: 'راكب',
-      filters: ['الكل', 'الدرجة الأولى', 'درجة الأعمال', 'SUV', 'سيدان', 'فان', 'كوستر وباص'],
+      filters: ['الكل', 'الدرجة الأولى', 'درجة الأعمال', 'إس يو في', 'سيدان', 'فان', 'كوستر وباص'],
       desc: 'فسيحة وأنيقة ومتعددة الاستخدامات',
     },
   },

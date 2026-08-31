@@ -1,5 +1,5 @@
 'use client'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
@@ -18,6 +18,9 @@ const STATIC = [
   { img: _src(s4), imgRight: false },
   { img: _src(s5), imgRight: true },
 ]
+
+// Fixed slugs matching items order: One-Way Ride, Hourly Chauffeur, City To City, Day Service, Airport Transfer
+const SLUGS = ['one-way-ride', 'hourly-chauffeur', 'city-to-city', 'day-service', 'airport-transfer']
 
 function ParallaxImage({ src, alt }: { src: string; alt: string }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -79,12 +82,14 @@ function ServiceBlock({
   imgRight,
   explore,
   index,
+  slug,
 }: {
   item: ServiceItem
   img: string
   imgRight: boolean
   explore: string
   index: number
+  slug: string
 }) {
   const textBlock = (
     <motion.div
@@ -167,10 +172,12 @@ function ServiceBlock({
 
   return (
     <div
+      id={slug}
       className={`flex flex-col gap-10 lg:gap-14 items-center ${imgRight ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}
       style={{
         paddingBlock: 'clamp(40px, 5vw, 72px)',
         borderTop: index === 0 ? 'none' : '1px solid rgba(0,0,0,0.07)',
+        scrollMarginTop: 90,
       }}
     >
       {textBlock}
@@ -182,6 +189,15 @@ function ServiceBlock({
 export default function ServicesListSection() {
   const { trans } = useLanguage()
   const { list } = trans.servicesPage
+
+  useEffect(() => {
+    const hash = window.location.hash.slice(1)
+    if (!hash) return
+    const el = document.getElementById(hash)
+    if (!el) return
+    const timer = setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300)
+    return () => clearTimeout(timer)
+  }, [])
 
   return (
     <section className="w-full bg-white" style={{ padding: 'clamp(72px, 9vw, 120px) 0 clamp(48px, 6vw, 80px)' }}>
@@ -247,6 +263,7 @@ export default function ServicesListSection() {
             imgRight={STATIC[i].imgRight}
             explore={list.explore}
             index={i}
+            slug={SLUGS[i]}
           />
         ))}
 

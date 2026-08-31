@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import FleetHero from '@/components/FleetHero'
 import FleetCarsSection from '@/components/FleetCarsSection'
@@ -12,7 +13,9 @@ export default function FleetPage() {
   return (
     <>
       <FleetHero />
-      <FleetCarsSection />
+      <Suspense>
+        <FleetCarsSection />
+      </Suspense>
       <AppSection />
     </>
   )

@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useLanguage } from '../context/LanguageContext'
 
@@ -126,6 +127,7 @@ function CarCard({ car, desc, luggages, persons, index }: {
 export default function FleetCarsSection() {
   const { trans } = useLanguage()
   const { cars: c } = trans.fleetPage
+  const searchParams = useSearchParams()
 
   const [activeIdx, setActiveIdx] = useState(0)
   const [filterScrolledPast, setFilterScrolledPast] = useState(false)
@@ -133,6 +135,27 @@ export default function FleetCarsSection() {
   const filterBarRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
   const sectionRef = useRef<HTMLElement>(null)
+
+  // Re-runs whenever ?category= changes (including same-page navigation on /fleet)
+  useEffect(() => {
+    const raw = searchParams.get('category')
+    if (!raw) return
+    const idx = FILTER_KEYS.findIndex(k => k.toLowerCase() === decodeURIComponent(raw).toLowerCase())
+    if (idx !== -1) setActiveIdx(idx)
+
+    let attempts = 0
+    const tryScroll = () => {
+      const el = gridRef.current ?? sectionRef.current
+      if (el) {
+        const top = el.getBoundingClientRect().top + window.scrollY - 120
+        window.scrollTo({ top, behavior: 'smooth' })
+      } else if (attempts++ < 10) {
+        setTimeout(tryScroll, 100)
+      }
+    }
+    const raf = requestAnimationFrame(() => setTimeout(tryScroll, 200))
+    return () => cancelAnimationFrame(raf)
+  }, [searchParams])
 
   useEffect(() => {
     const filterEl = filterBarRef.current
@@ -224,7 +247,7 @@ export default function FleetCarsSection() {
   }
 
   return (
-    <section ref={sectionRef} className="w-full bg-white" style={{ padding: 'clamp(64px, 8vw, 112px) 0' }}>
+    <section ref={sectionRef} className="w-full bg-white" style={{ padding: 'clamp(64px, 8vw, 112px) 0', scrollMarginTop: 80 }}>
       <div className="px-6 sm:px-10 lg:px-16">
 
         <div className="flex items-center justify-center gap-3 mb-5">

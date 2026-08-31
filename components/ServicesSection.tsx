@@ -20,11 +20,11 @@ import icon5 from '../assets/home_service/banner_icon/5.svg'
 const _getSrc = (i: unknown): string => (i as any).src ?? i as string
 
 const CARD_STATIC: { num: string; img: StaticImageData; icon: string }[] = [
-  { num: '01', img: oneWayImg,    icon: _getSrc(icon1) },
-  { num: '02', img: chauffeurImg, icon: _getSrc(icon2) },
+  { num: '01', img: airportImg,   icon: _getSrc(icon1) },
+  { num: '02', img: oneWayImg,    icon: _getSrc(icon2) },
   { num: '03', img: cityImg,      icon: _getSrc(icon3) },
   { num: '04', img: dayImg,       icon: _getSrc(icon4) },
-  { num: '05', img: airportImg,   icon: _getSrc(icon5) },
+  { num: '05', img: chauffeurImg, icon: _getSrc(icon5) },
 ]
 
 type CardData = { num: string; img: StaticImageData; icon: string; title: string; desc: string; explore: string }
