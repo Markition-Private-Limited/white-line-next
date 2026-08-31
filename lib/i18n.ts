@@ -365,6 +365,400 @@ const en = {
       desc: 'Spacious, versatile, and elegant',
     },
   },
+
+  airportTransferPage: {
+    hero: {
+      h1a: 'Seamless',
+      h1b: 'Airport Transfers',
+      sub: 'From the moment your flight lands to your final destination — White Line ensures a flawless, punctual, and completely stress-free airport experience with professional chauffeurs and real-time flight tracking.',
+      btn1: 'Book a Transfer',
+      btn2: 'Explore Our Fleet',
+    },
+    overview: {
+      label: 'Service Overview',
+      h1a: 'Elevating',
+      h1b: 'Airport Transfers',
+      h2: 'Through Precision Logistics',
+      body: 'Starting or concluding an international journey should never be a source of friction. Our airport service is meticulously engineered to eliminate the uncertainties of modern air travel, providing a seamless transition between the terminal and your final destination. By integrating real-time flight monitoring, proactive schedule adjustments for delayed arrivals, and personalised meet-and-greet protocols inside the terminal, we ensure that your arrival or departure is met with absolute punctuality and effortless elegance.',
+    },
+    steps: {
+      label: 'Precision Logistics',
+      h1a: 'A Effortless',
+      h1b: 'Four-Step Journey',
+      h2: 'Designed For Peace Of Mind',
+      sub: 'Every journey is different. What remains consistent is the experience our passengers receive — professional chauffeurs, dependable service, premium vehicles and the comfort of knowing everything is taken care of.',
+      items: [
+        { num: '01', title: 'Effortless Booking', desc: 'Secure your vehicle seamlessly through our intuitive platform or digital app by simply entering your flight number, schedule, and destination details to initiate your reservation instantly.' },
+        { num: '02', title: 'Proactive Monitoring', desc: "Our dispatch system continuously monitors your flight's live status, automatically adjusting your chauffeur's arrival time to accommodate early landings or unexpected delays without any hassle." },
+        { num: '03', title: 'Terminal Welcome', desc: 'Step off the plane and into expert care as your vetted, professional chauffeur greets you inside the terminal arrival hall, holding a clear identifier and assisting you with your luggage.' },
+        { num: '04', title: 'Tranquil Transit', desc: 'Relax or catch up on work within a private, climate-controlled luxury sanctuary as your chauffeur navigates the optimal route directly to your hotel, office, or residence.' },
+      ],
+    },
+    features: {
+      label: 'Key Features',
+      h1a: 'Your ',
+      h1b: 'Chauffeur',
+      h1c: ', At',
+      h2: 'Your Fingertips.',
+      sub: 'The White Line app acts as your personal terminal concierge. Real-time driver status, terminal coordination notes, and instant billing are always active.',
+      items: [
+        { title: 'Stress-Free Arrival Windows', desc: 'Enjoy inclusive complimentary waiting time after landing so you never feel rushed through customs and luggage retrieval.' },
+        { title: 'Live Flight Monitoring', desc: 'Continuous tracking allows our team to automatically adjust your pickup time for early arrivals or flight delays.' },
+        { title: 'Professional Meet & Greet', desc: 'Your vetted, professional chauffeur greets you inside the arrival hall with a clear sign and full luggage assistance.' },
+        { title: 'Tailored Luxury Vehicles', desc: 'Select from elite sedans and spacious SUVs perfectly suited for solo travelers or large corporate delegations.' },
+      ],
+    },
+    faq: {
+      label: 'Answers To Frequent Concerns',
+      h1: 'Questions Before',
+      h2: 'You Book?',
+      sub: 'We operate with absolute transparency. If your question is not listed here, please connect with our round-the-clock support.',
+      items: [
+        {
+          q: 'How do I track my incoming driver?',
+          a: 'Through the White Line app, you receive live GPS tracking of your chauffeur from the moment they are dispatched. You will also receive proactive SMS notifications with real-time arrival estimates.',
+        },
+        {
+          q: 'Can I alter my drop-off location mid-trip?',
+          a: 'Yes. Simply inform your chauffeur or contact our support team during the journey. Changes are accommodated without friction — any fare adjustment is communicated transparently before it is applied.',
+        },
+        {
+          q: 'What if my incoming flight is significantly delayed?',
+          a: 'Our dispatch system monitors your flight in real time. Your chauffeur\'s arrival is automatically adjusted to align with your updated landing time at no additional charge — no calls or messages required from your side.',
+        },
+        {
+          q: 'How are toll prices and parking fees calculated?',
+          a: 'All applicable tolls and airport parking fees are included in your quoted fare upfront. There are no surprise charges at the end of your journey — what you see at booking is what you pay.',
+        },
+      ],
+    },
+  },
+
+  hourlyBookingPage: {
+    hero: {
+      h1a: 'Flexible Hourly Chauffeur',
+      h1b: 'Service Tailored',
+      sub: 'Move through your demanding schedule with total freedom and poise. Our premium hourly chauffeur service keeps a private luxury vehicle and professional driver entirely at your disposal, ensuring seamless mobility, zero wait times, and complete privacy across every mile of your journey.',
+      btn1: 'Book Hourly Booking',
+      btn2: 'Explore Service',
+    },
+    overview: {
+      label: 'Service Overview',
+      h1a: 'Elevating On-Demand Mobility',
+      h1b: '',
+      h2: 'Through Unmatched Flexibility',
+      body: 'Moving through a demanding schedule should never be constrained by rigid transportation plans. Our hourly chauffeur service is meticulously engineered to provide absolute flexibility, keeping a private luxury vehicle and professional driver entirely at your disposal. Whether you are managing back-to-back corporate meetings, private site visits, or a dynamic city itinerary, we ensure a seamless, uninterrupted environment where your time is fiercely protected and every route is masterfully navigated.',
+    },
+    steps: {
+      label: 'Precision Logistics',
+      h1a: 'A Effortless',
+      h1b: 'Four-Step Journey',
+      h2: 'Designed For Peace Of Mind',
+      sub: 'Every journey is different. What remains consistent is the experience our passengers receive — professional chauffeurs, dependable service, premium vehicles and the comfort of knowing everything is taken care of.',
+      items: [
+        { num: '01', title: 'Effortless Booking', desc: 'Secure your vehicle seamlessly through our intuitive platform or digital app by simply entering your flight number, schedule, and destination details to initiate your reservation instantly.' },
+        { num: '02', title: 'Proactive Monitoring', desc: "Our dispatch system continuously monitors your flight's live status, automatically adjusting your chauffeur's arrival time to accommodate early landings or unexpected delays without any hassle." },
+        { num: '03', title: 'Terminal Welcome', desc: 'Step off the plane and into expert care as your vetted, professional chauffeur greets you inside the terminal arrival hall, holding a clear identifier and assisting you with your luggage.' },
+        { num: '04', title: 'Tranquil Transit', desc: 'Relax or catch up on work within a private, climate-controlled luxury sanctuary as your chauffeur navigates the optimal route directly to your hotel, office, or residence.' },
+      ],
+    },
+    features: {
+      label: 'Key Features',
+      h1a: 'Your ',
+      h1b: 'Chauffeur',
+      h1c: ', At',
+      h2: 'Your Fingertips.',
+      sub: 'The White Line app acts as your personal terminal concierge. Real-time driver status, terminal coordination notes, and instant billing are always active.',
+      items: [
+        { title: 'Stress-Free Arrival Windows', desc: 'Enjoy inclusive complimentary waiting time after landing so you never feel rushed through customs and luggage retrieval.' },
+        { title: 'On-Demand Adaptability', desc: 'Enjoy complete freedom to update your itinerary, add impromptu stops, or modify your destination.' },
+        { title: 'Dedicated Presence', desc: 'Step out of your meetings or appointments to find your professional chauffeur and pristine vehicle ready.' },
+        { title: 'Seamless Completion', desc: 'Conclude your productive day with a relaxed ride back to your residence or hotel, supported by flawless service.' },
+      ],
+    },
+    faq: {
+      label: 'Answers To Frequent Concerns',
+      h1: 'Questions Before',
+      h2: 'You Book?',
+      sub: 'We operate with absolute transparency. If your question is not listed here, please connect with our round-the-clock support.',
+      items: [
+        {
+          q: 'How do I track my incoming driver?',
+          a: 'Through the White Line app, you receive live GPS tracking of your chauffeur from the moment they are dispatched. You will also receive proactive SMS notifications with real-time arrival estimates.',
+        },
+        {
+          q: 'Can I alter my drop-off location mid-trip?',
+          a: 'Yes. Simply inform your chauffeur or contact our support team during the journey. Changes are accommodated without friction — any fare adjustment is communicated transparently before it is applied.',
+        },
+        {
+          q: 'What if my incoming flight is significantly delayed?',
+          a: 'Our dispatch system monitors your flight in real time. Your chauffeur\'s arrival is automatically adjusted to align with your updated landing time at no additional charge — no calls or messages required from your side.',
+        },
+        {
+          q: 'How are toll prices and parking fees calculated?',
+          a: 'All applicable tolls and airport parking fees are included in your quoted fare upfront. There are no surprise charges at the end of your journey — what you see at booking is what you pay.',
+        },
+      ],
+    },
+  },
+
+  cityToCityPage: {
+    hero: {
+      h1a: 'Seamless Long-Distance',
+      h1b: 'Intercity Travel',
+      sub: 'Bridge the distance between major metropolitan hubs without the friction of traditional travel. Our premium city-to-city service provides an elite, private environment within a luxury vehicle, allowing you to relax, prepare for upcoming engagements, or conduct confidential business uninterrupted across every mile.',
+      btn1: 'Book City To City',
+      btn2: 'Explore Service',
+    },
+    overview: {
+      label: 'Service Overview',
+      h1a: 'Elevating',
+      h1b: 'Intercity Travel',
+      h2: 'Through Smooth Transit',
+      body: 'Traveling between cities should be an extension of your productive workspace or a tranquil sanctuary rather than a commute to endure. Our intercity transport service is meticulously engineered to eliminate the fatigue of long-distance driving, airport security lines, and crowded transit hubs. By providing an elite vehicle, an experienced long-distance chauffeur, and a completely private, quiet cabin, we ensure that your regional journeys are transformed into an effortless, relaxing experience from your departure point to your final destination.',
+    },
+    steps: {
+      label: 'Precision Logistics',
+      h1a: 'A Effortless',
+      h1b: 'Four-Step Journey',
+      h2: 'Designed For Peace Of Mind',
+      sub: 'Every journey is different. What remains consistent is the experience our passengers receive — professional chauffeurs, dependable service, premium vehicles and the comfort of knowing everything is taken care of.',
+      items: [
+        { num: '01', title: 'Effortless Booking', desc: 'Secure your vehicle seamlessly through our intuitive platform or digital app by simply entering your flight number, schedule, and destination details to initiate your reservation instantly.' },
+        { num: '02', title: 'Proactive Monitoring', desc: "Our dispatch system continuously monitors your flight's live status, automatically adjusting your chauffeur's arrival time to accommodate early landings or unexpected delays without any hassle." },
+        { num: '03', title: 'Terminal Welcome', desc: 'Step off the plane and into expert care as your vetted, professional chauffeur greets you inside the terminal arrival hall, holding a clear identifier and assisting you with your luggage.' },
+        { num: '04', title: 'Tranquil Transit', desc: 'Relax or catch up on work within a private, climate-controlled luxury sanctuary as your chauffeur navigates the optimal route directly to your hotel, office, or residence.' },
+      ],
+    },
+    features: {
+      label: 'Key Features',
+      h1a: 'Your ',
+      h1b: 'Long-Distance Journey',
+      h1c: ',',
+      h2: 'Optimized For Comfort & Focus.',
+      sub: 'Experience regional travel built around premium amenities, safety, and total privacy.',
+      items: [
+        { title: 'Direct Intercity Travel', desc: 'Skip the airport terminals and train stations with direct, door-to-door transportation from your exact origin to your destination.' },
+        { title: 'Long-Distance Experts', desc: 'Travel securely with rigorously vetted, professional chauffeurs experienced in navigating regional highways.' },
+        { title: 'Quiet, Connected Cabin', desc: 'Utilize the uninterrupted, climate-controlled environment to conduct calls, review documents, or rest peacefully.' },
+        { title: 'Luxury Vehicles for Long Hauls', desc: 'Choose from our high-end fleet of spacious sedans and luxury SUVs engineered specifically to deliver supreme ride comfort.' },
+      ],
+    },
+    faq: {
+      label: 'Answers To Frequent Concerns',
+      h1: 'Questions Before',
+      h2: 'You Book?',
+      sub: 'We operate with absolute transparency. If your question is not listed here, please connect with our round-the-clock support.',
+      items: [
+        {
+          q: 'How do I track my incoming driver?',
+          a: 'Through the White Line app, you receive live GPS tracking of your chauffeur from the moment they are dispatched. You will also receive proactive SMS notifications with real-time arrival estimates.',
+        },
+        {
+          q: 'Can I alter my drop-off location mid-trip?',
+          a: 'Yes. Simply inform your chauffeur or contact our support team during the journey. Changes are accommodated without friction — any fare adjustment is communicated transparently before it is applied.',
+        },
+        {
+          q: 'What if my incoming flight is significantly delayed?',
+          a: 'Our dispatch system monitors your flight in real time. Your chauffeur\'s arrival is automatically adjusted to align with your updated landing time at no additional charge — no calls or messages required from your side.',
+        },
+        {
+          q: 'How are toll prices and parking fees calculated?',
+          a: 'All applicable tolls and airport parking fees are included in your quoted fare upfront. There are no surprise charges at the end of your journey — what you see at booking is what you pay.',
+        },
+      ],
+    },
+  },
+
+  dayServicePage: {
+    hero: {
+      h1a: 'Dedicated Full-Day',
+      h1b: 'Professional Transportation',
+      sub: "Secure a dedicated professional transportation partner for your entire day's schedule. Perfect for back-to-back corporate meetings, VIP hosting, and complex multi-location event itineraries, our comprehensive day service guarantees continuous vehicle availability and flawless coordination.",
+      btn1: 'Book Day Service',
+      btn2: 'Explore Service',
+    },
+    overview: {
+      label: 'Service Overview',
+      h1a: 'Comprehensive',
+      h1b: 'Full-Day',
+      h2: 'Partnerships',
+      body: 'Managing high-stakes corporate events, intensive business tours, or VIP guest hosting requires a transportation partner who offers total reliability and adaptability. Our day service is meticulously designed to provide a dedicated luxury vehicle and chauffeur for an extended full-day duration. By eliminating the need for recurring bookings and ensuring continuous availability, we create a stable, private environment that adapts effortlessly to your evolving schedule, allowing you to focus entirely on your objectives while every logistical detail is handled with precision.',
+    },
+    steps: {
+      label: 'Precision Logistics',
+      h1a: 'A Effortless',
+      h1b: 'Four-Step Journey',
+      h2: 'Designed For Peace Of Mind',
+      sub: 'Every journey is different. What remains consistent is the experience our passengers receive — professional chauffeurs, dependable service, premium vehicles and the comfort of knowing everything is taken care of.',
+      items: [
+        { num: '01', title: 'Effortless Booking', desc: 'Secure your vehicle seamlessly through our intuitive platform or digital app by simply entering your flight number, schedule, and destination details to initiate your reservation instantly.' },
+        { num: '02', title: 'Proactive Monitoring', desc: "Our dispatch system continuously monitors your flight's live status, automatically adjusting your chauffeur's arrival time to accommodate early landings or unexpected delays without any hassle." },
+        { num: '03', title: 'Terminal Welcome', desc: 'Step off the plane and into expert care as your vetted, professional chauffeur greets you inside the terminal arrival hall, holding a clear identifier and assisting you with your luggage.' },
+        { num: '04', title: 'Tranquil Transit', desc: 'Relax or catch up on work within a private, climate-controlled luxury sanctuary as your chauffeur navigates the optimal route directly to your hotel, office, or residence.' },
+      ],
+    },
+    features: {
+      label: 'Key Features',
+      h1a: 'Premium ',
+      h1b: 'Full-Day Benefits',
+      h1c: '',
+      h2: 'Designed For Reliability',
+      sub: 'Experience continuous, uninterrupted luxury transportation backed by elite service standards built for demanding schedules.',
+      items: [
+        { title: 'Continuous Vehicle Dedication', desc: 'Enjoy a dedicated luxury vehicle and chauffeur entirely at your disposal from morning until night.' },
+        { title: 'Multi-Stop Coordination', desc: 'Effortlessly handle back-to-back corporate meetings, venue changes, and VIP hosting schedules with seamless routing.' },
+        { title: 'Elite Privacy Standards', desc: 'Operate securely within a confidential, private environment supported by background-vetted, professional chauffeurs.' },
+        { title: 'Executive Vehicles for Delegations', desc: 'Select from our high-end sedans and spacious luxury vehicles perfectly configured to accommodate executives.' },
+      ],
+    },
+    faq: {
+      label: 'Answers To Frequent Concerns',
+      h1: 'Questions Before',
+      h2: 'You Book?',
+      sub: 'We operate with absolute transparency. If your question is not listed here, please connect with our round-the-clock support.',
+      items: [
+        {
+          q: 'How do I track my incoming driver?',
+          a: 'Through the White Line app, you receive live GPS tracking of your chauffeur from the moment they are dispatched. You will also receive proactive SMS notifications with real-time arrival estimates.',
+        },
+        {
+          q: 'Can I alter my drop-off location mid-trip?',
+          a: 'Yes. Simply inform your chauffeur or contact our support team during the journey. Changes are accommodated without friction — any fare adjustment is communicated transparently before it is applied.',
+        },
+        {
+          q: 'What if my incoming flight is significantly delayed?',
+          a: 'Our dispatch system monitors your flight in real time. Your chauffeur\'s arrival is automatically adjusted to align with your updated landing time at no additional charge — no calls or messages required from your side.',
+        },
+        {
+          q: 'How are toll prices and parking fees calculated?',
+          a: 'All applicable tolls and airport parking fees are included in your quoted fare upfront. There are no surprise charges at the end of your journey — what you see at booking is what you pay.',
+        },
+      ],
+    },
+  },
+
+  oneWayRidePage: {
+    hero: {
+      h1a: 'Direct Point-To-Point',
+      h1b: 'Urban Transportation',
+      sub: 'Experience seamless, point-to-point urban transportation meticulously designed for efficiency and elegance. Whether you are heading to a high-stakes corporate briefing, a private appointment, or an evening engagement, your journey remains direct, private, and perfectly timed.',
+      btn1: 'Book One Way Ride',
+      btn2: 'Explore Service',
+    },
+    overview: {
+      label: 'Service Overview',
+      h1a: 'Elevating Direct Transit Through',
+      h1b: 'Uncompromised Punctuality',
+      h2: '',
+      body: 'Navigating urban environments for a single destination should never be complicated by traffic stress or navigation hurdles. Our one-way ride service is engineered to provide direct, point-to-point executive transit that gets you where you need to be with absolute efficiency. By removing the friction of driving and parking, we offer a tranquil, climate-controlled cabin where you can relax, review your notes, or prepare mentally for your upcoming engagement, arriving completely composed and on time.',
+    },
+    steps: {
+      label: 'Precision Logistics',
+      h1a: 'A Effortless',
+      h1b: 'Four-Step Journey',
+      h2: 'Designed For Peace Of Mind',
+      sub: 'Every journey is different. What remains consistent is the experience our passengers receive — professional chauffeurs, dependable service, premium vehicles and the comfort of knowing everything is taken care of.',
+      items: [
+        { num: '01', title: 'Effortless Booking', desc: 'Secure your vehicle seamlessly through our intuitive platform or digital app by simply entering your flight number, schedule, and destination details to initiate your reservation instantly.' },
+        { num: '02', title: 'Proactive Monitoring', desc: "Our dispatch system continuously monitors your flight's live status, automatically adjusting your chauffeur's arrival time to accommodate early landings or unexpected delays without any hassle." },
+        { num: '03', title: 'Terminal Welcome', desc: 'Step off the plane and into expert care as your vetted, professional chauffeur greets you inside the terminal arrival hall, holding a clear identifier and assisting you with your luggage.' },
+        { num: '04', title: 'Tranquil Transit', desc: 'Relax or catch up on work within a private, climate-controlled luxury sanctuary as your chauffeur navigates the optimal route directly to your hotel, office, or residence.' },
+      ],
+    },
+    features: {
+      label: 'Key Features',
+      h1a: 'An Effortless ',
+      h1b: 'Four-Step Journey',
+      h1c: '',
+      h2: 'From Pickup To Destination',
+      sub: 'From booking your direct ride to your final drop-off, our streamlined workflow ensures absolute transparency, smooth dispatch, and complete peace of mind.',
+      items: [
+        { title: 'Non-Stop Urban Transit', desc: 'Travel directly from your exact origin to your destination without any unnecessary detours or intermediate stops.' },
+        { title: 'Timely Schedule Execution', desc: 'Arrive at your corporate meetings or private appointments strictly on time, supported by advanced route planning.' },
+        { title: 'Undisturbed Environment', desc: 'Utilize your transit time to make confidential phone calls, handle emails, or simply relax in complete privacy.' },
+        { title: 'Premium Fleet Selection', desc: 'Choose from our immaculate range of luxury sedans and executive vehicles designed for refined urban travel.' },
+      ],
+    },
+    faq: {
+      label: 'Answers To Frequent Concerns',
+      h1: 'Questions Before',
+      h2: 'You Book?',
+      sub: 'We operate with absolute transparency. If your question is not listed here, please connect with our round-the-clock support.',
+      items: [
+        {
+          q: 'How do I track my incoming driver?',
+          a: 'Through the White Line app, you receive live GPS tracking of your chauffeur from the moment they are dispatched. You will also receive proactive SMS notifications with real-time arrival estimates.',
+        },
+        {
+          q: 'Can I alter my drop-off location mid-trip?',
+          a: 'Yes. Simply inform your chauffeur or contact our support team during the journey. Changes are accommodated without friction — any fare adjustment is communicated transparently before it is applied.',
+        },
+        {
+          q: 'What if my incoming flight is significantly delayed?',
+          a: 'Our dispatch system monitors your flight in real time. Your chauffeur\'s arrival is automatically adjusted to align with your updated landing time at no additional charge — no calls or messages required from your side.',
+        },
+        {
+          q: 'How are toll prices and parking fees calculated?',
+          a: 'All applicable tolls and airport parking fees are included in your quoted fare upfront. There are no surprise charges at the end of your journey — what you see at booking is what you pay.',
+        },
+      ],
+    },
+  },
+
+  whyChooseUsPage: {
+    hero: {
+      h1a: 'The ',
+      h1b: 'Difference',
+      h1c: ' Is',
+      h2: 'In Every Mile.',
+      sub: 'White Line brings together premium chauffeur services and modern technology to create a transportation experience built around comfort, reliability, privacy, and exceptional service.',
+      btn1: 'Explore Our Services',
+      btn2: 'About Our Cars',
+    },
+    detail: {
+      row1: {
+        h1: 'Why Leaders Choose White Line For',
+        h2: 'Executive Travel',
+        body: 'In a fast-paced world where ordinary transportation often overlooks the finer nuances of comfort and security, White Line stands apart by treating every single journey as a true standard of distinction. We understand that for corporate leaders, dignitaries, and high-profile individuals, travel is not merely about reaching a physical destination — it is a critical extension of your professional standing, personal standards, and peace of mind.',
+      },
+      row2: {
+        h1: 'Designed For ',
+        h2: 'Every Scale',
+        h3: 'Of Corporate Travel',
+        body: "True luxury is defined by effortless execution, and our operational philosophy is built to adapt seamlessly to your exact requirements, no matter the scale. Whether you require a single, highly confidential airport transfer for a key executive arrival or an entire luxury fleet reserved for a multi-day international corporate summit, our advanced logistics framework handles the complexity behind the scenes so you don't have to.",
+      },
+    },
+    quote: {
+      plain: 'True Security Is Invisible Yet Ever-Present. At White Line, We Believe That Absolute Peace Of Mind Cannot Be Achieved',
+      bold: 'Through Ordinary Measures—It Requires A Seamless Integration Of Advanced Vehicle Tracking, Rigorous Vetting.',
+    },
+    betterExp: {
+      label: 'A Better Experience',
+      h1: 'Luxury Is How You ',
+      h2: 'Feel.',
+      body: "We don't define luxury by expensive extras. For us, luxury is removing friction, keeping you secure, knowing your chauffeur is prepared, and having the information you need in a seamless way.",
+      points: [
+        { num: '01', title: 'Prepared for Your Journey', desc: 'The vehicle is sanitized, equipped with charging options, and climate-set before you board.' },
+        { num: '02', title: 'Connected From Booking to Arrival', desc: 'Instant confirmations, driver contact info, vehicle status, and invoice copies are always accessible.' },
+        { num: '03', title: 'Designed Around You', desc: 'Save favorite routes, choose preferred interior setups, and tailor support requests easily.' },
+      ],
+    },
+    faq: {
+      label: 'Frequently Asked Questions',
+      h1: 'Before You ',
+      h2: 'Reach Out.',
+      h3: 'Everything You Need To Know',
+      items: [
+        { q: 'How can I book a White Line ride?', a: 'Booking is simple — use our mobile app, website, or call our 24/7 concierge line. You can schedule rides in advance or request one on demand. Instant confirmation is sent the moment your booking is secured.' },
+        { q: 'Can I contact support about an existing booking?', a: "Absolutely. Our support team is reachable around the clock via in-app chat, email, or phone. You can modify, cancel, or get updates on any booking within seconds. Your driver's contact details are also shared once a chauffeur is assigned." },
+        { q: 'Do you offer corporate transportation?', a: 'Yes. We provide dedicated corporate accounts with monthly invoicing, priority fleet access, multi-passenger coordination, and a dedicated account manager. Our corporate packages are tailored to fit the pace of your business.' },
+        { q: 'Can I request a specific vehicle?', a: 'You can choose from our curated fleet — from executive sedans to full-size SUVs — at the time of booking. If you have a recurring preference, we save it to your profile so every ride is set up the way you like it.' },
+        { q: 'Is customer support available 24/7?', a: 'Yes. White Line operates around the clock with live agents ready to assist. Whether you need last-minute changes, have questions mid-journey, or want to plan a future trip, someone is always available to help.' },
+        { q: 'Are White Line chauffeurs professionally trained?', a: 'Every chauffeur undergoes rigorous background screening, defensive driving certification, and customer-service training before joining our fleet. We regularly audit performance through passenger feedback and internal quality reviews.' },
+      ],
+    },
+  },
 }
 
 // ─── Arabic translations (Riyadh / Saudi dialect in formal written form) ──────
@@ -716,6 +1110,400 @@ const ar: typeof en = {
       persons: 'راكب',
       filters: ['الكل', 'الدرجة الأولى', 'درجة الأعمال', 'SUV', 'سيدان', 'فان', 'كوستر وباص'],
       desc: 'فسيحة وأنيقة ومتعددة الاستخدامات',
+    },
+  },
+
+  airportTransferPage: {
+    hero: {
+      h1a: 'نقل',
+      h1b: 'سلس من المطار',
+      sub: 'من لحظة هبوط طائرتك حتى وجهتك النهائية — تضمن وايت لاين تجربة مطار خالية من التوتر تماماً مع سائقين محترفين وتتبع لحظي للرحلات.',
+      btn1: 'احجز نقلاً',
+      btn2: 'استعرض الأسطول',
+    },
+    overview: {
+      label: 'نظرة عامة على الخدمة',
+      h1a: 'الارتقاء بتجربة',
+      h1b: 'نقل المطار',
+      h2: 'عبر دقة لوجستية لا مثيل لها',
+      body: 'لا ينبغي أن يكون بدء رحلة دولية أو إنهاؤها مصدراً للتوتر. صُممت خدمة مطارنا بعناية لإزالة كل غموض من تجربة السفر الجوي، وتوفير انتقال سلس بين الصالة ووجهتك النهائية. من خلال المراقبة اللحظية للرحلات والتعديلات الاستباقية عند التأخير وبروتوكولات الاستقبال الشخصية داخل الصالة، نضمن أن يكون وصولك أو مغادرتك مصحوباً بالدقة المطلقة والأناقة العفوية.',
+    },
+    steps: {
+      label: 'دقة لوجستية',
+      h1a: 'رحلة سلسة',
+      h1b: 'من أربع خطوات',
+      h2: 'مصممة لراحة البال',
+      sub: 'كل رحلة مختلفة. ما يبقى ثابتاً هو التجربة التي يحصل عليها ركابنا — سائقون محترفون وخدمة موثوقة ومركبات فاخرة وراحة البال بأن كل شيء في أيدٍ أمينة.',
+      items: [
+        { num: '٠١', title: 'حجز سلس', desc: 'احجز مركبتك بسهولة عبر منصتنا الذكية أو تطبيقنا الرقمي بمجرد إدخال رقم رحلتك وجدولك الزمني وتفاصيل الوجهة لتأكيد حجزك فوراً.' },
+        { num: '٠٢', title: 'متابعة استباقية', desc: 'يتابع نظام الإرسال لدينا حالة رحلتك مباشرة، ويضبط تلقائياً وقت وصول سائقك ليستوعب الهبوط المبكر أو التأخيرات غير المتوقعة دون أي إزعاج.' },
+        { num: '٠٣', title: 'استقبال في الصالة', desc: 'انزل من الطائرة لتجد سائقاً محترفاً ومدرباً يستقبلك داخل صالة الوصول حاملاً لافتة باسمك ومستعداً لمساعدتك بأمتعتك.' },
+        { num: '٠٤', title: 'رحلة هادئة', desc: 'استرخِ أو تابع عملك في مقصورة فاخرة خاصة ومُكيَّفة بينما يسلك سائقك المسار الأمثل مباشرةً إلى فندقك أو مكتبك أو مقر إقامتك.' },
+      ],
+    },
+    features: {
+      label: 'الميزات الرئيسية',
+      h1a: 'سائقك ',
+      h1b: 'الخاص',
+      h1c: '،',
+      h2: 'في متناول يدك.',
+      sub: 'يعمل تطبيق وايت لاين كمرافق شخصي داخل المطار. حالة السائق اللحظية وملاحظات تنسيق الصالة والفواتير الفورية — كلها نشطة دائماً.',
+      items: [
+        { title: 'فترات انتظار مريحة', desc: 'استمتع بوقت انتظار مجاني بعد الهبوط حتى لا تشعر بضغط الوقت عند المرور بالجمارك وانتزاع الأمتعة.' },
+        { title: 'متابعة الرحلة مباشرة', desc: 'يتيح التتبع المستمر لفريقنا ضبط وقت الاستقبال تلقائياً حال الهبوط المبكر أو تأخر الرحلة.' },
+        { title: 'استقبال احترافي وترحيب', desc: 'يستقبلك سائقك المحترف داخل صالة الوصول بلافتة واضحة ويقدم المساعدة الكاملة بالأمتعة.' },
+        { title: 'مركبات فاخرة مخصصة', desc: 'اختر من سيارات السيدان الراقية أو SUV الفسيحة المناسبة للمسافرين المنفردين أو الوفود المؤسسية الكبيرة.' },
+      ],
+    },
+    faq: {
+      label: 'إجابات على الأسئلة الشائعة',
+      h1: 'أسئلة قبل',
+      h2: 'الحجز؟',
+      sub: 'نعمل بشفافية تامة. إن لم تجد سؤالك هنا، تواصل مع فريق الدعم المتاح على مدار الساعة.',
+      items: [
+        {
+          q: 'كيف أتابع وصول سائقي؟',
+          a: 'عبر تطبيق وايت لاين، تحصل على تتبع GPS مباشر لسائقك منذ لحظة إرساله. ستتلقى أيضاً إشعارات استباقية مع تقديرات وصول دقيقة وفورية.',
+        },
+        {
+          q: 'هل يمكنني تغيير وجهة الإنزال أثناء الرحلة؟',
+          a: 'نعم. فقط أخبر سائقك أو تواصل مع فريق الدعم خلال الرحلة. يتم استيعاب التغييرات بسلاسة — وأي تعديل على الأجرة يُبلَّغ به بشفافية قبل التطبيق.',
+        },
+        {
+          q: 'ماذا لو تأخرت رحلتي كثيراً؟',
+          a: 'نظامنا يتابع رحلتك لحظياً. يُعدَّل وقت وصول سائقك تلقائياً ليتوافق مع موعد هبوطك الجديد دون أي رسوم إضافية — ودون الحاجة لأي اتصال من طرفك.',
+        },
+        {
+          q: 'كيف تُحتسب رسوم العبور ومواقف السيارات؟',
+          a: 'جميع رسوم العبور ومواقف المطار مشمولة في السعر المعروض مسبقاً. لا توجد رسوم مفاجئة عند الوصول — ما تراه عند الحجز هو ما تدفعه فعلاً.',
+        },
+      ],
+    },
+  },
+
+  hourlyBookingPage: {
+    hero: {
+      h1a: 'سائق خاص مرن بالساعة',
+      h1b: 'خدمة مصممة لك',
+      sub: 'تنقّل عبر جدولك المزدحم بحرية واتزان تامّين. تضع خدمة السائق بالساعة الفاخرة لدينا مركبة خاصة وسائقاً محترفاً تحت تصرفك بالكامل، لتضمن تنقلاً سلساً دون انتظار وخصوصية كاملة في كل ميل من رحلتك.',
+      btn1: 'احجز بالساعة',
+      btn2: 'استكشف الخدمة',
+    },
+    overview: {
+      label: 'نظرة عامة على الخدمة',
+      h1a: 'الارتقاء بالتنقل عند الطلب',
+      h1b: '',
+      h2: 'بمرونة لا مثيل لها',
+      body: 'لا ينبغي أن تقيّد خطط النقل الجامدة تنقلك خلال جدول حافل. صُممت خدمة السائق بالساعة لدينا بعناية لتمنحك مرونة مطلقة، مع إبقاء مركبة فاخرة خاصة وسائق محترف تحت تصرفك بالكامل. سواء كنت تدير اجتماعات عمل متتالية أو زيارات خاصة للمواقع أو برنامجاً متغيراً داخل المدينة، فإننا نوفر بيئة سلسة ومتواصلة تحمي وقتك بعناية وتضمن إدارة كل مسار باحترافية فائقة.',
+    },
+    steps: {
+      label: 'دقة لوجستية',
+      h1a: 'رحلة سلسة',
+      h1b: 'من أربع خطوات',
+      h2: 'مصممة لراحة البال',
+      sub: 'كل رحلة مختلفة. ما يبقى ثابتاً هو التجربة التي يحصل عليها ركابنا — سائقون محترفون وخدمة موثوقة ومركبات فاخرة وراحة البال بأن كل شيء في أيدٍ أمينة.',
+      items: [
+        { num: '٠١', title: 'حجز سلس', desc: 'احجز مركبتك بسهولة عبر منصتنا الذكية أو تطبيقنا الرقمي بمجرد إدخال رقم رحلتك وجدولك الزمني وتفاصيل الوجهة لتأكيد حجزك فوراً.' },
+        { num: '٠٢', title: 'متابعة استباقية', desc: 'يتابع نظام الإرسال لدينا حالة رحلتك مباشرة، ويضبط تلقائياً وقت وصول سائقك ليستوعب الهبوط المبكر أو التأخيرات غير المتوقعة دون أي إزعاج.' },
+        { num: '٠٣', title: 'استقبال في الصالة', desc: 'انزل من الطائرة لتجد سائقاً محترفاً ومدرباً يستقبلك داخل صالة الوصول حاملاً لافتة باسمك ومستعداً لمساعدتك بأمتعتك.' },
+        { num: '٠٤', title: 'رحلة هادئة', desc: 'استرخِ أو تابع عملك في مقصورة فاخرة خاصة ومُكيَّفة بينما يسلك سائقك المسار الأمثل مباشرةً إلى فندقك أو مكتبك أو مقر إقامتك.' },
+      ],
+    },
+    features: {
+      label: 'الميزات الرئيسية',
+      h1a: 'سائقك ',
+      h1b: 'الخاص',
+      h1c: '،',
+      h2: 'في متناول يدك.',
+      sub: 'يعمل تطبيق وايت لاين كمرافق شخصي لك. حالة السائق اللحظية وملاحظات التنسيق والفواتير الفورية — كلها نشطة دائماً.',
+      items: [
+        { title: 'فترات وصول مريحة', desc: 'استمتع بوقت انتظار مجاني حتى لا تشعر بالعجلة عند بدء رحلتك أو الانتقال بين محطات يومك.' },
+        { title: 'مرونة عند الطلب', desc: 'تمتع بحرية كاملة لتحديث برنامجك وإضافة محطات مفاجئة أو تعديل وجهتك.' },
+        { title: 'حضور مخصص', desc: 'غادر اجتماعاتك أو مواعيدك لتجد سائقك المحترف ومركبتك النظيفة في انتظارك.' },
+        { title: 'ختام سلس', desc: 'اختتم يومك المثمر برحلة هادئة إلى مقر إقامتك أو فندقك، مدعومة بخدمة متقنة.' },
+      ],
+    },
+    faq: {
+      label: 'إجابات على الأسئلة الشائعة',
+      h1: 'أسئلة قبل',
+      h2: 'الحجز؟',
+      sub: 'نعمل بشفافية تامة. إن لم تجد سؤالك هنا، تواصل مع فريق الدعم المتاح على مدار الساعة.',
+      items: [
+        {
+          q: 'كيف أتابع وصول سائقي؟',
+          a: 'عبر تطبيق وايت لاين، تحصل على تتبع GPS مباشر لسائقك منذ لحظة إرساله. ستتلقى أيضاً إشعارات استباقية مع تقديرات وصول دقيقة وفورية.',
+        },
+        {
+          q: 'هل يمكنني تغيير وجهة الإنزال أثناء الرحلة؟',
+          a: 'نعم. فقط أخبر سائقك أو تواصل مع فريق الدعم خلال الرحلة. يتم استيعاب التغييرات بسلاسة — وأي تعديل على الأجرة يُبلَّغ به بشفافية قبل التطبيق.',
+        },
+        {
+          q: 'ماذا لو تأخرت رحلتي كثيراً؟',
+          a: 'نظامنا يتابع رحلتك لحظياً. يُعدَّل وقت وصول سائقك تلقائياً ليتوافق مع موعد هبوطك الجديد دون أي رسوم إضافية — ودون الحاجة لأي اتصال من طرفك.',
+        },
+        {
+          q: 'كيف تُحتسب رسوم العبور ومواقف السيارات؟',
+          a: 'جميع رسوم العبور ومواقف المطار مشمولة في السعر المعروض مسبقاً. لا توجد رسوم مفاجئة عند الوصول — ما تراه عند الحجز هو ما تدفعه فعلاً.',
+        },
+      ],
+    },
+  },
+
+  cityToCityPage: {
+    hero: {
+      h1a: 'رحلات سلسة لمسافات طويلة',
+      h1b: 'بين المدن',
+      sub: 'اختصر المسافة بين المدن الكبرى بعيداً عن تعقيدات السفر التقليدي. توفر خدمتنا الفاخرة بين المدن بيئة راقية وخاصة داخل مركبة فخمة، لتتمكن من الاسترخاء أو الاستعداد لمواعيدك القادمة أو إدارة أعمالك السرية دون انقطاع طوال الرحلة.',
+      btn1: 'احجز رحلة بين المدن',
+      btn2: 'استكشف الخدمة',
+    },
+    overview: {
+      label: 'نظرة عامة على الخدمة',
+      h1a: 'الارتقاء',
+      h1b: 'بالسفر بين المدن',
+      h2: 'عبر تنقل سلس',
+      body: 'ينبغي أن يكون السفر بين المدن امتداداً لمساحة عملك المنتجة أو ملاذاً هادئاً، لا رحلة مرهقة عليك تحملها. صُممت خدمة النقل بين المدن لدينا بعناية للتخلص من إرهاق القيادة لمسافات طويلة وطوابير أمن المطارات وازدحام محطات النقل. ومن خلال توفير مركبة راقية وسائق خبير بالمسافات الطويلة ومقصورة خاصة وهادئة بالكامل، نحوّل رحلاتك الإقليمية إلى تجربة مريحة وسلسة من نقطة الانطلاق حتى وجهتك النهائية.',
+    },
+    steps: {
+      label: 'دقة لوجستية',
+      h1a: 'رحلة سلسة',
+      h1b: 'من أربع خطوات',
+      h2: 'مصممة لراحة البال',
+      sub: 'كل رحلة مختلفة. ما يبقى ثابتاً هو التجربة التي يحصل عليها ركابنا — سائقون محترفون وخدمة موثوقة ومركبات فاخرة وراحة البال بأن كل شيء في أيدٍ أمينة.',
+      items: [
+        { num: '٠١', title: 'حجز سلس', desc: 'احجز مركبتك بسهولة عبر منصتنا الذكية أو تطبيقنا الرقمي بمجرد إدخال رقم رحلتك وجدولك الزمني وتفاصيل الوجهة لتأكيد حجزك فوراً.' },
+        { num: '٠٢', title: 'متابعة استباقية', desc: 'يتابع نظام الإرسال لدينا حالة رحلتك مباشرة، ويضبط تلقائياً وقت وصول سائقك ليستوعب الهبوط المبكر أو التأخيرات غير المتوقعة دون أي إزعاج.' },
+        { num: '٠٣', title: 'استقبال في الصالة', desc: 'انزل من الطائرة لتجد سائقاً محترفاً ومدرباً يستقبلك داخل صالة الوصول حاملاً لافتة باسمك ومستعداً لمساعدتك بأمتعتك.' },
+        { num: '٠٤', title: 'رحلة هادئة', desc: 'استرخِ أو تابع عملك في مقصورة فاخرة خاصة ومُكيَّفة بينما يسلك سائقك المسار الأمثل مباشرةً إلى فندقك أو مكتبك أو مقر إقامتك.' },
+      ],
+    },
+    features: {
+      label: 'الميزات الرئيسية',
+      h1a: 'رحلتك ',
+      h1b: 'لمسافات طويلة',
+      h1c: '،',
+      h2: 'مصممة للراحة والتركيز.',
+      sub: 'استمتع بسفر إقليمي مبني على وسائل راحة فاخرة وأمان وخصوصية تامة.',
+      items: [
+        { title: 'سفر مباشر بين المدن', desc: 'تجاوز صالات المطارات ومحطات القطار مع خدمة مباشرة من الباب إلى الباب، من نقطة انطلاقك الدقيقة حتى وجهتك.' },
+        { title: 'خبراء المسافات الطويلة', desc: 'سافر بأمان مع سائقين محترفين خضعوا لفحوصات دقيقة ويتمتعون بخبرة في الطرق الإقليمية السريعة.' },
+        { title: 'مقصورة هادئة ومتصلة', desc: 'استفد من بيئة هادئة ومكيّفة دون انقطاع لإجراء المكالمات أو مراجعة المستندات أو الاسترخاء بسلام.' },
+        { title: 'مركبات فاخرة للرحلات الطويلة', desc: 'اختر من أسطولنا الراقي من سيارات السيدان الرحبة ومركبات SUV الفاخرة المصممة لتقديم أعلى مستويات الراحة.' },
+      ],
+    },
+    faq: {
+      label: 'إجابات على الأسئلة الشائعة',
+      h1: 'أسئلة قبل',
+      h2: 'الحجز؟',
+      sub: 'نعمل بشفافية تامة. إن لم تجد سؤالك هنا، تواصل مع فريق الدعم المتاح على مدار الساعة.',
+      items: [
+        {
+          q: 'كيف أتابع وصول سائقي؟',
+          a: 'عبر تطبيق وايت لاين، تحصل على تتبع GPS مباشر لسائقك منذ لحظة إرساله. ستتلقى أيضاً إشعارات استباقية مع تقديرات وصول دقيقة وفورية.',
+        },
+        {
+          q: 'هل يمكنني تغيير وجهة الإنزال أثناء الرحلة؟',
+          a: 'نعم. فقط أخبر سائقك أو تواصل مع فريق الدعم خلال الرحلة. يتم استيعاب التغييرات بسلاسة — وأي تعديل على الأجرة يُبلَّغ به بشفافية قبل التطبيق.',
+        },
+        {
+          q: 'ماذا لو تأخرت رحلتي كثيراً؟',
+          a: 'نظامنا يتابع رحلتك لحظياً. يُعدَّل وقت وصول سائقك تلقائياً ليتوافق مع موعد هبوطك الجديد دون أي رسوم إضافية — ودون الحاجة لأي اتصال من طرفك.',
+        },
+        {
+          q: 'كيف تُحتسب رسوم العبور ومواقف السيارات؟',
+          a: 'جميع رسوم العبور ومواقف المطار مشمولة في السعر المعروض مسبقاً. لا توجد رسوم مفاجئة عند الوصول — ما تراه عند الحجز هو ما تدفعه فعلاً.',
+        },
+      ],
+    },
+  },
+
+  dayServicePage: {
+    hero: {
+      h1a: 'خدمة مخصصة ليوم كامل',
+      h1b: 'نقل احترافي',
+      sub: 'احصل على شريك نقل احترافي مخصص لجدول يومك بالكامل. مثالية لاجتماعات الشركات المتتالية واستضافة كبار الشخصيات وبرامج الفعاليات المعقدة متعددة المواقع، إذ تضمن خدمتنا الشاملة لليوم الكامل توفر المركبة باستمرار وتنسيقاً متقناً.',
+      btn1: 'احجز خدمة اليوم الكامل',
+      btn2: 'استكشف الخدمة',
+    },
+    overview: {
+      label: 'نظرة عامة على الخدمة',
+      h1a: 'شراكة',
+      h1b: 'شاملة ليوم كامل',
+      h2: 'مصممة وفق جدولك',
+      body: 'تتطلب إدارة الفعاليات المؤسسية المهمة أو جولات الأعمال المكثفة أو استضافة كبار الشخصيات شريك نقل يوفر موثوقية ومرونة كاملتين. صُممت خدمة اليوم الكامل لدينا بعناية لتوفير مركبة فاخرة وسائق مخصصين طوال مدة يوم ممتد. ومن خلال إلغاء الحاجة إلى الحجوزات المتكررة وضمان التوفر المستمر، نوفر بيئة مستقرة وخاصة تتكيف بسلاسة مع جدولك المتغير، لتتمكن من التركيز كلياً على أهدافك بينما تُدار كل التفاصيل اللوجستية بدقة.',
+    },
+    steps: {
+      label: 'دقة لوجستية',
+      h1a: 'رحلة سلسة',
+      h1b: 'من أربع خطوات',
+      h2: 'مصممة لراحة البال',
+      sub: 'كل رحلة مختلفة. ما يبقى ثابتاً هو التجربة التي يحصل عليها ركابنا — سائقون محترفون وخدمة موثوقة ومركبات فاخرة وراحة البال بأن كل شيء في أيدٍ أمينة.',
+      items: [
+        { num: '٠١', title: 'حجز سلس', desc: 'احجز مركبتك بسهولة عبر منصتنا الذكية أو تطبيقنا الرقمي بمجرد إدخال رقم رحلتك وجدولك الزمني وتفاصيل الوجهة لتأكيد حجزك فوراً.' },
+        { num: '٠٢', title: 'متابعة استباقية', desc: 'يتابع نظام الإرسال لدينا حالة رحلتك مباشرة، ويضبط تلقائياً وقت وصول سائقك ليستوعب الهبوط المبكر أو التأخيرات غير المتوقعة دون أي إزعاج.' },
+        { num: '٠٣', title: 'استقبال في الصالة', desc: 'انزل من الطائرة لتجد سائقاً محترفاً ومدرباً يستقبلك داخل صالة الوصول حاملاً لافتة باسمك ومستعداً لمساعدتك بأمتعتك.' },
+        { num: '٠٤', title: 'رحلة هادئة', desc: 'استرخِ أو تابع عملك في مقصورة فاخرة خاصة ومُكيَّفة بينما يسلك سائقك المسار الأمثل مباشرةً إلى فندقك أو مكتبك أو مقر إقامتك.' },
+      ],
+    },
+    features: {
+      label: 'الميزات الرئيسية',
+      h1a: 'مزايا فاخرة ',
+      h1b: 'ليوم كامل',
+      h1c: '',
+      h2: 'مصممة للموثوقية',
+      sub: 'استمتع بنقل فاخر مستمر دون انقطاع، مدعوم بمعايير خدمة راقية صُممت للجداول المزدحمة.',
+      items: [
+        { title: 'تخصيص مستمر للمركبة', desc: 'استمتع بمركبة فاخرة وسائق مخصصين تحت تصرفك بالكامل من الصباح حتى المساء.' },
+        { title: 'تنسيق متعدد المحطات', desc: 'أدر اجتماعات الشركات المتتالية وتغييرات المواقع وبرامج استضافة كبار الشخصيات بسهولة مع مسارات سلسة.' },
+        { title: 'معايير خصوصية رفيعة', desc: 'اعمل بأمان داخل بيئة خاصة وسرية يدعمها سائقون محترفون خضعوا لفحوصات خلفية دقيقة.' },
+        { title: 'مركبات تنفيذية للوفود', desc: 'اختر من سيارات السيدان الراقية والمركبات الفاخرة الرحبة المهيأة لاستيعاب المسؤولين التنفيذيين.' },
+      ],
+    },
+    faq: {
+      label: 'إجابات على الأسئلة الشائعة',
+      h1: 'أسئلة قبل',
+      h2: 'الحجز؟',
+      sub: 'نعمل بشفافية تامة. إن لم تجد سؤالك هنا، تواصل مع فريق الدعم المتاح على مدار الساعة.',
+      items: [
+        {
+          q: 'كيف أتابع وصول سائقي؟',
+          a: 'عبر تطبيق وايت لاين، تحصل على تتبع GPS مباشر لسائقك منذ لحظة إرساله. ستتلقى أيضاً إشعارات استباقية مع تقديرات وصول دقيقة وفورية.',
+        },
+        {
+          q: 'هل يمكنني تغيير وجهة الإنزال أثناء الرحلة؟',
+          a: 'نعم. فقط أخبر سائقك أو تواصل مع فريق الدعم خلال الرحلة. يتم استيعاب التغييرات بسلاسة — وأي تعديل على الأجرة يُبلَّغ به بشفافية قبل التطبيق.',
+        },
+        {
+          q: 'ماذا لو تأخرت رحلتي كثيراً؟',
+          a: 'نظامنا يتابع رحلتك لحظياً. يُعدَّل وقت وصول سائقك تلقائياً ليتوافق مع موعد هبوطك الجديد دون أي رسوم إضافية — ودون الحاجة لأي اتصال من طرفك.',
+        },
+        {
+          q: 'كيف تُحتسب رسوم العبور ومواقف السيارات؟',
+          a: 'جميع رسوم العبور ومواقف المطار مشمولة في السعر المعروض مسبقاً. لا توجد رسوم مفاجئة عند الوصول — ما تراه عند الحجز هو ما تدفعه فعلاً.',
+        },
+      ],
+    },
+  },
+
+  oneWayRidePage: {
+    hero: {
+      h1a: 'نقل مباشر من نقطة إلى نقطة',
+      h1b: 'داخل المدينة',
+      sub: 'استمتع بتنقل حضري سلس من نقطة إلى نقطة، مصمم بعناية للكفاءة والأناقة. سواء كنت متجهاً إلى اجتماع مؤسسي مهم أو موعد خاص أو مناسبة مسائية، تبقى رحلتك مباشرة وخاصة ومنضبطة التوقيت.',
+      btn1: 'احجز رحلة باتجاه واحد',
+      btn2: 'استكشف الخدمة',
+    },
+    overview: {
+      label: 'نظرة عامة على الخدمة',
+      h1a: 'الارتقاء بالنقل المباشر عبر',
+      h1b: 'التزام كامل بالمواعيد',
+      h2: '',
+      body: 'لا ينبغي أن يصبح التنقل داخل المدينة إلى وجهة واحدة معقداً بسبب ضغط المرور أو تحديات الملاحة. صُممت خدمة الرحلة باتجاه واحد لتوفير نقل تنفيذي مباشر من نقطة إلى نقطة يوصلك إلى وجهتك بكفاءة مطلقة. ومن خلال إزالة عناء القيادة والبحث عن مواقف، نوفر لك مقصورة هادئة ومكيّفة يمكنك فيها الاسترخاء أو مراجعة ملاحظاتك أو الاستعداد ذهنياً لموعدك القادم، لتصل بكامل هدوئك وفي الوقت المحدد.',
+    },
+    steps: {
+      label: 'دقة لوجستية',
+      h1a: 'رحلة سلسة',
+      h1b: 'من أربع خطوات',
+      h2: 'مصممة لراحة البال',
+      sub: 'كل رحلة مختلفة. ما يبقى ثابتاً هو التجربة التي يحصل عليها ركابنا — سائقون محترفون وخدمة موثوقة ومركبات فاخرة وراحة البال بأن كل شيء في أيدٍ أمينة.',
+      items: [
+        { num: '٠١', title: 'حجز سلس', desc: 'احجز مركبتك بسهولة عبر منصتنا الذكية أو تطبيقنا الرقمي بمجرد إدخال رقم رحلتك وجدولك الزمني وتفاصيل الوجهة لتأكيد حجزك فوراً.' },
+        { num: '٠٢', title: 'متابعة استباقية', desc: 'يتابع نظام الإرسال لدينا حالة رحلتك مباشرة، ويضبط تلقائياً وقت وصول سائقك ليستوعب الهبوط المبكر أو التأخيرات غير المتوقعة دون أي إزعاج.' },
+        { num: '٠٣', title: 'استقبال في الصالة', desc: 'انزل من الطائرة لتجد سائقاً محترفاً ومدرباً يستقبلك داخل صالة الوصول حاملاً لافتة باسمك ومستعداً لمساعدتك بأمتعتك.' },
+        { num: '٠٤', title: 'رحلة هادئة', desc: 'استرخِ أو تابع عملك في مقصورة فاخرة خاصة ومُكيَّفة بينما يسلك سائقك المسار الأمثل مباشرةً إلى فندقك أو مكتبك أو مقر إقامتك.' },
+      ],
+    },
+    features: {
+      label: 'الميزات الرئيسية',
+      h1a: 'رحلة سلسة ',
+      h1b: 'من أربع خطوات',
+      h1c: '',
+      h2: 'من الاستقبال حتى الوجهة',
+      sub: 'من حجز رحلتك المباشرة حتى الإنزال في وجهتك النهائية، يضمن مسارنا المبسط شفافية كاملة وإرسالاً سلساً وراحة بال تامة.',
+      items: [
+        { title: 'نقل حضري دون توقف', desc: 'انتقل مباشرة من نقطة انطلاقك الدقيقة إلى وجهتك دون أي التفافات غير ضرورية أو محطات وسيطة.' },
+        { title: 'تنفيذ دقيق للمواعيد', desc: 'صل إلى اجتماعاتك المؤسسية أو مواعيدك الخاصة في الوقت المحدد، بدعم من تخطيط متقدم للمسارات.' },
+        { title: 'بيئة هادئة دون إزعاج', desc: 'استفد من وقت الرحلة لإجراء مكالمات سرية أو متابعة البريد الإلكتروني أو الاسترخاء بخصوصية تامة.' },
+        { title: 'اختيار من أسطول فاخر', desc: 'اختر من مجموعتنا المتقنة من سيارات السيدان الفاخرة والمركبات التنفيذية المصممة للتنقل الحضري الراقي.' },
+      ],
+    },
+    faq: {
+      label: 'إجابات على الأسئلة الشائعة',
+      h1: 'أسئلة قبل',
+      h2: 'الحجز؟',
+      sub: 'نعمل بشفافية تامة. إن لم تجد سؤالك هنا، تواصل مع فريق الدعم المتاح على مدار الساعة.',
+      items: [
+        {
+          q: 'كيف أتابع وصول سائقي؟',
+          a: 'عبر تطبيق وايت لاين، تحصل على تتبع GPS مباشر لسائقك منذ لحظة إرساله. ستتلقى أيضاً إشعارات استباقية مع تقديرات وصول دقيقة وفورية.',
+        },
+        {
+          q: 'هل يمكنني تغيير وجهة الإنزال أثناء الرحلة؟',
+          a: 'نعم. فقط أخبر سائقك أو تواصل مع فريق الدعم خلال الرحلة. يتم استيعاب التغييرات بسلاسة — وأي تعديل على الأجرة يُبلَّغ به بشفافية قبل التطبيق.',
+        },
+        {
+          q: 'ماذا لو تأخرت رحلتي كثيراً؟',
+          a: 'نظامنا يتابع رحلتك لحظياً. يُعدَّل وقت وصول سائقك تلقائياً ليتوافق مع موعد هبوطك الجديد دون أي رسوم إضافية — ودون الحاجة لأي اتصال من طرفك.',
+        },
+        {
+          q: 'كيف تُحتسب رسوم العبور ومواقف السيارات؟',
+          a: 'جميع رسوم العبور ومواقف المطار مشمولة في السعر المعروض مسبقاً. لا توجد رسوم مفاجئة عند الوصول — ما تراه عند الحجز هو ما تدفعه فعلاً.',
+        },
+      ],
+    },
+  },
+
+  whyChooseUsPage: {
+    hero: {
+      h1a: '',
+      h1b: 'التميز',
+      h1c: ' يظهر',
+      h2: 'في كل ميل.',
+      sub: 'تجمع وايت لاين بين خدمات السائق الفاخرة والتقنية الحديثة لتقديم تجربة نقل استثنائية مبنية على الراحة والموثوقية والخصوصية والخدمة المتميزة.',
+      btn1: 'استكشف خدماتنا',
+      btn2: 'تعرف على سياراتنا',
+    },
+    detail: {
+      row1: {
+        h1: 'لماذا يختار القادة وايت لاين',
+        h2: 'للسفر التنفيذي',
+        body: 'في عالم متسارع تتغافل فيه وسائل النقل العادية عن دقائق الراحة والأمان، تتميز وايت لاين بمعاملة كل رحلة باعتبارها معياراً للتميز. نفهم أن السفر بالنسبة لقادة الشركات والشخصيات الرفيعة والأفراد البارزين ليس مجرد وصول إلى وجهة، بل هو امتداد جوهري لمكانتك المهنية ومعاييرك الشخصية وراحة بالك.',
+      },
+      row2: {
+        h1: 'مصمم لكل ',
+        h2: 'نطاق',
+        h3: 'من رحلات الأعمال',
+        body: 'الفخامة الحقيقية تُقاس بسلاسة التنفيذ، وفلسفتنا التشغيلية مبنية على التكيف السلس مع متطلباتك الدقيقة مهما تنوعت. سواء احتجت إلى نقل سري واحد لمسؤول تنفيذي أو أسطول كامل لقمة مؤسسية دولية متعددة الأيام، يتولى إطارنا اللوجستي المتقدم إدارة التعقيد من وراء الكواليس ليبقى تركيزك على ما يهم.',
+      },
+    },
+    quote: {
+      plain: 'الأمان الحقيقي غير مرئي لكنه دائم الحضور. في وايت لاين نؤمن بأن راحة البال المطلقة لا يمكن تحقيقها',
+      bold: 'بتدابير عادية — بل تتطلب دمجاً سلساً لتتبع المركبات المتقدم والفحص الدقيق للكوادر.',
+    },
+    betterExp: {
+      label: 'تجربة أفضل',
+      h1: 'الفخامة هي ما ',
+      h2: 'تشعر به.',
+      body: 'لا نعرّف الفخامة بالإضافات المكلفة. بالنسبة لنا، الفخامة تعني إزالة الاحتكاك والحفاظ على أمانك والتأكد من استعداد سائقك وتوفير المعلومات التي تحتاجها بسلاسة تامة.',
+      points: [
+        { num: '٠١', title: 'جاهز لرحلتك', desc: 'يتم تعقيم المركبة وتجهيزها بخيارات الشحن وضبط درجة حرارتها قبل صعودك.' },
+        { num: '٠٢', title: 'متصل من الحجز حتى الوصول', desc: 'التأكيدات الفورية وبيانات تواصل السائق وحالة المركبة ونسخ الفاتورة — كلها في متناولك دائماً.' },
+        { num: '٠٣', title: 'مصمم حولك', desc: 'احفظ مساراتك المفضلة واختر إعداد المقصورة الداخلية وخصص طلبات الدعم بكل سهولة.' },
+      ],
+    },
+    faq: {
+      label: 'الأسئلة الشائعة',
+      h1: 'قبل أن ',
+      h2: 'تتواصل معنا.',
+      h3: 'كل ما تحتاج معرفته',
+      items: [
+        { q: 'كيف يمكنني حجز رحلة مع وايت لاين؟', a: 'الحجز بسيط جداً — عبر تطبيقنا أو الموقع الإلكتروني أو الاتصال بخط الكونسيرج المتاح على مدار الساعة. يمكنك جدولة الرحلات مسبقاً أو طلبها فوراً. يصلك تأكيد فوري بمجرد إتمام الحجز.' },
+        { q: 'هل يمكنني التواصل مع الدعم بشأن حجز قائم؟', a: 'بالتأكيد. فريق الدعم متاح على مدار الساعة عبر الدردشة داخل التطبيق أو البريد الإلكتروني أو الهاتف. يمكنك التعديل أو الإلغاء أو الاستفسار عن أي حجز في ثوانٍ. كما تُشارَك بيانات تواصل السائق بمجرد تعيينه.' },
+        { q: 'هل تقدمون خدمات نقل مؤسسي؟', a: 'نعم. نوفر حسابات مؤسسية مخصصة مع فوترة شهرية وأولوية الوصول للأسطول وتنسيق متعدد الركاب ومدير حساب مخصص. باقاتنا المؤسسية مصممة لتتوافق مع إيقاع أعمالك.' },
+        { q: 'هل يمكنني طلب مركبة بعينها؟', a: 'يمكنك الاختيار من أسطولنا المنتقى — من السيارات التنفيذية إلى الـ SUV الكبيرة — عند الحجز. وإن كان لديك تفضيل متكرر، نحفظه في ملفك لتجد كل رحلة جاهزة وفق ما تحب.' },
+        { q: 'هل دعم العملاء متاح على مدار الساعة؟', a: 'نعم. تعمل وايت لاين على مدار الساعة مع وكلاء مباشرين جاهزين للمساعدة. سواء احتجت تغييرات اللحظة الأخيرة أو لديك أسئلة أثناء الرحلة أو تريد التخطيط لرحلة قادمة، يوجد دائماً من يساعدك.' },
+        { q: 'هل سائقو وايت لاين مدربون باحترافية؟', a: 'كل سائق يخضع لفحص خلفية صارم وشهادة قيادة دفاعية وتدريب على خدمة العملاء قبل الانضمام لأسطولنا. نراجع الأداء بانتظام عبر تقييمات الركاب ومراجعات الجودة الداخلية.' },
+      ],
     },
   },
 }
