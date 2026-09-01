@@ -37,6 +37,7 @@ import vCar3 from '../assets/dialog/business_Car_3.jpg'
 import { useLanguage } from '../context/LanguageContext'
 import { bookingDialogCopy } from '../lib/bookingDialogCopy'
 import { RadarGraphic, StoreButton } from './AppSection'
+import PlacesAutocompleteField from './PlacesAutocompleteField'
 import styles from './AirportTransferBookingDialog.module.css'
 
 type BookingFor = 'self' | 'guest' | null
@@ -210,8 +211,8 @@ function LocationScheduleFields({ pickupLabel, pickupPlaceholder, destinationLab
   const { copy } = useBookingDialogCopy()
   return (
     <div className={styles.fieldGrid}>
-      <DropdownField label={pickupLabel ?? copy.pickupLocation} placeholder={pickupPlaceholder ?? copy.selectPickup} options={copy.locations} />
-      <DropdownField label={destinationLabel ?? copy.destination} placeholder={destinationPlaceholder ?? copy.selectDropOff} options={copy.locations} />
+      <PlacesAutocompleteField label={pickupLabel ?? copy.pickupLocation} placeholder={pickupPlaceholder ?? copy.selectPickup} />
+      <PlacesAutocompleteField label={destinationLabel ?? copy.destination} placeholder={destinationPlaceholder ?? copy.selectDropOff} />
       <DatePickerField label={copy.pickupDate} />
       <TimePickerField label={copy.pickupTime} />
     </div>
@@ -289,7 +290,7 @@ function TripDetails({ bookingFor, setBookingFor, next, back }: {
 
       <div className={styles.fieldGrid}>
         <DropdownField label={copy.pickupAirport} placeholder={copy.selectAirport} options={copy.airports} />
-        <DropdownField label={copy.dropOff} placeholder={copy.enterDestination} options={copy.locations} />
+        <PlacesAutocompleteField label={copy.dropOff} placeholder={copy.enterDestination} />
         <DatePickerField label={copy.flightDate} />
         <TimePickerField label={copy.pickupTime} />
         <TextField label={copy.flightNumber} placeholder={copy.flightExample} minLength={5} />

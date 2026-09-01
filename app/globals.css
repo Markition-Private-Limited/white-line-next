@@ -40,6 +40,34 @@ html, body {
   color: var(--text);
 }
 
+/* ── Google Places autocomplete dropdown ────────────────────────── */
+.pac-container {
+  z-index: 99999 !important;
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+  font-family: var(--font-inter), sans-serif;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.pac-container::after { display: none; } /* hide "Powered by Google" logo */
+.pac-item {
+  padding: 10px 16px;
+  font-size: 12px;
+  color: #303238;
+  border-top: 1px solid #edf0f2;
+  cursor: pointer;
+  line-height: 1.4;
+}
+.pac-item:first-child { border-top: none; }
+.pac-item:hover,
+.pac-item-selected {
+  background: #effbfc;
+  color: #017b87;
+}
+.pac-item-query { font-size: 12px; color: #017b87; }
+.pac-icon { display: none; }
+
 /*
   Gradient border with border-radius — mask technique.
 */
