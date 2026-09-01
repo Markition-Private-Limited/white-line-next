@@ -1068,6 +1068,66 @@ const en = {
       },
     ],
   },
+
+  cookieConsent: {
+    banner: {
+      text: 'This site uses third-party website tracking technologies to provide and continually improve our services, and to display advertisements according to your interests. I agree and may revoke or change my consent at any time with effect for the future.',
+      moreInfo: 'More Information',
+      acceptAll: 'Accept All',
+    },
+    modal: {
+      title: 'Privacy Settings',
+      desc: 'This tool helps you manage consent to third party technologies collecting and processing personal data.',
+      privacyPolicy: 'Privacy Policy',
+      legalNotice: 'Legal Notice',
+      tabs: { categories: 'Categories', services: 'Services' },
+      categories: [
+        { name: 'Essential', desc: 'These technologies are required to activate the core functionality of our service.', required: true },
+        { name: 'Analytics', desc: 'These technologies are used to analyze user behaviour (e.g., which pages you visit most often) to help us improve functionality and user experience. All data is aggregated and anonymous.', required: false },
+        { name: 'Functional', desc: 'These technologies enable us to analyse usage behaviour in order to measure and improve performance.', required: false },
+        { name: 'Marketing', desc: 'These technologies are used by advertising partners to serve ads relevant to your interests across various websites and apps.', required: false },
+      ],
+      services: [
+        {
+          name: 'White Line Analytics',
+          category: 'Essential',
+          desc: 'Core platform analytics powering the White Line service experience and quality monitoring.',
+          company: 'White Line Transportation, Riyadh, Kingdom of Saudi Arabia',
+          purposes: ['Providing Service', 'Fraud protection', 'Fraud detection', 'Ensure security, prevent fraud, and debug', 'Maintenance'],
+        },
+        {
+          name: 'Google Tag Manager',
+          category: 'Essential',
+          desc: 'A tag management system that allows managing marketing and analytics tags without editing code.',
+          company: 'Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043, United States of America',
+          purposes: ['Providing Service', 'Analytics', 'Tag Management'],
+        },
+        {
+          name: 'Google Analytics',
+          category: 'Analytics',
+          desc: 'A web analytics service that tracks and reports website traffic to improve user experience.',
+          company: 'Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043, United States of America',
+          purposes: ['Analytics', 'Performance Measurement', 'User Behaviour Analysis'],
+        },
+        {
+          name: 'Meta Pixel',
+          category: 'Marketing',
+          desc: 'An advertising and measurement tool that helps measure the effectiveness of advertising campaigns.',
+          company: 'Meta Platforms, Inc., 1 Meta Way, Menlo Park, CA 94025, United States of America',
+          purposes: ['Marketing', 'Ad Targeting', 'Fraud detection', 'Campaign Measurement'],
+        },
+      ],
+      serviceLabels: {
+        descLabel: 'Description of Service',
+        companyLabel: 'Processing Company',
+        purposesLabel: 'Data Purposes',
+        purposesNote: 'This list represents the purposes of the data collection and processing.',
+      },
+      saveSettings: 'Save Settings',
+      acceptAll: 'Accept All',
+      poweredBy: 'Powered by White Line Consent Management',
+    },
+  },
 }
 
 // ─── Arabic translations (Riyadh / Saudi dialect in formal written form) ──────
@@ -1895,6 +1955,66 @@ const ar: typeof en = {
       { title: '12. التعديلات', body: 'تحتفظ وايت لاين بحق تحديث أو تعديل هذه الشروط في أي وقت. يُعدّ استمرارك في استخدام خدماتنا بعد أي تعديل قبولاً للشروط المعدّلة.', subsections: [] },
       { title: '13. تواصل معنا', body: 'لأي استفسارات أو مخاوف تتعلق بهذه الشروط، يُرجى التواصل معنا:', subsections: [{ title: '', body: '', items: ['وايت لاين للنقل', 'البريد الإلكتروني: legal@whiteline.sa', 'الهاتف: XXXX XXX XX 966+', 'العنوان: الرياض، المملكة العربية السعودية'] }] },
     ],
+  },
+
+  cookieConsent: {
+    banner: {
+      text: 'يستخدم هذا الموقع تقنيات تتبع خارجية لتقديم خدماتنا وتحسينها باستمرار، وعرض إعلانات وفق اهتماماتك. أوافق على ذلك ويحق لي سحب موافقتي أو تعديلها في أي وقت مع سريان الأثر مستقبلاً.',
+      moreInfo: 'مزيد من المعلومات',
+      acceptAll: 'قبول الكل',
+    },
+    modal: {
+      title: 'إعدادات الخصوصية',
+      desc: 'تتيح لك هذه الأداة إدارة موافقتك على التقنيات الخارجية التي تجمع بياناتك الشخصية وتعالجها.',
+      privacyPolicy: 'سياسة الخصوصية',
+      legalNotice: 'الإشعار القانوني',
+      tabs: { categories: 'الفئات', services: 'الخدمات' },
+      categories: [
+        { name: 'ضروري', desc: 'هذه التقنيات ضرورية لتفعيل الوظائف الأساسية لخدمتنا.', required: true },
+        { name: 'تحليلي', desc: 'تُستخدم هذه التقنيات لتحليل سلوك المستخدم (مثل الصفحات الأكثر زيارة) لتحسين الوظائف وتجربة المستخدم. جميع البيانات مجمّعة ومجهولة الهوية.', required: false },
+        { name: 'وظيفي', desc: 'تُمكّننا هذه التقنيات من تحليل سلوك الاستخدام لقياس الأداء وتحسينه.', required: false },
+        { name: 'تسويقي', desc: 'تُستخدم هذه التقنيات من قِبَل شركاء الإعلان لعرض إعلانات ذات صلة باهتماماتك عبر مختلف المواقع والتطبيقات.', required: false },
+      ],
+      services: [
+        {
+          name: 'تحليلات وايت لاين',
+          category: 'ضروري',
+          desc: 'تحليلات المنصة الأساسية التي تدعم تجربة خدمة وايت لاين ومراقبة الجودة.',
+          company: 'وايت لاين للنقل، الرياض، المملكة العربية السعودية',
+          purposes: ['تقديم الخدمة', 'الحماية من الاحتيال', 'كشف الاحتيال', 'ضمان الأمان ومنع الاحتيال والتصحيح', 'الصيانة'],
+        },
+        {
+          name: 'Google Tag Manager',
+          category: 'ضروري',
+          desc: 'نظام إدارة العلامات الذي يتيح إدارة علامات التسويق والتحليلات دون تعديل الكود.',
+          company: 'Google LLC، 1600 Amphitheatre Parkway، Mountain View، CA 94043، الولايات المتحدة الأمريكية',
+          purposes: ['تقديم الخدمة', 'التحليلات', 'إدارة العلامات'],
+        },
+        {
+          name: 'Google Analytics',
+          category: 'تحليلي',
+          desc: 'خدمة تحليلات الويب التي تتتبع حركة المرور وتُقدّم تقارير عنها لتحسين تجربة المستخدم.',
+          company: 'Google LLC، 1600 Amphitheatre Parkway، Mountain View، CA 94043، الولايات المتحدة الأمريكية',
+          purposes: ['التحليلات', 'قياس الأداء', 'تحليل سلوك المستخدم'],
+        },
+        {
+          name: 'Meta Pixel',
+          category: 'تسويقي',
+          desc: 'أداة إعلانية وقياسية تساعد على قياس مدى فعالية الحملات الإعلانية.',
+          company: 'Meta Platforms, Inc.، 1 Meta Way، Menlo Park، CA 94025، الولايات المتحدة الأمريكية',
+          purposes: ['التسويق', 'استهداف الإعلانات', 'كشف الاحتيال', 'قياس الحملات'],
+        },
+      ],
+      serviceLabels: {
+        descLabel: 'وصف الخدمة',
+        companyLabel: 'شركة المعالجة',
+        purposesLabel: 'أغراض البيانات',
+        purposesNote: 'تمثل هذه القائمة أغراض جمع البيانات ومعالجتها.',
+      },
+      saveSettings: 'حفظ الإعدادات',
+      acceptAll: 'قبول الكل',
+      poweredBy: 'مدعوم من إدارة موافقة وايت لاين',
+    },
   },
 }
 
