@@ -15,6 +15,7 @@ import {
   LocateFixed,
   UserRound,
   UsersRound,
+  X,
 } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -642,21 +643,58 @@ function SuccessStep({ back, service }: { back: () => void; service: BookingServ
   )
 }
 
+function CancelConfirmDialog({ onKeep, onConfirm }: { onKeep: () => void; onConfirm: () => void }) {
+  const { copy, dir } = useBookingDialogCopy()
+  return (
+    <div className={styles.cancelOverlay} role="dialog" aria-modal="true" aria-labelledby="cancel-dialog-title">
+      <motion.div
+        className={styles.cancelCard}
+        dir={dir}
+        initial={{ opacity: 0, scale: 0.94, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.94, y: 10 }}
+        transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className={styles.cancelStripe} />
+        <div className={styles.cancelCardBody}>
+          <h3 id="cancel-dialog-title" className={styles.cancelTitle}>{copy.cancelTitle}</h3>
+          <p className={styles.cancelBody}>{copy.cancelBody}</p>
+          <div className={styles.cancelActions}>
+            <button type="button" className={styles.cancelYes} onClick={onConfirm}>{copy.cancelYes}</button>
+            <button type="button" className={styles.cancelKeep} onClick={onKeep}>{copy.cancelKeepBooking}</button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
 export default function AirportTransferBookingDialog({ open, onClose, service = 'airport' }: Props) {
-  const { copy } = useBookingDialogCopy()
+  const { copy, dir } = useBookingDialogCopy()
   const [step, setStep] = useState(0)
   const [bookingFor, setBookingFor] = useState<BookingFor>(null)
   const [duration, setDuration] = useState(2)
   const [dayDuration, setDayDuration] = useState<DayDuration>('full')
+  const [confirmClose, setConfirmClose] = useState(false)
   const overlayRef = useRef<HTMLDivElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
+
   const resetAndClose = useCallback(() => {
     setStep(0)
     setBookingFor(null)
     setDuration(2)
     setDayDuration('full')
+    setConfirmClose(false)
     onClose()
   }, [onClose])
+
+  const requestClose = useCallback(() => {
+    if (step === 3) {
+      resetAndClose()
+    } else {
+      setConfirmClose(true)
+    }
+  }, [step, resetAndClose])
 
   useEffect(() => {
     if (!open) return
@@ -667,14 +705,21 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
     document.body.style.overflow = 'hidden'
     document.body.style.overscrollBehavior = 'none'
     dialogRef.current?.focus()
-    const onKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') resetAndClose() }
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') requestClose() }
     window.addEventListener('keydown', onKeyDown)
     return () => {
       document.body.style.overflow = prev.bodyOverflow
       document.body.style.overscrollBehavior = prev.bodyOverscroll
       window.removeEventListener('keydown', onKeyDown)
     }
-  }, [open, resetAndClose])
+  }, [open, requestClose])
+
+  useEffect(() => {
+    if (!open) return
+    const onBeforeUnload = (event: BeforeUnloadEvent) => { event.preventDefault() }
+    window.addEventListener('beforeunload', onBeforeUnload)
+    return () => window.removeEventListener('beforeunload', onBeforeUnload)
+  }, [open])
 
   useEffect(() => {
     if (!open) return
@@ -683,14 +728,18 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
   }, [open, step])
 
   if (!open) return null
+
   const goBack = () => {
-    if (step === 0) resetAndClose()
+    if (step === 0) requestClose()
     else setStep(current => current - 1)
   }
 
   return (
-    <div ref={overlayRef} className={styles.overlay} data-lenis-prevent onMouseDown={event => { if (event.target === event.currentTarget) resetAndClose() }}>
-      <div ref={dialogRef} className={styles.dialog} data-lenis-prevent role="dialog" aria-modal="true" aria-labelledby="airport-dialog-title" tabIndex={-1}>
+    <div ref={overlayRef} className={styles.overlay} data-lenis-prevent>
+      <div ref={dialogRef} className={styles.dialog} dir={dir} data-lenis-prevent role="dialog" aria-modal="true" aria-labelledby="airport-dialog-title" tabIndex={-1}>
+        <button type="button" className={styles.closeButton} aria-label={copy.closeLabel} onClick={requestClose}>
+          <X size={15} strokeWidth={2} />
+        </button>
         <div className={styles.content}>
           <span id="airport-dialog-title" className="sr-only">{copy.services[service]} {copy.dialogLabel}</span>
           {step === 0 && service === 'airport' && <TripDetails bookingFor={bookingFor} setBookingFor={setBookingFor} back={goBack} next={() => setStep(1)} />}
@@ -702,6 +751,11 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
           {step === 2 && <FareStep service={service} back={goBack} next={() => setStep(3)} />}
           {step === 3 && <SuccessStep service={service} back={goBack} />}
         </div>
+        <AnimatePresence>
+          {confirmClose && (
+            <CancelConfirmDialog onKeep={() => setConfirmClose(false)} onConfirm={resetAndClose} />
+          )}
+        </AnimatePresence>
       </div>
     </div>
   )

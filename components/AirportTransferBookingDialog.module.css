@@ -46,11 +46,119 @@
   mask-composite: exclude;
 }
 
+.closeButton {
+  position: absolute;
+  top: 14px;
+  inset-inline-end: 14px;
+  z-index: 6;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+}
+
+.cancelOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  border-radius: inherit;
+  background: rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.cancelCard {
+  width: min(340px, 88%);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  color: #111;
+}
+
+.cancelStripe {
+  height: 3px;
+  background: linear-gradient(90deg, #00717e 0%, #00b4c6 100%);
+}
+
+.cancelCardBody {
+  padding: 26px 24px 22px;
+}
+
+.cancelTitle {
+  margin: 0 0 9px;
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111;
+  line-height: 1.2;
+}
+
+.cancelBody {
+  margin: 0 0 22px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #6b7280;
+}
+
+.cancelActions {
+  display: flex;
+  gap: 9px;
+}
+
+.cancelKeep {
+  flex: 1;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: #00717e;
+  color: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+}
+.cancelKeep:hover { background: #005f6b; }
+
+.cancelYes {
+  flex: 1;
+  min-height: 40px;
+  padding: 0;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  color: #6b7280;
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: border-color 0.18s ease, color 0.18s ease;
+}
+.cancelYes:hover {
+  border-color: #c9cdd4;
+  color: #374151;
+}
+
 .content {
   position: relative;
   z-index: 1;
   min-height: 498px;
   padding: 22px 25px 18px;
+  padding-inline-end: 52px;
   font-family: var(--font-inter), sans-serif;
 }
 
@@ -456,6 +564,11 @@
     min-height: 100%;
     box-sizing: border-box;
     padding: 18px 16px 14px;
+    padding-inline-end: 48px;
+  }
+
+  .cancelCardBody {
+    padding: 22px 18px 18px;
   }
 
   .subtitle { margin-bottom: 17px; }

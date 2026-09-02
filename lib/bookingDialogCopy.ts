@@ -149,6 +149,11 @@ const en = {
   getItOn: 'Get it on',
   downloadApp: 'Download App',
   mobileAppAlt: 'White Line mobile app',
+  closeLabel: 'Close booking dialog',
+  cancelTitle: 'Cancel your booking?',
+  cancelBody: "All the information you've entered will be lost. Are you sure you want to leave?",
+  cancelKeepBooking: 'Continue Booking',
+  cancelYes: 'Yes, Cancel',
 }
 
 const ar: typeof en = {
@@ -300,6 +305,11 @@ const ar: typeof en = {
   getItOn: 'متوفر على',
   downloadApp: 'حمّل التطبيق',
   mobileAppAlt: 'تطبيق وايت لاين للجوال',
+  closeLabel: 'إغلاق نافذة الحجز',
+  cancelTitle: 'تريد تلغي الحجز؟',
+  cancelBody: 'راح تنحذف كل البيانات اللي دخلتها. متأكد تبي تغادر؟',
+  cancelKeepBooking: 'كمّل الحجز',
+  cancelYes: 'نعم، إلغاء',
 }
 
 export type BookingDialogCopy = typeof en

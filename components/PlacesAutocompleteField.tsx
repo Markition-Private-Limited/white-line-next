@@ -1,6 +1,6 @@
 'use client'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Loader2, MapPin } from 'lucide-react'
+import { MapPin } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useGoogleMaps } from '../hooks/useGoogleMaps'
 import styles from './AirportTransferBookingDialog.module.css'
@@ -100,12 +100,9 @@ export default function PlacesAutocompleteField({ label, placeholder, onSelect }
           placeholder={placeholder}
           aria-label={label}
           autoComplete="off"
-          disabled={!mapsReady}
         />
         <span className={styles.controlIcon}>
-          {!mapsReady
-            ? <Loader2 size={15} className="animate-spin opacity-60" />
-            : <MapPin size={15} />}
+          <MapPin size={15} />
         </span>
       </div>
       <AnimatePresence>
