@@ -153,10 +153,10 @@ export default function HomeHero() {
 
   const bookingForCard = (index: number) => {
     if (index === 0) return () => setBookingType('airport')
-    if (index === 1) return () => setBookingType('oneWay')
+    if (index === 1) return () => setBookingType('hourly')
     if (index === 2) return () => setBookingType('city')
     if (index === 3) return () => setBookingType('day')
-    if (index === 4) return () => setBookingType('hourly')
+    if (index === 4) return () => setBookingType('oneWay')
     return undefined
   }
 

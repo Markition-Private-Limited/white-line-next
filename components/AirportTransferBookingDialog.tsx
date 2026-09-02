@@ -20,6 +20,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import appPhones from '../assets/global_app/app.png'
 import horizontalPlane from '../assets/dialog/horizontal plane.svg'
+import flightNumberSvg from '../assets/dialog/flight_number.svg'
 import visaSvg from '../assets/dialog/visa.svg'
 import masterSvg from '../assets/dialog/master.svg'
 import amexSvg from '../assets/dialog/american_express.svg'
@@ -55,7 +56,7 @@ function useBookingDialogCopy() {
   return { copy: bookingDialogCopy[lang], lang, dir }
 }
 
-function TextField({ label, placeholder, icon, minLength = 2, inputType = 'text' }: { label: string; placeholder: string; icon?: React.ReactNode; minLength?: number; inputType?: 'text' | 'email' | 'tel' }) {
+function TextField({ label, placeholder, icon, startIcon, minLength = 2, inputType = 'text' }: { label: string; placeholder: string; icon?: React.ReactNode; startIcon?: React.ReactNode; minLength?: number; inputType?: 'text' | 'email' | 'tel' }) {
   const { copy, lang } = useBookingDialogCopy()
   const [value, setValue] = useState('')
   const trimmed = value.trim()
@@ -69,7 +70,8 @@ function TextField({ label, placeholder, icon, minLength = 2, inputType = 'text'
     <div className={`${styles.field} ${invalid ? styles.fieldInvalid : ''}`}>
       <label>{label}</label>
       <div className={styles.control}>
-        <input aria-label={label} aria-invalid={invalid} type={inputType} value={value} onChange={event => setValue(event.target.value)} placeholder={placeholder} />
+        {startIcon && <span className={styles.controlStartIcon}>{startIcon}</span>}
+        <input aria-label={label} aria-invalid={invalid} type={inputType} value={value} onChange={event => setValue(event.target.value)} placeholder={placeholder} className={startIcon ? styles.inputWithStartIcon : undefined} />
         {icon && <span className={styles.controlIcon}>{icon}</span>}
       </div>
       <AnimatePresence initial={false}>
@@ -293,7 +295,7 @@ function TripDetails({ bookingFor, setBookingFor, next, back }: {
         <PlacesAutocompleteField label={copy.dropOff} placeholder={copy.enterDestination} />
         <DatePickerField label={copy.flightDate} />
         <TimePickerField label={copy.pickupTime} />
-        <TextField label={copy.flightNumber} placeholder={copy.flightExample} minLength={5} />
+        <TextField label={copy.flightNumber} placeholder={copy.flightExample} minLength={5} startIcon={<Image src={flightNumberSvg} alt="" width={20} height={18} />} />
         <div className={styles.flightRoute} aria-label={copy.flightRoutePreview} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
           <span className={styles.routeHalf}>{copy.from}<br />--:--</span>
           <Image className={styles.plane} src={horizontalPlane} alt="" />

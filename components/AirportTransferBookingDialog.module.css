@@ -118,6 +118,9 @@
 
 .control input::placeholder { color: rgba(255,255,255,.62); }
 
+.controlStartIcon { position: absolute; left: 12px; top: 50%; display: flex; align-items: center; transform: translateY(-50%); opacity: .85; pointer-events: none; }
+.inputWithStartIcon { padding-left: 40px !important; }
+
 .fieldInvalid .control { border-color: rgba(255,190,190,.9); box-shadow: 0 0 0 2px rgba(160,35,35,.1); }
 .fieldError { display: block; margin: 5px 0 0 4px; color: #ffe0e0; font-size: 8px; line-height: 1.25; }
 
