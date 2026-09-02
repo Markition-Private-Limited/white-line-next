@@ -89,8 +89,6 @@ export default function PlacesAutocompleteField({ label, placeholder, onSelect }
     return () => document.removeEventListener('pointerdown', close)
   }, [open])
 
-  const apiKeyMissing = !process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-
   return (
     <div ref={fieldRef} className={`${styles.field} ${styles.pickerField}`}>
       <label>{label}</label>
@@ -99,13 +97,13 @@ export default function PlacesAutocompleteField({ label, placeholder, onSelect }
           type="text"
           value={value}
           onChange={handleChange}
-          placeholder={apiKeyMissing ? `${placeholder} (API key missing)` : placeholder}
+          placeholder={placeholder}
           aria-label={label}
           autoComplete="off"
-          disabled={apiKeyMissing || !mapsReady}
+          disabled={!mapsReady}
         />
         <span className={styles.controlIcon}>
-          {!mapsReady && !apiKeyMissing
+          {!mapsReady
             ? <Loader2 size={15} className="animate-spin opacity-60" />
             : <MapPin size={15} />}
         </span>
