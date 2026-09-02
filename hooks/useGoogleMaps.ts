@@ -6,7 +6,7 @@ let _loadPromise: Promise<void> | null = null
 
 function loadScript(apiKey: string): Promise<void> {
   if (_loadPromise) return _loadPromise
-  if (typeof window !== 'undefined' && (window as Record<string, unknown>).google) {
+  if (typeof window !== 'undefined' && (window as unknown as Record<string, unknown>).google) {
     _loadPromise = Promise.resolve()
     return _loadPromise
   }
