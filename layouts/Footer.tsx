@@ -22,7 +22,7 @@ const RESOURCE_HREFS     = [
   '/fleet?category=Van',
   '/fleet?category=Coaster%20%26%20Bus',
 ]
-const SUPPORT_HREFS      = ['/contact', '/customer-support', '/testimonials', '/affiliates', '/cancelation']
+const SUPPORT_HREFS      = ['/contact', '/customer-support', '/testimonials']
 
 function scrollToHash(hash: string) {
   const el = document.getElementById(hash)

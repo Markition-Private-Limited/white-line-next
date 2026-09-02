@@ -194,7 +194,7 @@ const en = {
       company:   { title: 'Company',   links: ['About Us', 'Partners', 'Terms & Conditions', 'Privacy Policy'] },
       services:  { title: 'Services',  links: ['One Way Ride', 'Hourly Chauffeur', 'City-To-City', 'Day Service', 'Airport Transfer'] },
       resources: { title: 'Our Fleet', links: ['First Class', 'Business Class', 'SUV', 'Sedan', 'Van', 'Coaster & Bus'] },
-      support:   { title: 'Support',   links: ['Contact Us', 'Customer Support', 'Testimonials', 'FAQs', 'Help Center'] },
+      support:   { title: 'Support',   links: ['Contact Us', 'Customer Support', 'Testimonials'] },
     },
   },
 
@@ -1334,7 +1334,7 @@ const ar: typeof en = {
       company:   { title: 'الشركة',   links: ['من نحن', 'الشركاء', 'الشروط والأحكام', 'سياسة الخصوصية'] },
       services:  { title: 'الخدمات', links: ['رحلة أحادية', 'سائق بالساعة', 'بين المدن', 'خدمة اليوم', 'نقل المطار'] },
       resources: { title: 'أسطولنا', links: ['الدرجة الأولى', 'درجة الأعمال', 'إس يو في', 'سيدان', 'فان', 'كوستر وباص'] },
-      support:   { title: 'الدعم',   links: ['تواصل معنا', 'خدمة العملاء', 'التقييمات', 'المنتسبون', 'سياسة الإلغاء'] },
+      support:   { title: 'الدعم',   links: ['تواصل معنا', 'خدمة العملاء', 'التقييمات'] },
     },
   },
 

@@ -58,7 +58,7 @@ function useBookingDialogCopy() {
 }
 
 function TextField({ label, placeholder, icon, startIcon, minLength = 2, inputType = 'text' }: { label: string; placeholder: string; icon?: React.ReactNode; startIcon?: React.ReactNode; minLength?: number; inputType?: 'text' | 'email' | 'tel' }) {
-  const { copy, lang } = useBookingDialogCopy()
+  const { copy } = useBookingDialogCopy()
   const [value, setValue] = useState('')
   const trimmed = value.trim()
   const emailInvalid = inputType === 'email' && trimmed.length > 0 && !/^\S+@\S+\.\S+$/.test(trimmed)
@@ -170,39 +170,177 @@ function DatePickerField({ label }: { label: string }) {
   )
 }
 
+const CLOCK_HOURS_12 = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+const CLOCK_HOURS_24_OUTER = [0, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+const CLOCK_HOURS_24_INNER = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+const CLOCK_MINUTES = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]
+
 function TimePickerField({ label }: { label: string }) {
-  const { lang } = useBookingDialogCopy()
-  const [value, setValue] = useState('')
+  const { copy, lang } = useBookingDialogCopy()
   const [open, setOpen] = useState(false)
+  const [mode, setMode] = useState<'hour' | 'minute'>('hour')
+  const [hour, setHour] = useState<number>(12)
+  const [minute, setMinute] = useState<number>(0)
+  const [use24Hour, setUse24Hour] = useState(false)
   const fieldRef = useRef<HTMLDivElement>(null)
-  const pickupTimes = Array.from({ length: 48 }, (_, index) => {
-    const hour24 = Math.floor(index / 2)
-    const minutes = index % 2 === 0 ? '00' : '30'
-    const suffix = lang === 'ar' ? (hour24 >= 12 ? 'م' : 'ص') : (hour24 >= 12 ? 'PM' : 'AM')
-    const hour12 = hour24 % 12 || 12
-    return `${hour12}:${minutes} ${suffix}`
-  })
+  const clockRef = useRef<HTMLDivElement>(null)
+  // Keep mode accessible inside pointer-event closures without stale capture
+  const modeRef = useRef(mode)
+  useEffect(() => { modeRef.current = mode }, [mode])
+
+  const period: 'AM' | 'PM' = hour < 12 ? 'AM' : 'PM'
+  const hour12 = hour % 12 || 12
+  const displayPeriod = lang === 'ar' ? (period === 'AM' ? 'ص' : 'م') : period
+  const displayHour = use24Hour ? hour : hour12
+  const displayValue = `${String(displayHour).padStart(2, '0')}:${String(minute).padStart(2, '0')}${use24Hour ? '' : ` ${displayPeriod}`}`
+
+  const handAngle = mode === 'hour'
+    ? (hour % 12) * 30 - 90
+    : minute / 60 * 360 - 90
+  const handLength = mode === 'hour' && use24Hour && hour > 0 && hour <= 12 ? '24%' : '38%'
 
   useEffect(() => {
     if (!open) return
-    const close = (event: PointerEvent) => {
-      if (!fieldRef.current?.contains(event.target as Node)) setOpen(false)
+    const close = (e: PointerEvent) => {
+      if (!fieldRef.current?.contains(e.target as Node)) setOpen(false)
     }
     document.addEventListener('pointerdown', close)
     return () => document.removeEventListener('pointerdown', close)
   }, [open])
 
+  const valueFromPointer = (clientX: number, clientY: number): number => {
+    const rect = clockRef.current?.getBoundingClientRect()
+    if (!rect) return 0
+    const dx = clientX - (rect.left + rect.width / 2)
+    const dy = clientY - (rect.top + rect.height / 2)
+    let angle = Math.atan2(dy, dx) + Math.PI / 2
+    if (angle < 0) angle += 2 * Math.PI
+    const clockIndex = Math.round(angle / (Math.PI / 6)) % 12
+    if (modeRef.current === 'minute') return Math.round(angle / (2 * Math.PI) * 60) % 60
+    if (!use24Hour) return CLOCK_HOURS_12[clockIndex]
+
+    const distanceFromCenter = Math.hypot(dx, dy)
+    const isOuterRing = distanceFromCenter > Math.min(rect.width, rect.height) * 0.31
+    return (isOuterRing ? CLOCK_HOURS_24_OUTER : CLOCK_HOURS_24_INNER)[clockIndex]
+  }
+
+  const applyValue = (value: number) => {
+    if (modeRef.current === 'hour') setHour(value)
+    else setMinute(value)
+  }
+
+  const handleClockPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    applyValue(valueFromPointer(e.clientX, e.clientY))
+
+    const onMove = (ev: PointerEvent) => applyValue(valueFromPointer(ev.clientX, ev.clientY))
+    const onUp = () => {
+      document.removeEventListener('pointermove', onMove)
+      document.removeEventListener('pointerup', onUp)
+      if (modeRef.current === 'hour') setMode('minute')
+      else setOpen(false)
+    }
+    document.addEventListener('pointermove', onMove)
+    document.addEventListener('pointerup', onUp)
+  }
+
+  const setPeriod = (nextPeriod: 'AM' | 'PM') => {
+    setHour(current => nextPeriod === 'AM' ? current % 12 : current % 12 + 12)
+  }
+
+  const handleClockKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const isHour = mode === 'hour'
+    const max = isHour ? (use24Hour ? 23 : 12) : 59
+    const current = isHour ? (use24Hour ? hour : hour12) : minute
+    let next: number | null = null
+
+    if (event.key === 'ArrowUp' || event.key === 'ArrowRight') next = current === max ? (isHour && !use24Hour ? 1 : 0) : current + 1
+    if (event.key === 'ArrowDown' || event.key === 'ArrowLeft') next = current === (isHour && !use24Hour ? 1 : 0) ? max : current - 1
+    if (event.key === 'Home') next = isHour && !use24Hour ? 1 : 0
+    if (event.key === 'End') next = max
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      if (isHour) setMode('minute')
+      else setOpen(false)
+      return
+    }
+    if (next === null) return
+
+    event.preventDefault()
+    if (isHour) {
+      setHour(use24Hour ? next : (period === 'PM' ? next % 12 + 12 : next % 12))
+    } else {
+      setMinute(next)
+    }
+  }
+
+  const hourNumbers = use24Hour
+    ? [
+        ...CLOCK_HOURS_24_OUTER.map((value, index) => ({ value, index, radius: 38 })),
+        ...CLOCK_HOURS_24_INNER.map((value, index) => ({ value, index, radius: 24 })),
+      ]
+    : CLOCK_HOURS_12.map((value, index) => ({ value, index, radius: 38 }))
+  const numbers = mode === 'hour'
+    ? hourNumbers
+    : CLOCK_MINUTES.map((value, index) => ({ value, index, radius: 38 }))
+
   return (
     <div ref={fieldRef} className={`${styles.field} ${styles.pickerField}`}>
       <label>{label}</label>
-      <button type="button" className={styles.pickerControl} aria-expanded={open} aria-haspopup="listbox" onClick={() => setOpen(current => !current)}>
-        <span className={value ? '' : styles.pickerPlaceholder}>{value || (lang === 'ar' ? '--:-- ص' : '--:-- AM')}</span>
+      <button type="button" className={styles.pickerControl} aria-label={`${label}: ${displayValue}`} aria-expanded={open} aria-haspopup="dialog"
+        onClick={() => { setMode('hour'); setOpen(c => !c) }}>
+        <span aria-live="polite">{displayValue}</span>
         <span className={styles.controlIcon}><Clock3 size={16} /></span>
       </button>
       <AnimatePresence>
         {open && (
-          <motion.div className={`${styles.fieldMenu} ${styles.timeMenu}`} role="listbox" initial={{ opacity: 0, y: -7, scaleY: .97 }} animate={{ opacity: 1, y: 0, scaleY: 1 }} exit={{ opacity: 0, y: -7, scaleY: .97 }} transition={{ duration: .2, ease: 'easeOut' }}>
-            {pickupTimes.map(time => <button key={time} type="button" role="option" aria-selected={value === time} className={value === time ? styles.fieldOptionActive : ''} onClick={() => { setValue(time); setOpen(false) }}>{time}</button>)}
+          <motion.div className={styles.clockMenu} role="dialog" aria-label={label}
+            initial={{ opacity: 0, y: -7, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -7, scale: 0.97 }} transition={{ duration: 0.2, ease: 'easeOut' }}>
+            <div className={styles.clockHeader}>
+              <div className={styles.clockDisplay}>
+                <button type="button" aria-label={copy.timePicker.editHour} aria-pressed={mode === 'hour'} className={`${styles.clockDisplayPart} ${mode === 'hour' ? styles.clockDisplayActive : ''}`} onClick={() => setMode('hour')}>
+                  {String(displayHour).padStart(2, '0')}
+                </button>
+                <span className={styles.clockColon}>:</span>
+                <button type="button" aria-label={copy.timePicker.editMinute} aria-pressed={mode === 'minute'} className={`${styles.clockDisplayPart} ${mode === 'minute' ? styles.clockDisplayActive : ''}`} onClick={() => setMode('minute')}>
+                  {String(minute).padStart(2, '0')}
+                </button>
+              </div>
+              {!use24Hour && (
+                <div className={styles.clockPeriod} aria-label={copy.timePicker.period} role="group">
+                  <button type="button" aria-pressed={period === 'AM'} className={`${styles.clockPeriodBtn} ${period === 'AM' ? styles.clockPeriodActive : ''}`} onClick={() => setPeriod('AM')}>{lang === 'ar' ? 'ص' : 'AM'}</button>
+                  <button type="button" aria-pressed={period === 'PM'} className={`${styles.clockPeriodBtn} ${period === 'PM' ? styles.clockPeriodActive : ''}`} onClick={() => setPeriod('PM')}>{lang === 'ar' ? 'م' : 'PM'}</button>
+                </div>
+              )}
+            </div>
+            <div className={styles.clockFormat} role="group" aria-label={copy.timePicker.timeFormat}>
+              <button type="button" aria-pressed={!use24Hour} className={!use24Hour ? styles.clockFormatActive : ''} onClick={() => setUse24Hour(false)}>{copy.timePicker.twelveHour}</button>
+              <button type="button" aria-pressed={use24Hour} className={use24Hour ? styles.clockFormatActive : ''} onClick={() => setUse24Hour(true)}>{copy.timePicker.twentyFourHour}</button>
+            </div>
+            <div ref={clockRef} className={`${styles.clockFace} ${use24Hour && mode === 'hour' ? styles.clockFace24 : ''}`} onPointerDown={handleClockPointerDown} onKeyDown={handleClockKeyDown} style={{ touchAction: 'none' }}
+              role="slider" tabIndex={0} aria-label={mode === 'hour' ? copy.timePicker.hour : copy.timePicker.minute}
+              aria-valuemin={mode === 'hour' && !use24Hour ? 1 : 0} aria-valuemax={mode === 'hour' ? (use24Hour ? 23 : 12) : 59}
+              aria-valuenow={mode === 'hour' ? displayHour : minute} aria-valuetext={mode === 'hour' ? copy.timePicker.selectedHour(displayHour, use24Hour ? undefined : displayPeriod) : copy.timePicker.selectedMinute(minute)}>
+              <div className={styles.clockTrack} />
+              <div className={styles.clockHand} style={{ width: handLength, transform: `rotate(${handAngle}deg)` }} />
+              <div className={styles.clockCenter} />
+              {numbers.map(({ value, index, radius }) => {
+                const angle = (index * 30 - 90) * (Math.PI / 180)
+                const x = 50 + radius * Math.cos(angle)
+                const y = 50 + radius * Math.sin(angle)
+                const isActive = mode === 'hour' ? hour === value : minute === value && minute % 5 === 0
+                return (
+                  <span key={`${radius}-${value}`}
+                    className={`${styles.clockNum} ${isActive ? styles.clockNumActive : ''}`}
+                    style={{ left: `${x}%`, top: `${y}%` }}
+                    aria-hidden="true">
+                    {mode === 'minute' || use24Hour ? String(value).padStart(2, '0') : value}
+                  </span>
+                )
+              })}
+            </div>
+            <p className={styles.clockHint}>{mode === 'hour' ? copy.timePicker.selectHour : copy.timePicker.selectMinute}</p>
           </motion.div>
         )}
       </AnimatePresence>

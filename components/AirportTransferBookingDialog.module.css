@@ -259,6 +259,209 @@
 .timeMenu { display: grid; grid-template-columns: 1fr 1fr; }
 .timeMenu > button { text-align: center; }
 
+.clockMenu {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 7px);
+  inset-inline-start: 0;
+  width: 228px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+  transform-origin: top;
+  overflow: hidden;
+  color: #303238;
+}
+
+.clockHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 18px 14px;
+  background: #00717e;
+  color: #fff;
+}
+
+.clockDisplay {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 36px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.clockDisplayPart {
+  padding: 2px 4px;
+  border: 0;
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.5);
+  background: transparent;
+  font: inherit;
+  font-size: 36px;
+  font-weight: 300;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.14s, background-color 0.14s;
+}
+
+.clockDisplayActive {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.clockColon {
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1;
+  user-select: none;
+}
+
+.clockPeriod {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.clockPeriodBtn {
+  min-width: 38px;
+  min-height: 22px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 5px;
+  color: rgba(255, 255, 255, 0.5);
+  background: transparent;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color 0.14s, background-color 0.14s, border-color 0.14s;
+}
+
+.clockPeriodActive {
+  color: #00717e;
+  background: #fff;
+  border-color: #fff;
+}
+
+.clockFormat {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  width: max-content;
+  margin: 10px auto 0;
+  padding: 3px;
+  border-radius: 8px;
+  background: #eef0f3;
+}
+
+.clockFormat > button {
+  min-height: 27px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  color: #697177;
+  background: transparent;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.clockFormat > button.clockFormatActive {
+  color: #fff;
+  background: #00717e;
+}
+
+.clockFace {
+  position: relative;
+  width: 186px;
+  height: 186px;
+  margin: 14px auto 0;
+  border-radius: 50%;
+  background: #eef0f3;
+  cursor: pointer;
+}
+
+.clockFace:focus-visible {
+  outline: 3px solid rgba(0, 113, 126, 0.28);
+  outline-offset: 3px;
+}
+
+.clockFace24 .clockNum {
+  width: 25px;
+  height: 25px;
+  font-size: 9px;
+}
+
+.clockTrack {
+  position: absolute;
+  inset: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 113, 126, 0.12);
+  pointer-events: none;
+}
+
+.clockNum {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #4b5563;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  pointer-events: none;
+  user-select: none;
+  transition: background-color 0.1s, color 0.1s;
+}
+
+.clockNumActive {
+  background: #00717e;
+  color: #fff;
+}
+
+.clockHand {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 38%;
+  height: 2px;
+  margin-top: -1px;
+  background: #00717e;
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+
+.clockCenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00717e;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.clockHint {
+  margin: 8px 0 12px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  user-select: none;
+}
+
 .controlIcon {
   position: absolute;
   right: 7px;
