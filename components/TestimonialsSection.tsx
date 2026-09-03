@@ -202,6 +202,7 @@ export default function TestimonialsSection() {
 
   return (
     <section
+      id="customer-reviews"
       ref={sectionRef}
       className="w-full bg-white"
       style={{ paddingTop: 'clamp(32px, 4vw, 48px)', paddingBottom: 'clamp(56px, 7vw, 80px)' }}

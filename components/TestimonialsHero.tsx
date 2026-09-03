@@ -11,6 +11,11 @@ export default function TestimonialsHero() {
   const isRtl = dir === 'rtl'
   const { hero } = trans.testimonialsPage
 
+  const scrollToReviews = () => {
+    const el = document.getElementById('customer-reviews')
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   return (
     <div style={{ background: '#ffffff', padding: 'clamp(6px, 0.8vw, 10px)' }}>
       <section className="relative min-h-screen bg-[#0d0d14]" style={{ borderRadius: 'clamp(14px, 1.5vw, 20px)' }}>
@@ -41,7 +46,7 @@ export default function TestimonialsHero() {
             </motion.p>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.55, ease: 'easeOut' }}>
-              <button className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full font-medium transition-shadow bg-transparent text-white border-2 border-white/60" style={{ fontFamily: 'Inter, sans-serif', minWidth: '220px' }}>
+              <button onClick={scrollToReviews} className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full font-medium transition-shadow bg-transparent text-white border-2 border-white/60" style={{ fontFamily: 'Inter, sans-serif', minWidth: '220px' }}>
                 <div className="inline-flex h-12 translate-y-0 items-center justify-center gap-2 px-6 transition duration-500 group-hover:-translate-y-[150%] text-white">
                   {hero.btn} {isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />}
                 </div>

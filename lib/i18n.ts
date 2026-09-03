@@ -35,7 +35,7 @@ const en = {
     services: [
       { title: 'Airport Transfer',  desc: 'Airport pickups and drop-offs.' },
       { title: 'One Way Ride',      desc: 'Simple point-to-point travel.' },
-      { title: 'City-to-City',      desc: 'Comfortable intercity travel.' },
+      { title: 'City Trip',           desc: 'Comfortable intercity travel.' },
       { title: 'Day Service',       desc: 'Full-day vehicle block.' },
       { title: 'Hourly Chauffeur',  desc: 'Keep your chauffeur by the hour.' },
     ],
@@ -64,7 +64,7 @@ const en = {
     cards: [
       { title: 'One-Way Ride',       desc: 'Seamless point-to-point urban transportation — arrive promptly and composed, free from traffic stress and unnecessary detours.' },
       { title: 'Hourly Chauffeur',   desc: 'A dedicated private chauffeur at your disposal for dynamic itineraries, multiple stops, and complete scheduling flexibility.' },
-      { title: 'City to City',       desc: 'Private executive travel between major cities in absolute comfort — relax or conduct business uninterrupted across regions.' },
+      { title: 'City Trip',           desc: 'Private executive travel between major cities in absolute comfort — relax or conduct business uninterrupted across regions.' },
       { title: 'Day Service',        desc: 'Full-day dedicated transport for back-to-back meetings, VIP hosting, and multi-location itineraries with continuous vehicle availability.' },
       { title: 'Airport Transfer',   desc: 'Premier airport transfers with real-time flight tracking, proactive delay adjustments, and professional luggage assistance.' },
     ],
@@ -192,7 +192,7 @@ const en = {
     tagline: 'Premium chauffeur services built on comfort, reliability, and discretion.',
     columns: {
       company:   { title: 'Company',   links: ['About Us', 'Terms & Conditions', 'Privacy Policy'] },
-      services:  { title: 'Services',  links: ['One Way Ride', 'Hourly Chauffeur', 'City-To-City', 'Day Service', 'Airport Transfer'] },
+      services:  { title: 'Services',  links: ['One Way Ride', 'Hourly Chauffeur', 'City Trip', 'Day Service', 'Airport Transfer'] },
       resources: { title: 'Our Fleet', links: ['First Class', 'Business Class', 'SUV', 'Sedan', 'Van', 'Coaster & Bus'] },
       support:   { title: 'Support',   links: ['Contact Us', 'Customer Support', 'Testimonials'] },
     },
@@ -215,7 +215,7 @@ const en = {
       items: [
         { label: 'One-Way Ride',       h1a: 'Direct ',   h1b: 'Point-To-Point', h1c: '',         h2a: 'Urban Transportation',   h2b: '',                      body: 'Experience seamless, point-to-point urban transportation meticulously designed for efficiency and elegance. Whether you are heading to a high-stakes corporate briefing, a private appointment, or a critical engagement across town, our direct transit service ensures you arrive promptly and completely composed, eliminating the stress of navigation, traffic management, and unnecessary detours.' },
         { label: 'Hourly Chauffeur',   h1a: 'On-Demand Hourly', h1b: '',        h1c: '',         h2a: '',                       h2b: 'Chauffeur Service',       body: 'Enjoy the ultimate convenience of dedicated mobility with a private chauffeur entirely at your disposal throughout the day. Designed for dynamic, ever-changing itineraries and multiple consecutive stops, this bespoke service offers unmatched flexibility, allowing you to move through your schedule at your own pace while your vehicle and driver remain ready and waiting nearby.' },
-        { label: 'City To City',       h1a: '',          h1b: 'Long-Distance',  h1c: ' Intercity', h2a: 'Executive Travel',      h2b: '',                      body: 'Bridge the distance between major metropolitan hubs in absolute comfort and tranquility. Our intercity travel service provides a smooth, private environment within an elite luxury vehicle, allowing you to relax, prepare for upcoming engagements, or conduct confidential business uninterrupted while traveling seamlessly across regions.' },
+        { label: 'City Trip',           h1a: '',          h1b: 'Long-Distance',  h1c: ' Intercity', h2a: 'Executive Travel',      h2b: '',                      body: 'Bridge the distance between major metropolitan hubs in absolute comfort and tranquility. Our intercity travel service provides a smooth, private environment within an elite luxury vehicle, allowing you to relax, prepare for upcoming engagements, or conduct confidential business uninterrupted while traveling seamlessly across regions.' },
         { label: 'Day Service',        h1a: 'Dedicated Full-Day', h1b: '',      h1c: '',         h2a: '',                       h2b: 'Professional Transport',  body: "Secure a dedicated professional transportation partner for your entire day's schedule. Perfect for back-to-back corporate meetings, VIP hosting, and complex multi-location event itineraries, this comprehensive service guarantees continuous vehicle availability, flawless coordination, and uncompromised discretion from your first morning departure until late into the evening." },
         { label: 'Airport Transfer',   h1a: 'Seamless ', h1b: 'Airport Transfers', h1c: '',     h2a: '& Flight Tracking',     h2b: '',                      body: 'Start or conclude your international journey with absolute peace of mind through our premier airport transfer service. Featuring real-time flight tracking, proactive schedule adjustments for delayed flights, and professional luggage assistance, our chauffeurs ensure a smooth, effortless transition between the terminal and your final destination.' },
       ],
@@ -294,8 +294,8 @@ const en = {
       h2: 'Next Journey.',
       body: 'Our team is available to help with reservations, chauffeur services, corporate accounts, fleet questions, and customer support.',
       cards: [
-        { title: 'Call Us',            value: '+1 (555) 000-0000',     sub: 'For bookings and immediate assistance' },
-        { title: 'Email Us',           value: 'support@whitelane.com', sub: 'We aim to respond as quickly as possible' },
+        { title: 'Call Us',            value: '+966 56 311 7770, +966 55 073 5956, +966 55 835 9549',     sub: 'For bookings and immediate assistance' },
+        { title: 'Email Us',           value: 'info@whitelineglobal.com', sub: 'We aim to respond as quickly as possible' },
         { title: 'Support Available',  value: '24/7 Customer Support', sub: 'For active rides and urgent inquiries' },
       ],
     },
@@ -372,7 +372,7 @@ const en = {
       h1b: 'Airport Transfers',
       sub: 'From the moment your flight lands to your final destination — White Line ensures a flawless, punctual, and completely stress-free airport experience with professional chauffeurs and real-time flight tracking.',
       btn1: 'Book a Transfer',
-      btn2: 'Explore Our Fleet',
+      btn2: 'Explore Service',
     },
     overview: {
       label: 'Service Overview',
@@ -506,8 +506,8 @@ const en = {
     hero: {
       h1a: 'Seamless Long-Distance',
       h1b: 'Intercity Travel',
-      sub: 'Bridge the distance between major metropolitan hubs without the friction of traditional travel. Our premium city-to-city service provides an elite, private environment within a luxury vehicle, allowing you to relax, prepare for upcoming engagements, or conduct confidential business uninterrupted across every mile.',
-      btn1: 'Book City To City',
+      sub: 'Bridge the distance between major metropolitan hubs without the friction of traditional travel. Our premium City Trip service provides an elite, private environment within a luxury vehicle, allowing you to relax, prepare for upcoming engagements, or conduct confidential business uninterrupted across every mile.',
+      btn1: 'Book City Trip',
       btn2: 'Explore Service',
     },
     overview: {
@@ -929,7 +929,7 @@ const en = {
           {
             title: '',
             body: '',
-            items: ['One-Way Ride — Point-to-point urban transportation', 'Hourly Chauffeur — Dedicated driver service billed by the hour', 'City-to-City — Intercity executive travel', 'Day Service — Full-day dedicated vehicle and driver', 'Airport Transfer — Arrivals, departures, and flight-tracked pickups'],
+            items: ['One-Way Ride — Point-to-point urban transportation', 'Hourly Chauffeur — Dedicated driver service billed by the hour', 'City Trip — Intercity executive travel', 'Day Service — Full-day dedicated vehicle and driver', 'Airport Transfer — Arrivals, departures, and flight-tracked pickups'],
             footer: 'All services are subject to availability, pricing, and the specific terms communicated at the time of booking. White Line reserves the right to modify, suspend, or discontinue any service at any time without prior notice.',
           },
         ],
@@ -1151,7 +1151,7 @@ const ar: typeof en = {
     services: [
       { title: 'نقل المطار',    desc: 'استقبال وتوصيل من وإلى المطار.' },
       { title: 'رحلة أحادية',   desc: 'تنقل مباشر من نقطة لأخرى.' },
-      { title: 'بين المدن',     desc: 'رحلات مريحة بين المدن.' },
+      { title: 'رحلة المدن',    desc: 'رحلات مريحة بين المدن.' },
       { title: 'خدمة اليوم',   desc: 'حجز السيارة ليوم كامل.' },
       { title: 'سائق بالساعة', desc: 'احتفظ بسائقك الخاص بالساعة.' },
     ],
@@ -1180,7 +1180,7 @@ const ar: typeof en = {
     cards: [
       { title: 'رحلة أحادية',   desc: 'نقل حضري سلس من نقطة إلى أخرى — صل إلى وجهتك في الوقت المحدد وبهدوء تام، بعيداً عن ضغوط المرور والمسارات غير الضرورية.' },
       { title: 'سائق بالساعة', desc: 'سائق خاص مخصص بالكامل لك طوال اليوم، مع مرونة تامة للتنقل بين مواعيد متعددة وتغييرات فورية في الجدول.' },
-      { title: 'بين المدن',     desc: 'سفر تنفيذي خاص بين كبرى المدن في راحة تامة — استرخِ أو أنجز أعمالك دون انقطاع أثناء التنقل.' },
+      { title: 'رحلة المدن',    desc: 'سفر تنفيذي خاص بين كبرى المدن في راحة تامة — استرخِ أو أنجز أعمالك دون انقطاع أثناء التنقل.' },
       { title: 'خدمة اليوم',   desc: 'نقل مخصص ليوم كامل للاجتماعات المتلاحقة واستضافة كبار الشخصيات والفعاليات متعددة المواقع.' },
       { title: 'نقل المطار',    desc: 'نقل مطار احترافي مع تتبع الرحلات فورياً وتعديل المواعيد تلقائياً ومساعدة متخصصة في الأمتعة.' },
     ],
@@ -1321,7 +1321,7 @@ const ar: typeof en = {
       items: [
         { label: 'رحلة أحادية',    h1a: 'نقل ',           h1b: 'من نقطة لأخرى',   h1c: '',          h2a: 'داخل المدينة',         h2b: '',                     body: 'استمتع بتنقل سلس من نقطة لأخرى داخل المدينة، مصمم بعناية للكفاءة والأناقة. سواء كنت متجهاً إلى اجتماع مؤسسي أو موعد خاص أو التزام عاجل عبر المدينة، تضمن لك خدمتنا المباشرة الوصول في الوقت المحدد وبكل هدوء.' },
         { label: 'سائق بالساعة',   h1a: 'سائق خاص',       h1b: '',                 h1c: '',          h2a: '',                      h2b: 'عند الطلب بالساعة',    body: 'استمتع بأقصى درجات المرونة مع سائق خاص تحت تصرفك طوال اليوم. مثالية للمواعيد المتغيرة وعدة محطات متتالية، توفر لك هذه الخدمة حرية التنقل بالوتيرة التي تناسبك بينما تظل مركبتك وسائقك في انتظارك.' },
-        { label: 'بين المدن',      h1a: '',               h1b: 'سفر بعيد المدى',  h1c: ' بين المدن', h2a: 'تنفيذي فاخر',          h2b: '',                     body: 'اقطع المسافات بين المدن الكبرى في راحة وهدوء تامَّين. توفر خدمة السفر بين المدن لدينا بيئة خاصة سلسة داخل مركبة فاخرة، تتيح لك الاسترخاء والتحضير للقاءاتك القادمة أو إجراء أعمالك السرية دون انقطاع.' },
+        { label: 'رحلة المدن',     h1a: '',               h1b: 'سفر بعيد المدى',  h1c: ' بين المدن', h2a: 'تنفيذي فاخر',          h2b: '',                     body: 'اقطع المسافات بين المدن الكبرى في راحة وهدوء تامَّين. توفر خدمة السفر بين المدن لدينا بيئة خاصة سلسة داخل مركبة فاخرة، تتيح لك الاسترخاء والتحضير للقاءاتك القادمة أو إجراء أعمالك السرية دون انقطاع.' },
         { label: 'خدمة يوم كامل', h1a: 'نقل احترافي',    h1b: '',                 h1c: '',          h2a: '',                      h2b: 'طوال اليوم',           body: 'احجز شريكاً متخصصاً في النقل لجدولك اليومي الكامل. مثالي للاجتماعات المؤسسية المتلاحقة واستضافة كبار الشخصيات والفعاليات متعددة المواقع، يضمن توافر المركبة باستمرار والتنسيق السلس والخصوصية التامة من أول تحرك صباحاً حتى آخر الليل.' },
         { label: 'نقل المطار',     h1a: 'نقل ',           h1b: 'سلس من المطار',   h1c: '',          h2a: 'وتتبع الرحلات',         h2b: '',                     body: 'ابدأ رحلتك الدولية أو اختتمها بتمام الطمأنينة عبر خدمة نقل المطار المتميزة لدينا. مع تتبع الرحلات لحظياً وتعديلات استباقية عند التأخير ومساعدة احترافية بالأمتعة، يضمن سائقونا انتقالاً سلساً بين الصالة ووجهتك النهائية.' },
       ],
@@ -1332,7 +1332,7 @@ const ar: typeof en = {
     tagline: 'خدمات سائق راقية مبنية على الراحة والموثوقية والخصوصية.',
     columns: {
       company:   { title: 'الشركة',   links: ['من نحن', 'الشروط والأحكام', 'سياسة الخصوصية'] },
-      services:  { title: 'الخدمات', links: ['رحلة أحادية', 'سائق بالساعة', 'بين المدن', 'خدمة اليوم', 'نقل المطار'] },
+      services:  { title: 'الخدمات', links: ['رحلة أحادية', 'سائق بالساعة', 'رحلة المدن', 'خدمة اليوم', 'نقل المطار'] },
       resources: { title: 'أسطولنا', links: ['الدرجة الأولى', 'درجة الأعمال', 'إس يو في', 'سيدان', 'فان', 'كوستر وباص'] },
       support:   { title: 'الدعم',   links: ['تواصل معنا', 'خدمة العملاء', 'التقييمات'] },
     },
@@ -1410,8 +1410,8 @@ const ar: typeof en = {
       h2: 'رحلتك القادمة.',
       body: 'فريقنا متاح للمساعدة في الحجوزات وخدمات الشوفير والحسابات المؤسسية وأسئلة الأسطول ودعم العملاء.',
       cards: [
-        { title: 'اتصل بنا',    value: '+1 (555) 000-0000',     sub: 'للحجوزات والمساعدة الفورية' },
-        { title: 'راسلنا',      value: 'support@whitelane.com', sub: 'نسعى للرد بأسرع وقت ممكن' },
+        { title: 'اتصل بنا',    value: '+966 56 311 7770, +966 55 073 5956, +966 55 835 9549',     sub: 'للحجوزات والمساعدة الفورية' },
+        { title: 'راسلنا',      value: 'info@whitelineglobal.com', sub: 'نسعى للرد بأسرع وقت ممكن' },
         { title: 'الدعم متاح', value: 'دعم العملاء ٢٤/٧',       sub: 'للرحلات الجارية والاستفسارات العاجلة' },
       ],
     },
@@ -1488,7 +1488,7 @@ const ar: typeof en = {
       h1b: 'سلس من المطار',
       sub: 'من لحظة هبوط طائرتك حتى وجهتك النهائية — تضمن وايت لاين تجربة مطار خالية من التوتر تماماً مع سائقين محترفين وتتبع لحظي للرحلات.',
       btn1: 'احجز نقلاً',
-      btn2: 'استعرض الأسطول',
+      btn2: 'استكشف خدماتنا',
     },
     overview: {
       label: 'نظرة عامة على الخدمة',
@@ -1621,9 +1621,9 @@ const ar: typeof en = {
   cityToCityPage: {
     hero: {
       h1a: 'رحلات سلسة لمسافات طويلة',
-      h1b: 'بين المدن',
+      h1b: 'رحلة المدن',
       sub: 'اختصر المسافة بين المدن الكبرى بعيداً عن تعقيدات السفر التقليدي. توفر خدمتنا الفاخرة بين المدن بيئة راقية وخاصة داخل مركبة فخمة، لتتمكن من الاسترخاء أو الاستعداد لمواعيدك القادمة أو إدارة أعمالك السرية دون انقطاع طوال الرحلة.',
-      btn1: 'احجز رحلة بين المدن',
+      btn1: 'احجز رحلة المدن',
       btn2: 'استكشف الخدمة',
     },
     overview: {
@@ -1926,7 +1926,7 @@ const ar: typeof en = {
     intro: 'تُشكّل هذه الشروط والأحكام ("الشروط") اتفاقية ملزمة قانوناً بينك ("المستخدم") وبين وايت لاين للنقل ("وايت لاين"). باستخدام أي جزء من منصتنا أو تطبيقاتنا أو طلب أي من خدمات النقل لدينا، فإنك تُقرّ بأنك قرأت هذه الشروط وفهمتها وتوافق على الالتزام بها.',
     sections: [
       { title: '1. قبول الشروط', body: 'بإنشاء حساب أو إجراء حجز أو استخدام أي خدمة من خدمات وايت لاين، تُقرّ بأنك تجاوزت سن الثامنة عشرة، وتمتلك الأهلية القانونية لإبرام اتفاقية ملزمة، وتقبل هذه الشروط كاملة.', subsections: [] },
-      { title: '2. الخدمات المقدمة', body: 'تقدم وايت لاين خدمات نقل راقية ومتنوعة تشمل:', subsections: [{ title: '', body: '', items: ['رحلة أحادية — نقل مباشر من نقطة لأخرى', 'سائق بالساعة — سائق خاص مخصص يُحتسب بالساعة', 'بين المدن — سفر تنفيذي بين المدن', 'خدمة اليوم — مركبة وسائق مخصصان ليوم كامل', 'نقل المطار — استقبال وتوصيل مع تتبع الرحلات'], footer: 'جميع الخدمات خاضعة للتوفر والتسعير والشروط المحددة عند الحجز. تحتفظ وايت لاين بحق تعديل أو تعليق أو إيقاف أي خدمة في أي وقت.' }] },
+      { title: '2. الخدمات المقدمة', body: 'تقدم وايت لاين خدمات نقل راقية ومتنوعة تشمل:', subsections: [{ title: '', body: '', items: ['رحلة أحادية — نقل مباشر من نقطة لأخرى', 'سائق بالساعة — سائق خاص مخصص يُحتسب بالساعة', 'رحلة المدن — سفر تنفيذي بين المدن', 'خدمة اليوم — مركبة وسائق مخصصان ليوم كامل', 'نقل المطار — استقبال وتوصيل مع تتبع الرحلات'], footer: 'جميع الخدمات خاضعة للتوفر والتسعير والشروط المحددة عند الحجز. تحتفظ وايت لاين بحق تعديل أو تعليق أو إيقاف أي خدمة في أي وقت.' }] },
       { title: '3. الحجز والاستئجار', body: '', subsections: [
         { title: '3.1 عملية الحجز', body: 'يمكن إجراء الحجوزات عبر التطبيق أو الموقع الإلكتروني أو التواصل مع فريق الكونسيرج. يُعدّ الحجز مؤكداً فقط عند استلام تأكيد مكتوب أو داخل التطبيق من وايت لاين.', items: [] },
         { title: '3.2 دقة المعلومات', body: 'أنت مسؤول عن تقديم معلومات دقيقة وكاملة عند الحجز، بما تشمل مواقع الاستلام والتسليم والتواريخ وعدد الركاب وأي متطلبات خاصة.', items: [] },

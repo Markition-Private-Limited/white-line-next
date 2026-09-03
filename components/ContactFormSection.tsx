@@ -41,7 +41,8 @@ function validate(data: FormData, err: ErrMsgs): FormErrors {
   return errors
 }
 
-function InfoCard({ icon, title, value, sub }: { icon: string; title: string; value: string; sub: string }) {
+function InfoCard({ icon, title, value, sub, isRtl }: { icon: string; title: string; value: string; sub: string; isRtl?: boolean }) {
+  const valueLines = isRtl ? value.split(/,\s*/) : null
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, background: '#f5f5f7', borderRadius: 14, padding: '20px 22px', border: '1px solid #ebebeb' }}>
       <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(0,92,102,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -49,7 +50,15 @@ function InfoCard({ icon, title, value, sub }: { icon: string; title: string; va
       </div>
       <div>
         <p style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 14, color: '#111118', margin: '0 0 2px' }}>{title}</p>
-        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#111118', margin: '0 0 3px' }}>{value}</p>
+        {valueLines && valueLines.length > 1 ? (
+          <div style={{ margin: '0 0 3px' }}>
+            {valueLines.map((line, i) => (
+              <p key={i} dir="ltr" style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#111118', margin: i < valueLines.length - 1 ? '0 0 1px' : 0, textAlign: 'left', unicodeBidi: 'isolate' }}>{line.trim()}</p>
+            ))}
+          </div>
+        ) : (
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#111118', margin: '0 0 3px' }}>{value}</p>
+        )}
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#9ca3af', margin: 0 }}>{sub}</p>
       </div>
     </div>
@@ -151,7 +160,7 @@ export default function ContactFormSection() {
           <div className="flex flex-col gap-3">
             {info.cards.map((card, i) => (
               <div key={i} style={fadeUp(0.1 + i * 0.1)}>
-                <InfoCard icon={ICONS[i]} title={card.title} value={card.value} sub={card.sub} />
+                <InfoCard icon={ICONS[i]} title={card.title} value={card.value} sub={card.sub} isRtl={isRtl} />
               </div>
             ))}
           </div>
