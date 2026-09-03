@@ -1,6 +1,7 @@
 'use client'
 import { motion } from 'framer-motion'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import Navbar from '../layouts/Navbar'
 import Image from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
@@ -11,10 +12,11 @@ import dayServiceBanner from '../assets/services_1/services/day_service/banner.j
 import oneWayRideBanner from '../assets/services_1/services/one-way/banner.jpg'
 import type { ServiceDetailPageKey } from '../lib/serviceDetail'
 
-function SlideButton({ label, variant = 'filled', icon }: { label: string; variant?: 'filled' | 'outline'; icon?: React.ReactNode }) {
+function SlideButton({ label, variant = 'filled', icon, onClick }: { label: string; variant?: 'filled' | 'outline'; icon?: React.ReactNode; onClick?: () => void }) {
   const isFilled = variant === 'filled'
   return (
     <button
+      onClick={onClick}
       className={`group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full font-medium transition-shadow ${
         isFilled ? 'bg-white text-[#0d0d14] border-2 border-white' : 'bg-transparent text-white border-2 border-white/60'
       }`}
@@ -31,10 +33,22 @@ function SlideButton({ label, variant = 'filled', icon }: { label: string; varia
   )
 }
 
+const SERVICE_BOOKING_TYPE: Record<ServiceDetailPageKey, string> = {
+  airportTransferPage: 'airport',
+  hourlyBookingPage:   'hourly',
+  cityToCityPage:      'city',
+  dayServicePage:      'day',
+  oneWayRidePage:      'oneWay',
+}
+
 export default function AirportTransferHero({ servicePage = 'airportTransferPage' }: { servicePage?: ServiceDetailPageKey }) {
   const { trans, dir } = useLanguage()
   const isRtl = dir === 'rtl'
+  const router = useRouter()
   const { hero } = trans[servicePage]
+
+  const bookService = () => router.push(`/?booking=${SERVICE_BOOKING_TYPE[servicePage]}`)
+  const scrollDown  = () => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
   const heroImage = servicePage === 'hourlyBookingPage'
     ? hourlyBanner
     : servicePage === 'cityToCityPage'
@@ -107,8 +121,8 @@ export default function AirportTransferHero({ servicePage = 'airportTransferPage
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.55, ease: 'easeOut' }}
             >
-              <SlideButton label={hero.btn1} variant="filled" icon={isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />} />
-              <SlideButton label={hero.btn2} variant="outline" />
+              <SlideButton label={hero.btn1} variant="filled" icon={isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />} onClick={bookService} />
+              <SlideButton label={hero.btn2} variant="outline" onClick={scrollDown} />
             </motion.div>
           </motion.div>
         </div>

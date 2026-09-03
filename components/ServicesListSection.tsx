@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
 import { useLanguage } from '../context/LanguageContext'
 import s1 from '../assets/services_1/s_1.jpg'
 import s2 from '../assets/services_1/s_2.jpg'
@@ -21,6 +22,13 @@ const STATIC = [
 
 // Fixed slugs matching items order: One-Way Ride, Hourly Chauffeur, City To City, Day Service, Airport Transfer
 const SLUGS = ['one-way-ride', 'hourly-chauffeur', 'city-to-city', 'day-service', 'airport-transfer']
+const SERVICE_PAGE_URLS = [
+  '/services/one-way-ride',
+  '/services/hourly-booking',
+  '/services/city-to-city',
+  '/services/day-service',
+  '/services/airport-transfer',
+]
 
 function ParallaxImage({ src, alt }: { src: string; alt: string }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -83,6 +91,7 @@ function ServiceBlock({
   explore,
   index,
   slug,
+  pageUrl,
   isRtl,
 }: {
   item: ServiceItem
@@ -91,6 +100,7 @@ function ServiceBlock({
   explore: string
   index: number
   slug: string
+  pageUrl: string
   isRtl: boolean
 }) {
   const textBlock = (
@@ -143,9 +153,10 @@ function ServiceBlock({
         {item.body}
       </p>
 
-      <button
+      <Link
+        href={pageUrl}
         className="group relative inline-flex h-11 items-center justify-center overflow-hidden rounded-full self-start"
-        style={{ fontFamily: 'Inter, sans-serif', background: '#005C66', border: 'none', cursor: 'pointer', minWidth: 160 }}
+        style={{ fontFamily: 'Inter, sans-serif', background: '#005C66', minWidth: 160, textDecoration: 'none' }}
       >
         <span className="inline-flex h-11 items-center justify-center gap-2 px-6 text-white text-sm font-semibold transition duration-500 group-hover:-translate-y-[150%]">
           {explore} {isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />}
@@ -156,7 +167,7 @@ function ServiceBlock({
             {explore} {isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />}
           </span>
         </span>
-      </button>
+      </Link>
     </motion.div>
   )
 
@@ -203,7 +214,7 @@ export default function ServicesListSection() {
   }, [])
 
   return (
-    <section className="w-full bg-white" style={{ padding: 'clamp(72px, 9vw, 120px) 0 clamp(48px, 6vw, 80px)' }}>
+    <section id="services-list" className="w-full bg-white" style={{ padding: 'clamp(72px, 9vw, 120px) 0 clamp(48px, 6vw, 80px)' }}>
       <div className="px-4 sm:px-6 lg:px-6 mx-auto" style={{ maxWidth: 1400 }}>
 
         <motion.div
@@ -267,6 +278,7 @@ export default function ServicesListSection() {
             explore={list.explore}
             index={i}
             slug={SLUGS[i]}
+            pageUrl={SERVICE_PAGE_URLS[i]}
             isRtl={isRtl}
           />
         ))}

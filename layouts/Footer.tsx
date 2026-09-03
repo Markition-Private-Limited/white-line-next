@@ -6,7 +6,7 @@ import { useLanguage } from '../context/LanguageContext'
 import { LANG_META } from '../lib/i18n'
 
 // hrefs never change — only labels come from translations
-const ENTITY_TYPE_HREFS = ['/about', '/partners', '/terms', '/privacy']
+const ENTITY_TYPE_HREFS = ['/about', '/terms', '/privacy']
 const SERVICE_HREFS      = [
   '/services/one-way-ride',
   '/services/hourly-booking',

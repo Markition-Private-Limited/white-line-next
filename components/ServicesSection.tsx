@@ -49,22 +49,17 @@ function useIsMobileViewport() {
 function ServiceCard({
   card,
   index,
-  containerRef,
+  scrollYProgress,
   total,
   isRtl,
 }: {
   card: CardData
   index: number
-  containerRef: React.RefObject<HTMLDivElement>
+  scrollYProgress: ReturnType<typeof useScroll>['scrollYProgress']
   total: number
   isRtl: boolean
 }) {
   const targetScale = 1 - (total - 1 - index) * 0.03
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start start', 'end end'],
-  })
 
   const cardScale = useTransform(
     scrollYProgress,
@@ -78,7 +73,7 @@ function ServiceCard({
       style={{ top: `${80 + index * 28}px` }}
     >
       <motion.div
-        style={{ scale: cardScale, transformOrigin: 'top center' }}
+        style={{ scale: cardScale, transformOrigin: 'top center', willChange: 'transform' }}
         className="w-full"
       >
         <div
@@ -94,6 +89,7 @@ function ServiceCard({
               src={card.img.src}
               alt={card.title}
               className="w-full h-full object-cover object-center"
+              style={{ filter: 'brightness(0.72)' }}
             />
             <div
               className="absolute inset-0"
@@ -120,8 +116,6 @@ function ServiceCard({
               width: 40,
               height: 40,
               background: 'rgba(255,255,255,0.25)',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)',
               border: '1px solid rgba(255,255,255,0.35)',
               ...(isRtl ? { left: '16px' } : { right: '16px' }),
             }}
@@ -129,47 +123,53 @@ function ServiceCard({
             <img src={card.icon} alt="" style={{ width: 18, height: 18 }} />
           </div>
 
+          {/* Gradient border wrapper — border-image can't coexist with border-radius so we use padding on the outer div */}
           <div
             className="absolute bottom-4 left-4 right-4"
             style={{
               borderRadius: 16,
-              padding: 'clamp(14px, 2vw, 20px) clamp(16px, 2.5vw, 24px)',
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(196,196,196,0.06) 100%)',
-              backdropFilter: 'blur(22px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(22px) saturate(180%)',
-              border: '1px solid rgba(255,255,255,0.28)',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.35)',
+              padding: '1px',
+              background: 'linear-gradient(110.21deg, rgba(255,255,255,0.18) 2.78%, rgba(255,255,255,0.08) 58.48%, rgba(255,255,255,0.06) 72.66%, rgba(255,255,255,0.14) 100%)',
             }}
           >
-            <h3
-              className="text-white font-semibold leading-tight mb-1.5"
+            <div
               style={{
-                fontFamily: 'Montserrat, sans-serif',
-                fontSize: 'clamp(16px, 2.5vw, 22px)',
+                borderRadius: 15,
+                padding: 'clamp(14px, 2vw, 20px) clamp(16px, 2.5vw, 24px)',
+background: 'rgba(255, 255, 255, 0.10)',                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(2px)',
               }}
             >
-              {card.title}
-            </h3>
-            <p
-              className="text-white/60 leading-relaxed mb-3"
-              style={{
-                fontFamily: 'Inter, sans-serif',
-                fontSize: 'clamp(11px, 1.3vw, 13px)',
-              }}
-            >
-              {card.desc}
-            </p>
-            <a
-              href={card.link}
-              className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80 underline underline-offset-2"
-              style={{
-                fontFamily: 'Inter, sans-serif',
-                fontSize: 'clamp(11px, 1.2vw, 13px)',
-                color: '#D4FBFF',
-              }}
-            >
-              {card.explore} {isRtl ? <ArrowLeft size={13} color="#D4FBFF" /> : <ArrowRight size={13} color="#D4FBFF" />}
-            </a>
+              <h3
+                className="text-white font-semibold leading-tight mb-1.5"
+                style={{
+                  fontFamily: 'Montserrat, sans-serif',
+fontSize: 'clamp(18px, 2.8vw, 26px)',
+                }}
+              >
+                {card.title}
+              </h3>
+              <p
+                className="text-white/60 leading-relaxed mb-3"
+                style={{
+                  fontFamily: 'Inter, sans-serif',
+fontSize: 'clamp(13px, 1.5vw, 16px)',
+                }}
+              >
+                {card.desc}
+              </p>
+              <a
+                href={card.link}
+                className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80 underline underline-offset-2"
+                style={{
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: 'clamp(13px, 1.4vw, 15px)',
+                  color: '#D4FBFF',
+                }}
+              >
+                {card.explore} {isRtl ? <ArrowLeft size={13} color="#D4FBFF" /> : <ArrowRight size={13} color="#D4FBFF" />}
+              </a>
+            </div>
           </div>
         </div>
       </motion.div>
@@ -183,6 +183,12 @@ export default function ServicesSection() {
   const { services: svc } = trans
   const containerRef = useRef<HTMLDivElement>(null)
   const isMobileViewport = useIsMobileViewport()
+
+  // Single shared scroll listener — avoids N redundant listeners (one per card)
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end end'],
+  })
 
   const cards: CardData[] = CARD_STATIC.map((s, i) => ({
     ...s,
@@ -247,7 +253,7 @@ export default function ServicesSection() {
             card={card}
             index={i}
             total={cards.length}
-            containerRef={containerRef as React.RefObject<HTMLDivElement>}
+            scrollYProgress={scrollYProgress}
             isRtl={isRtl}
           />
         ))}

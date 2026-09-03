@@ -1,15 +1,17 @@
 'use client'
 import { motion } from 'framer-motion'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import Navbar from '../layouts/Navbar'
 import Image from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
 import aboutBanner from '../assets/about_us/about_us_banner.png'
 
-function SlideButton({ label, variant = 'filled', icon }: { label: string; variant?: 'filled' | 'outline'; icon?: React.ReactNode }) {
+function SlideButton({ label, variant = 'filled', icon, onClick }: { label: string; variant?: 'filled' | 'outline'; icon?: React.ReactNode; onClick?: () => void }) {
   const isFilled = variant === 'filled'
   return (
     <button
+      onClick={onClick}
       className={`group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full font-medium transition-shadow ${
         isFilled ? 'bg-white text-[#0d0d14] border-2 border-white' : 'bg-transparent text-white border-2 border-white/60'
       }`}
@@ -29,6 +31,7 @@ function SlideButton({ label, variant = 'filled', icon }: { label: string; varia
 export default function AboutHero() {
   const { trans, dir } = useLanguage()
   const isRtl = dir === 'rtl'
+  const router = useRouter()
   const { hero } = trans.about
 
   return (
@@ -57,8 +60,8 @@ export default function AboutHero() {
               {hero.sub}
             </motion.p>
             <motion.div className="flex flex-wrap gap-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.55, ease: 'easeOut' }}>
-              <SlideButton label={hero.btn1} variant="filled" icon={isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />} />
-              <SlideButton label={hero.btn2} variant="outline" />
+              <SlideButton label={hero.btn1} variant="filled" icon={isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />} onClick={() => router.push('/services')} />
+              <SlideButton label={hero.btn2} variant="outline" onClick={() => router.push('/')} />
             </motion.div>
           </motion.div>
         </div>

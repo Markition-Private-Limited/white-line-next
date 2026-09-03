@@ -6,9 +6,10 @@ import Image from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
 import fleetBanner from '../assets/fleet/fleet_banner.jpg'
 
-function SlideButton({ label, icon }: { label: string; icon?: React.ReactNode }) {
+function SlideButton({ label, icon, onClick }: { label: string; icon?: React.ReactNode; onClick?: () => void }) {
   return (
     <button
+      onClick={onClick}
       className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full font-medium transition-shadow bg-white text-[#0d0d14] border-2 border-white"
       style={{ fontFamily: 'Inter, sans-serif', minWidth: '180px' }}
     >
@@ -27,6 +28,8 @@ export default function FleetHero() {
   const { trans, dir } = useLanguage()
   const isRtl = dir === 'rtl'
   const { hero } = trans.fleetPage
+
+  const scrollDown = () => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
 
   return (
     <div style={{ background: '#ffffff', padding: 'clamp(6px, 0.8vw, 10px)' }}>
@@ -83,7 +86,7 @@ export default function FleetHero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.55, ease: 'easeOut' }}
             >
-              <SlideButton label={hero.btn} icon={isRtl ? <ArrowLeft size={14} className="mr-1" /> : <ArrowRight size={14} className="ml-1" />} />
+              <SlideButton label={hero.btn} icon={isRtl ? <ArrowLeft size={14} className="mr-1" /> : <ArrowRight size={14} className="ml-1" />} onClick={scrollDown} />
             </motion.div>
           </motion.div>
         </div>

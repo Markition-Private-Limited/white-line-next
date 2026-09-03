@@ -14,18 +14,20 @@ export default function ContactPage() {
       <PageTitle en="Contact Us | White Line" ar="تواصل معنا | White Line" />
       <ContactHero />
       <ContactFormSection />
-      <div className="w-full bg-white" style={{ padding: '0 0 80px' }}>
-        <iframe
-          src="https://maps.google.com/maps?q=24.760944,46.673028&z=15&output=embed"
-          width="100%"
-          height="600"
-          style={{ display: 'block', border: 0 }}
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          title="White Line Office Location"
-        />
-      </div>
+      <div className="w-full bg-white py-8 ">
+    <div className="max-w-7xl mx-auto rounded-xl overflow-hidden shadow-lg border border-gray-200">
+      <iframe
+        src="https://maps.google.com/maps?q=24.760944,46.673028&z=15&output=embed"
+        width="100%"
+        height="400"
+        style={{ display: 'block', border: 0 }}
+        allowFullScreen
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        title="White Line Office Location"
+      />
+    </div>
+</div>
     </>
   )
 }

@@ -31,13 +31,13 @@ const en = {
   hero: {
     line1: 'Luxury Travel With',
     line2: 'Purpose & Precision.',
-    sub: 'White Lane brings together premium chauffeur services and modern technology to create a transportation experience built around comfort, reliability, privacy, and exceptional service.',
+    sub: 'White Line brings together premium chauffeur services and modern technology to create a transportation experience built around comfort, reliability, privacy, and exceptional service.',
     services: [
       { title: 'Airport Transfer',  desc: 'Airport pickups and drop-offs.' },
-      { title: 'Hourly Chauffeur',  desc: 'Keep your chauffeur by the hour.' },
+      { title: 'One Way Ride',      desc: 'Simple point-to-point travel.' },
       { title: 'City-to-City',      desc: 'Comfortable intercity travel.' },
       { title: 'Day Service',       desc: 'Full-day vehicle block.' },
-      { title: 'One Way Ride',      desc: 'Simple point-to-point travel.' },
+      { title: 'Hourly Chauffeur',  desc: 'Keep your chauffeur by the hour.' },
     ],
     bookNow: 'Book Now',
   },
@@ -191,7 +191,7 @@ const en = {
   footer: {
     tagline: 'Premium chauffeur services built on comfort, reliability, and discretion.',
     columns: {
-      company:   { title: 'Company',   links: ['About Us', 'Partners', 'Terms & Conditions', 'Privacy Policy'] },
+      company:   { title: 'Company',   links: ['About Us', 'Terms & Conditions', 'Privacy Policy'] },
       services:  { title: 'Services',  links: ['One Way Ride', 'Hourly Chauffeur', 'City-To-City', 'Day Service', 'Airport Transfer'] },
       resources: { title: 'Our Fleet', links: ['First Class', 'Business Class', 'SUV', 'Sedan', 'Van', 'Coaster & Bus'] },
       support:   { title: 'Support',   links: ['Contact Us', 'Customer Support', 'Testimonials'] },
@@ -312,7 +312,7 @@ const en = {
       passengersLabel: 'Passengers',
       passenger: 'Passenger', passengers: 'Passengers',
       messageLabel: 'Message', messagePh: 'Tell us about your request...',
-      disclaimer: "By submitting this form you agree to White Lane's",
+      disclaimer: "By submitting this form you agree to White Line's",
       privacyLink: 'privacy policy', and: 'and', termsLink: 'terms of service',
       sendBtn: 'Send Message',
       sentTitle: 'Message Sent!',
@@ -767,11 +767,11 @@ const en = {
       sub: 'At White Line, we deeply value your privacy and are committed to safeguarding the personal and professional information you entrust to us. This Privacy Policy outlines how we collect, use, disclose, and protect your data when you interact with our executive transport platforms, applications, and services.',
     },
     effectiveDate: 'Effective Date: August 17, 2026',
-    intro: 'At White Lane ("White Line," "we," "us," or "our"), we are committed to protecting your privacy and safeguarding the personal and professional information you entrust to us. This Privacy Policy explains how we collect, use, process, store, disclose, and protect your information when you access or use our website, mobile applications, customer portals, corporate/B2B platforms, and luxury chauffeur and ride-hailing services (collectively, the "Services"). By accessing or using our Services, you acknowledge that you have read and understood this Privacy Policy. If you do not agree with the practices described in this Privacy Policy, please discontinue use of our Services.',
+    intro: 'At White Line ("White Line," "we," "us," or "our"), we are committed to protecting your privacy and safeguarding the personal and professional information you entrust to us. This Privacy Policy explains how we collect, use, process, store, disclose, and protect your information when you access or use our website, mobile applications, customer portals, corporate/B2B platforms, and luxury chauffeur and ride-hailing services (collectively, the "Services"). By accessing or using our Services, you acknowledge that you have read and understood this Privacy Policy. If you do not agree with the practices described in this Privacy Policy, please discontinue use of our Services.',
     sections: [
       {
         title: '1. Information We Collect',
-        body: 'We may collect different categories of information, depending on how you interact with White Lane, including when you create an account, book a ride, request customer support, use our website or mobile application, or communicate with us.',
+        body: 'We may collect different categories of information, depending on how you interact with White Line, including when you create an account, book a ride, request customer support, use our website or mobile application, or communicate with us.',
         subsections: [
           {
             title: '1.1 Personal Information',
@@ -912,7 +912,7 @@ const en = {
     hero: {
       h1a: 'Terms',
       h1b: '& Conditions',
-      sub: 'Welcome to White Lane. By accessing our platform, booking our executive transport services, or interacting with our digital applications, you agree to comply with and be bound by these Terms & Conditions. Please review them carefully before utilizing our services.',
+      sub: 'Welcome to White Line. By accessing our platform, booking our executive transport services, or interacting with our digital applications, you agree to comply with and be bound by these Terms & Conditions. Please review them carefully before utilizing our services.',
     },
     effectiveDate: 'Effective Date: August 17, 2026',
     intro: 'These Terms & Conditions ("Terms") constitute a legally binding agreement between you ("User," "you," or "your") and White Line Transportation ("White Line," "we," "us," or "our"). By accessing or using any part of our platform, mobile applications, corporate portals, or requesting any of our chauffeur or transportation services, you acknowledge that you have read, understood, and agree to be bound by these Terms. If you do not agree, please discontinue use immediately.',
@@ -1150,10 +1150,10 @@ const ar: typeof en = {
     sub: 'وايت لاين تجمع بين خدمات السائق الفاخرة والتقنية الحديثة، لتقديم تجربة نقل استثنائية مبنية على الراحة والموثوقية والخصوصية والخدمة المتميزة.',
     services: [
       { title: 'نقل المطار',    desc: 'استقبال وتوصيل من وإلى المطار.' },
-      { title: 'سائق بالساعة', desc: 'احتفظ بسائقك الخاص بالساعة.' },
+      { title: 'رحلة أحادية',   desc: 'تنقل مباشر من نقطة لأخرى.' },
       { title: 'بين المدن',     desc: 'رحلات مريحة بين المدن.' },
       { title: 'خدمة اليوم',   desc: 'حجز السيارة ليوم كامل.' },
-      { title: 'رحلة أحادية',   desc: 'تنقل مباشر من نقطة لأخرى.' },
+      { title: 'سائق بالساعة', desc: 'احتفظ بسائقك الخاص بالساعة.' },
     ],
     bookNow: 'احجز الآن',
   },
@@ -1331,7 +1331,7 @@ const ar: typeof en = {
   footer: {
     tagline: 'خدمات سائق راقية مبنية على الراحة والموثوقية والخصوصية.',
     columns: {
-      company:   { title: 'الشركة',   links: ['من نحن', 'الشركاء', 'الشروط والأحكام', 'سياسة الخصوصية'] },
+      company:   { title: 'الشركة',   links: ['من نحن', 'الشروط والأحكام', 'سياسة الخصوصية'] },
       services:  { title: 'الخدمات', links: ['رحلة أحادية', 'سائق بالساعة', 'بين المدن', 'خدمة اليوم', 'نقل المطار'] },
       resources: { title: 'أسطولنا', links: ['الدرجة الأولى', 'درجة الأعمال', 'إس يو في', 'سيدان', 'فان', 'كوستر وباص'] },
       support:   { title: 'الدعم',   links: ['تواصل معنا', 'خدمة العملاء', 'التقييمات'] },

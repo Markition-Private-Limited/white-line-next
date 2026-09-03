@@ -1,7 +1,7 @@
 'use client'
 import { motion } from 'framer-motion'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 import Navbar from '../layouts/Navbar'
 import { useLanguage } from '../context/LanguageContext'
@@ -15,7 +15,8 @@ import card4 from '../assets/home/home_page_banner_Sub_images/4.jpg'
 import card5 from '../assets/home/home_page_banner_Sub_images/5.jpg'
 
 // Images mapped in the same order as translations.hero.services
-const CARD_IMAGES = [card4, card2, card3, card1, card5]
+// Order: Airport Transfer, One-Way Ride, City-to-City, Day Service, Hourly Chauffeur
+const CARD_IMAGES = [card4, card3, card2, card5, card1]
 
 type Tilt = { rotX: number; rotY: number; imgX: number; imgY: number }
 
@@ -151,12 +152,22 @@ export default function HomeHero() {
   const { hero } = trans
   const [bookingType, setBookingType] = useState<BookingService | null>(null)
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const booking = params.get('booking') as BookingService | null
+    const valid: BookingService[] = ['airport', 'hourly', 'city', 'day', 'oneWay']
+    if (booking && valid.includes(booking)) {
+      setBookingType(booking)
+      history.replaceState(null, '', window.location.pathname)
+    }
+  }, [])
+
   const bookingForCard = (index: number) => {
     if (index === 0) return () => setBookingType('airport')
-    if (index === 1) return () => setBookingType('hourly')
+    if (index === 1) return () => setBookingType('oneWay')
     if (index === 2) return () => setBookingType('city')
     if (index === 3) return () => setBookingType('day')
-    if (index === 4) return () => setBookingType('oneWay')
+    if (index === 4) return () => setBookingType('hourly')
     return undefined
   }
 
