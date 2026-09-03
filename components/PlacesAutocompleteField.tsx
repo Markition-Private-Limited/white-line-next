@@ -3,12 +3,16 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { MapPin } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useGoogleMaps } from '../hooks/useGoogleMaps'
+import { useLanguage } from '../context/LanguageContext'
+import { bookingDialogCopy } from '../lib/bookingDialogCopy'
 import styles from './AirportTransferBookingDialog.module.css'
 
 interface Props {
   label: string
   placeholder: string
   onSelect?: (address: string) => void
+  onChange?: (value: string) => void
+  attempted?: boolean
 }
 
 type Prediction = { description: string; place_id: string }
@@ -31,7 +35,9 @@ declare global {
   }
 }
 
-export default function PlacesAutocompleteField({ label, placeholder, onSelect }: Props) {
+export default function PlacesAutocompleteField({ label, placeholder, onSelect, onChange, attempted }: Props) {
+  const { lang } = useLanguage()
+  const copy = bookingDialogCopy[lang]
   const fieldRef = useRef<HTMLDivElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const serviceRef = useRef<InstanceType<NonNullable<Window['google']>['maps']['places']['AutocompleteService']> | null>(null)
@@ -69,12 +75,14 @@ export default function PlacesAutocompleteField({ label, placeholder, onSelect }
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value
     setValue(input)
+    onChange?.(input)
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(() => fetchPredictions(input), 300)
   }
 
   const handleSelect = (prediction: Prediction) => {
     setValue(prediction.description)
+    onChange?.(prediction.description)
     onSelect?.(prediction.description)
     setPredictions([])
     setOpen(false)
@@ -89,8 +97,10 @@ export default function PlacesAutocompleteField({ label, placeholder, onSelect }
     return () => document.removeEventListener('pointerdown', close)
   }, [open])
 
+  const isEmpty = attempted && !value.trim()
+
   return (
-    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField}`}>
+    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField} ${isEmpty ? styles.fieldInvalid : ''}`}>
       <label>{label}</label>
       <div className={styles.control}>
         <input
@@ -99,12 +109,20 @@ export default function PlacesAutocompleteField({ label, placeholder, onSelect }
           onChange={handleChange}
           placeholder={placeholder}
           aria-label={label}
+          aria-invalid={isEmpty}
           autoComplete="off"
         />
         <span className={styles.controlIcon}>
           <MapPin size={15} />
         </span>
       </div>
+      <AnimatePresence initial={false}>
+        {isEmpty && (
+          <motion.small className={styles.fieldError} initial={{ opacity: 0, y: -3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }}>
+            {copy.validation.required}
+          </motion.small>
+        )}
+      </AnimatePresence>
       <AnimatePresence>
         {open && predictions.length > 0 && (
           <motion.div
@@ -120,6 +138,7 @@ export default function PlacesAutocompleteField({ label, placeholder, onSelect }
                 key={p.place_id}
                 type="button"
                 role="option"
+                aria-selected={value === p.description}
                 onPointerDown={e => { e.preventDefault(); handleSelect(p) }}
               >
                 {p.description}

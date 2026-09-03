@@ -57,22 +57,23 @@ function useBookingDialogCopy() {
   return { copy: bookingDialogCopy[lang], lang, dir }
 }
 
-function TextField({ label, placeholder, icon, startIcon, minLength = 2, inputType = 'text' }: { label: string; placeholder: string; icon?: React.ReactNode; startIcon?: React.ReactNode; minLength?: number; inputType?: 'text' | 'email' | 'tel' }) {
+function TextField({ label, placeholder, icon, startIcon, minLength = 2, inputType = 'text', onChange, attempted }: { label: string; placeholder: string; icon?: React.ReactNode; startIcon?: React.ReactNode; minLength?: number; inputType?: 'text' | 'email' | 'tel'; onChange?: (value: string) => void; attempted?: boolean }) {
   const { copy } = useBookingDialogCopy()
   const [value, setValue] = useState('')
   const trimmed = value.trim()
+  const isEmpty = attempted && trimmed.length === 0
   const emailInvalid = inputType === 'email' && trimmed.length > 0 && !/^\S+@\S+\.\S+$/.test(trimmed)
   const phoneInvalid = inputType === 'tel' && trimmed.length > 0 && value.replace(/\D/g, '').length < 8
   const lengthInvalid = inputType === 'text' && trimmed.length > 0 && trimmed.length < minLength
-  const invalid = emailInvalid || phoneInvalid || lengthInvalid
-  const validationMessage = emailInvalid ? copy.validation.email : phoneInvalid ? copy.validation.phone : lengthInvalid ? copy.validation.characters(minLength) : ''
+  const invalid = isEmpty || emailInvalid || phoneInvalid || lengthInvalid
+  const validationMessage = isEmpty ? copy.validation.required : emailInvalid ? copy.validation.email : phoneInvalid ? copy.validation.phone : lengthInvalid ? copy.validation.characters(minLength) : ''
 
   return (
     <div className={`${styles.field} ${invalid ? styles.fieldInvalid : ''}`}>
       <label>{label}</label>
       <div className={styles.control}>
         {startIcon && <span className={styles.controlStartIcon}>{startIcon}</span>}
-        <input aria-label={label} aria-invalid={invalid} type={inputType} value={value} onChange={event => setValue(event.target.value)} placeholder={placeholder} className={startIcon ? styles.inputWithStartIcon : undefined} />
+        <input aria-label={label} aria-invalid={invalid} type={inputType} value={value} onChange={event => { setValue(event.target.value); onChange?.(event.target.value) }} placeholder={placeholder} className={startIcon ? styles.inputWithStartIcon : undefined} />
         {icon && <span className={styles.controlIcon}>{icon}</span>}
       </div>
       <AnimatePresence initial={false}>
@@ -82,7 +83,8 @@ function TextField({ label, placeholder, icon, startIcon, minLength = 2, inputTy
   )
 }
 
-function DropdownField({ label, placeholder, options }: { label: string; placeholder: string; options: string[] }) {
+function DropdownField({ label, placeholder, options, onChange, attempted }: { label: string; placeholder: string; options: string[]; onChange?: (value: string) => void; attempted?: boolean }) {
+  const { copy } = useBookingDialogCopy()
   const [value, setValue] = useState('')
   const [open, setOpen] = useState(false)
   const fieldRef = useRef<HTMLDivElement>(null)
@@ -96,17 +98,22 @@ function DropdownField({ label, placeholder, options }: { label: string; placeho
     return () => document.removeEventListener('pointerdown', close)
   }, [open])
 
+  const isEmpty = attempted && !value
+
   return (
-    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField}`}>
+    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField} ${isEmpty ? styles.fieldInvalid : ''}`}>
       <label>{label}</label>
       <button type="button" className={styles.pickerControl} aria-expanded={open} aria-haspopup="listbox" onClick={() => setOpen(current => !current)}>
         <span className={value ? '' : styles.pickerPlaceholder}>{value || placeholder}</span>
         <span className={styles.controlIcon}><LocateFixed size={15} /></span>
       </button>
+      <AnimatePresence initial={false}>
+        {isEmpty && <motion.small className={styles.fieldError} initial={{ opacity: 0, y: -3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }}>{copy.validation.required}</motion.small>}
+      </AnimatePresence>
       <AnimatePresence>
         {open && (
           <motion.div className={styles.fieldMenu} role="listbox" initial={{ opacity: 0, y: -7, scaleY: .97 }} animate={{ opacity: 1, y: 0, scaleY: 1 }} exit={{ opacity: 0, y: -7, scaleY: .97 }} transition={{ duration: .2, ease: 'easeOut' }}>
-            {options.map(option => <button key={option} type="button" role="option" aria-selected={value === option} className={value === option ? styles.fieldOptionActive : ''} onClick={() => { setValue(option); setOpen(false) }}>{option}</button>)}
+            {options.map(option => <button key={option} type="button" role="option" aria-selected={value === option} className={value === option ? styles.fieldOptionActive : ''} onClick={() => { setValue(option); onChange?.(option); setOpen(false) }}>{option}</button>)}
           </motion.div>
         )}
       </AnimatePresence>
@@ -114,7 +121,7 @@ function DropdownField({ label, placeholder, options }: { label: string; placeho
   )
 }
 
-function DatePickerField({ label }: { label: string }) {
+function DatePickerField({ label, onChange, attempted }: { label: string; onChange?: (date: Date | null) => void; attempted?: boolean }) {
   const { copy, dir } = useBookingDialogCopy()
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -138,13 +145,18 @@ function DatePickerField({ label }: { label: string }) {
     return () => document.removeEventListener('pointerdown', close)
   }, [open])
 
+  const isEmpty = attempted && !selected
+
   return (
-    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField}`}>
+    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField} ${isEmpty ? styles.fieldInvalid : ''}`}>
       <label>{label}</label>
       <button type="button" className={styles.pickerControl} aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(current => !current)}>
         <span className={selected ? '' : styles.pickerPlaceholder}>{selected ? selected.toLocaleDateString(copy.calendar.locale, { day: '2-digit', month: 'short', year: 'numeric' }) : '--/--/----'}</span>
         <span className={styles.controlIcon}><CalendarDays size={16} /></span>
       </button>
+      <AnimatePresence initial={false}>
+        {isEmpty && <motion.small className={styles.fieldError} initial={{ opacity: 0, y: -3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }}>{copy.validation.required}</motion.small>}
+      </AnimatePresence>
       <AnimatePresence>
         {open && (
           <motion.div className={`${styles.fieldMenu} ${styles.calendarMenu}`} role="dialog" aria-label={`${label} ${copy.calendar.label}`} dir={dir} initial={{ opacity: 0, y: -7, scaleY: .97 }} animate={{ opacity: 1, y: 0, scaleY: 1 }} exit={{ opacity: 0, y: -7, scaleY: .97 }} transition={{ duration: .2, ease: 'easeOut' }}>
@@ -160,7 +172,7 @@ function DatePickerField({ label }: { label: string }) {
                 const date = new Date(year, monthIndex, day)
                 const disabled = date < today
                 const active = selected?.getFullYear() === year && selected?.getMonth() === monthIndex && selected?.getDate() === day
-                return <button key={day} type="button" disabled={disabled} className={active ? styles.calendarDayActive : ''} onClick={() => { setSelected(date); setOpen(false) }}>{day}</button>
+                return <button key={day} type="button" disabled={disabled} className={active ? styles.calendarDayActive : ''} onClick={() => { setSelected(date); onChange?.(date); setOpen(false) }}>{day}</button>
               })}
             </div>
           </motion.div>
@@ -175,13 +187,14 @@ const CLOCK_HOURS_24_OUTER = [0, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
 const CLOCK_HOURS_24_INNER = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 const CLOCK_MINUTES = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]
 
-function TimePickerField({ label }: { label: string }) {
+function TimePickerField({ label, onChange, attempted }: { label: string; onChange?: () => void; attempted?: boolean }) {
   const { copy, lang } = useBookingDialogCopy()
   const [open, setOpen] = useState(false)
   const [mode, setMode] = useState<'hour' | 'minute'>('hour')
   const [hour, setHour] = useState<number>(12)
   const [minute, setMinute] = useState<number>(0)
   const [use24Hour, setUse24Hour] = useState(false)
+  const [selected, setSelected] = useState(false)
   const fieldRef = useRef<HTMLDivElement>(null)
   const clockRef = useRef<HTMLDivElement>(null)
   // Keep mode accessible inside pointer-event closures without stale capture
@@ -227,6 +240,8 @@ function TimePickerField({ label }: { label: string }) {
   const applyValue = (value: number) => {
     if (modeRef.current === 'hour') setHour(value)
     else setMinute(value)
+    setSelected(true)
+    onChange?.()
   }
 
   const handleClockPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -261,12 +276,18 @@ function TimePickerField({ label }: { label: string }) {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
       if (isHour) setMode('minute')
-      else setOpen(false)
+      else {
+        setSelected(true)
+        onChange?.()
+        setOpen(false)
+      }
       return
     }
     if (next === null) return
 
     event.preventDefault()
+    setSelected(true)
+    onChange?.()
     if (isHour) {
       setHour(use24Hour ? next : (period === 'PM' ? next % 12 + 12 : next % 12))
     } else {
@@ -285,13 +306,16 @@ function TimePickerField({ label }: { label: string }) {
     : CLOCK_MINUTES.map((value, index) => ({ value, index, radius: 38 }))
 
   return (
-    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField}`}>
+    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField} ${attempted && !selected ? styles.fieldInvalid : ''}`}>
       <label>{label}</label>
-      <button type="button" className={styles.pickerControl} aria-label={`${label}: ${displayValue}`} aria-expanded={open} aria-haspopup="dialog"
+      <button type="button" className={styles.pickerControl} aria-label={`${label}: ${selected ? displayValue : copy.validation.required}`} aria-expanded={open} aria-haspopup="dialog"
         onClick={() => { setMode('hour'); setOpen(c => !c) }}>
-        <span aria-live="polite">{displayValue}</span>
+        <span className={selected ? '' : styles.pickerPlaceholder} aria-live="polite">{selected ? displayValue : '--:--'}</span>
         <span className={styles.controlIcon}><Clock3 size={16} /></span>
       </button>
+      <AnimatePresence initial={false}>
+        {attempted && !selected && <motion.small className={styles.fieldError} initial={{ opacity: 0, y: -3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }}>{copy.validation.required}</motion.small>}
+      </AnimatePresence>
       <AnimatePresence>
         {open && (
           <motion.div className={styles.clockMenu} role="dialog" aria-label={label}
@@ -348,14 +372,18 @@ function TimePickerField({ label }: { label: string }) {
   )
 }
 
-function LocationScheduleFields({ pickupLabel, pickupPlaceholder, destinationLabel, destinationPlaceholder }: { pickupLabel?: string; pickupPlaceholder?: string; destinationLabel?: string; destinationPlaceholder?: string }) {
+type ScheduleValues = { pickup: string; destination: string; date: boolean; time: boolean }
+const emptySchedule = (): ScheduleValues => ({ pickup: '', destination: '', date: false, time: false })
+const scheduleIsComplete = (values: ScheduleValues) => Boolean(values.pickup.trim() && values.destination.trim() && values.date && values.time)
+
+function LocationScheduleFields({ pickupLabel, pickupPlaceholder, destinationLabel, destinationPlaceholder, attempted, onChange }: { pickupLabel?: string; pickupPlaceholder?: string; destinationLabel?: string; destinationPlaceholder?: string; attempted: boolean; onChange: (field: keyof ScheduleValues, value: string | boolean) => void }) {
   const { copy } = useBookingDialogCopy()
   return (
     <div className={styles.fieldGrid}>
-      <PlacesAutocompleteField label={pickupLabel ?? copy.pickupLocation} placeholder={pickupPlaceholder ?? copy.selectPickup} />
-      <PlacesAutocompleteField label={destinationLabel ?? copy.destination} placeholder={destinationPlaceholder ?? copy.selectDropOff} />
-      <DatePickerField label={copy.pickupDate} />
-      <TimePickerField label={copy.pickupTime} />
+      <PlacesAutocompleteField label={pickupLabel ?? copy.pickupLocation} placeholder={pickupPlaceholder ?? copy.selectPickup} attempted={attempted} onChange={value => onChange('pickup', value)} />
+      <PlacesAutocompleteField label={destinationLabel ?? copy.destination} placeholder={destinationPlaceholder ?? copy.selectDropOff} attempted={attempted} onChange={value => onChange('destination', value)} />
+      <DatePickerField label={copy.pickupDate} attempted={attempted} onChange={value => onChange('date', Boolean(value))} />
+      <TimePickerField label={copy.pickupTime} attempted={attempted} onChange={() => onChange('time', true)} />
     </div>
   )
 }
@@ -372,46 +400,58 @@ function FooterActions({ back, next, nextLabel = 'Continue' }: { back: () => voi
   )
 }
 
-function BookingForSection({ bookingFor, setBookingFor, next, back }: {
+function BookingForSection({ bookingFor, setBookingFor, next, back, tripComplete, onAttempt }: {
   bookingFor: BookingFor
   setBookingFor: (value: BookingFor) => void
   next: () => void
   back: () => void
+  tripComplete: boolean
+  onAttempt: () => void
 }) {
   const { copy, dir } = useBookingDialogCopy()
+  const [attempted, setAttempted] = useState(false)
+  const [guest, setGuest] = useState({ name: '', phone: '', email: '' })
   const ChoiceIcon = dir === 'rtl' ? ChevronLeft : ChevronRight
+  const guestComplete = guest.name.trim().length >= 2 && guest.phone.replace(/\D/g, '').length >= 8 && /^\S+@\S+\.\S+$/.test(guest.email.trim())
+  const chooseBookingFor = (value: BookingFor) => {
+    if (value !== bookingFor) setGuest({ name: '', phone: '', email: '' })
+    setBookingFor(value)
+  }
   const continueTrip = () => {
-    if (!bookingFor) setBookingFor('guest')
-    else next()
+    setAttempted(true)
+    onAttempt()
+    if (!bookingFor || !tripComplete || (bookingFor === 'guest' && !guestComplete)) return
+    next()
   }
 
   return (
     <>
       <p className={styles.bookingQuestion}>{copy.bookingQuestion}</p>
-      <div className={styles.choiceGrid}>
-        <button type="button" className={`${styles.choice} ${bookingFor === 'self' ? styles.choiceActive : ''}`} onClick={() => setBookingFor('self')}>
+      <div className={styles.choiceGrid} role="group" aria-label={copy.bookingQuestion}>
+        <button type="button" aria-pressed={bookingFor === 'self'} className={`${styles.choice} ${bookingFor === 'self' ? styles.choiceActive : ''} ${attempted && !bookingFor ? styles.choiceError : ''}`} onClick={() => chooseBookingFor('self')}>
           <span className={styles.choiceIcon}><UserRound size={15} /></span>
           <span className={styles.choiceCopy}><strong>{copy.forMyself}</strong><small>{copy.selfTravel}</small></span>
           <ChoiceIcon size={16} />
         </button>
-        <button type="button" className={`${styles.choice} ${bookingFor === 'guest' ? styles.choiceActive : ''}`} onClick={() => setBookingFor('guest')}>
+        <button type="button" aria-pressed={bookingFor === 'guest'} className={`${styles.choice} ${bookingFor === 'guest' ? styles.choiceActive : ''} ${attempted && !bookingFor ? styles.choiceError : ''}`} onClick={() => chooseBookingFor('guest')}>
           <span className={styles.choiceIcon}><UsersRound size={15} /></span>
           <span className={styles.choiceCopy}><strong>{copy.forGuest}</strong><small>{copy.guestTravel}</small></span>
           <ChoiceIcon size={16} />
         </button>
       </div>
+      {attempted && !bookingFor && <small className={styles.selectionError}>{copy.validation.required}</small>}
 
       {bookingFor === 'guest' && (
         <div className={styles.guestPanel}>
           <h3>{copy.guestDetails}</h3>
           <p>{copy.enterGuestDetails}</p>
-          <TextField label={copy.fullName} placeholder={copy.guestName} minLength={2} />
-          <TextField label={copy.phoneNumber} placeholder="+966 50 123 4567" inputType="tel" />
-          <TextField label={copy.emailAddress} placeholder="guest@gmail.com" inputType="email" />
+          <TextField label={copy.fullName} placeholder={copy.guestName} minLength={2} attempted={attempted} onChange={value => setGuest(current => ({ ...current, name: value }))} />
+          <TextField label={copy.phoneNumber} placeholder="+966 50 123 4567" inputType="tel" attempted={attempted} onChange={value => setGuest(current => ({ ...current, phone: value }))} />
+          <TextField label={copy.emailAddress} placeholder="guest@gmail.com" inputType="email" attempted={attempted} onChange={value => setGuest(current => ({ ...current, email: value }))} />
         </div>
       )}
 
-      <FooterActions back={bookingFor === 'guest' ? () => setBookingFor(null) : back} next={continueTrip} />
+      <FooterActions back={bookingFor === 'guest' ? () => chooseBookingFor(null) : back} next={continueTrip} />
     </>
   )
 }
@@ -423,18 +463,46 @@ function TripDetails({ bookingFor, setBookingFor, next, back }: {
   back: () => void
 }) {
   const { copy, lang } = useBookingDialogCopy()
+  const [isDeparture, setIsDeparture] = useState(false)
+  const [attempted, setAttempted] = useState(false)
+  const [trip, setTrip] = useState({ pickup: '', destination: '', date: false, time: false, flightNumber: '' })
+  const updateTrip = (field: keyof typeof trip, value: string | boolean) => setTrip(current => ({ ...current, [field]: value }))
+  const tripComplete = Boolean(trip.pickup.trim() && trip.destination.trim() && trip.date && trip.time && trip.flightNumber.trim().length >= 5)
+  const changeDirection = (departure: boolean) => {
+    if (departure === isDeparture) return
+    setIsDeparture(departure)
+    setTrip(current => ({ ...current, pickup: '', destination: '' }))
+  }
   return (
     <>
       <p className={styles.eyebrow}>{copy.services.airport}</p>
       <h2 className={styles.title}>{copy.tripDetails}</h2>
       <p className={styles.subtitle}>{copy.tripSubtitle}</p>
 
+      <div className={styles.directionSwitcher}>
+        <button type="button" className={!isDeparture ? styles.directionActive : ''} onClick={() => changeDirection(false)}>
+          {copy.arrival}
+        </button>
+        <button type="button" className={isDeparture ? styles.directionActive : ''} onClick={() => changeDirection(true)}>
+          {copy.departure}
+        </button>
+      </div>
+
       <div className={styles.fieldGrid}>
-        <DropdownField label={copy.pickupAirport} placeholder={copy.selectAirport} options={copy.airports} />
-        <PlacesAutocompleteField label={copy.dropOff} placeholder={copy.enterDestination} />
-        <DatePickerField label={copy.flightDate} />
-        <TimePickerField label={copy.pickupTime} />
-        <TextField label={copy.flightNumber} placeholder={copy.flightExample} minLength={5} startIcon={<Image src={flightNumberSvg} alt="" width={20} height={18} />} />
+        {isDeparture ? (
+          <>
+            <PlacesAutocompleteField key="departure-pickup" label={copy.pickupLocation} placeholder={copy.selectPickup} attempted={attempted} onChange={value => updateTrip('pickup', value)} />
+            <DropdownField key="departure-airport" label={copy.dropOffAirport} placeholder={copy.selectAirport} options={copy.airports} attempted={attempted} onChange={value => updateTrip('destination', value)} />
+          </>
+        ) : (
+          <>
+            <DropdownField key="arrival-airport" label={copy.pickupAirport} placeholder={copy.selectAirport} options={copy.airports} attempted={attempted} onChange={value => updateTrip('pickup', value)} />
+            <PlacesAutocompleteField key="arrival-destination" label={copy.dropOff} placeholder={copy.enterDestination} attempted={attempted} onChange={value => updateTrip('destination', value)} />
+          </>
+        )}
+        <DatePickerField label={copy.flightDate} attempted={attempted} onChange={value => updateTrip('date', Boolean(value))} />
+        <TimePickerField label={copy.pickupTime} attempted={attempted} onChange={() => updateTrip('time', true)} />
+        <TextField label={copy.flightNumber} placeholder={copy.flightExample} minLength={5} attempted={attempted} onChange={value => updateTrip('flightNumber', value)} startIcon={<Image src={flightNumberSvg} alt="" width={20} height={18} />} />
         <div className={styles.flightRoute} aria-label={copy.flightRoutePreview} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
           <span className={styles.routeHalf}>{copy.from}<br />--:--</span>
           <Image className={styles.plane} src={horizontalPlane} alt="" />
@@ -442,7 +510,7 @@ function TripDetails({ bookingFor, setBookingFor, next, back }: {
         </div>
       </div>
 
-      <BookingForSection bookingFor={bookingFor} setBookingFor={setBookingFor} back={back} next={next} />
+      <BookingForSection bookingFor={bookingFor} setBookingFor={setBookingFor} back={back} next={next} tripComplete={tripComplete} onAttempt={() => setAttempted(true)} />
     </>
   )
 }
@@ -457,6 +525,9 @@ function HourlyTripDetails({ bookingFor, setBookingFor, duration, setDuration, n
 }) {
   const { copy } = useBookingDialogCopy()
   const [durationOpen, setDurationOpen] = useState(false)
+  const [attempted, setAttempted] = useState(false)
+  const [schedule, setSchedule] = useState<ScheduleValues>(emptySchedule)
+  const updateSchedule = (field: keyof ScheduleValues, value: string | boolean) => setSchedule(current => ({ ...current, [field]: value }))
 
   return (
     <>
@@ -464,7 +535,7 @@ function HourlyTripDetails({ bookingFor, setBookingFor, duration, setDuration, n
       <h2 className={styles.title}>{copy.tripDetails}</h2>
       <p className={styles.subtitle}>{copy.tripSubtitle}</p>
 
-      <LocationScheduleFields />
+      <LocationScheduleFields attempted={attempted} onChange={updateSchedule} />
 
       <div className={styles.durationField}>
         <label>{copy.selectDuration}</label>
@@ -491,7 +562,7 @@ function HourlyTripDetails({ bookingFor, setBookingFor, duration, setDuration, n
         <ChevronDown size={16} />
       </div>
 
-      <BookingForSection bookingFor={bookingFor} setBookingFor={setBookingFor} back={back} next={next} />
+      <BookingForSection bookingFor={bookingFor} setBookingFor={setBookingFor} back={back} next={next} tripComplete={scheduleIsComplete(schedule)} onAttempt={() => setAttempted(true)} />
     </>
   )
 }
@@ -503,15 +574,18 @@ function CityTripDetails({ bookingFor, setBookingFor, next, back }: {
   back: () => void
 }) {
   const { copy } = useBookingDialogCopy()
+  const [attempted, setAttempted] = useState(false)
+  const [schedule, setSchedule] = useState<ScheduleValues>(emptySchedule)
+  const updateSchedule = (field: keyof ScheduleValues, value: string | boolean) => setSchedule(current => ({ ...current, [field]: value }))
   return (
     <>
       <p className={styles.eyebrow}>{copy.services.city}</p>
       <h2 className={styles.title}>{copy.tripDetails}</h2>
       <p className={styles.subtitle}>{copy.tripSubtitle}</p>
 
-      <LocationScheduleFields />
+      <LocationScheduleFields attempted={attempted} onChange={updateSchedule} />
 
-      <BookingForSection bookingFor={bookingFor} setBookingFor={setBookingFor} back={back} next={next} />
+      <BookingForSection bookingFor={bookingFor} setBookingFor={setBookingFor} back={back} next={next} tripComplete={scheduleIsComplete(schedule)} onAttempt={() => setAttempted(true)} />
     </>
   )
 }
@@ -523,15 +597,18 @@ function OneWayTripDetails({ bookingFor, setBookingFor, next, back }: {
   back: () => void
 }) {
   const { copy } = useBookingDialogCopy()
+  const [attempted, setAttempted] = useState(false)
+  const [schedule, setSchedule] = useState<ScheduleValues>(emptySchedule)
+  const updateSchedule = (field: keyof ScheduleValues, value: string | boolean) => setSchedule(current => ({ ...current, [field]: value }))
   return (
     <>
       <p className={styles.eyebrow}>{copy.services.oneWay}</p>
       <h2 className={styles.title}>{copy.tripDetails}</h2>
       <p className={styles.subtitle}>{copy.tripSubtitle}</p>
 
-      <LocationScheduleFields destinationLabel={copy.optionalDropOff} />
+      <LocationScheduleFields destinationLabel={copy.dropOff} attempted={attempted} onChange={updateSchedule} />
 
-      <BookingForSection bookingFor={bookingFor} setBookingFor={setBookingFor} back={back} next={next} />
+      <BookingForSection bookingFor={bookingFor} setBookingFor={setBookingFor} back={back} next={next} tripComplete={scheduleIsComplete(schedule)} onAttempt={() => setAttempted(true)} />
     </>
   )
 }
@@ -545,6 +622,9 @@ function DayTripDetails({ bookingFor, setBookingFor, dayDuration, setDayDuration
   back: () => void
 }) {
   const { copy } = useBookingDialogCopy()
+  const [attempted, setAttempted] = useState(false)
+  const [schedule, setSchedule] = useState<ScheduleValues>(emptySchedule)
+  const updateSchedule = (field: keyof ScheduleValues, value: string | boolean) => setSchedule(current => ({ ...current, [field]: value }))
   return (
     <>
       <p className={styles.eyebrow}>{copy.services.day}</p>
@@ -567,9 +647,9 @@ function DayTripDetails({ bookingFor, setBookingFor, dayDuration, setDayDuration
         </div>
       </div>
 
-      <LocationScheduleFields />
+      <LocationScheduleFields attempted={attempted} onChange={updateSchedule} />
 
-      <BookingForSection bookingFor={bookingFor} setBookingFor={setBookingFor} back={back} next={next} />
+      <BookingForSection bookingFor={bookingFor} setBookingFor={setBookingFor} back={back} next={next} tripComplete={scheduleIsComplete(schedule)} onAttempt={() => setAttempted(true)} />
     </>
   )
 }
@@ -643,12 +723,14 @@ function RideStep({ back, next, service, duration, dayDuration }: { back: () => 
 }
 
 function FareStep({ back, next, service }: { back: () => void; next: () => void; service: BookingService }) {
+  const [attempted, setAttempted] = useState(false)
   const [payment, setPayment] = useState({
     cardNumber: '',
     cardName: '',
     expiry: '',
     cvv: '',
   })
+  const [otp, setOtp] = useState(() => Array(6).fill('') as string[])
 
   const updatePayment = (field: keyof typeof payment, value: string) => {
     setPayment(current => ({ ...current, [field]: value }))
@@ -662,20 +744,26 @@ function FareStep({ back, next, service }: { back: () => void; next: () => void;
     return digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits
   }
 
-  const cardNumberInvalid = payment.cardNumber.length > 0 && payment.cardNumber.replace(/\D/g, '').length < 16
-  const cardNameInvalid = payment.cardName.length > 0 && payment.cardName.trim().length < 2
-  const expiryInvalid = payment.expiry.length > 0 && payment.expiry.length < 5
-  const cvvInvalid = payment.cvv.length > 0 && payment.cvv.length < 3
+  const cardNumberInvalid = (attempted || payment.cardNumber.length > 0) && payment.cardNumber.replace(/\D/g, '').length < 16
+  const cardNameInvalid = (attempted || payment.cardName.length > 0) && payment.cardName.trim().length < 2
+  const expiryInvalid = (attempted || payment.expiry.length > 0) && payment.expiry.length < 5
+  const cvvInvalid = (attempted || payment.cvv.length > 0) && payment.cvv.length < 3
   const paymentComplete =
     payment.cardNumber.replace(/\D/g, '').length === 16 &&
     payment.cardName.trim().length >= 2 &&
     payment.expiry.length === 5 &&
     payment.cvv.length >= 3
+  const otpComplete = otp.every(digit => /^\d$/.test(digit))
   const isHourly = service === 'hourly'
   const isCity = service === 'city'
   const isDay = service === 'day'
   const isOneWay = service === 'oneWay'
   const { copy } = useBookingDialogCopy()
+  const continueToSuccess = () => {
+    setAttempted(true)
+    if (!paymentComplete || !otpComplete) return
+    next()
+  }
 
   return (
     <>
@@ -698,11 +786,11 @@ function FareStep({ back, next, service }: { back: () => void; next: () => void;
       </div>
       <motion.div className={styles.paymentGrid} layout>
         <motion.div className={`${styles.cardFields} ${paymentComplete ? '' : styles.cardFieldsWide}`} layout transition={{ duration: .45, ease: [0.22, 1, 0.36, 1] }}>
-          <div className={styles.paymentField}><div className={`${styles.control} ${cardNumberInvalid ? styles.controlInvalid : ''}`}><span className={styles.floatingLabel}>{copy.cardNumber}</span><input aria-label={copy.cardNumber} aria-invalid={cardNumberInvalid} value={payment.cardNumber} onChange={event => updatePayment('cardNumber', formatCardNumber(event.target.value))} placeholder="4347 8977 8097 7089" inputMode="numeric" autoComplete="cc-number" maxLength={19} /><span className={styles.fieldIcon}><Image src={cardNumberSvg} alt="" width={25} height={25} /></span></div>{cardNumberInvalid && <small className={styles.fieldError}>{copy.validation.cardNumber}</small>}</div>
-          <div className={styles.paymentField}><div className={`${styles.control} ${cardNameInvalid ? styles.controlInvalid : ''}`}><span className={styles.floatingLabel}>{copy.cardName}</span><input aria-label={copy.cardName} aria-invalid={cardNameInvalid} value={payment.cardName} onChange={event => updatePayment('cardName', event.target.value)} placeholder={copy.cardNamePlaceholder} autoComplete="cc-name" /></div>{cardNameInvalid && <small className={styles.fieldError}>{copy.validation.cardName}</small>}</div>
+          <div className={styles.paymentField}><div className={`${styles.control} ${cardNumberInvalid ? styles.controlInvalid : ''}`}><span className={styles.floatingLabel}>{copy.cardNumber}</span><input aria-label={copy.cardNumber} aria-invalid={cardNumberInvalid} value={payment.cardNumber} onChange={event => updatePayment('cardNumber', formatCardNumber(event.target.value))} placeholder="4347 8977 8097 7089" inputMode="numeric" autoComplete="cc-number" maxLength={19} /><span className={styles.fieldIcon}><Image src={cardNumberSvg} alt="" width={25} height={25} /></span></div>{cardNumberInvalid && <small className={styles.fieldError}>{payment.cardNumber ? copy.validation.cardNumber : copy.validation.required}</small>}</div>
+          <div className={styles.paymentField}><div className={`${styles.control} ${cardNameInvalid ? styles.controlInvalid : ''}`}><span className={styles.floatingLabel}>{copy.cardName}</span><input aria-label={copy.cardName} aria-invalid={cardNameInvalid} value={payment.cardName} onChange={event => updatePayment('cardName', event.target.value)} placeholder={copy.cardNamePlaceholder} autoComplete="cc-name" /></div>{cardNameInvalid && <small className={styles.fieldError}>{payment.cardName ? copy.validation.cardName : copy.validation.required}</small>}</div>
           <div className={styles.cardMiniGrid}>
-            <div className={styles.paymentField}><div className={`${styles.control} ${expiryInvalid ? styles.controlInvalid : ''}`}><span className={styles.floatingLabel}>{copy.expiryDate}</span><input aria-label={copy.expiryDate} aria-invalid={expiryInvalid} value={payment.expiry} onChange={event => updatePayment('expiry', formatExpiry(event.target.value))} placeholder="MM/YY" inputMode="numeric" autoComplete="cc-exp" maxLength={5} /></div>{expiryInvalid && <small className={styles.fieldError}>{copy.validation.expiry}</small>}</div>
-            <div className={styles.paymentField}><div className={`${styles.control} ${cvvInvalid ? styles.controlInvalid : ''}`}><span className={styles.floatingLabel}>{copy.cvv}</span><input aria-label={copy.cvv} aria-invalid={cvvInvalid} value={payment.cvv} onChange={event => updatePayment('cvv', event.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="123" inputMode="numeric" autoComplete="cc-csc" maxLength={4} /><span className={styles.fieldIcon}><Image src={cvvSvg} alt="" width={19} height={19} /></span></div>{cvvInvalid && <small className={styles.fieldError}>{copy.validation.cvv}</small>}</div>
+            <div className={styles.paymentField}><div className={`${styles.control} ${expiryInvalid ? styles.controlInvalid : ''}`}><span className={styles.floatingLabel}>{copy.expiryDate}</span><input aria-label={copy.expiryDate} aria-invalid={expiryInvalid} value={payment.expiry} onChange={event => updatePayment('expiry', formatExpiry(event.target.value))} placeholder="MM/YY" inputMode="numeric" autoComplete="cc-exp" maxLength={5} /></div>{expiryInvalid && <small className={styles.fieldError}>{payment.expiry ? copy.validation.expiry : copy.validation.required}</small>}</div>
+            <div className={styles.paymentField}><div className={`${styles.control} ${cvvInvalid ? styles.controlInvalid : ''}`}><span className={styles.floatingLabel}>{copy.cvv}</span><input aria-label={copy.cvv} aria-invalid={cvvInvalid} value={payment.cvv} onChange={event => updatePayment('cvv', event.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="123" inputMode="numeric" autoComplete="cc-csc" maxLength={4} /><span className={styles.fieldIcon}><Image src={cvvSvg} alt="" width={19} height={19} /></span></div>{cvvInvalid && <small className={styles.fieldError}>{payment.cvv ? copy.validation.cvv : copy.validation.required}</small>}</div>
           </div>
         </motion.div>
         <AnimatePresence initial={false}>
@@ -719,14 +807,15 @@ function FareStep({ back, next, service }: { back: () => void; next: () => void;
               <span className={styles.otpIcon}><Image src={shieldSvg} alt={copy.secureVerification} width={12} height={14} /></span>
               <h4>{copy.otpTitle}</h4>
               <p>{copy.otpSent}</p>
-              <div className={styles.otpBoxes}>{[0,1,2,3].map(i => <input key={i} aria-label={copy.otpDigit(i + 1)} maxLength={1} />)}</div>
+              <div className={`${styles.otpBoxes} ${attempted && !otpComplete ? styles.otpInvalid : ''}`}>{otp.map((digit, index) => <input key={index} aria-label={copy.otpDigit(index + 1)} aria-invalid={attempted && !digit} inputMode="numeric" autoComplete="one-time-code" value={digit} onChange={event => setOtp(current => current.map((value, currentIndex) => currentIndex === index ? event.target.value.replace(/\D/g, '').slice(-1) : value))} maxLength={1} />)}</div>
+              {attempted && !otpComplete && <small className={styles.fieldError}>{copy.validation.required}</small>}
               <p>{copy.otpResend}</p>
               <button type="button" className={styles.resend}>{copy.resendOtp}</button>
             </motion.div>
           )}
         </AnimatePresence>
       </motion.div>
-      <FooterActions back={back} next={next} />
+      <FooterActions back={back} next={continueToSuccess} />
     </>
   )
 }

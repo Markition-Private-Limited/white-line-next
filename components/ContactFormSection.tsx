@@ -53,7 +53,7 @@ function InfoCard({ icon, title, value, sub, isRtl }: { icon: string; title: str
         {valueLines && valueLines.length > 1 ? (
           <div style={{ margin: '0 0 3px' }}>
             {valueLines.map((line, i) => (
-              <p key={i} dir="ltr" style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#111118', margin: i < valueLines.length - 1 ? '0 0 1px' : 0, textAlign: 'left', unicodeBidi: 'isolate' }}>{line.trim()}</p>
+              <p key={i} dir="ltr" style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#111118', margin: i < valueLines.length - 1 ? '0 0 1px' : 0, textAlign: 'right', unicodeBidi: 'isolate' }}>{line.trim()}</p>
             ))}
           </div>
         ) : (
