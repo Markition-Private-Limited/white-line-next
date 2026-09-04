@@ -1,15 +1,17 @@
 ﻿'use client'
 import { motion } from 'framer-motion'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
 import Navbar from '../layouts/Navbar'
 import { useLanguage } from '../context/LanguageContext'
 import banner from '../assets/why_chose_us/banner.webp'
 // assets\why_chose_us\banner (1).webp
 
-function SlideButton({ label, variant = 'filled', icon }: { label: string; variant?: 'filled' | 'outline'; icon?: React.ReactNode }) {
+function SlideButton({ label, variant = 'filled', icon, href }: { label: string; variant?: 'filled' | 'outline'; icon?: React.ReactNode; href: string }) {
   const isFilled = variant === 'filled'
   return (
-    <button
+    <Link
+      href={href}
       className={`group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full font-medium transition-shadow ${
         isFilled ? 'bg-white text-[#0d0d14] border-2 border-white' : 'bg-transparent text-white border-2 border-white/60'
       }`}
@@ -22,7 +24,7 @@ function SlideButton({ label, variant = 'filled', icon }: { label: string; varia
         <span className={`absolute h-full w-full translate-y-full skew-y-12 scale-y-0 transition duration-500 group-hover:translate-y-0 group-hover:scale-150 ${isFilled ? 'bg-[#0d0d14]' : 'bg-white/20'}`} />
         <span className="z-10 inline-flex items-center gap-2">{label}{icon}</span>
       </div>
-    </button>
+    </Link>
   )
 }
 
@@ -59,8 +61,8 @@ export default function WhyChooseUsHero() {
               {hero.sub}
             </motion.p>
             <motion.div className="flex flex-wrap gap-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.55, ease: 'easeOut' }}>
-              <SlideButton label={hero.btn1} variant="filled" icon={isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />} />
-              <SlideButton label={hero.btn2} variant="outline" />
+              <SlideButton label={hero.btn1} variant="filled" icon={isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />} href="/services" />
+              <SlideButton label={hero.btn2} variant="outline" href="/fleet" />
             </motion.div>
           </motion.div>
         </div>
