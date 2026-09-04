@@ -22,7 +22,7 @@ const en = {
       { label: 'About Us',           to: '/about' },
       { label: 'Our Services',       to: '/services' },
       { label: 'Our Fleet',          to: '/fleet' },
-      { label: 'White Line Partners', to: '/b2b/login' },
+      { label: 'White Line Partners', to: '/partner/login' },
       { label: 'Contact Us', to: '/contact' },
     ],
     download: 'Download Now',
@@ -327,7 +327,7 @@ const en = {
   },
 
   b2bLogin: {
-    portal: 'B2B Client Portal',
+    portal: 'Partner Portal',
     tagline: 'Precision in Motion',
     sub: 'The command center for the world\'s most elite chauffeur logistics operations.',
     copyright: '© 2026 Elite Chauffeur Logistics',
@@ -1138,7 +1138,7 @@ const ar: typeof en = {
       { label: 'من نحن',         to: '/about' },
       { label: 'خدماتنا',       to: '/services' },
       { label: 'أسطولنا',       to: '/fleet' },
-      { label: 'شركاء وايت لاين', to: '/b2b/login' },
+      { label: 'شركاء وايت لاين', to: '/partner/login' },
       { label: 'تواصل معنا', to: '/contact' },
     ],
     download: 'حمّل الآن',
@@ -1443,7 +1443,7 @@ const ar: typeof en = {
   },
 
   b2bLogin: {
-    portal: 'بوابة الشركات B2B',
+    portal: 'بوابة الشريك',
     tagline: 'دقة في الحركة',
     sub: 'مركز القيادة لأرقى عمليات لوجستيات الشوفير في العالم.',
     copyright: '© 2026 خدمات الشوفير الراقية',
