@@ -100,7 +100,7 @@ export default function WhyChooseSection() {
               }}
             >
               {wc.h1}{' '}
-              <span style={{ fontWeight: 700, fontStyle: 'italic' }}>{wc.brand}</span>
+              <span style={{ fontWeight: 700, fontStyle: 'italic', whiteSpace: 'nowrap' }}>{wc.brand}</span>
             </motion.h2>
 
             <motion.p

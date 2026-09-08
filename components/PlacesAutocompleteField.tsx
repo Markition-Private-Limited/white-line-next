@@ -10,12 +10,30 @@ import styles from './AirportTransferBookingDialog.module.css'
 interface Props {
   label: string
   placeholder: string
-  onSelect?: (address: string) => void
-  onChange?: (value: string) => void
+  value?: PlaceValue | null
+  onSelect?: (place: PlaceValue) => void
+  onChange?: (place: PlaceValue | null) => void
   attempted?: boolean
 }
 
-type Prediction = { description: string; place_id: string }
+type Prediction = {
+  description: string
+  place_id: string
+  matched_substrings?: Array<{ length: number; offset: number }>
+  structured_formatting?: {
+    main_text: string
+    main_text_matched_substrings?: Array<{ length: number; offset: number }>
+    secondary_text?: string
+  }
+  terms?: Array<{ offset: number; value: string }>
+  types?: string[]
+}
+export type PlaceValue = {
+  address: string
+  placeId?: string
+  source: 'google' | 'manual' | 'airport'
+  prediction?: Prediction
+}
 
 declare global {
   interface Window {
@@ -35,7 +53,7 @@ declare global {
   }
 }
 
-export default function PlacesAutocompleteField({ label, placeholder, onSelect, onChange, attempted }: Props) {
+export default function PlacesAutocompleteField({ label, placeholder, value: selectedPlace, onSelect, onChange, attempted }: Props) {
   const { lang } = useLanguage()
   const copy = bookingDialogCopy[lang]
   const fieldRef = useRef<HTMLDivElement>(null)
@@ -43,9 +61,9 @@ export default function PlacesAutocompleteField({ label, placeholder, onSelect, 
   const serviceRef = useRef<InstanceType<NonNullable<Window['google']>['maps']['places']['AutocompleteService']> | null>(null)
 
   const mapsReady = useGoogleMaps()
-  const [value, setValue] = useState('')
   const [predictions, setPredictions] = useState<Prediction[]>([])
   const [open, setOpen] = useState(false)
+  const value = selectedPlace?.address ?? ''
 
   useEffect(() => {
     if (!mapsReady || !window.google) return
@@ -74,16 +92,15 @@ export default function PlacesAutocompleteField({ label, placeholder, onSelect, 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value
-    setValue(input)
-    onChange?.(input)
+    onChange?.(input.trim() ? { address: input, source: 'manual' } : null)
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(() => fetchPredictions(input), 300)
   }
 
   const handleSelect = (prediction: Prediction) => {
-    setValue(prediction.description)
-    onChange?.(prediction.description)
-    onSelect?.(prediction.description)
+    const place = { address: prediction.description, placeId: prediction.place_id, source: 'google' as const, prediction }
+    onChange?.(place)
+    onSelect?.(place)
     setPredictions([])
     setOpen(false)
   }

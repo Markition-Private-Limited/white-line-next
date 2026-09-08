@@ -8,6 +8,11 @@ import { useLanguage } from '../context/LanguageContext'
 import AirportTransferBookingDialog, { type BookingService } from './AirportTransferBookingDialog'
 import heroBanner from '../assets/home/home_banner.webp'
 import heroBannerMobile from '../assets/home/home_banner_mobile.webp'
+import servicesBanner from '../assets/services_1/service_1_banner.webp'
+import contactBanner from '../assets/contact_us/contact_banner.webp'
+
+const HERO_BANNERS = [heroBanner, servicesBanner, contactBanner]
+const HERO_BANNERS_MOBILE = [heroBannerMobile, servicesBanner, contactBanner]
 import card1 from '../assets/home/home_page_banner_Sub_images/1.jpg'
 import card2 from '../assets/home/home_page_banner_Sub_images/2.jpg'
 import card3 from '../assets/home/home_page_banner_Sub_images/3.jpg'
@@ -150,14 +155,26 @@ export default function HomeHero() {
   const { trans, dir } = useLanguage()
   const isRtl = dir === 'rtl'
   const { hero } = trans
-  const [bookingType, setBookingType] = useState<BookingService | null>(null)
+  const [bannerIndex, setBannerIndex] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => setBannerIndex(i => (i + 1) % 3), 5000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const [bookingType, setBookingType] = useState<BookingService | null>(() => {
+    if (typeof window === 'undefined') return null
+    const params = new URLSearchParams(window.location.search)
+    const booking = params.get('booking') as BookingService | null
+    const valid: BookingService[] = ['airport', 'hourly', 'city', 'day', 'oneWay']
+    return booking && valid.includes(booking) ? booking : null
+  })
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const booking = params.get('booking') as BookingService | null
     const valid: BookingService[] = ['airport', 'hourly', 'city', 'day', 'oneWay']
     if (booking && valid.includes(booking)) {
-      setBookingType(booking)
       history.replaceState(null, '', window.location.pathname)
     }
   }, [])
@@ -175,28 +192,44 @@ export default function HomeHero() {
     <div style={{ background: '#ffffff', padding: 'clamp(6px, 0.8vw, 10px)' }}>
       <section className="relative min-h-screen bg-[#0d0d14]" style={{ borderRadius: 'clamp(14px, 1.5vw, 20px)' }}>
 
-        {/* Banner — next/image for proper responsive loading */}
+        {/* Banner — rotates between 3 images every 5s with crossfade */}
         <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 'inherit' }}>
-          {/* Mobile portrait crop — prevents upscale pixelation */}
-          <Image
-            src={heroBannerMobile}
-            alt="White Line luxury fleet"
-            fill
-            priority
-            sizes="100vw"
-            className="block sm:hidden"
-            style={{ objectFit: 'cover', objectPosition: 'center top', transform: isRtl ? 'scaleX(-1)' : undefined }}
-          />
-          {/* Desktop landscape */}
-          <Image
-            src={heroBanner}
-            alt="White Line luxury fleet"
-            fill
-            priority
-            sizes="100vw"
-            className="hidden sm:block"
-            style={{ objectFit: 'cover', objectPosition: 'center', transform: isRtl ? 'scaleX(-1)' : undefined }}
-          />
+          {HERO_BANNERS_MOBILE.map((src, i) => (
+            <Image
+              key={`m${i}`}
+              src={src}
+              alt="White Line luxury fleet"
+              fill
+              priority={i === 0}
+              sizes="100vw"
+              className="block sm:hidden"
+              style={{
+                objectFit: 'cover',
+                objectPosition: 'center top',
+                transform: isRtl ? 'scaleX(-1)' : undefined,
+                opacity: bannerIndex === i ? 1 : 0,
+                transition: 'opacity 1.2s ease-in-out',
+              }}
+            />
+          ))}
+          {HERO_BANNERS.map((src, i) => (
+            <Image
+              key={`d${i}`}
+              src={src}
+              alt="White Line luxury fleet"
+              fill
+              priority={i === 0}
+              sizes="100vw"
+              className="hidden sm:block"
+              style={{
+                objectFit: 'cover',
+                objectPosition: 'center',
+                transform: isRtl ? 'scaleX(-1)' : undefined,
+                opacity: bannerIndex === i ? 1 : 0,
+                transition: 'opacity 1.2s ease-in-out',
+              }}
+            />
+          ))}
           <div className={`absolute inset-0 ${isRtl ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-[#0d0d14]/90 via-[#0d0d14]/50 to-[#0d0d14]/10`} />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d14]/70 via-transparent to-transparent" />
         </div>
@@ -282,7 +315,7 @@ export default function HomeHero() {
 
         </div>
       </section>
-      <AirportTransferBookingDialog open={bookingType !== null} service={bookingType ?? 'airport'} onClose={() => setBookingType(null)} />
+      <AirportTransferBookingDialog key={bookingType ?? 'closed'} open={bookingType !== null} service={bookingType ?? 'airport'} onClose={() => setBookingType(null)} />
     </div>
   )
 }

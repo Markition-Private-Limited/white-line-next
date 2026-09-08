@@ -25,7 +25,7 @@ const en = {
       { label: 'White Line Partners', to: '/partner/login' },
       { label: 'Contact Us', to: '/contact' },
     ],
-    download: 'Download Now',
+    download: 'Coming Soon',
   },
 
   hero: {
@@ -130,8 +130,8 @@ const en = {
     hMob2: 'Chauffeurs',
     hMob3: 'At Your Fingertips',
     sub: 'Download the White Line Chauffeur Hailing™ app to hail chauffeurs on demand in select cities.',
-    apple:  { sub: 'Download on the', main: 'App Store' },
-    google: { sub: 'Get it on',        main: 'Google Play' },
+    apple:  { sub: 'Download on the', main: 'Coming Soon' },
+    google: { sub: 'Get it on',        main: 'Coming Soon' },
   },
 
   about: {
@@ -294,8 +294,8 @@ const en = {
       h2: 'Next Journey.',
       body: 'Our team is available to help with reservations, chauffeur services, corporate accounts, fleet questions, and customer support.',
       cards: [
-        { title: 'Call Us',            value: '+966 56 311 7770, +966 55 073 5956, +966 55 835 9549',     sub: 'For bookings and immediate assistance' },
-        { title: 'Email Us',           value: 'info@whitelineglobal.com', sub: 'We aim to respond as quickly as possible' },
+        { title: 'Call Us',            value: '+966 56 311 7770',     sub: 'For bookings and immediate assistance' },
+        { title: 'Email Us',           value: 'booking@whitelineglobal.com', sub: 'We aim to respond as quickly as possible' },
         { title: 'Support Available',  value: '24/7 Customer Support', sub: 'For active rides and urgent inquiries' },
       ],
     },
@@ -896,7 +896,7 @@ const en = {
           {
             title: '',
             body: '',
-            items: ['White Line Transportation', 'Email: privacy@whiteline.sa', 'Phone: +966 XX XXX XXXX', 'Address: Riyadh, Kingdom of Saudi Arabia'],
+            items: ['White Line', 'Email: booking@whitelineglobal.com', 'Phone: +966 56 311 7770', 'Address: Riyadh, Kingdom of Saudi Arabia'],
           },
         ],
       },
@@ -1062,7 +1062,7 @@ const en = {
           {
             title: '',
             body: '',
-            items: ['White Line Transportation', 'Email: legal@whiteline.sa', 'Phone: +966 XX XXX XXXX', 'Address: Riyadh, Kingdom of Saudi Arabia'],
+            items: ['White Line', 'Email: booking@whitelineglobal.com', 'Phone: +966 56 311 7770', 'Address: Riyadh, Kingdom of Saudi Arabia'],
           },
         ],
       },
@@ -1141,7 +1141,7 @@ const ar: typeof en = {
       { label: 'شركاء وايت لاين', to: '/partner/login' },
       { label: 'تواصل معنا', to: '/contact' },
     ],
-    download: 'حمّل الآن',
+    download: 'قريباً',
   },
 
   hero: {
@@ -1246,8 +1246,8 @@ const ar: typeof en = {
     hMob2: 'محترفون',
     hMob3: 'في متناول يدك',
     sub: 'حمّل تطبيق وايت لاين للطلب الفوري للسائقين في المدن المتاحة.',
-    apple:  { sub: 'حمّل من',      main: 'App Store' },
-    google: { sub: 'احصل عليه من', main: 'Google Play' },
+    apple:  { sub: 'حمّل من',      main: 'قريباً' },
+    google: { sub: 'احصل عليه من', main: 'قريباً' },
   },
 
   about: {
@@ -1410,8 +1410,8 @@ const ar: typeof en = {
       h2: 'رحلتك القادمة.',
       body: 'فريقنا متاح للمساعدة في الحجوزات وخدمات الشوفير والحسابات المؤسسية وأسئلة الأسطول ودعم العملاء.',
       cards: [
-        { title: 'اتصل بنا',    value: '+966 56 311 7770, +966 55 073 5956, +966 55 835 9549',     sub: 'للحجوزات والمساعدة الفورية' },
-        { title: 'راسلنا',      value: 'info@whitelineglobal.com', sub: 'نسعى للرد بأسرع وقت ممكن' },
+        { title: 'اتصل بنا',    value: '+966 56 311 7770',     sub: 'للحجوزات والمساعدة الفورية' },
+        { title: 'راسلنا',      value: 'booking@whitelineglobal.com', sub: 'نسعى للرد بأسرع وقت ممكن' },
         { title: 'الدعم متاح', value: 'دعم العملاء ٢٤/٧',       sub: 'للرحلات الجارية والاستفسارات العاجلة' },
       ],
     },
@@ -1911,7 +1911,7 @@ const ar: typeof en = {
       { title: '6. حقوقك وخياراتك', body: 'وفقاً لولايتك القضائية، قد تتمتع بالحقوق التالية:', subsections: [{ title: '', body: '', items: ['الحق في الوصول إلى نسخة من معلوماتك', 'الحق في تصحيح المعلومات غير الدقيقة', 'الحق في طلب حذف بياناتك وفق المتطلبات القانونية', 'الحق في سحب موافقتك', 'الحق في تقييد المعالجة أو الاعتراض عليها', 'الحق في نقل البيانات', 'الحق في تقديم شكوى إلى هيئة حماية البيانات'], footer: 'للممارسة أي من هذه الحقوق، يرجى التواصل معنا عبر التفاصيل الواردة في القسم التاسع.' }] },
       { title: '7. ملفات تعريف الارتباط وتقنيات التتبع', body: 'قد يستخدم موقعنا وتطبيقاتنا ملفات تعريف الارتباط وإشارات الويب وتقنيات التتبع المماثلة لتعزيز الوظائف وتحليل أنماط الاستخدام وتخصيص تجربتك. يمكنك إدارة تفضيلات ملفات تعريف الارتباط من خلال إعدادات متصفحك.', subsections: [] },
       { title: '8. خصوصية الأطفال', body: 'خدماتنا غير موجهة للأفراد دون سن 18 عاماً. إذا اعتقدت أننا جمعنا معلومات من قاصر عن غير قصد، يرجى التواصل معنا وسنحذف هذه المعلومات فوراً.', subsections: [] },
-      { title: '9. تواصل معنا', body: 'إذا كانت لديك أسئلة أو مخاوف أو طلبات تتعلق بسياسة الخصوصية أو التعامل مع معلوماتك الشخصية، يرجى التواصل مع فريق الخصوصية لدينا:', subsections: [{ title: '', body: '', items: ['وايت لاين للنقل', 'البريد الإلكتروني: privacy@whiteline.sa', 'الهاتف: XXXX XXX XX 966+', 'العنوان: الرياض، المملكة العربية السعودية'] }] },
+      { title: '9. تواصل معنا', body: 'إذا كانت لديك أسئلة أو مخاوف أو طلبات تتعلق بسياسة الخصوصية أو التعامل مع معلوماتك الشخصية، يرجى التواصل مع فريق الخصوصية لدينا:', subsections: [{ title: '', body: '', items: ['White Line', 'البريد الإلكتروني: booking@whitelineglobal.com', 'الهاتف: 7770 311 56 966+', 'العنوان: الرياض، المملكة العربية السعودية'] }] },
       { title: '10. تحديثات هذه السياسة', body: 'قد نُحدّث سياسة الخصوصية هذه بشكل دوري لتعكس التغييرات في ممارساتنا أو المتطلبات القانونية أو عروض الخدمات. عند إجراء تغييرات جوهرية، سنُخطرك بتحديث تاريخ السريان وتقديم إشعار إضافي حسب الاقتضاء. استمرارك في استخدام خدماتنا بعد هذه التغييرات يُعدّ قبولاً للسياسة المحدّثة.', subsections: [] },
     ],
   },
@@ -1953,7 +1953,7 @@ const ar: typeof en = {
       { title: '10. الخصوصية', body: 'يخضع استخدامك لخدمات وايت لاين أيضاً لسياسة الخصوصية الخاصة بنا، المدمجة في هذه الشروط بالإشارة. باستخدام خدماتنا، توافق على جمع معلوماتك واستخدامها ومشاركتها وفق ما هو موضح في سياسة الخصوصية.', subsections: [] },
       { title: '11. القانون الحاكم وحل النزاعات', body: 'تخضع هذه الشروط لقوانين المملكة العربية السعودية وتُفسَّر وفقها. تُحسم أي نزاعات عبر التفاوض حسن النية أولاً، وإن لم تُحسم، تُحال إلى المحاكم المختصة في الرياض.', subsections: [] },
       { title: '12. التعديلات', body: 'تحتفظ وايت لاين بحق تحديث أو تعديل هذه الشروط في أي وقت. يُعدّ استمرارك في استخدام خدماتنا بعد أي تعديل قبولاً للشروط المعدّلة.', subsections: [] },
-      { title: '13. تواصل معنا', body: 'لأي استفسارات أو مخاوف تتعلق بهذه الشروط، يُرجى التواصل معنا:', subsections: [{ title: '', body: '', items: ['وايت لاين للنقل', 'البريد الإلكتروني: legal@whiteline.sa', 'الهاتف: XXXX XXX XX 966+', 'العنوان: الرياض، المملكة العربية السعودية'] }] },
+      { title: '13. تواصل معنا', body: 'لأي استفسارات أو مخاوف تتعلق بهذه الشروط، يُرجى التواصل معنا:', subsections: [{ title: '', body: '', items: ['White Line', 'البريد الإلكتروني: booking@whitelineglobal.com', 'الهاتف: 7770 311 56 966+', 'العنوان: الرياض، المملكة العربية السعودية'] }] },
     ],
   },
 

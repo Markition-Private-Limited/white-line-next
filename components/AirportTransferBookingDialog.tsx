@@ -22,12 +22,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import appPhones from '../assets/global_app/app.png'
 import horizontalPlane from '../assets/dialog/horizontal plane.svg'
 import flightNumberSvg from '../assets/dialog/flight_number.svg'
-import visaSvg from '../assets/dialog/visa.svg'
-import masterSvg from '../assets/dialog/master.svg'
-import amexSvg from '../assets/dialog/american_express.svg'
-import cardNumberSvg from '../assets/dialog/card_number.svg'
-import cvvSvg from '../assets/dialog/cvv.svg'
-import shieldSvg from '../assets/dialog/shield.svg'
 import firstClassImg from '../assets/dialog/first.svg'
 import businessClassImg from '../assets/dialog/business_class.svg'
 import vanImg from '../assets/dialog/van.svg'
@@ -39,27 +33,84 @@ import vCar3 from '../assets/dialog/business_Car_3.jpg'
 import { useLanguage } from '../context/LanguageContext'
 import { bookingDialogCopy } from '../lib/bookingDialogCopy'
 import { RadarGraphic, StoreButton } from './AppSection'
-import PlacesAutocompleteField from './PlacesAutocompleteField'
+import PlacesAutocompleteField, { type PlaceValue } from './PlacesAutocompleteField'
 import styles from './AirportTransferBookingDialog.module.css'
 
 type BookingFor = 'self' | 'guest' | null
 export type BookingService = 'airport' | 'hourly' | 'city' | 'day' | 'oneWay'
 type DayDuration = 'half' | 'full'
 type Props = { open: boolean; onClose: () => void; service?: BookingService }
+type TimeValue = { hour: number; minute: number; use24Hour: boolean }
+type GuestDetails = { name: string; phone: string; email: string }
+type BookingState = {
+  service: BookingService
+  pickup: PlaceValue | null
+  destination: PlaceValue | null
+  date: Date | null
+  time: TimeValue | null
+  isDeparture: boolean
+  flightNumber: string
+  duration: number
+  dayDuration: DayDuration
+  name: string
+  email: string
+  phone: string
+  bookingFor: BookingFor
+  guest: GuestDetails
+  categoryIndex: number
+  vehicle: number
+  otp: string[]
+}
 
 const categoryImages: StaticImageData[] = [firstClassImg, businessClassImg, vanImg, sedanImg, suvImg]
 
 const vehicles = [vCar1, vCar2, vCar3]
 const hourlyDurations = Array.from({ length: 15 }, (_, index) => index + 2)
 
+const blankGuest = (): GuestDetails => ({ name: '', phone: '', email: '' })
+const createInitialBookingState = (service: BookingService): BookingState => ({
+  service,
+  pickup: null,
+  destination: null,
+  date: null,
+  time: null,
+  isDeparture: false,
+  flightNumber: '',
+  duration: 2,
+  dayDuration: 'full',
+  name: '',
+  email: '',
+  phone: '',
+  bookingFor: null,
+  guest: blankGuest(),
+  categoryIndex: 1,
+  vehicle: 0,
+  otp: Array(6).fill(''),
+})
+
+const airportPlace = (address: string): PlaceValue => ({ address, source: 'airport' })
+const placeLabel = (place: PlaceValue | null, fallback = '--') => place?.address || fallback
+
+function formatBookingDate(date: Date | null, locale: string) {
+  return date ? date.toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' }) : '--/--/----'
+}
+
+function formatBookingTime(time: TimeValue | null, lang: string) {
+  if (!time) return '--:--'
+  const period = time.hour < 12 ? 'AM' : 'PM'
+  const hour12 = time.hour % 12 || 12
+  const displayPeriod = lang === 'ar' ? (period === 'AM' ? 'ص' : 'م') : period
+  const displayHour = time.use24Hour ? time.hour : hour12
+  return `${String(displayHour).padStart(2, '0')}:${String(time.minute).padStart(2, '0')}${time.use24Hour ? '' : ` ${displayPeriod}`}`
+}
+
 function useBookingDialogCopy() {
   const { lang, dir } = useLanguage()
   return { copy: bookingDialogCopy[lang], lang, dir }
 }
 
-function TextField({ label, placeholder, icon, startIcon, minLength = 2, inputType = 'text', onChange, attempted }: { label: string; placeholder: string; icon?: React.ReactNode; startIcon?: React.ReactNode; minLength?: number; inputType?: 'text' | 'email' | 'tel'; onChange?: (value: string) => void; attempted?: boolean }) {
+function TextField({ label, placeholder, value, icon, startIcon, minLength = 2, inputType = 'text', onChange, attempted }: { label: string; placeholder: string; value: string; icon?: React.ReactNode; startIcon?: React.ReactNode; minLength?: number; inputType?: 'text' | 'email' | 'tel'; onChange: (value: string) => void; attempted?: boolean }) {
   const { copy } = useBookingDialogCopy()
-  const [value, setValue] = useState('')
   const trimmed = value.trim()
   const isEmpty = attempted && trimmed.length === 0
   const emailInvalid = inputType === 'email' && trimmed.length > 0 && !/^\S+@\S+\.\S+$/.test(trimmed)
@@ -73,7 +124,7 @@ function TextField({ label, placeholder, icon, startIcon, minLength = 2, inputTy
       <label>{label}</label>
       <div className={styles.control}>
         {startIcon && <span className={styles.controlStartIcon}>{startIcon}</span>}
-        <input aria-label={label} aria-invalid={invalid} type={inputType} value={value} onChange={event => { setValue(event.target.value); onChange?.(event.target.value) }} placeholder={placeholder} className={startIcon ? styles.inputWithStartIcon : undefined} />
+        <input aria-label={label} aria-invalid={invalid} type={inputType} value={value} onChange={event => onChange(event.target.value)} placeholder={placeholder} maxLength={inputType === 'tel' ? 17 : undefined} className={startIcon ? styles.inputWithStartIcon : undefined} />
         {icon && <span className={styles.controlIcon}>{icon}</span>}
       </div>
       <AnimatePresence initial={false}>
@@ -83,9 +134,8 @@ function TextField({ label, placeholder, icon, startIcon, minLength = 2, inputTy
   )
 }
 
-function DropdownField({ label, placeholder, options, onChange, attempted }: { label: string; placeholder: string; options: string[]; onChange?: (value: string) => void; attempted?: boolean }) {
+function DropdownField({ label, placeholder, value, options, onChange, attempted }: { label: string; placeholder: string; value: PlaceValue | null; options: string[]; onChange: (value: PlaceValue) => void; attempted?: boolean }) {
   const { copy } = useBookingDialogCopy()
-  const [value, setValue] = useState('')
   const [open, setOpen] = useState(false)
   const fieldRef = useRef<HTMLDivElement>(null)
 
@@ -104,7 +154,7 @@ function DropdownField({ label, placeholder, options, onChange, attempted }: { l
     <div ref={fieldRef} className={`${styles.field} ${styles.pickerField} ${isEmpty ? styles.fieldInvalid : ''}`}>
       <label>{label}</label>
       <button type="button" className={styles.pickerControl} aria-expanded={open} aria-haspopup="listbox" onClick={() => setOpen(current => !current)}>
-        <span className={value ? '' : styles.pickerPlaceholder}>{value || placeholder}</span>
+        <span className={value ? '' : styles.pickerPlaceholder}>{value?.address || placeholder}</span>
         <span className={styles.controlIcon}><LocateFixed size={15} /></span>
       </button>
       <AnimatePresence initial={false}>
@@ -113,7 +163,7 @@ function DropdownField({ label, placeholder, options, onChange, attempted }: { l
       <AnimatePresence>
         {open && (
           <motion.div className={styles.fieldMenu} role="listbox" initial={{ opacity: 0, y: -7, scaleY: .97 }} animate={{ opacity: 1, y: 0, scaleY: 1 }} exit={{ opacity: 0, y: -7, scaleY: .97 }} transition={{ duration: .2, ease: 'easeOut' }}>
-            {options.map(option => <button key={option} type="button" role="option" aria-selected={value === option} className={value === option ? styles.fieldOptionActive : ''} onClick={() => { setValue(option); onChange?.(option); setOpen(false) }}>{option}</button>)}
+            {options.map(option => <button key={option} type="button" role="option" aria-selected={value?.address === option} className={value?.address === option ? styles.fieldOptionActive : ''} onClick={() => { onChange(airportPlace(option)); setOpen(false) }}>{option}</button>)}
           </motion.div>
         )}
       </AnimatePresence>
@@ -121,11 +171,10 @@ function DropdownField({ label, placeholder, options, onChange, attempted }: { l
   )
 }
 
-function DatePickerField({ label, onChange, attempted }: { label: string; onChange?: (date: Date | null) => void; attempted?: boolean }) {
+function DatePickerField({ label, value, onChange, attempted }: { label: string; value: Date | null; onChange: (date: Date | null) => void; attempted?: boolean }) {
   const { copy, dir } = useBookingDialogCopy()
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  const [selected, setSelected] = useState<Date | null>(null)
   const [open, setOpen] = useState(false)
   const [month, setMonth] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1))
   const fieldRef = useRef<HTMLDivElement>(null)
@@ -145,13 +194,13 @@ function DatePickerField({ label, onChange, attempted }: { label: string; onChan
     return () => document.removeEventListener('pointerdown', close)
   }, [open])
 
-  const isEmpty = attempted && !selected
+  const isEmpty = attempted && !value
 
   return (
     <div ref={fieldRef} className={`${styles.field} ${styles.pickerField} ${isEmpty ? styles.fieldInvalid : ''}`}>
       <label>{label}</label>
       <button type="button" className={styles.pickerControl} aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(current => !current)}>
-        <span className={selected ? '' : styles.pickerPlaceholder}>{selected ? selected.toLocaleDateString(copy.calendar.locale, { day: '2-digit', month: 'short', year: 'numeric' }) : '--/--/----'}</span>
+        <span className={value ? '' : styles.pickerPlaceholder}>{formatBookingDate(value, copy.calendar.locale)}</span>
         <span className={styles.controlIcon}><CalendarDays size={16} /></span>
       </button>
       <AnimatePresence initial={false}>
@@ -171,8 +220,8 @@ function DatePickerField({ label, onChange, attempted }: { label: string; onChan
                 if (!day) return <span key={`empty-${index}`} />
                 const date = new Date(year, monthIndex, day)
                 const disabled = date < today
-                const active = selected?.getFullYear() === year && selected?.getMonth() === monthIndex && selected?.getDate() === day
-                return <button key={day} type="button" disabled={disabled} className={active ? styles.calendarDayActive : ''} onClick={() => { setSelected(date); onChange?.(date); setOpen(false) }}>{day}</button>
+                const active = value?.getFullYear() === year && value?.getMonth() === monthIndex && value?.getDate() === day
+                return <button key={day} type="button" disabled={disabled} className={active ? styles.calendarDayActive : ''} onClick={() => { onChange(date); setOpen(false) }}>{day}</button>
               })}
             </div>
           </motion.div>
@@ -187,30 +236,48 @@ const CLOCK_HOURS_24_OUTER = [0, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
 const CLOCK_HOURS_24_INNER = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 const CLOCK_MINUTES = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]
 
-function TimePickerField({ label, onChange, attempted }: { label: string; onChange?: () => void; attempted?: boolean }) {
+function TimePickerField({ label, value, onChange, attempted }: { label: string; value: TimeValue | null; onChange: (time: TimeValue) => void; attempted?: boolean }) {
   const { copy, lang } = useBookingDialogCopy()
   const [open, setOpen] = useState(false)
   const [mode, setMode] = useState<'hour' | 'minute'>('hour')
-  const [hour, setHour] = useState<number>(12)
-  const [minute, setMinute] = useState<number>(0)
-  const [use24Hour, setUse24Hour] = useState(false)
-  const [selected, setSelected] = useState(false)
+  const [draft, setDraft] = useState<TimeValue>(() => value ?? { hour: 12, minute: 0, use24Hour: false })
   const fieldRef = useRef<HTMLDivElement>(null)
+  const controlRef = useRef<HTMLButtonElement>(null)
   const clockRef = useRef<HTMLDivElement>(null)
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({})
   // Keep mode accessible inside pointer-event closures without stale capture
   const modeRef = useRef(mode)
   useEffect(() => { modeRef.current = mode }, [mode])
 
-  const period: 'AM' | 'PM' = hour < 12 ? 'AM' : 'PM'
-  const hour12 = hour % 12 || 12
+  const openMenu = () => {
+    const rect = controlRef.current?.getBoundingClientRect()
+    if (rect) {
+      const menuHeight = 380
+      const menuWidth = 228
+      const spaceBelow = window.innerHeight - rect.bottom
+      const openUpward = spaceBelow < menuHeight + 12 && rect.top > spaceBelow
+      const top = openUpward
+        ? Math.max(8, rect.top - menuHeight - 7)
+        : Math.min(rect.bottom + 7, window.innerHeight - menuHeight - 8)
+      let left = rect.left
+      if (left + menuWidth > window.innerWidth - 8) left = window.innerWidth - menuWidth - 8
+      if (left < 8) left = 8
+      setMenuStyle({ position: 'fixed', top, left, width: menuWidth })
+    }
+    setMode('hour')
+    setOpen(c => !c)
+  }
+
+  const period: 'AM' | 'PM' = draft.hour < 12 ? 'AM' : 'PM'
+  const hour12 = draft.hour % 12 || 12
   const displayPeriod = lang === 'ar' ? (period === 'AM' ? 'ص' : 'م') : period
-  const displayHour = use24Hour ? hour : hour12
-  const displayValue = `${String(displayHour).padStart(2, '0')}:${String(minute).padStart(2, '0')}${use24Hour ? '' : ` ${displayPeriod}`}`
+  const displayHour = draft.use24Hour ? draft.hour : hour12
+  const displayValue = formatBookingTime(draft, lang)
 
   const handAngle = mode === 'hour'
-    ? (hour % 12) * 30 - 90
-    : minute / 60 * 360 - 90
-  const handLength = mode === 'hour' && use24Hour && hour > 0 && hour <= 12 ? '24%' : '38%'
+    ? (draft.hour % 12) * 30 - 90
+    : draft.minute / 60 * 360 - 90
+  const handLength = mode === 'hour' && draft.use24Hour && draft.hour > 0 && draft.hour <= 12 ? '24%' : '38%'
 
   useEffect(() => {
     if (!open) return
@@ -230,7 +297,7 @@ function TimePickerField({ label, onChange, attempted }: { label: string; onChan
     if (angle < 0) angle += 2 * Math.PI
     const clockIndex = Math.round(angle / (Math.PI / 6)) % 12
     if (modeRef.current === 'minute') return Math.round(angle / (2 * Math.PI) * 60) % 60
-    if (!use24Hour) return CLOCK_HOURS_12[clockIndex]
+    if (!draft.use24Hour) return CLOCK_HOURS_12[clockIndex]
 
     const distanceFromCenter = Math.hypot(dx, dy)
     const isOuterRing = distanceFromCenter > Math.min(rect.width, rect.height) * 0.31
@@ -238,10 +305,9 @@ function TimePickerField({ label, onChange, attempted }: { label: string; onChan
   }
 
   const applyValue = (value: number) => {
-    if (modeRef.current === 'hour') setHour(value)
-    else setMinute(value)
-    setSelected(true)
-    onChange?.()
+    const next = modeRef.current === 'hour' ? { ...draft, hour: value } : { ...draft, minute: value }
+    setDraft(next)
+    onChange(next)
   }
 
   const handleClockPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -260,25 +326,28 @@ function TimePickerField({ label, onChange, attempted }: { label: string; onChan
   }
 
   const setPeriod = (nextPeriod: 'AM' | 'PM') => {
-    setHour(current => nextPeriod === 'AM' ? current % 12 : current % 12 + 12)
+    setDraft(current => {
+      const next = { ...current, hour: nextPeriod === 'AM' ? current.hour % 12 : current.hour % 12 + 12 }
+      onChange(next)
+      return next
+    })
   }
 
   const handleClockKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     const isHour = mode === 'hour'
-    const max = isHour ? (use24Hour ? 23 : 12) : 59
-    const current = isHour ? (use24Hour ? hour : hour12) : minute
+    const max = isHour ? (draft.use24Hour ? 23 : 12) : 59
+    const current = isHour ? (draft.use24Hour ? draft.hour : hour12) : draft.minute
     let next: number | null = null
 
-    if (event.key === 'ArrowUp' || event.key === 'ArrowRight') next = current === max ? (isHour && !use24Hour ? 1 : 0) : current + 1
-    if (event.key === 'ArrowDown' || event.key === 'ArrowLeft') next = current === (isHour && !use24Hour ? 1 : 0) ? max : current - 1
-    if (event.key === 'Home') next = isHour && !use24Hour ? 1 : 0
+    if (event.key === 'ArrowUp' || event.key === 'ArrowRight') next = current === max ? (isHour && !draft.use24Hour ? 1 : 0) : current + 1
+    if (event.key === 'ArrowDown' || event.key === 'ArrowLeft') next = current === (isHour && !draft.use24Hour ? 1 : 0) ? max : current - 1
+    if (event.key === 'Home') next = isHour && !draft.use24Hour ? 1 : 0
     if (event.key === 'End') next = max
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
       if (isHour) setMode('minute')
       else {
-        setSelected(true)
-        onChange?.()
+        onChange(draft)
         setOpen(false)
       }
       return
@@ -286,16 +355,18 @@ function TimePickerField({ label, onChange, attempted }: { label: string; onChan
     if (next === null) return
 
     event.preventDefault()
-    setSelected(true)
-    onChange?.()
     if (isHour) {
-      setHour(use24Hour ? next : (period === 'PM' ? next % 12 + 12 : next % 12))
+      const nextTime = { ...draft, hour: draft.use24Hour ? next : (period === 'PM' ? next % 12 + 12 : next % 12) }
+      setDraft(nextTime)
+      onChange(nextTime)
     } else {
-      setMinute(next)
+      const nextTime = { ...draft, minute: next }
+      setDraft(nextTime)
+      onChange(nextTime)
     }
   }
 
-  const hourNumbers = use24Hour
+  const hourNumbers = draft.use24Hour
     ? [
         ...CLOCK_HOURS_24_OUTER.map((value, index) => ({ value, index, radius: 38 })),
         ...CLOCK_HOURS_24_INNER.map((value, index) => ({ value, index, radius: 24 })),
@@ -306,21 +377,21 @@ function TimePickerField({ label, onChange, attempted }: { label: string; onChan
     : CLOCK_MINUTES.map((value, index) => ({ value, index, radius: 38 }))
 
   return (
-    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField} ${attempted && !selected ? styles.fieldInvalid : ''}`}>
+    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField} ${attempted && !value ? styles.fieldInvalid : ''}`}>
       <label>{label}</label>
-      <button type="button" className={styles.pickerControl} aria-label={`${label}: ${selected ? displayValue : copy.validation.required}`} aria-expanded={open} aria-haspopup="dialog"
-        onClick={() => { setMode('hour'); setOpen(c => !c) }}>
-        <span className={selected ? '' : styles.pickerPlaceholder} aria-live="polite">{selected ? displayValue : '--:--'}</span>
+      <button ref={controlRef} type="button" className={styles.pickerControl} aria-label={`${label}: ${value ? displayValue : copy.validation.required}`} aria-expanded={open} aria-haspopup="dialog"
+        onClick={openMenu}>
+        <span className={value ? '' : styles.pickerPlaceholder} aria-live="polite">{value ? displayValue : '--:--'}</span>
         <span className={styles.controlIcon}><Clock3 size={16} /></span>
       </button>
       <AnimatePresence initial={false}>
-        {attempted && !selected && <motion.small className={styles.fieldError} initial={{ opacity: 0, y: -3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }}>{copy.validation.required}</motion.small>}
+        {attempted && !value && <motion.small className={styles.fieldError} initial={{ opacity: 0, y: -3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }}>{copy.validation.required}</motion.small>}
       </AnimatePresence>
       <AnimatePresence>
         {open && (
-          <motion.div className={styles.clockMenu} role="dialog" aria-label={label}
-            initial={{ opacity: 0, y: -7, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -7, scale: 0.97 }} transition={{ duration: 0.2, ease: 'easeOut' }}>
+          <motion.div className={styles.clockMenu} style={menuStyle} role="dialog" aria-label={label}
+            initial={{ opacity: 0, y: 7, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 7, scale: 0.97 }} transition={{ duration: 0.2, ease: 'easeOut' }}>
             <div className={styles.clockHeader}>
               <div className={styles.clockDisplay}>
                 <button type="button" aria-label={copy.timePicker.editHour} aria-pressed={mode === 'hour'} className={`${styles.clockDisplayPart} ${mode === 'hour' ? styles.clockDisplayActive : ''}`} onClick={() => setMode('hour')}>
@@ -328,10 +399,10 @@ function TimePickerField({ label, onChange, attempted }: { label: string; onChan
                 </button>
                 <span className={styles.clockColon}>:</span>
                 <button type="button" aria-label={copy.timePicker.editMinute} aria-pressed={mode === 'minute'} className={`${styles.clockDisplayPart} ${mode === 'minute' ? styles.clockDisplayActive : ''}`} onClick={() => setMode('minute')}>
-                  {String(minute).padStart(2, '0')}
+                  {String(draft.minute).padStart(2, '0')}
                 </button>
               </div>
-              {!use24Hour && (
+              {!draft.use24Hour && (
                 <div className={styles.clockPeriod} aria-label={copy.timePicker.period} role="group">
                   <button type="button" aria-pressed={period === 'AM'} className={`${styles.clockPeriodBtn} ${period === 'AM' ? styles.clockPeriodActive : ''}`} onClick={() => setPeriod('AM')}>{lang === 'ar' ? 'ص' : 'AM'}</button>
                   <button type="button" aria-pressed={period === 'PM'} className={`${styles.clockPeriodBtn} ${period === 'PM' ? styles.clockPeriodActive : ''}`} onClick={() => setPeriod('PM')}>{lang === 'ar' ? 'م' : 'PM'}</button>
@@ -339,13 +410,13 @@ function TimePickerField({ label, onChange, attempted }: { label: string; onChan
               )}
             </div>
             <div className={styles.clockFormat} role="group" aria-label={copy.timePicker.timeFormat}>
-              <button type="button" aria-pressed={!use24Hour} className={!use24Hour ? styles.clockFormatActive : ''} onClick={() => setUse24Hour(false)}>{copy.timePicker.twelveHour}</button>
-              <button type="button" aria-pressed={use24Hour} className={use24Hour ? styles.clockFormatActive : ''} onClick={() => setUse24Hour(true)}>{copy.timePicker.twentyFourHour}</button>
+              <button type="button" aria-pressed={!draft.use24Hour} className={!draft.use24Hour ? styles.clockFormatActive : ''} onClick={() => setDraft(current => { const next = { ...current, use24Hour: false }; onChange(next); return next })}>{copy.timePicker.twelveHour}</button>
+              <button type="button" aria-pressed={draft.use24Hour} className={draft.use24Hour ? styles.clockFormatActive : ''} onClick={() => setDraft(current => { const next = { ...current, use24Hour: true }; onChange(next); return next })}>{copy.timePicker.twentyFourHour}</button>
             </div>
-            <div ref={clockRef} className={`${styles.clockFace} ${use24Hour && mode === 'hour' ? styles.clockFace24 : ''}`} onPointerDown={handleClockPointerDown} onKeyDown={handleClockKeyDown} style={{ touchAction: 'none' }}
+            <div ref={clockRef} className={`${styles.clockFace} ${draft.use24Hour && mode === 'hour' ? styles.clockFace24 : ''}`} onPointerDown={handleClockPointerDown} onKeyDown={handleClockKeyDown} style={{ touchAction: 'none' }}
               role="slider" tabIndex={0} aria-label={mode === 'hour' ? copy.timePicker.hour : copy.timePicker.minute}
-              aria-valuemin={mode === 'hour' && !use24Hour ? 1 : 0} aria-valuemax={mode === 'hour' ? (use24Hour ? 23 : 12) : 59}
-              aria-valuenow={mode === 'hour' ? displayHour : minute} aria-valuetext={mode === 'hour' ? copy.timePicker.selectedHour(displayHour, use24Hour ? undefined : displayPeriod) : copy.timePicker.selectedMinute(minute)}>
+              aria-valuemin={mode === 'hour' && !draft.use24Hour ? 1 : 0} aria-valuemax={mode === 'hour' ? (draft.use24Hour ? 23 : 12) : 59}
+              aria-valuenow={mode === 'hour' ? displayHour : draft.minute} aria-valuetext={mode === 'hour' ? copy.timePicker.selectedHour(displayHour, draft.use24Hour ? undefined : displayPeriod) : copy.timePicker.selectedMinute(draft.minute)}>
               <div className={styles.clockTrack} />
               <div className={styles.clockHand} style={{ width: handLength, transform: `rotate(${handAngle}deg)` }} />
               <div className={styles.clockCenter} />
@@ -353,13 +424,13 @@ function TimePickerField({ label, onChange, attempted }: { label: string; onChan
                 const angle = (index * 30 - 90) * (Math.PI / 180)
                 const x = 50 + radius * Math.cos(angle)
                 const y = 50 + radius * Math.sin(angle)
-                const isActive = mode === 'hour' ? hour === value : minute === value && minute % 5 === 0
+                const isActive = mode === 'hour' ? draft.hour === value : draft.minute === value && draft.minute % 5 === 0
                 return (
                   <span key={`${radius}-${value}`}
                     className={`${styles.clockNum} ${isActive ? styles.clockNumActive : ''}`}
                     style={{ left: `${x}%`, top: `${y}%` }}
                     aria-hidden="true">
-                    {mode === 'minute' || use24Hour ? String(value).padStart(2, '0') : value}
+                    {mode === 'minute' || draft.use24Hour ? String(value).padStart(2, '0') : value}
                   </span>
                 )
               })}
@@ -372,18 +443,16 @@ function TimePickerField({ label, onChange, attempted }: { label: string; onChan
   )
 }
 
-type ScheduleValues = { pickup: string; destination: string; date: boolean; time: boolean }
-const emptySchedule = (): ScheduleValues => ({ pickup: '', destination: '', date: false, time: false })
-const scheduleIsComplete = (values: ScheduleValues) => Boolean(values.pickup.trim() && values.destination.trim() && values.date && values.time)
+const tripIsComplete = (booking: BookingState) => Boolean(booking.pickup && booking.destination && booking.date && booking.time)
 
-function LocationScheduleFields({ pickupLabel, pickupPlaceholder, destinationLabel, destinationPlaceholder, attempted, onChange }: { pickupLabel?: string; pickupPlaceholder?: string; destinationLabel?: string; destinationPlaceholder?: string; attempted: boolean; onChange: (field: keyof ScheduleValues, value: string | boolean) => void }) {
+function LocationScheduleFields({ booking, updateBooking, pickupLabel, pickupPlaceholder, destinationLabel, destinationPlaceholder, attempted }: { booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void; pickupLabel?: string; pickupPlaceholder?: string; destinationLabel?: string; destinationPlaceholder?: string; attempted: boolean }) {
   const { copy } = useBookingDialogCopy()
   return (
     <div className={styles.fieldGrid}>
-      <PlacesAutocompleteField label={pickupLabel ?? copy.pickupLocation} placeholder={pickupPlaceholder ?? copy.selectPickup} attempted={attempted} onChange={value => onChange('pickup', value)} />
-      <PlacesAutocompleteField label={destinationLabel ?? copy.destination} placeholder={destinationPlaceholder ?? copy.selectDropOff} attempted={attempted} onChange={value => onChange('destination', value)} />
-      <DatePickerField label={copy.pickupDate} attempted={attempted} onChange={value => onChange('date', Boolean(value))} />
-      <TimePickerField label={copy.pickupTime} attempted={attempted} onChange={() => onChange('time', true)} />
+      <PlacesAutocompleteField label={pickupLabel ?? copy.pickupLocation} placeholder={pickupPlaceholder ?? copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} />
+      <PlacesAutocompleteField label={destinationLabel ?? copy.destination} placeholder={destinationPlaceholder ?? copy.selectDropOff} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} />
+      <DatePickerField label={copy.pickupDate} value={booking.date} attempted={attempted} onChange={date => updateBooking({ date })} />
+      <TimePickerField label={copy.pickupTime} value={booking.time} attempted={attempted} onChange={time => updateBooking({ time })} />
     </div>
   )
 }
@@ -400,9 +469,9 @@ function FooterActions({ back, next, nextLabel = 'Continue' }: { back: () => voi
   )
 }
 
-function BookingForSection({ bookingFor, setBookingFor, next, back, tripComplete, onAttempt }: {
-  bookingFor: BookingFor
-  setBookingFor: (value: BookingFor) => void
+function BookingForSection({ booking, updateBooking, next, back, tripComplete, onAttempt }: {
+  booking: BookingState
+  updateBooking: (updates: Partial<BookingState>) => void
   next: () => void
   back: () => void
   tripComplete: boolean
@@ -410,17 +479,17 @@ function BookingForSection({ bookingFor, setBookingFor, next, back, tripComplete
 }) {
   const { copy, dir } = useBookingDialogCopy()
   const [attempted, setAttempted] = useState(false)
-  const [guest, setGuest] = useState({ name: '', phone: '', email: '' })
   const ChoiceIcon = dir === 'rtl' ? ChevronLeft : ChevronRight
-  const guestComplete = guest.name.trim().length >= 2 && guest.phone.replace(/\D/g, '').length >= 8 && /^\S+@\S+\.\S+$/.test(guest.email.trim())
+  const selfComplete = booking.name.trim().length >= 2 && /^\S+@\S+\.\S+$/.test(booking.email.trim()) && booking.phone.replace(/\D/g, '').length >= 8
+  const guestComplete = booking.guest.name.trim().length >= 2 && booking.guest.phone.replace(/\D/g, '').length >= 8 && /^\S+@\S+\.\S+$/.test(booking.guest.email.trim())
   const chooseBookingFor = (value: BookingFor) => {
-    if (value !== bookingFor) setGuest({ name: '', phone: '', email: '' })
-    setBookingFor(value)
+    updateBooking({ bookingFor: value, guest: value === booking.bookingFor ? booking.guest : blankGuest() })
   }
   const continueTrip = () => {
     setAttempted(true)
     onAttempt()
-    if (!bookingFor || !tripComplete || (bookingFor === 'guest' && !guestComplete)) return
+    const detailsComplete = booking.bookingFor === 'self' ? selfComplete : guestComplete
+    if (!booking.bookingFor || !tripComplete || !detailsComplete) return
     next()
   }
 
@@ -428,50 +497,56 @@ function BookingForSection({ bookingFor, setBookingFor, next, back, tripComplete
     <>
       <p className={styles.bookingQuestion}>{copy.bookingQuestion}</p>
       <div className={styles.choiceGrid} role="group" aria-label={copy.bookingQuestion}>
-        <button type="button" aria-pressed={bookingFor === 'self'} className={`${styles.choice} ${bookingFor === 'self' ? styles.choiceActive : ''} ${attempted && !bookingFor ? styles.choiceError : ''}`} onClick={() => chooseBookingFor('self')}>
+        <button type="button" aria-pressed={booking.bookingFor === 'self'} className={`${styles.choice} ${booking.bookingFor === 'self' ? styles.choiceActive : ''} ${attempted && !booking.bookingFor ? styles.choiceError : ''}`} onClick={() => chooseBookingFor('self')}>
           <span className={styles.choiceIcon}><UserRound size={15} /></span>
           <span className={styles.choiceCopy}><strong>{copy.forMyself}</strong><small>{copy.selfTravel}</small></span>
           <ChoiceIcon size={16} />
         </button>
-        <button type="button" aria-pressed={bookingFor === 'guest'} className={`${styles.choice} ${bookingFor === 'guest' ? styles.choiceActive : ''} ${attempted && !bookingFor ? styles.choiceError : ''}`} onClick={() => chooseBookingFor('guest')}>
+        <button type="button" aria-pressed={booking.bookingFor === 'guest'} className={`${styles.choice} ${booking.bookingFor === 'guest' ? styles.choiceActive : ''} ${attempted && !booking.bookingFor ? styles.choiceError : ''}`} onClick={() => chooseBookingFor('guest')}>
           <span className={styles.choiceIcon}><UsersRound size={15} /></span>
           <span className={styles.choiceCopy}><strong>{copy.forGuest}</strong><small>{copy.guestTravel}</small></span>
           <ChoiceIcon size={16} />
         </button>
       </div>
-      {attempted && !bookingFor && <small className={styles.selectionError}>{copy.validation.required}</small>}
+      {attempted && !booking.bookingFor && <small className={styles.selectionError}>{copy.validation.required}</small>}
 
-      {bookingFor === 'guest' && (
+      {booking.bookingFor === 'self' && (
         <div className={styles.guestPanel}>
-          <h3>{copy.guestDetails}</h3>
-          <p>{copy.enterGuestDetails}</p>
-          <TextField label={copy.fullName} placeholder={copy.guestName} minLength={2} attempted={attempted} onChange={value => setGuest(current => ({ ...current, name: value }))} />
-          <TextField label={copy.phoneNumber} placeholder="+966 50 123 4567" inputType="tel" attempted={attempted} onChange={value => setGuest(current => ({ ...current, phone: value }))} />
-          <TextField label={copy.emailAddress} placeholder="guest@gmail.com" inputType="email" attempted={attempted} onChange={value => setGuest(current => ({ ...current, email: value }))} />
+          <h3>{copy.yourDetails}</h3>
+          <p>{copy.enterYourDetails}</p>
+          <TextField label={copy.fullName} placeholder={copy.namePlaceholder} value={booking.name} minLength={2} attempted={attempted} onChange={value => updateBooking({ name: value })} />
+          <TextField label={copy.phoneNumber} placeholder="+966 50 123 4567" value={booking.phone} inputType="tel" attempted={attempted} onChange={value => updateBooking({ phone: value })} />
+          <TextField label={copy.emailAddress} placeholder="you@example.com" value={booking.email} inputType="email" attempted={attempted} onChange={value => updateBooking({ email: value })} />
         </div>
       )}
 
-      <FooterActions back={bookingFor === 'guest' ? () => chooseBookingFor(null) : back} next={continueTrip} />
+      {booking.bookingFor === 'guest' && (
+        <div className={styles.guestPanel}>
+          <h3>{copy.guestDetails}</h3>
+          <p>{copy.enterGuestDetails}</p>
+          <TextField label={copy.fullName} placeholder={copy.guestName} value={booking.guest.name} minLength={2} attempted={attempted} onChange={value => updateBooking({ guest: { ...booking.guest, name: value } })} />
+          <TextField label={copy.phoneNumber} placeholder="+966 50 123 4567" value={booking.guest.phone} inputType="tel" attempted={attempted} onChange={value => updateBooking({ guest: { ...booking.guest, phone: value } })} />
+          <TextField label={copy.emailAddress} placeholder="guest@gmail.com" value={booking.guest.email} inputType="email" attempted={attempted} onChange={value => updateBooking({ guest: { ...booking.guest, email: value } })} />
+        </div>
+      )}
+
+      <FooterActions back={booking.bookingFor ? () => chooseBookingFor(null) : back} next={continueTrip} />
     </>
   )
 }
 
-function TripDetails({ bookingFor, setBookingFor, next, back }: {
-  bookingFor: BookingFor
-  setBookingFor: (value: BookingFor) => void
+function TripDetails({ booking, updateBooking, next, back }: {
+  booking: BookingState
+  updateBooking: (updates: Partial<BookingState>) => void
   next: () => void
   back: () => void
 }) {
   const { copy, lang } = useBookingDialogCopy()
-  const [isDeparture, setIsDeparture] = useState(false)
   const [attempted, setAttempted] = useState(false)
-  const [trip, setTrip] = useState({ pickup: '', destination: '', date: false, time: false, flightNumber: '' })
-  const updateTrip = (field: keyof typeof trip, value: string | boolean) => setTrip(current => ({ ...current, [field]: value }))
-  const tripComplete = Boolean(trip.pickup.trim() && trip.destination.trim() && trip.date && trip.time && trip.flightNumber.trim().length >= 5)
+  const tripComplete = Boolean(tripIsComplete(booking) && booking.flightNumber.trim().length >= 5)
   const changeDirection = (departure: boolean) => {
-    if (departure === isDeparture) return
-    setIsDeparture(departure)
-    setTrip(current => ({ ...current, pickup: '', destination: '' }))
+    if (departure === booking.isDeparture) return
+    updateBooking({ isDeparture: departure, pickup: null, destination: null })
   }
   return (
     <>
@@ -480,29 +555,29 @@ function TripDetails({ bookingFor, setBookingFor, next, back }: {
       <p className={styles.subtitle}>{copy.tripSubtitle}</p>
 
       <div className={styles.directionSwitcher}>
-        <button type="button" className={!isDeparture ? styles.directionActive : ''} onClick={() => changeDirection(false)}>
+        <button type="button" className={!booking.isDeparture ? styles.directionActive : ''} onClick={() => changeDirection(false)}>
           {copy.arrival}
         </button>
-        <button type="button" className={isDeparture ? styles.directionActive : ''} onClick={() => changeDirection(true)}>
+        <button type="button" className={booking.isDeparture ? styles.directionActive : ''} onClick={() => changeDirection(true)}>
           {copy.departure}
         </button>
       </div>
 
       <div className={styles.fieldGrid}>
-        {isDeparture ? (
+        {booking.isDeparture ? (
           <>
-            <PlacesAutocompleteField key="departure-pickup" label={copy.pickupLocation} placeholder={copy.selectPickup} attempted={attempted} onChange={value => updateTrip('pickup', value)} />
-            <DropdownField key="departure-airport" label={copy.dropOffAirport} placeholder={copy.selectAirport} options={copy.airports} attempted={attempted} onChange={value => updateTrip('destination', value)} />
+            <PlacesAutocompleteField key="departure-pickup" label={copy.pickupLocation} placeholder={copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} />
+            <DropdownField key="departure-airport" label={copy.dropOffAirport} placeholder={copy.selectAirport} value={booking.destination} options={copy.airports} attempted={attempted} onChange={value => updateBooking({ destination: value })} />
           </>
         ) : (
           <>
-            <DropdownField key="arrival-airport" label={copy.pickupAirport} placeholder={copy.selectAirport} options={copy.airports} attempted={attempted} onChange={value => updateTrip('pickup', value)} />
-            <PlacesAutocompleteField key="arrival-destination" label={copy.dropOff} placeholder={copy.enterDestination} attempted={attempted} onChange={value => updateTrip('destination', value)} />
+            <DropdownField key="arrival-airport" label={copy.pickupAirport} placeholder={copy.selectAirport} value={booking.pickup} options={copy.airports} attempted={attempted} onChange={value => updateBooking({ pickup: value })} />
+            <PlacesAutocompleteField key="arrival-destination" label={copy.dropOff} placeholder={copy.enterDestination} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} />
           </>
         )}
-        <DatePickerField label={copy.flightDate} attempted={attempted} onChange={value => updateTrip('date', Boolean(value))} />
-        <TimePickerField label={copy.pickupTime} attempted={attempted} onChange={() => updateTrip('time', true)} />
-        <TextField label={copy.flightNumber} placeholder={copy.flightExample} minLength={5} attempted={attempted} onChange={value => updateTrip('flightNumber', value)} startIcon={<Image src={flightNumberSvg} alt="" width={20} height={18} />} />
+        <DatePickerField label={copy.flightDate} value={booking.date} attempted={attempted} onChange={date => updateBooking({ date })} />
+        <TimePickerField label={copy.pickupTime} value={booking.time} attempted={attempted} onChange={time => updateBooking({ time })} />
+        <TextField label={copy.flightNumber} placeholder={copy.flightExample} value={booking.flightNumber} minLength={5} attempted={attempted} onChange={flightNumber => updateBooking({ flightNumber })} startIcon={<Image src={flightNumberSvg} alt="" width={20} height={18} />} />
         <div className={styles.flightRoute} aria-label={copy.flightRoutePreview} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
           <span className={styles.routeHalf}>{copy.from}<br />--:--</span>
           <Image className={styles.plane} src={horizontalPlane} alt="" />
@@ -510,24 +585,20 @@ function TripDetails({ bookingFor, setBookingFor, next, back }: {
         </div>
       </div>
 
-      <BookingForSection bookingFor={bookingFor} setBookingFor={setBookingFor} back={back} next={next} tripComplete={tripComplete} onAttempt={() => setAttempted(true)} />
+      <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripComplete} onAttempt={() => setAttempted(true)} />
     </>
   )
 }
 
-function HourlyTripDetails({ bookingFor, setBookingFor, duration, setDuration, next, back }: {
-  bookingFor: BookingFor
-  setBookingFor: (value: BookingFor) => void
-  duration: number
-  setDuration: (value: number) => void
+function HourlyTripDetails({ booking, updateBooking, next, back }: {
+  booking: BookingState
+  updateBooking: (updates: Partial<BookingState>) => void
   next: () => void
   back: () => void
 }) {
   const { copy } = useBookingDialogCopy()
   const [durationOpen, setDurationOpen] = useState(false)
   const [attempted, setAttempted] = useState(false)
-  const [schedule, setSchedule] = useState<ScheduleValues>(emptySchedule)
-  const updateSchedule = (field: keyof ScheduleValues, value: string | boolean) => setSchedule(current => ({ ...current, [field]: value }))
 
   return (
     <>
@@ -535,19 +606,19 @@ function HourlyTripDetails({ bookingFor, setBookingFor, duration, setDuration, n
       <h2 className={styles.title}>{copy.tripDetails}</h2>
       <p className={styles.subtitle}>{copy.tripSubtitle}</p>
 
-      <LocationScheduleFields attempted={attempted} onChange={updateSchedule} />
+      <LocationScheduleFields booking={booking} updateBooking={updateBooking} attempted={attempted} />
 
       <div className={styles.durationField}>
         <label>{copy.selectDuration}</label>
         <button type="button" className={styles.durationControl} aria-expanded={durationOpen} aria-haspopup="listbox" onClick={() => setDurationOpen(open => !open)}>
-          <span>{duration} {copy.hours}</span>
+          <span>{booking.duration} {copy.hours}</span>
           <ChevronDown size={18} className={durationOpen ? styles.durationChevronOpen : ''} />
         </button>
         <AnimatePresence>
           {durationOpen && (
             <motion.div className={styles.durationMenu} role="listbox" initial={{ opacity: 0, y: -8, scaleY: .96 }} animate={{ opacity: 1, y: 0, scaleY: 1 }} exit={{ opacity: 0, y: -8, scaleY: .96 }} transition={{ duration: .2, ease: 'easeOut' }}>
               {hourlyDurations.map(hours => (
-                <button key={hours} type="button" role="option" aria-selected={duration === hours} className={duration === hours ? styles.durationOptionActive : ''} onClick={() => { setDuration(hours); setDurationOpen(false) }}>
+                <button key={hours} type="button" role="option" aria-selected={booking.duration === hours} className={booking.duration === hours ? styles.durationOptionActive : ''} onClick={() => { updateBooking({ duration: hours }); setDurationOpen(false) }}>
                   {hours} {copy.hours} ({hours * 40} {copy.km} {copy.included})
                 </button>
               ))}
@@ -562,69 +633,61 @@ function HourlyTripDetails({ bookingFor, setBookingFor, duration, setDuration, n
         <ChevronDown size={16} />
       </div>
 
-      <BookingForSection bookingFor={bookingFor} setBookingFor={setBookingFor} back={back} next={next} tripComplete={scheduleIsComplete(schedule)} onAttempt={() => setAttempted(true)} />
+      <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripIsComplete(booking)} onAttempt={() => setAttempted(true)} />
     </>
   )
 }
 
-function CityTripDetails({ bookingFor, setBookingFor, next, back }: {
-  bookingFor: BookingFor
-  setBookingFor: (value: BookingFor) => void
+function CityTripDetails({ booking, updateBooking, next, back }: {
+  booking: BookingState
+  updateBooking: (updates: Partial<BookingState>) => void
   next: () => void
   back: () => void
 }) {
   const { copy } = useBookingDialogCopy()
   const [attempted, setAttempted] = useState(false)
-  const [schedule, setSchedule] = useState<ScheduleValues>(emptySchedule)
-  const updateSchedule = (field: keyof ScheduleValues, value: string | boolean) => setSchedule(current => ({ ...current, [field]: value }))
   return (
     <>
       <p className={styles.eyebrow}>{copy.services.city}</p>
       <h2 className={styles.title}>{copy.tripDetails}</h2>
       <p className={styles.subtitle}>{copy.tripSubtitle}</p>
 
-      <LocationScheduleFields attempted={attempted} onChange={updateSchedule} />
+      <LocationScheduleFields booking={booking} updateBooking={updateBooking} attempted={attempted} />
 
-      <BookingForSection bookingFor={bookingFor} setBookingFor={setBookingFor} back={back} next={next} tripComplete={scheduleIsComplete(schedule)} onAttempt={() => setAttempted(true)} />
+      <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripIsComplete(booking)} onAttempt={() => setAttempted(true)} />
     </>
   )
 }
 
-function OneWayTripDetails({ bookingFor, setBookingFor, next, back }: {
-  bookingFor: BookingFor
-  setBookingFor: (value: BookingFor) => void
+function OneWayTripDetails({ booking, updateBooking, next, back }: {
+  booking: BookingState
+  updateBooking: (updates: Partial<BookingState>) => void
   next: () => void
   back: () => void
 }) {
   const { copy } = useBookingDialogCopy()
   const [attempted, setAttempted] = useState(false)
-  const [schedule, setSchedule] = useState<ScheduleValues>(emptySchedule)
-  const updateSchedule = (field: keyof ScheduleValues, value: string | boolean) => setSchedule(current => ({ ...current, [field]: value }))
   return (
     <>
       <p className={styles.eyebrow}>{copy.services.oneWay}</p>
       <h2 className={styles.title}>{copy.tripDetails}</h2>
       <p className={styles.subtitle}>{copy.tripSubtitle}</p>
 
-      <LocationScheduleFields destinationLabel={copy.dropOff} attempted={attempted} onChange={updateSchedule} />
+      <LocationScheduleFields booking={booking} updateBooking={updateBooking} destinationLabel={copy.dropOff} attempted={attempted} />
 
-      <BookingForSection bookingFor={bookingFor} setBookingFor={setBookingFor} back={back} next={next} tripComplete={scheduleIsComplete(schedule)} onAttempt={() => setAttempted(true)} />
+      <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripIsComplete(booking)} onAttempt={() => setAttempted(true)} />
     </>
   )
 }
 
-function DayTripDetails({ bookingFor, setBookingFor, dayDuration, setDayDuration, next, back }: {
-  bookingFor: BookingFor
-  setBookingFor: (value: BookingFor) => void
-  dayDuration: DayDuration
-  setDayDuration: (value: DayDuration) => void
+function DayTripDetails({ booking, updateBooking, next, back }: {
+  booking: BookingState
+  updateBooking: (updates: Partial<BookingState>) => void
   next: () => void
   back: () => void
 }) {
   const { copy } = useBookingDialogCopy()
   const [attempted, setAttempted] = useState(false)
-  const [schedule, setSchedule] = useState<ScheduleValues>(emptySchedule)
-  const updateSchedule = (field: keyof ScheduleValues, value: string | boolean) => setSchedule(current => ({ ...current, [field]: value }))
   return (
     <>
       <p className={styles.eyebrow}>{copy.services.day}</p>
@@ -634,46 +697,46 @@ function DayTripDetails({ bookingFor, setBookingFor, dayDuration, setDayDuration
       <div className={styles.dayDurationField}>
         <p>{copy.bookingDuration}</p>
         <div className={styles.dayDurationGrid}>
-          <button type="button" className={`${styles.dayDurationOption} ${dayDuration === 'half' ? styles.dayDurationActive : ''}`} onClick={() => setDayDuration('half')}>
+          <button type="button" className={`${styles.dayDurationOption} ${booking.dayDuration === 'half' ? styles.dayDurationActive : ''}`} onClick={() => updateBooking({ dayDuration: 'half' })}>
             <span className={styles.dayDurationIcon}><Clock3 size={16} /></span>
             <span><strong>{copy.halfDay}</strong><small>{copy.upTo4Hours}</small></span>
-            {dayDuration === 'half' && <Check className={styles.dayDurationCheck} size={11} strokeWidth={3} />}
+            {booking.dayDuration === 'half' && <Check className={styles.dayDurationCheck} size={11} strokeWidth={3} />}
           </button>
-          <button type="button" className={`${styles.dayDurationOption} ${dayDuration === 'full' ? styles.dayDurationActive : ''}`} onClick={() => setDayDuration('full')}>
+          <button type="button" className={`${styles.dayDurationOption} ${booking.dayDuration === 'full' ? styles.dayDurationActive : ''}`} onClick={() => updateBooking({ dayDuration: 'full' })}>
             <span className={styles.dayDurationIcon}><Clock3 size={16} /></span>
             <span><strong>{copy.fullDay}</strong><small>{copy.upTo10Hours}</small></span>
-            {dayDuration === 'full' && <Check className={styles.dayDurationCheck} size={11} strokeWidth={3} />}
+            {booking.dayDuration === 'full' && <Check className={styles.dayDurationCheck} size={11} strokeWidth={3} />}
           </button>
         </div>
       </div>
 
-      <LocationScheduleFields attempted={attempted} onChange={updateSchedule} />
+      <LocationScheduleFields booking={booking} updateBooking={updateBooking} attempted={attempted} />
 
-      <BookingForSection bookingFor={bookingFor} setBookingFor={setBookingFor} back={back} next={next} tripComplete={scheduleIsComplete(schedule)} onAttempt={() => setAttempted(true)} />
+      <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripIsComplete(booking)} onAttempt={() => setAttempted(true)} />
     </>
   )
 }
 
-function RideStep({ back, next, service, duration, dayDuration }: { back: () => void; next: () => void; service: BookingService; duration: number; dayDuration: DayDuration }) {
-  const { copy, dir } = useBookingDialogCopy()
-  const [categoryIndex, setCategoryIndex] = useState(1)
-  const [vehicle, setVehicle] = useState(0)
+function RideStep({ back, next, booking, updateBooking }: { back: () => void; next: () => void; booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void }) {
+  const { copy, dir, lang } = useBookingDialogCopy()
   const categories = copy.categories.map((item, index) => ({ ...item, image: categoryImages[index] }))
+  const categoryIndex = Math.min(booking.categoryIndex, categories.length - 1)
   const category = categories[categoryIndex].name
+  const service = booking.service
   const isHourly = service === 'hourly'
   const isCity = service === 'city'
   const isDay = service === 'day'
   const isOneWay = service === 'oneWay'
   const l = copy.summaryLabels
   const summaryRows = isHourly
-    ? [[l.pickupDate, '20 Aug 2026'], [l.pickupTime, '07:00 AM'], [l.duration, `${duration} ${copy.hours}`], [l.category, category], [l.vehicle, 'Mercedes E-Class']]
+    ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.duration, `${booking.duration} ${copy.hours}`], [l.category, category], [l.vehicle, `Mercedes E-Class #${booking.vehicle + 1}`]]
     : isCity
-      ? [[l.pickupDate, '20 Aug 2026'], [l.pickupTime, '07:00 AM'], [l.journey, copy.summaryValues.city], [l.category, category], [l.vehicle, 'Mercedes E-Class']]
+      ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.journey, copy.summaryValues.city], [l.category, category], [l.vehicle, `Mercedes E-Class #${booking.vehicle + 1}`]]
       : isDay
-        ? [[l.pickupDate, '20 Aug 2026'], [l.pickupTime, '07:00 AM'], [l.duration, dayDuration === 'full' ? copy.fullDay : copy.halfDay], [l.category, category], [l.vehicle, 'Mercedes E-Class']]
+        ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.duration, booking.dayDuration === 'full' ? copy.fullDay : copy.halfDay], [l.category, category], [l.vehicle, `Mercedes E-Class #${booking.vehicle + 1}`]]
         : isOneWay
-          ? [[l.pickupDate, '20 Aug 2026'], [l.pickupTime, '07:00 AM'], [l.journey, copy.summaryValues.oneWay], [l.category, category], [l.vehicle, 'Mercedes E-Class']]
-          : [[l.flight, 'PK-753'], [l.flightDate, '20 Aug 2026'], [l.pickupTime, '07:00 AM'], [l.category, category], [l.vehicle, 'Mercedes E-Class']]
+          ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.journey, copy.summaryValues.oneWay], [l.category, category], [l.vehicle, `Mercedes E-Class #${booking.vehicle + 1}`]]
+          : [[l.flight, booking.flightNumber || '--'], [l.flightDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.category, category], [l.vehicle, `Mercedes E-Class #${booking.vehicle + 1}`]]
   const SummaryArrow = dir === 'rtl' ? ArrowLeft : ArrowRight
 
   return (
@@ -684,7 +747,7 @@ function RideStep({ back, next, service, duration, dayDuration }: { back: () => 
       <p className={styles.categoryIntro}>{copy.chooseCategory}</p>
       <div className={styles.categoryGrid}>
         {categories.map((item, index) => (
-          <button type="button" key={item.name} className={`${styles.categoryCard} ${categoryIndex === index ? styles.categoryActive : ''}`} onClick={() => setCategoryIndex(index)}>
+          <button type="button" key={item.name} className={`${styles.categoryCard} ${categoryIndex === index ? styles.categoryActive : ''}`} onClick={() => updateBooking({ categoryIndex: index })}>
             <strong>{item.name}</strong><small>{item.copy}</small><Image src={item.image} alt="" />
           </button>
         ))}
@@ -693,7 +756,7 @@ function RideStep({ back, next, service, duration, dayDuration }: { back: () => 
         <p>{copy.availableVehicles(category)}</p>
         <div className={styles.vehicleGrid}>
           {vehicles.map((image, index) => (
-            <button type="button" key={image.src} className={`${styles.vehicleCard} ${vehicle === index ? styles.vehicleSelected : ''}`} onClick={() => setVehicle(index)}>
+            <button type="button" key={image.src} className={`${styles.vehicleCard} ${booking.vehicle === index ? styles.vehicleSelected : ''}`} onClick={() => updateBooking({ vehicle: index })}>
               <Image src={image} alt="Mercedes E-Class" />
               <span>
                 <strong>Mercedes E-Class</strong>
@@ -709,9 +772,9 @@ function RideStep({ back, next, service, duration, dayDuration }: { back: () => 
       <h3 className={styles.reviewTitle}>{copy.reviewBooking}</h3>
       <div className={styles.summaryCard}>
         <div className={styles.routeSummary}>
-          <div><small>{copy.pickup}</small><strong>{isHourly || isDay || isOneWay ? copy.addresses.kingFahd : isCity ? copy.addresses.riyadh : copy.addresses.airport}</strong></div>
+          <div><small>{copy.pickup}</small><strong>{placeLabel(booking.pickup)}</strong></div>
           <SummaryArrow size={20} />
-          <div><small>{isHourly || isCity || isDay ? copy.summaryDestination : copy.summaryDropOff}</small><strong>{isHourly || isDay || isOneWay ? copy.addresses.riyadhFront : isCity ? copy.addresses.jeddah : copy.addresses.riyadh}</strong></div>
+          <div><small>{isHourly || isCity || isDay ? copy.summaryDestination : copy.summaryDropOff}</small><strong>{placeLabel(booking.destination)}</strong></div>
         </div>
         {summaryRows.map(row => (
           <div className={styles.summaryRow} key={row[0]}><span>{row[0]}</span><span>{row[1]}</span></div>
@@ -722,107 +785,57 @@ function RideStep({ back, next, service, duration, dayDuration }: { back: () => 
   )
 }
 
-function FareStep({ back, next, service }: { back: () => void; next: () => void; service: BookingService }) {
-  const [attempted, setAttempted] = useState(false)
-  const [payment, setPayment] = useState({
-    cardNumber: '',
-    cardName: '',
-    expiry: '',
-    cvv: '',
-  })
-  const [otp, setOtp] = useState(() => Array(6).fill('') as string[])
-
-  const updatePayment = (field: keyof typeof payment, value: string) => {
-    setPayment(current => ({ ...current, [field]: value }))
-  }
-
-  const formatCardNumber = (value: string) =>
-    value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim()
-
-  const formatExpiry = (value: string) => {
-    const digits = value.replace(/\D/g, '').slice(0, 4)
-    return digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits
-  }
-
-  const cardNumberInvalid = (attempted || payment.cardNumber.length > 0) && payment.cardNumber.replace(/\D/g, '').length < 16
-  const cardNameInvalid = (attempted || payment.cardName.length > 0) && payment.cardName.trim().length < 2
-  const expiryInvalid = (attempted || payment.expiry.length > 0) && payment.expiry.length < 5
-  const cvvInvalid = (attempted || payment.cvv.length > 0) && payment.cvv.length < 3
-  const paymentComplete =
-    payment.cardNumber.replace(/\D/g, '').length === 16 &&
-    payment.cardName.trim().length >= 2 &&
-    payment.expiry.length === 5 &&
-    payment.cvv.length >= 3
-  const otpComplete = otp.every(digit => /^\d$/.test(digit))
+function FareStep({ back, next, booking }: { back: () => void; next: () => void; booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void }) {
+  const { copy, dir, lang } = useBookingDialogCopy()
+  const service = booking.service
   const isHourly = service === 'hourly'
   const isCity = service === 'city'
   const isDay = service === 'day'
   const isOneWay = service === 'oneWay'
-  const { copy } = useBookingDialogCopy()
-  const continueToSuccess = () => {
-    setAttempted(true)
-    if (!paymentComplete || !otpComplete) return
-    next()
-  }
+  const SummaryArrow = dir === 'rtl' ? ArrowLeft : ArrowRight
+  const categories = copy.categories.map((item, index) => ({ ...item, image: categoryImages[index] }))
+  const category = categories[Math.min(booking.categoryIndex, categories.length - 1)].name
+  const serviceSpecific = isHourly
+    ? `${booking.duration} ${copy.hours}`
+    : isDay ? (booking.dayDuration === 'full' ? copy.fullDay : copy.halfDay)
+    : isCity ? copy.summaryValues.city
+    : isOneWay ? copy.summaryValues.oneWay
+    : booking.flightNumber || '--'
 
   return (
     <>
       <p className={styles.eyebrow}>{isHourly ? copy.services.hourly : isCity ? copy.services.city : isDay ? copy.services.day : isOneWay ? copy.services.oneWay : copy.services.airport}</p>
       <h2 className={styles.title}>{copy.fareSummary}</h2>
       <p className={styles.subtitle}>{copy.fareSubtitle[service]}</p>
-      <div className={styles.fareCard}>
-        <div className={styles.fareRow}><span>{copy.fareLabels[service]}</span><span>SAR 72.00</span></div>
-        <div className={styles.fareRow}><span>{isHourly || isCity || isDay || isOneWay ? copy.serviceFee : copy.airportService}</span><span>SAR 4.33</span></div>
-        <div className={styles.fareRow}><span>{copy.vat}</span><span>SAR 11.45</span></div>
-        <div className={`${styles.fareRow} ${styles.fareTotal}`}><span>{copy.totalFare}</span><span>SAR 87.78</span></div>
-      </div>
-      <div className={styles.paymentMethodRow}>
-        <p className={styles.paymentTitle}>{copy.paymentMethod}</p>
-        <div className={styles.brands}>
-          <span className={styles.brand}><Image src={visaSvg} alt="Visa" height={18} /></span>
-          <span className={styles.brand}><Image src={amexSvg} alt="American Express" height={18} /></span>
-          <span className={styles.brand}><Image src={masterSvg} alt="Mastercard" height={18} /></span>
+
+      <div className={styles.summaryCard}>
+        <div className={styles.routeSummary}>
+          <div><small>{copy.pickup}</small><strong>{placeLabel(booking.pickup)}</strong></div>
+          <SummaryArrow size={20} />
+          <div><small>{isHourly || isCity || isDay ? copy.summaryDestination : copy.summaryDropOff}</small><strong>{placeLabel(booking.destination)}</strong></div>
         </div>
+        <div className={styles.summaryRow}><span>{service === 'airport' ? copy.summaryLabels.flightDate : copy.summaryLabels.pickupDate}</span><span>{formatBookingDate(booking.date, copy.calendar.locale)}</span></div>
+        <div className={styles.summaryRow}><span>{copy.summaryLabels.pickupTime}</span><span>{formatBookingTime(booking.time, lang)}</span></div>
+        <div className={styles.summaryRow}><span>{isHourly || isDay ? copy.summaryLabels.duration : service === 'airport' ? copy.summaryLabels.flight : copy.summaryLabels.journey}</span><span>{serviceSpecific}</span></div>
+        <div className={styles.summaryRow}><span>{copy.summaryLabels.category}</span><span>{category}</span></div>
+        <div className={styles.summaryRow}><span>{copy.summaryLabels.vehicle}</span><span>{`Mercedes E-Class #${booking.vehicle + 1}`}</span></div>
       </div>
-      <motion.div className={styles.paymentGrid} layout>
-        <motion.div className={`${styles.cardFields} ${paymentComplete ? '' : styles.cardFieldsWide}`} layout transition={{ duration: .45, ease: [0.22, 1, 0.36, 1] }}>
-          <div className={styles.paymentField}><div className={`${styles.control} ${cardNumberInvalid ? styles.controlInvalid : ''}`}><span className={styles.floatingLabel}>{copy.cardNumber}</span><input aria-label={copy.cardNumber} aria-invalid={cardNumberInvalid} value={payment.cardNumber} onChange={event => updatePayment('cardNumber', formatCardNumber(event.target.value))} placeholder="4347 8977 8097 7089" inputMode="numeric" autoComplete="cc-number" maxLength={19} /><span className={styles.fieldIcon}><Image src={cardNumberSvg} alt="" width={25} height={25} /></span></div>{cardNumberInvalid && <small className={styles.fieldError}>{payment.cardNumber ? copy.validation.cardNumber : copy.validation.required}</small>}</div>
-          <div className={styles.paymentField}><div className={`${styles.control} ${cardNameInvalid ? styles.controlInvalid : ''}`}><span className={styles.floatingLabel}>{copy.cardName}</span><input aria-label={copy.cardName} aria-invalid={cardNameInvalid} value={payment.cardName} onChange={event => updatePayment('cardName', event.target.value)} placeholder={copy.cardNamePlaceholder} autoComplete="cc-name" /></div>{cardNameInvalid && <small className={styles.fieldError}>{payment.cardName ? copy.validation.cardName : copy.validation.required}</small>}</div>
-          <div className={styles.cardMiniGrid}>
-            <div className={styles.paymentField}><div className={`${styles.control} ${expiryInvalid ? styles.controlInvalid : ''}`}><span className={styles.floatingLabel}>{copy.expiryDate}</span><input aria-label={copy.expiryDate} aria-invalid={expiryInvalid} value={payment.expiry} onChange={event => updatePayment('expiry', formatExpiry(event.target.value))} placeholder="MM/YY" inputMode="numeric" autoComplete="cc-exp" maxLength={5} /></div>{expiryInvalid && <small className={styles.fieldError}>{payment.expiry ? copy.validation.expiry : copy.validation.required}</small>}</div>
-            <div className={styles.paymentField}><div className={`${styles.control} ${cvvInvalid ? styles.controlInvalid : ''}`}><span className={styles.floatingLabel}>{copy.cvv}</span><input aria-label={copy.cvv} aria-invalid={cvvInvalid} value={payment.cvv} onChange={event => updatePayment('cvv', event.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="123" inputMode="numeric" autoComplete="cc-csc" maxLength={4} /><span className={styles.fieldIcon}><Image src={cvvSvg} alt="" width={19} height={19} /></span></div>{cvvInvalid && <small className={styles.fieldError}>{payment.cvv ? copy.validation.cvv : copy.validation.required}</small>}</div>
-          </div>
-        </motion.div>
-        <AnimatePresence initial={false}>
-          {paymentComplete && (
-            <motion.div
-              className={styles.otpPanel}
-              aria-live="polite"
-              initial={{ opacity: 0, x: 28, scale: .97 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 28, scale: .97 }}
-              transition={{ duration: .38, ease: [0.22, 1, 0.36, 1] }}
-              layout
-            >
-              <span className={styles.otpIcon}><Image src={shieldSvg} alt={copy.secureVerification} width={12} height={14} /></span>
-              <h4>{copy.otpTitle}</h4>
-              <p>{copy.otpSent}</p>
-              <div className={`${styles.otpBoxes} ${attempted && !otpComplete ? styles.otpInvalid : ''}`}>{otp.map((digit, index) => <input key={index} aria-label={copy.otpDigit(index + 1)} aria-invalid={attempted && !digit} inputMode="numeric" autoComplete="one-time-code" value={digit} onChange={event => setOtp(current => current.map((value, currentIndex) => currentIndex === index ? event.target.value.replace(/\D/g, '').slice(-1) : value))} maxLength={1} />)}</div>
-              {attempted && !otpComplete && <small className={styles.fieldError}>{copy.validation.required}</small>}
-              <p>{copy.otpResend}</p>
-              <button type="button" className={styles.resend}>{copy.resendOtp}</button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-      <FooterActions back={back} next={continueToSuccess} />
+
+      <div className={styles.fareCard}>
+        <div className={styles.fareRow}><span>{copy.baseFare}</span><span>⃁ 150.00</span></div>
+        <div className={styles.fareRow}><span>{copy.vat}</span><span>⃁ 22.50</span></div>
+        <div className={`${styles.fareRow} ${styles.fareTotal}`}><span>{copy.totalFare}</span><span>⃁ 172.50</span></div>
+      </div>
+
+      <FooterActions back={back} next={next} />
     </>
   )
 }
 
-function SuccessStep({ back, service }: { back: () => void; service: BookingService }) {
-  const { copy, dir } = useBookingDialogCopy()
+function SuccessStep({ back, onDone, booking }: { back: () => void; onDone: () => void; booking: BookingState }) {
+  const { copy, dir, lang } = useBookingDialogCopy()
   const isRtl = dir === 'rtl'
+  const service = booking.service
   const isHourly = service === 'hourly'
   const isCity = service === 'city'
   const isDay = service === 'day'
@@ -835,8 +848,36 @@ function SuccessStep({ back, service }: { back: () => void; service: BookingServ
       <div className={styles.successCenter}>
         <span className={styles.successCheck}><Check size={16} strokeWidth={3} /></span>
         <h3>{copy.receivedTitle}</h3>
-        <p>{copy.receivedBody}</p>
-        <span className={styles.reference}>{copy.bookingReference} <strong>WL-661699</strong></span>
+        <span className={styles.reference}>{copy.bookingReference} <strong>{`${service.toUpperCase()}-${formatBookingDate(booking.date, 'en-GB').replace(/\s/g, '').replace(/,/g, '')}`}</strong></span>
+      </div>
+
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 14,
+        background: 'linear-gradient(135deg, #f0faf9 0%, #e8f5f4 100%)',
+        border: '1px solid rgba(0, 92, 102, 0.18)',
+        borderRadius: 16,
+        padding: '18px 20px',
+        margin: '20px 0',
+      }}>
+        <span style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          width: 36, height: 36, borderRadius: '50%',
+          background: '#005C66', flexShrink: 0,
+        }}>
+          <Check size={15} strokeWidth={2.5} color="#fff" />
+        </span>
+        <p style={{
+          fontFamily: 'Inter, sans-serif',
+          fontSize: 13,
+          color: '#004a52',
+          lineHeight: 1.65,
+          margin: 0,
+          fontWeight: 500,
+        }}>
+          {copy.receivedBody}
+        </p>
       </div>
       <div className={styles.appBanner}>
         <span className={styles.appRadarClip} aria-hidden="true">
@@ -852,8 +893,8 @@ function SuccessStep({ back, service }: { back: () => void; service: BookingServ
         <h3>{copy.trackJourney}</h3>
         <p>{copy.trackBody}</p>
         <div className={styles.stores}>
-          <StoreButton variant="apple" mini sub={copy.downloadOn} main="App Store" isRtl={isRtl} />
-          <StoreButton variant="google" mini sub={copy.getItOn} main="Google Play" isRtl={isRtl} />
+          <StoreButton variant="apple" mini sub={copy.downloadOn} main={lang === 'ar' ? 'قريباً' : 'Coming Soon'} isRtl={isRtl} />
+          <StoreButton variant="google" mini sub={copy.getItOn} main={lang === 'ar' ? 'قريباً' : 'Coming Soon'} isRtl={isRtl} />
         </div>
         <Image
           className={styles.appPhones}
@@ -865,7 +906,7 @@ function SuccessStep({ back, service }: { back: () => void; service: BookingServ
           }}
         />
       </div>
-      <FooterActions back={back} next={() => undefined} nextLabel={copy.downloadApp} />
+      <FooterActions back={back} next={onDone} nextLabel={copy.downloadApp} />
     </div>
   )
 }
@@ -899,21 +940,20 @@ function CancelConfirmDialog({ onKeep, onConfirm }: { onKeep: () => void; onConf
 export default function AirportTransferBookingDialog({ open, onClose, service = 'airport' }: Props) {
   const { copy, dir } = useBookingDialogCopy()
   const [step, setStep] = useState(0)
-  const [bookingFor, setBookingFor] = useState<BookingFor>(null)
-  const [duration, setDuration] = useState(2)
-  const [dayDuration, setDayDuration] = useState<DayDuration>('full')
+  const [booking, setBooking] = useState<BookingState>(() => createInitialBookingState(service))
   const [confirmClose, setConfirmClose] = useState(false)
   const overlayRef = useRef<HTMLDivElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
+  const updateBooking = useCallback((updates: Partial<BookingState>) => {
+    setBooking(current => ({ ...current, ...updates }))
+  }, [])
 
   const resetAndClose = useCallback(() => {
     setStep(0)
-    setBookingFor(null)
-    setDuration(2)
-    setDayDuration('full')
+    setBooking(createInitialBookingState(service))
     setConfirmClose(false)
     onClose()
-  }, [onClose])
+  }, [onClose, service])
 
   const requestClose = useCallback(() => {
     if (step === 3) {
@@ -969,14 +1009,14 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
         </button>
         <div className={styles.content}>
           <span id="airport-dialog-title" className="sr-only">{copy.services[service]} {copy.dialogLabel}</span>
-          {step === 0 && service === 'airport' && <TripDetails bookingFor={bookingFor} setBookingFor={setBookingFor} back={goBack} next={() => setStep(1)} />}
-          {step === 0 && service === 'hourly' && <HourlyTripDetails bookingFor={bookingFor} setBookingFor={setBookingFor} duration={duration} setDuration={setDuration} back={goBack} next={() => setStep(1)} />}
-          {step === 0 && service === 'city' && <CityTripDetails bookingFor={bookingFor} setBookingFor={setBookingFor} back={goBack} next={() => setStep(1)} />}
-          {step === 0 && service === 'day' && <DayTripDetails bookingFor={bookingFor} setBookingFor={setBookingFor} dayDuration={dayDuration} setDayDuration={setDayDuration} back={goBack} next={() => setStep(1)} />}
-          {step === 0 && service === 'oneWay' && <OneWayTripDetails bookingFor={bookingFor} setBookingFor={setBookingFor} back={goBack} next={() => setStep(1)} />}
-          {step === 1 && <RideStep service={service} duration={duration} dayDuration={dayDuration} back={goBack} next={() => setStep(2)} />}
-          {step === 2 && <FareStep service={service} back={goBack} next={() => setStep(3)} />}
-          {step === 3 && <SuccessStep service={service} back={goBack} />}
+          {step === 0 && service === 'airport' && <TripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
+          {step === 0 && service === 'hourly' && <HourlyTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
+          {step === 0 && service === 'city' && <CityTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
+          {step === 0 && service === 'day' && <DayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
+          {step === 0 && service === 'oneWay' && <OneWayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
+          {step === 1 && <RideStep booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(2)} />}
+          {step === 2 && <FareStep booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(3)} />}
+          {step === 3 && <SuccessStep booking={booking} back={goBack} onDone={resetAndClose} />}
         </div>
         <AnimatePresence>
           {confirmClose && (

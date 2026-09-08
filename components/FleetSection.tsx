@@ -5,12 +5,16 @@ import Image from 'next/image'
 import type { StaticImageData } from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
 
-import car0 from '../assets/home_cars/car_image_0.png'
-import car1 from '../assets/home_cars/car_image_1.png'
-import car2 from '../assets/home_cars/car_image_2.png'
+import fleetSuv        from '../assets/fleet/fleet_cars/gmc-yukon-xl.png'
+import fleetExecutive  from '../assets/fleet/fleet_cars/mercedes-benz-s-class.png'
+import fleetSedan      from '../assets/fleet/fleet_cars/mercedes-benz-e-class.png'
+import fleetBizSuv     from '../assets/fleet/fleet_cars/chevrolet-suburban.png'
+import fleetCorpSedan  from '../assets/fleet/fleet_cars/bmw-5-series.png'
+import fleetVip        from '../assets/fleet/fleet_cars/bmw-7-series.png'
 
 // Images only — titles/descs come from translations (same order)
-const CAR_IMAGES: StaticImageData[] = [car0, car1, car2, car0, car1, car2]
+// Premium SUV, Executive Class, Luxury Sedan, Business SUV, Corporate Sedan, VIP Limousine
+const CAR_IMAGES: StaticImageData[] = [fleetSuv, fleetExecutive, fleetSedan, fleetBizSuv, fleetCorpSedan, fleetVip]
 
 const GAP = 16
 

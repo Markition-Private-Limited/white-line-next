@@ -264,10 +264,8 @@
 .timeMenu > button { text-align: center; }
 
 .clockMenu {
-  position: absolute;
-  z-index: 40;
-  top: calc(100% + 7px);
-  inset-inline-start: 0;
+  position: fixed;
+  z-index: 60;
   width: 228px;
   border-radius: 16px;
   background: #fff;
