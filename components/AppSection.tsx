@@ -229,7 +229,7 @@ export default function AppSection() {
           >
             <motion.img
               src={appImg.src}
-              alt="Whiteline app screens"
+              alt="White Line app screens"
               style={{ height: '100%', width: 'auto', display: 'block' }}
               initial={{ opacity: 0, x: isRtl ? -130 : 130, scale: 0.95 }}
               animate={inView ? { opacity: 1, x: 0, scale: 1 } : {}}
@@ -306,7 +306,7 @@ export default function AppSection() {
 
             <motion.img
               src={appImg.src}
-              alt="Whiteline app screens"
+              alt="White Line app screens"
               initial={{ opacity: 0, x: isRtl ? -60 : 60 }}
               animate={inView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}

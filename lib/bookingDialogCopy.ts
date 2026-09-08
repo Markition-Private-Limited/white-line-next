@@ -155,7 +155,7 @@ const en = {
   receivedBody: 'Our team will find the best chauffeur for your journey and assign one to your booking.',
   bookingReference: 'Booking Reference',
   trackJourney: 'Track Your Journey In The Mobile App',
-  trackBody: 'For live chauffeur and vehicle tracking, download the WhiteLine app.',
+  trackBody: 'For live chauffeur and vehicle tracking, download the White Line app.',
   downloadOn: 'Download on the',
   getItOn: 'Get it on',
   downloadApp: 'Download App',

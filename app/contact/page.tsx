@@ -18,7 +18,7 @@ export default function ContactPage() {
         <div className="mx-auto px-4 sm:px-6 lg:px-10" style={{ maxWidth: '1200px' }}>
           <div className="rounded-xl overflow-hidden shadow-lg border border-gray-200">
             <iframe
-              src="https://maps.google.com/maps?q=24.760944,46.673028&z=15&output=embed"
+              src="https://maps.google.com/maps?q=WHITE+LINE,+Secondary+No+4240,+Al+Murooj+District,+Riyadh+12282,+Saudi+Arabia&ll=24.7604507,46.672475&z=18&output=embed"
               width="100%"
               height="400"
               style={{ display: 'block', border: 0 }}

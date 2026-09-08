@@ -24,11 +24,11 @@ const AR_DIGITS = '٠١٢٣٤٥٦٧٨٩'
 const toArabicNumerals = (s: string) => s.replace(/\d/g, d => AR_DIGITS[+d])
 
 const CARD_STATIC: { num: string; img: StaticImageData; icon: string; link: string }[] = [
-  { num: '01', img: oneWayImg,    icon: getSrc(icon1), link: '/services/one-way-ride' },
-  { num: '02', img: chauffeurImg, icon: getSrc(icon2), link: '/services/hourly-booking' },
+  { num: '01', img: airportImg,   icon: getSrc(icon5), link: '/services/airport-transfer' },
+  { num: '02', img: oneWayImg,    icon: getSrc(icon1), link: '/services/one-way-ride' },
   { num: '03', img: cityImg,      icon: getSrc(icon3), link: '/services/city-to-city' },
   { num: '04', img: dayImg,       icon: getSrc(icon4), link: '/services/day-service' },
-  { num: '05', img: airportImg,   icon: getSrc(icon5), link: '/services/airport-transfer' },
+  { num: '05', img: chauffeurImg, icon: getSrc(icon2), link: '/services/hourly-booking' },
 ]
 
 type CardData = { num: string; img: StaticImageData; icon: string; link: string; title: string; desc: string; explore: string }

@@ -4,30 +4,28 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useLanguage } from '../context/LanguageContext'
-import s1 from '../assets/services_1/s_1.jpg'
-import s2 from '../assets/services_1/s_2.jpg'
-import s3 from '../assets/services_1/s_3.png'
-import s4 from '../assets/services_1/s_4.jpg'
-import s5 from '../assets/services_1/s_5.jpg'
+import _airportTransferImg from '../assets/home_service/banners/airport_transfer.webp'
+import _oneWayRideImg from '../assets/home_service/banners/one_way_ride.webp'
+import _cityToCityImg from '../assets/home_service/banners/city_to_city.webp'
+import _dayServiceImg from '../assets/home_service/banners/day_service.webp'
+import _hourlyImg from '../assets/home_service/banners/hourly_chauffer.webp'
 
-const _src = (i: unknown): string => (i as any).src ?? (i as string)
-
+// Order: Airport Transfer, One-Way Ride, City Trip, Day Service, Hourly Chauffeur
 const STATIC = [
-  { img: _src(s1), imgRight: true },
-  { img: _src(s2), imgRight: false },
-  { img: _src(s3), imgRight: true },
-  { img: _src(s4), imgRight: false },
-  { img: _src(s5), imgRight: true },
+  { img: (_airportTransferImg as any).src, imgRight: true  }, // Airport Transfer
+  { img: (_oneWayRideImg as any).src,      imgRight: false }, // One-Way Ride
+  { img: (_cityToCityImg as any).src,      imgRight: true  }, // City Trip
+  { img: (_dayServiceImg as any).src,      imgRight: false }, // Day Service
+  { img: (_hourlyImg as any).src,          imgRight: true  }, // Hourly Chauffeur
 ]
 
-// Fixed slugs matching items order: One-Way Ride, Hourly Chauffeur, City To City, Day Service, Airport Transfer
-const SLUGS = ['one-way-ride', 'hourly-chauffeur', 'city-to-city', 'day-service', 'airport-transfer']
+const SLUGS = ['airport-transfer', 'one-way-ride', 'city-to-city', 'day-service', 'hourly-chauffeur']
 const SERVICE_PAGE_URLS = [
+  '/services/airport-transfer',
   '/services/one-way-ride',
-  '/services/hourly-booking',
   '/services/city-to-city',
   '/services/day-service',
-  '/services/airport-transfer',
+  '/services/hourly-booking',
 ]
 
 function ParallaxImage({ src, alt }: { src: string; alt: string }) {

@@ -43,10 +43,10 @@ const en = {
   },
 
   experience: {
-    label: 'The Whiteline Experience',
+    label: 'The White Line Experience',
     h1: 'More Than A Ride. A',
     h2: 'Better Way To Move.',
-    sub: 'WhiteLane delivers premium chauffeur transportation for people who value comfort, reliability, and exceptional service. From airport transfers to corporate journeys, every ride is designed to make growing more effortless.',
+    sub: 'White Line delivers premium chauffeur transportation for people who value comfort, reliability, and exceptional service. From airport transfers to corporate journeys, every ride is designed to make growing more effortless.',
     stats: [
       { suffix: 'K+',  label: 'Successfully\nCompleted Rides' },
       { suffix: '+',   label: 'Elite\nChauffeurs' },
@@ -59,20 +59,20 @@ const en = {
     label: 'Our Services',
     h1: 'One Destination Or Many.',
     h2: "We've Got The Ride.",
-    sub: 'WhiteLane delivers premium chauffeur transportation for people who value comfort, reliability, and exceptional service. From airport transfers to corporate journeys, every ride is designed to make growing more effortless.',
+    sub: 'White Line delivers premium chauffeur transportation for people who value comfort, reliability, and exceptional service. From airport transfers to corporate journeys, every ride is designed to make growing more effortless.',
     explore: 'Explore Service',
     cards: [
+      { title: 'Airport Transfer',   desc: 'Premier airport transfers with real-time flight tracking, proactive delay adjustments, and professional luggage assistance.' },
       { title: 'One-Way Ride',       desc: 'Seamless point-to-point urban transportation — arrive promptly and composed, free from traffic stress and unnecessary detours.' },
-      { title: 'Hourly Chauffeur',   desc: 'A dedicated private chauffeur at your disposal for dynamic itineraries, multiple stops, and complete scheduling flexibility.' },
       { title: 'City Trip',           desc: 'Private executive travel between major cities in absolute comfort — relax or conduct business uninterrupted across regions.' },
       { title: 'Day Service',        desc: 'Full-day dedicated transport for back-to-back meetings, VIP hosting, and multi-location itineraries with continuous vehicle availability.' },
-      { title: 'Airport Transfer',   desc: 'Premier airport transfers with real-time flight tracking, proactive delay adjustments, and professional luggage assistance.' },
+      { title: 'Hourly Chauffeur',   desc: 'A dedicated private chauffeur at your disposal for dynamic itineraries, multiple stops, and complete scheduling flexibility.' },
     ],
   },
 
   whyChoose: {
     h1: 'Why Choose',
-    brand: 'Whiteline',
+    brand: 'White Line',
     sub: 'Elevate your travel experience with White Line, where distinction between standard transit & premium service is found in every meticulously detail. We replace uncertainty of traditional transport with uncompromising reliability.',
     readMore: 'Read More',
   },
@@ -90,7 +90,7 @@ const en = {
   },
 
   fleet: {
-    label: 'The Whiteline Fleet',
+    label: 'The White Line Fleet',
     h1: 'Travel In Exceptional',
     h2: 'Comfort.',
     sub: 'A meticulously maintained collection of luxury sedans and executive vehicles, engineered for utmost comfort, privacy, and seamless travel across the Kingdom.',
@@ -105,7 +105,7 @@ const en = {
   },
 
   testimonials: {
-    label: 'The Whiteline Experience',
+    label: 'The White Line Experience',
     h1: 'What Our',
     h2: 'Customers',
     h3: 'Say',
@@ -116,7 +116,7 @@ const en = {
       { name: 'Farah Khan',      role: 'Operations Manager', text: 'Can how elinor warmly mrs basket marked. Led raising expense yet demesne weather musical. Me mr what.' },
       { name: 'Raza Hussain',    role: 'Executive Director', text: 'Park next busy ever. Elinor her his secure far twenty eat object. Any far saw size want man. Which way you wrong.' },
       { name: 'Khalid Al-Rashid',role: 'CEO',                text: 'Absolute excellence in service. Every journey has been seamless — the professionalism is unmatched.' },
-      { name: 'Noor Al-Sayed',   role: 'VIP Guest',          text: 'The discretion and punctuality set Whiteline apart. I would not use any other chauffeur service.' },
+      { name: 'Noor Al-Sayed',   role: 'VIP Guest',          text: 'The discretion and punctuality set White Line apart. I would not use any other chauffeur service.' },
       { name: 'Abdullah Hassan', role: 'Senior Manager',     text: 'Reliable, comfortable, and always on time. A truly premium experience from booking to arrival.' },
       { name: 'Mohammed Tariq',  role: 'Corporate Client',   text: 'Outstanding fleet and exceptional drivers. My clients are always impressed. Highly recommended.' },
     ],
@@ -129,7 +129,7 @@ const en = {
     hMob1: 'Professional',
     hMob2: 'Chauffeurs',
     hMob3: 'At Your Fingertips',
-    sub: 'Download the Whiteline Chauffeur Hailing™ app to hail chauffeurs on demand in select cities.',
+    sub: 'Download the White Line Chauffeur Hailing™ app to hail chauffeurs on demand in select cities.',
     apple:  { sub: 'Download on the', main: 'App Store' },
     google: { sub: 'Get it on',        main: 'Google Play' },
   },
@@ -155,8 +155,8 @@ const en = {
     },
     mastery: {
       label: 'Mastery Behind the Wheel',
-      h1: 'Engineered For',
-      h2: 'Discerning Standards',
+      h1: 'Precision In',
+      h2: 'Every Detail',
       sub: 'At White Line, luxury is not merely an aesthetic — it is a discipline. We believe that true executive travel requires an uncompromising dedication to precision, where every minute detail is anticipated.',
       cards: [
         { title: 'Mastery Behind the Wheel', desc: 'Every chauffeur in our network is handpicked and rigorously trained beyond ordinary driving standards — ensuring each journey is handled with expertise and grace.' },
@@ -166,7 +166,7 @@ const en = {
     },
     advantage: {
       label: 'Tailored Corporate Solutions',
-      h1: 'The WhiteLine',
+      h1: 'The White Line',
       h2: 'Advantage',
       sub: 'In a world where transportation is commonplace, we treat every journey as a standard of distinction. By combining an elite fleet, rigorously trained chauffeurs, and a relentless commitment to your privacy and punctuality.',
       cells: [
@@ -178,7 +178,7 @@ const en = {
     goldStandard: {
       label: 'The Gold Standard',
       h1: 'Why Leaders Choose',
-      h2: 'WhiteLine',
+      h2: 'White Line',
       sub: 'Built on an uncompromising foundation of luxury, safety, and discretion, our service is tailored to meet the exacting standards of the Kingdom\'s elite.',
       cards: [
         { title: 'Elite Professionals', desc: 'Rigorously vetted chauffeurs trained in executive etiquette and absolute confidentiality.' },
@@ -202,7 +202,7 @@ const en = {
     hero: {
       h1a: 'Every Journey',
       h1b: 'Deserves A Better Way.',
-      sub: 'From the moment you land to the moment you arrive, WhiteLine delivers premium chauffeur transportation with privacy, precision and a service experience designed around you.',
+      sub: 'From the moment you land to the moment you arrive, White Line delivers premium chauffeur transportation with privacy, precision and a service experience designed around you.',
       btn1: 'Explore Our Services',
       btn2: 'Book Your Ride',
     },
@@ -210,14 +210,14 @@ const en = {
       label: 'Our Services',
       h1: 'One Destination Or Many.',
       h2: "We've Got The Ride.",
-      sub: 'WhiteLine delivers premium chauffeur transportation for people who value comfort, reliability, and exceptional service. From airport transfers to corporate journeys, every ride is designed to make growing more effortless.',
+      sub: 'White Line delivers premium chauffeur transportation for people who value comfort, reliability, and exceptional service. From airport transfers to corporate journeys, every ride is designed to make growing more effortless.',
       explore: 'Explore Service',
       items: [
+        { label: 'Airport Transfer',   h1a: 'Seamless ', h1b: 'Airport Transfers', h1c: '',     h2a: '& Flight Tracking',     h2b: '',                      body: 'Start or conclude your international journey with absolute peace of mind through our premier airport transfer service. Featuring real-time flight tracking, proactive schedule adjustments for delayed flights, and professional luggage assistance, our chauffeurs ensure a smooth, effortless transition between the terminal and your final destination.' },
         { label: 'One-Way Ride',       h1a: 'Direct ',   h1b: 'Point-To-Point', h1c: '',         h2a: 'Urban Transportation',   h2b: '',                      body: 'Experience seamless, point-to-point urban transportation meticulously designed for efficiency and elegance. Whether you are heading to a high-stakes corporate briefing, a private appointment, or a critical engagement across town, our direct transit service ensures you arrive promptly and completely composed, eliminating the stress of navigation, traffic management, and unnecessary detours.' },
-        { label: 'Hourly Chauffeur',   h1a: 'On-Demand Hourly', h1b: '',        h1c: '',         h2a: '',                       h2b: 'Chauffeur Service',       body: 'Enjoy the ultimate convenience of dedicated mobility with a private chauffeur entirely at your disposal throughout the day. Designed for dynamic, ever-changing itineraries and multiple consecutive stops, this bespoke service offers unmatched flexibility, allowing you to move through your schedule at your own pace while your vehicle and driver remain ready and waiting nearby.' },
         { label: 'City Trip',           h1a: '',          h1b: 'Long-Distance',  h1c: ' Intercity', h2a: 'Executive Travel',      h2b: '',                      body: 'Bridge the distance between major metropolitan hubs in absolute comfort and tranquility. Our intercity travel service provides a smooth, private environment within an elite luxury vehicle, allowing you to relax, prepare for upcoming engagements, or conduct confidential business uninterrupted while traveling seamlessly across regions.' },
         { label: 'Day Service',        h1a: 'Dedicated Full-Day', h1b: '',      h1c: '',         h2a: '',                       h2b: 'Professional Transport',  body: "Secure a dedicated professional transportation partner for your entire day's schedule. Perfect for back-to-back corporate meetings, VIP hosting, and complex multi-location event itineraries, this comprehensive service guarantees continuous vehicle availability, flawless coordination, and uncompromised discretion from your first morning departure until late into the evening." },
-        { label: 'Airport Transfer',   h1a: 'Seamless ', h1b: 'Airport Transfers', h1c: '',     h2a: '& Flight Tracking',     h2b: '',                      body: 'Start or conclude your international journey with absolute peace of mind through our premier airport transfer service. Featuring real-time flight tracking, proactive schedule adjustments for delayed flights, and professional luggage assistance, our chauffeurs ensure a smooth, effortless transition between the terminal and your final destination.' },
+        { label: 'Hourly Chauffeur',   h1a: 'On-Demand Hourly', h1b: '',        h1c: '',         h2a: '',                       h2b: 'Chauffeur Service',       body: 'Enjoy the ultimate convenience of dedicated mobility with a private chauffeur entirely at your disposal throughout the day. Designed for dynamic, ever-changing itineraries and multiple consecutive stops, this bespoke service offers unmatched flexibility, allowing you to move through your schedule at your own pace while your vehicle and driver remain ready and waiting nearby.' },
       ],
     },
   },
@@ -330,7 +330,7 @@ const en = {
     portal: 'Partner Portal',
     tagline: 'Precision in Motion',
     sub: 'The command center for the world\'s most elite chauffeur logistics operations.',
-    copyright: '© 2026 Elite Chauffeur Logistics',
+    copyright: '© 2026 White Line',
     privacy: 'Privacy Policy',
     terms: 'Terms & Conditions',
     loginTab: 'Login',
@@ -350,11 +350,11 @@ const en = {
       h1b: 'Vehicle',
       h1c: ' For',
       h2: 'Every Occasion',
-      sub: 'Professional assistance for all your client support needs. Available 24/7 to handle every ticket, journey detail, dispatcher issue and unexpected delay.',
+      sub: 'From executive sedans to spacious SUVs and luxury vans, every vehicle in our fleet is meticulously maintained and selected to deliver uncompromising comfort, privacy, and refinement — whatever the occasion demands.',
       btn: 'Explore Our Fleet',
     },
     cars: {
-      label: 'Whiteline Fleet',
+      label: 'White Line Fleet',
       h1: 'An Elite Fleet Engineered For',
       h2a: 'Supreme ',
       h2b: 'Comfort And Distinction',
@@ -929,7 +929,7 @@ const en = {
           {
             title: '',
             body: '',
-            items: ['One-Way Ride — Point-to-point urban transportation', 'Hourly Chauffeur — Dedicated driver service billed by the hour', 'City Trip — Intercity executive travel', 'Day Service — Full-day dedicated vehicle and driver', 'Airport Transfer — Arrivals, departures, and flight-tracked pickups'],
+            items: ['Airport Transfer — Arrivals, departures, and flight-tracked pickups', 'One-Way Ride — Point-to-point urban transportation', 'Hourly Chauffeur — Dedicated driver service billed by the hour', 'City Trip — Intercity executive travel', 'Day Service — Full-day dedicated vehicle and driver'],
             footer: 'All services are subject to availability, pricing, and the specific terms communicated at the time of booking. White Line reserves the right to modify, suspend, or discontinue any service at any time without prior notice.',
           },
         ],
@@ -1178,11 +1178,11 @@ const ar: typeof en = {
     sub: 'تقدم وايت لاين خدمات نقل فاخرة للذين يقدّرون الراحة والموثوقية والخدمة المتميزة. من نقل المطار إلى رحلات الأعمال، كل رحلة مصممة لتجعل حياتك أكثر سلاسة.',
     explore: 'استعرض الخدمة',
     cards: [
+      { title: 'نقل المطار',    desc: 'نقل مطار احترافي مع تتبع الرحلات فورياً وتعديل المواعيد تلقائياً ومساعدة متخصصة في الأمتعة.' },
       { title: 'رحلة أحادية',   desc: 'نقل حضري سلس من نقطة إلى أخرى — صل إلى وجهتك في الوقت المحدد وبهدوء تام، بعيداً عن ضغوط المرور والمسارات غير الضرورية.' },
-      { title: 'سائق بالساعة', desc: 'سائق خاص مخصص بالكامل لك طوال اليوم، مع مرونة تامة للتنقل بين مواعيد متعددة وتغييرات فورية في الجدول.' },
       { title: 'رحلة المدن',    desc: 'سفر تنفيذي خاص بين كبرى المدن في راحة تامة — استرخِ أو أنجز أعمالك دون انقطاع أثناء التنقل.' },
       { title: 'خدمة اليوم',   desc: 'نقل مخصص ليوم كامل للاجتماعات المتلاحقة واستضافة كبار الشخصيات والفعاليات متعددة المواقع.' },
-      { title: 'نقل المطار',    desc: 'نقل مطار احترافي مع تتبع الرحلات فورياً وتعديل المواعيد تلقائياً ومساعدة متخصصة في الأمتعة.' },
+      { title: 'سائق بالساعة', desc: 'سائق خاص مخصص بالكامل لك طوال اليوم، مع مرونة تامة للتنقل بين مواعيد متعددة وتغييرات فورية في الجدول.' },
     ],
   },
 
@@ -1271,8 +1271,8 @@ const ar: typeof en = {
     },
     mastery: {
       label: 'الإتقان خلف المقود',
-      h1: 'مُهندَس لمعايير',
-      h2: 'الرقي والتميز',
+      h1: 'الدقة في',
+      h2: 'كل تفصيلة',
       sub: 'في وايت لاين، الفخامة ليست مجرد مظهر — بل هي منهج عمل. نؤمن بأن السفر التنفيذي الحقيقي يستلزم التزاماً راسخاً بالدقة، حيث يُستبق كل تفصيلة.',
       cards: [
         { title: 'الإتقان خلف المقود', desc: 'يُختار كل سائق في شبكتنا بعناية ويتلقى تدريباً صارماً يتجاوز المعايير المعتادة — لضمان قيادة كل رحلة بخبرة ورقي.' },
@@ -1319,11 +1319,11 @@ const ar: typeof en = {
       sub: 'تُقدم وايت لاين خدمات نقل فاخرة للذين يقدّرون الراحة والموثوقية والخدمة المتميزة. من نقل المطار إلى رحلات الأعمال، كل رحلة مصممة لتجعل حياتك أكثر سلاسة.',
       explore: 'استكشف الخدمة',
       items: [
+        { label: 'نقل المطار',     h1a: 'نقل ',           h1b: 'سلس من المطار',   h1c: '',          h2a: 'وتتبع الرحلات',         h2b: '',                     body: 'ابدأ رحلتك الدولية أو اختتمها بتمام الطمأنينة عبر خدمة نقل المطار المتميزة لدينا. مع تتبع الرحلات لحظياً وتعديلات استباقية عند التأخير ومساعدة احترافية بالأمتعة، يضمن سائقونا انتقالاً سلساً بين الصالة ووجهتك النهائية.' },
         { label: 'رحلة أحادية',    h1a: 'نقل ',           h1b: 'من نقطة لأخرى',   h1c: '',          h2a: 'داخل المدينة',         h2b: '',                     body: 'استمتع بتنقل سلس من نقطة لأخرى داخل المدينة، مصمم بعناية للكفاءة والأناقة. سواء كنت متجهاً إلى اجتماع مؤسسي أو موعد خاص أو التزام عاجل عبر المدينة، تضمن لك خدمتنا المباشرة الوصول في الوقت المحدد وبكل هدوء.' },
-        { label: 'سائق بالساعة',   h1a: 'سائق خاص',       h1b: '',                 h1c: '',          h2a: '',                      h2b: 'عند الطلب بالساعة',    body: 'استمتع بأقصى درجات المرونة مع سائق خاص تحت تصرفك طوال اليوم. مثالية للمواعيد المتغيرة وعدة محطات متتالية، توفر لك هذه الخدمة حرية التنقل بالوتيرة التي تناسبك بينما تظل مركبتك وسائقك في انتظارك.' },
         { label: 'رحلة المدن',     h1a: '',               h1b: 'سفر بعيد المدى',  h1c: ' بين المدن', h2a: 'تنفيذي فاخر',          h2b: '',                     body: 'اقطع المسافات بين المدن الكبرى في راحة وهدوء تامَّين. توفر خدمة السفر بين المدن لدينا بيئة خاصة سلسة داخل مركبة فاخرة، تتيح لك الاسترخاء والتحضير للقاءاتك القادمة أو إجراء أعمالك السرية دون انقطاع.' },
         { label: 'خدمة يوم كامل', h1a: 'نقل احترافي',    h1b: '',                 h1c: '',          h2a: '',                      h2b: 'طوال اليوم',           body: 'احجز شريكاً متخصصاً في النقل لجدولك اليومي الكامل. مثالي للاجتماعات المؤسسية المتلاحقة واستضافة كبار الشخصيات والفعاليات متعددة المواقع، يضمن توافر المركبة باستمرار والتنسيق السلس والخصوصية التامة من أول تحرك صباحاً حتى آخر الليل.' },
-        { label: 'نقل المطار',     h1a: 'نقل ',           h1b: 'سلس من المطار',   h1c: '',          h2a: 'وتتبع الرحلات',         h2b: '',                     body: 'ابدأ رحلتك الدولية أو اختتمها بتمام الطمأنينة عبر خدمة نقل المطار المتميزة لدينا. مع تتبع الرحلات لحظياً وتعديلات استباقية عند التأخير ومساعدة احترافية بالأمتعة، يضمن سائقونا انتقالاً سلساً بين الصالة ووجهتك النهائية.' },
+        { label: 'سائق بالساعة',   h1a: 'سائق خاص',       h1b: '',                 h1c: '',          h2a: '',                      h2b: 'عند الطلب بالساعة',    body: 'استمتع بأقصى درجات المرونة مع سائق خاص تحت تصرفك طوال اليوم. مثالية للمواعيد المتغيرة وعدة محطات متتالية، توفر لك هذه الخدمة حرية التنقل بالوتيرة التي تناسبك بينما تظل مركبتك وسائقك في انتظارك.' },
       ],
     },
   },
@@ -1446,7 +1446,7 @@ const ar: typeof en = {
     portal: 'بوابة الشريك',
     tagline: 'دقة في الحركة',
     sub: 'مركز القيادة لأرقى عمليات لوجستيات الشوفير في العالم.',
-    copyright: '© 2026 خدمات الشوفير الراقية',
+    copyright: '© 2026 White Line',
     privacy: 'سياسة الخصوصية',
     terms: 'الشروط والأحكام',
     loginTab: 'تسجيل الدخول',
@@ -1466,7 +1466,7 @@ const ar: typeof en = {
       h1b: 'مركبة',
       h1c: ' لكل',
       h2: 'مناسبة',
-      sub: 'دعم احترافي لجميع احتياجات عملائك. متاح على مدار الساعة للتعامل مع كل تذكرة وتفاصيل الرحلة وأي تأخير غير متوقع.',
+      sub: 'من السيارات التنفيذية الأنيقة إلى سيارات الدفع الرباعي الفسيحة والفانات الفاخرة — كل مركبة في أسطولنا تخضع لصيانة دقيقة وتُختار لتقديم أقصى درجات الراحة والخصوصية والرقي في كل مناسبة.',
       btn: 'استعرض أسطولنا',
     },
     cars: {

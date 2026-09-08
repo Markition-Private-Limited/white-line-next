@@ -119,7 +119,7 @@ export default function TermsContent() {
           className="mt-6 text-center"
           style={{ fontSize: '12px', color: '#999', fontFamily: 'Montserrat, sans-serif' }}
         >
-          © {new Date().getFullYear()} White Line Transportation. All rights reserved.
+          © {new Date().getFullYear()} White Line. All rights reserved.
         </p>
       </div>
     </section>
