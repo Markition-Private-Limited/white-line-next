@@ -32,6 +32,23 @@ const en = {
     line1: 'Luxury Travel With',
     line2: 'Purpose & Precision.',
     sub: 'White Line brings together premium chauffeur services and modern technology to create a transportation experience built around comfort, reliability, privacy, and exceptional service.',
+    slides: [
+      {
+        line1: 'Luxury Travel With',
+        line2: 'Purpose & Precision.',
+        sub: 'White Line brings together premium chauffeur services and modern technology to create a transportation experience built around comfort, reliability, privacy, and exceptional service.',
+      },
+      {
+        line1: 'A Fleet Built For',
+        line2: 'Distinction & Comfort.',
+        sub: 'From executive sedans to spacious SUVs, every vehicle in our fleet is meticulously maintained to deliver comfort, privacy, and refinement on every journey across the Kingdom.',
+      },
+      {
+        line1: 'Chauffeurs You Can',
+        line2: 'Trust, Anytime.',
+        sub: 'Professionally trained chauffeurs, real-time coordination, and round-the-clock support ensure every ride with White Line is safe, punctual, and effortlessly smooth.',
+      },
+    ],
     services: [
       { title: 'Airport Transfer',  desc: 'Airport pickups and drop-offs.' },
       { title: 'One Way Ride',      desc: 'Simple point-to-point travel.' },
@@ -1148,6 +1165,23 @@ const ar: typeof en = {
     line1: 'سفر راقٍ بهدف',
     line2: 'ودقة لا تُضاهى.',
     sub: 'وايت لاين تجمع بين خدمات السائق الفاخرة والتقنية الحديثة، لتقديم تجربة نقل استثنائية مبنية على الراحة والموثوقية والخصوصية والخدمة المتميزة.',
+    slides: [
+      {
+        line1: 'سفر راقٍ بهدف',
+        line2: 'ودقة لا تُضاهى.',
+        sub: 'وايت لاين تجمع بين خدمات السائق الفاخرة والتقنية الحديثة، لتقديم تجربة نقل استثنائية مبنية على الراحة والموثوقية والخصوصية والخدمة المتميزة.',
+      },
+      {
+        line1: 'أسطول مصمم',
+        line2: 'للتميز والفخامة.',
+        sub: 'من السيارات التنفيذية الأنيقة إلى سيارات الدفع الرباعي الفسيحة، تخضع كل مركبة في أسطولنا لصيانة دقيقة لتقديم الراحة والخصوصية والرقي في كل رحلة عبر أرجاء المملكة.',
+      },
+      {
+        line1: 'سائقون تثق بهم',
+        line2: 'في أي وقت.',
+        sub: 'سائقون مدربون باحترافية، وتنسيق لحظي، ودعم متاح على مدار الساعة يضمنون أن تكون كل رحلة مع وايت لاين آمنة ودقيقة المواعيد وسلسة تماماً.',
+      },
+    ],
     services: [
       { title: 'نقل المطار',    desc: 'استقبال وتوصيل من وإلى المطار.' },
       { title: 'رحلة أحادية',   desc: 'تنقل مباشر من نقطة لأخرى.' },

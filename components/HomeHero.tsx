@@ -1,5 +1,5 @@
 'use client'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
 import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
@@ -156,6 +156,7 @@ export default function HomeHero() {
   const isRtl = dir === 'rtl'
   const { hero } = trans
   const [bannerIndex, setBannerIndex] = useState(0)
+  const heroSlide = hero.slides[bannerIndex] ?? hero.slides[0]
 
   useEffect(() => {
     const timer = setInterval(() => setBannerIndex(i => (i + 1) % 3), 5000)
@@ -240,31 +241,35 @@ export default function HomeHero() {
 
           {/* Heading */}
           <motion.div
-            className="max-w-xl lg:max-w-2xl"
+            className="max-w-xl pt-6 sm:pt-10 lg:max-w-3xl"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.4, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
-            <motion.h1
-              className="mb-4 text-4xl font-medium leading-tight text-white sm:text-5xl lg:text-6xl"
-              style={{ fontFamily: 'Montserrat, sans-serif' }}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.5, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
-            >
-              {hero.line1}
-              <br />
-              <span className="font-extrabold italic">{hero.line2}</span>
-            </motion.h1>
-            <motion.p
-              className="max-w-xl text-sm leading-relaxed text-white/70 sm:text-base"
-              style={{ fontFamily: 'Inter, sans-serif' }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.3, delay: 0.55, ease: 'easeOut' }}
-            >
-              {hero.sub}
-            </motion.p>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={bannerIndex}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -14 }}
+                transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+              >
+                <h1
+                  className="mb-4 text-4xl font-medium leading-tight text-white sm:text-5xl lg:text-6xl"
+                  style={{ fontFamily: 'Montserrat, sans-serif' }}
+                >
+                  {heroSlide.line1}
+                  <br />
+                  <span className="font-extrabold italic">{heroSlide.line2}</span>
+                </h1>
+                <p
+                  className="max-w-xl lg:max-w-3xl text-sm leading-relaxed text-white/70 sm:text-base"
+                  style={{ fontFamily: 'Inter, sans-serif' }}
+                >
+                  {heroSlide.sub}
+                </p>
+              </motion.div>
+            </AnimatePresence>
           </motion.div>
 
           {/* Cards */}
