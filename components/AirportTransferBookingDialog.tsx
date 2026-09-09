@@ -145,6 +145,57 @@ const createInitialBookingState = (service: BookingService): BookingState => ({
 const airportPlace = (address: string): PlaceValue => ({ address, source: 'airport' })
 const placeLabel = (place: PlaceValue | null, fallback = '--') => place?.address || fallback
 
+const AIRPORT_COORDS: Record<string, { lat: number; lng: number }> = {
+  'King Khalid International Airport (RUH)': { lat: 24.9576, lng: 46.6988 },
+  'King Abdulaziz International Airport (JED)': { lat: 21.6796, lng: 39.1565 },
+  'King Fahd International Airport (DMM)': { lat: 26.4712, lng: 49.7979 },
+  'Prince Mohammad bin Abdulaziz International Airport (MED)': { lat: 24.5534, lng: 39.7051 },
+  'مطار الملك خالد الدولي (RUH)': { lat: 24.9576, lng: 46.6988 },
+  'مطار الملك عبدالعزيز الدولي (JED)': { lat: 21.6796, lng: 39.1565 },
+  'مطار الملك فهد الدولي (DMM)': { lat: 26.4712, lng: 49.7979 },
+  'مطار الأمير محمد بن عبدالعزيز الدولي (MED)': { lat: 24.5534, lng: 39.7051 },
+}
+
+function toApiServiceType(service: BookingService, dayDuration: DayDuration): string {
+  if (service === 'airport') return 'airport'
+  if (service === 'hourly') return 'hourly'
+  if (service === 'city') return 'city_to_city'
+  if (service === 'day') return dayDuration === 'half' ? 'half_day' : 'full_day'
+  return 'one_way'
+}
+
+type LatLng = { lat: number; lng: number }
+
+async function resolveCoords(place: PlaceValue): Promise<LatLng | null> {
+  if (place.source === 'airport') return AIRPORT_COORDS[place.address] ?? null
+  if (place.source !== 'google' || !place.placeId) return null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const g = (window as any).google
+  if (!g?.maps?.places?.PlacesService) return null
+  return new Promise(resolve => {
+    const svc = new g.maps.places.PlacesService(document.createElement('div'))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    svc.getDetails({ placeId: place.placeId, fields: ['geometry'] }, (result: any, status: string) => {
+      if (status === 'OK' && result?.geometry?.location) {
+        resolve({ lat: result.geometry.location.lat(), lng: result.geometry.location.lng() })
+      } else {
+        resolve(null)
+      }
+    })
+  })
+}
+
+type FareData = {
+  base_fare?: number
+  distance_fare?: number
+  service_fee?: number
+  subtotal?: number
+  vat_amount?: number
+  total_fare?: number
+  distance_km?: number
+  duration_minutes?: number
+}
+
 function formatBookingDate(date: Date | null, locale: string) {
   return date ? date.toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' }) : '--/--/----'
 }
@@ -1186,7 +1237,7 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
   )
 }
 
-function FareStep({ back, next, booking }: { back: () => void; next: () => void; booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void }) {
+function FareStep({ back, onSuccess, booking }: { back: () => void; onSuccess: (bookingId: string) => void; booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void }) {
   const { copy, dir, lang } = useBookingDialogCopy()
   const service = booking.service
   const isHourly = service === 'hourly'
@@ -1196,6 +1247,13 @@ function FareStep({ back, next, booking }: { back: () => void; next: () => void;
   const SummaryArrow = dir === 'rtl' ? ArrowLeft : ArrowRight
   const [fleetClasses, setFleetClasses] = useState<VehicleClass[] | null>(null)
   const [vehiclesByClass, setVehiclesByClass] = useState<{ classId: string; data: ClassVehicle[] } | null>(null)
+  const [fare, setFare] = useState<FareData | null>(null)
+  const [fareLoading, setFareLoading] = useState(true)
+  const [fareError, setFareError] = useState(false)
+  const [pickupCoords, setPickupCoords] = useState<LatLng | null>(null)
+  const [dropoffCoords, setDropoffCoords] = useState<LatLng | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -1215,6 +1273,74 @@ function FareStep({ back, next, booking }: { back: () => void; next: () => void;
     return () => { cancelled = true }
   }, [activeCategoryId])
 
+  useEffect(() => {
+    if (!activeCategoryId) return
+    let cancelled = false
+    setFareLoading(true)
+    setFareError(false)
+    Promise.all([
+      booking.pickup ? resolveCoords(booking.pickup) : Promise.resolve(null),
+      booking.destination ? resolveCoords(booking.destination) : Promise.resolve(null),
+    ]).then(async ([pCoords, dCoords]) => {
+      if (cancelled) return
+      if (!pCoords) { setFareError(true); setFareLoading(false); return }
+      setPickupCoords(pCoords)
+      setDropoffCoords(dCoords)
+      const body: Record<string, unknown> = {
+        vehicle_class_id: activeCategoryId,
+        service_type: toApiServiceType(service, booking.dayDuration),
+        pickup_lat: pCoords.lat,
+        pickup_lng: pCoords.lng,
+      }
+      if (dCoords) { body.dropoff_lat = dCoords.lat; body.dropoff_lng = dCoords.lng }
+      if (isHourly) body.duration_hours = booking.duration
+      try {
+        const res = await fetch('/api/fare/calculate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        if (cancelled) return
+        if (!res.ok) { setFareError(true); setFareLoading(false); return }
+        const json = await res.json()
+        const fareData: FareData = json?.data ?? json
+        if (!cancelled) { setFare(fareData); setFareLoading(false) }
+      } catch {
+        if (!cancelled) { setFareError(true); setFareLoading(false) }
+      }
+    })
+    return () => { cancelled = true }
+  }, [activeCategoryId, service, booking.pickup, booking.destination, booking.dayDuration, booking.duration, isHourly])
+
+  const handleSubmit = async () => {
+    if (!pickupCoords || !activeCategoryId || fareLoading || fareError || !fare || submitting) return
+    setSubmitting(true)
+    setSubmitError(false)
+    const contact = booking.bookingFor === 'self'
+      ? { name: booking.name, email: booking.email, phone: booking.phone.replace(/\s/g, '') }
+      : { name: booking.guest.name, email: booking.guest.email, phone: booking.guest.phone.replace(/\s/g, '') }
+    const body: Record<string, unknown> = {
+      vehicle_class_id: activeCategoryId,
+      service_type: toApiServiceType(service, booking.dayDuration),
+      pickup_lat: pickupCoords.lat,
+      pickup_lng: pickupCoords.lng,
+      pickup_address: booking.pickup?.address ?? '',
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone,
+    }
+    if (dropoffCoords) { body.dropoff_lat = dropoffCoords.lat; body.dropoff_lng = dropoffCoords.lng }
+    if (booking.destination?.address) body.dropoff_address = booking.destination.address
+    if (isHourly) body.duration_hours = booking.duration
+    if (service === 'day' && booking.dayDuration === 'full') body.full_day_hours = 10
+    try {
+      const res = await fetch('/api/bookings/manual', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      const json = await res.json()
+      if (!res.ok) { setSubmitError(true); setSubmitting(false); return }
+      const bookingId: string = json?.data?.booking_id ?? json?.booking_id ?? ''
+      onSuccess(bookingId)
+    } catch {
+      setSubmitError(true)
+      setSubmitting(false)
+    }
+  }
+
   const activeVehicles = vehiclesByClass && vehiclesByClass.classId === activeCategoryId ? vehiclesByClass.data : null
   const activeClass = fleetClasses?.find(cls => cls.id === activeCategoryId) ?? null
   const vehicleCards = activeVehicles ? buildVehicleCards(activeVehicles, activeClass) : null
@@ -1225,6 +1351,14 @@ function FareStep({ back, next, booking }: { back: () => void; next: () => void;
     : isCity ? copy.summaryValues.city
     : isOneWay ? copy.summaryValues.oneWay
     : booking.flightNumber || '--'
+
+  const fmt = (n: number | undefined | null) => (typeof n === 'number' && isFinite(n) ? n.toFixed(2) : '0.00')
+  const RiyalIcon = () => <Image src="/riyal_Currency.svg" alt="SAR" width={13} height={13} className={styles.riyalIcon} />
+  const FareAmount = ({ value }: { value: number | undefined }) => (
+    <span className={styles.fareAmount} dir="ltr">{dir === 'rtl' ? <>{fmt(value)} <RiyalIcon /></> : <><RiyalIcon /> {fmt(value)}</>}</span>
+  )
+  const BackIcon = dir === 'rtl' ? ArrowRight : ArrowLeft
+  const NextIcon = dir === 'rtl' ? ArrowLeft : ArrowRight
 
   return (
     <>
@@ -1245,18 +1379,50 @@ function FareStep({ back, next, booking }: { back: () => void; next: () => void;
         <div className={styles.summaryRow}><span>{copy.summaryLabels.vehicle}</span><span>{vehicleLabel}</span></div>
       </div>
 
-      <div className={styles.fareCard}>
-        <div className={styles.fareRow}><span>{copy.baseFare}</span><span className={styles.fareAmount}><Image src="/riyal_Currency.svg" alt="SAR" width={13} height={13} className={styles.riyalIcon} /> 150.00</span></div>
-        <div className={styles.fareRow}><span>{copy.vat}</span><span className={styles.fareAmount}><Image src="/riyal_Currency.svg" alt="SAR" width={13} height={13} className={styles.riyalIcon} /> 22.50</span></div>
-        <div className={`${styles.fareRow} ${styles.fareTotal}`}><span>{copy.totalFare}</span><span className={styles.fareAmount}><Image src="/riyal_Currency.svg" alt="SAR" width={13} height={13} className={styles.riyalIcon} /> 172.50</span></div>
-      </div>
+      {fareLoading && (
+        <div className={styles.fareCard}>
+          <div className={`${styles.fareRow} ${styles.fareLoadingRow}`}><span>{copy.fareLoading}</span></div>
+        </div>
+      )}
 
-      <FooterActions back={back} next={next} />
+      {!fareLoading && fareError && (
+        <div className={styles.fareCard}>
+          <div className={`${styles.fareRow} ${styles.fareErrorRow}`}><span>{copy.fareError}</span></div>
+        </div>
+      )}
+
+      {!fareLoading && !fareError && fare && (
+        <div className={styles.fareCard}>
+          <div className={styles.fareRow}><span>{copy.baseFare}</span><FareAmount value={fare.base_fare} /></div>
+          {(fare.service_fee ?? 0) > 0 && <div className={styles.fareRow}><span>{copy.serviceFee}</span><FareAmount value={fare.service_fee} /></div>}
+          <div className={`${styles.fareRow} ${styles.fareSubtotal}`}><span>{copy.subtotal}</span><FareAmount value={fare.subtotal} /></div>
+          <div className={styles.fareRow}><span>{copy.vat}</span><FareAmount value={fare.vat_amount} /></div>
+          <div className={`${styles.fareRow} ${styles.fareTotal}`}><span>{copy.totalFare}</span><FareAmount value={fare.total_fare} /></div>
+        </div>
+      )}
+
+      {submitError && (
+        <div className={styles.fareCard} style={{ marginTop: 10 }}>
+          <div className={`${styles.fareRow} ${styles.fareErrorRow}`}><span>{copy.bookingSubmitError}</span></div>
+        </div>
+      )}
+
+      <div className={styles.footerActions}>
+        <button type="button" className={styles.back} onClick={back}><BackIcon size={20} /> {copy.back}</button>
+        <button
+          type="button"
+          className={styles.continue}
+          onClick={handleSubmit}
+          disabled={submitting || fareLoading || fareError}
+        >
+          {submitting ? copy.submitting : copy.continue} {!submitting && <NextIcon size={16} />}
+        </button>
+      </div>
     </>
   )
 }
 
-function SuccessStep({ back, onDone, booking }: { back: () => void; onDone: () => void; booking: BookingState }) {
+function SuccessStep({ back, onDone, booking, bookingId }: { back: () => void; onDone: () => void; booking: BookingState; bookingId: string | null }) {
   const { copy, dir, lang } = useBookingDialogCopy()
   const isRtl = dir === 'rtl'
   const service = booking.service
@@ -1268,41 +1434,18 @@ function SuccessStep({ back, onDone, booking }: { back: () => void; onDone: () =
     <div className={styles.successBody}>
       <p className={styles.eyebrow}>{isHourly ? copy.services.hourly : isCity ? copy.services.city : isDay ? copy.services.day : isOneWay ? copy.services.oneWay : copy.services.airport}</p>
       <h2 className={styles.title}>{copy.requestReceived}</h2>
-      <p className={styles.subtitle}>{copy.fareSubtitle[service]}</p>
+      <p className={styles.subtitle}>{copy.successSubtitle}</p>
+
       <div className={styles.successCenter}>
-        <span className={styles.successCheck}><Check size={16} strokeWidth={3} /></span>
-        <h3>{copy.receivedTitle}</h3>
-        <span className={styles.reference}>{copy.bookingReference} <strong>{`${service.toUpperCase()}-${formatBookingDate(booking.date, 'en-GB').replace(/\s/g, '').replace(/,/g, '')}`}</strong></span>
+        <span className={styles.successCheck}><Check size={26} strokeWidth={3} /></span>
+        <h3 className={styles.successHeadline}>{copy.receivedTitle}</h3>
+        <p className={styles.successNote}>{copy.receivedBody}</p>
+        <div className={styles.referenceBlock}>
+          <span className={styles.referenceLabel}>{copy.bookingReference}</span>
+          <strong className={styles.referenceId}>{bookingId ?? `${service.toUpperCase()}-${formatBookingDate(booking.date, 'en-GB').replace(/\s/g, '').replace(/,/g, '')}`}</strong>
+        </div>
       </div>
 
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 14,
-        background: 'linear-gradient(135deg, #f0faf9 0%, #e8f5f4 100%)',
-        border: '1px solid rgba(0, 92, 102, 0.18)',
-        borderRadius: 16,
-        padding: '18px 20px',
-        margin: '20px 0',
-      }}>
-        <span style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          width: 36, height: 36, borderRadius: '50%',
-          background: '#005C66', flexShrink: 0,
-        }}>
-          <Check size={15} strokeWidth={2.5} color="#fff" />
-        </span>
-        <p style={{
-          fontFamily: 'Inter, sans-serif',
-          fontSize: 13,
-          color: '#004a52',
-          lineHeight: 1.65,
-          margin: 0,
-          fontWeight: 500,
-        }}>
-          {copy.receivedBody}
-        </p>
-      </div>
       <div className={styles.appBanner}>
         <span className={styles.appRadarClip} aria-hidden="true">
           <RadarGraphic
@@ -1366,6 +1509,7 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
   const [step, setStep] = useState(0)
   const [booking, setBooking] = useState<BookingState>(() => createInitialBookingState(service))
   const [confirmClose, setConfirmClose] = useState(false)
+  const [bookingId, setBookingId] = useState<string | null>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
   const updateBooking = useCallback((updates: Partial<BookingState>) => {
@@ -1376,6 +1520,7 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
     setStep(0)
     setBooking(createInitialBookingState(service))
     setConfirmClose(false)
+    setBookingId(null)
     onClose()
   }, [onClose, service])
 
@@ -1442,8 +1587,8 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
           {step === 0 && service === 'day' && <DayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
           {step === 0 && service === 'oneWay' && <OneWayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
           {step === 1 && <RideStep booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(2)} />}
-          {step === 2 && <FareStep booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(3)} />}
-          {step === 3 && <SuccessStep booking={booking} back={goBack} onDone={resetAndClose} />}
+          {step === 2 && <FareStep booking={booking} updateBooking={updateBooking} back={goBack} onSuccess={(id) => { setBookingId(id); setStep(3) }} />}
+          {step === 3 && <SuccessStep booking={booking} bookingId={bookingId} back={goBack} onDone={resetAndClose} />}
         </div>
         <AnimatePresence>
           {confirmClose && (

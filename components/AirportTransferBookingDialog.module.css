@@ -803,6 +803,10 @@
 
 .riyalIcon { display: inline-block; vertical-align: middle; position: relative; top: -1px; }
 .fareAmount { display: inline-flex; align-items: center; gap: 4px; }
+.fareLoadingRow { justify-content: center; color: #fff; font-style: italic; font-weight: 500; }
+.fareErrorRow { justify-content: center; color: #c0392b; font-weight: 500; font-size: 11px; text-align: center; padding: 14px 28px; }
+.fareSubtotal { border-top: 1px solid rgba(255,255,255,.9); background: rgba(150,150,148,.9); font-weight: 700; }
+.fareMeta { font-size: 11px; color: #6b7280; font-weight: 500; }
 .fareCard { overflow: hidden; margin-top: 10px; border: 1px solid rgba(255,255,255,.75); border-radius: 17px; }
 .fareRow { display: flex; min-height: 40px; align-items: center; justify-content: space-between; padding: 0 28px; border-bottom: 1px solid rgba(255,255,255,.55); background: rgba(182,182,181,.84); font-size: 12px; font-weight: 600; }
 .fareTotal { min-height: 50px; color: #4b4b4e; background: #f1f1f1; font-family: var(--font-montserrat), sans-serif; font-size: 15px; }
@@ -831,11 +835,13 @@
 .resend { border: 0; color: #c9f5fa; background: transparent; font-size: 9px; font-weight: 700; cursor: pointer; }
 
 .successBody { min-height: 445px; }
-.successCenter { display: grid; place-items: center; margin-top: 23px; text-align: center; }
-.successCheck { display: grid; width: 23px; height: 23px; place-items: center; border-radius: 50%; color: #087b69; background: #78ffa2; }
-.successCenter h3 { margin: 10px 0 10px; font-size: 14px; font-weight: 500; }
-.successCenter p { margin: 0 0 7px; color: rgba(255,255,255,.78); font-size: 10px; }
-.reference { padding: 6px 9px; border-radius: 5px; color: #127487; background: #e6fbff; font-size: 9px; }
+.successCenter { display: flex; flex-direction: column; align-items: center; margin-top: 24px; text-align: center; gap: 0; }
+.successCheck { display: grid; width: 56px; height: 56px; place-items: center; border-radius: 50%; color: #087b69; background: #78ffa2; flex-shrink: 0; }
+.successHeadline { margin: 16px 0 8px; font-size: 18px; font-weight: 700; line-height: 1.3; }
+.successNote { margin: 0 0 18px; color: rgba(255,255,255,.72); font-size: 12px; line-height: 1.6; max-width: 320px; }
+.referenceBlock { display: flex; flex-direction: column; align-items: center; gap: 4px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 12px; padding: 12px 20px; width: 100%; max-width: 360px; box-sizing: border-box; }
+.referenceLabel { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .07em; color: rgba(255,255,255,.5); }
+.referenceId { font-size: 13px; font-weight: 700; color: #78ffa2; letter-spacing: .01em; word-break: break-all; }
 .appBanner { position: relative; min-height: 122px; margin-top: 38px; overflow: visible; padding: 15px 18px; border-radius: 17px; background: #0b3330; }
 .appBanner h3 { position: relative; z-index: 2; margin: 0 0 7px; font-family: var(--font-montserrat), sans-serif; font-size: 18px; font-weight: 300; line-height: 1.2; }
 .appBanner p { position: relative; z-index: 2; max-width: 390px; margin: 0 0 10px; color: rgba(255,255,255,.72); font-size: 9px; line-height: 1.45; }
@@ -944,11 +950,15 @@
   .cardMiniGrid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .otpPanel { min-height: 190px; }
 
-  .appBanner { min-height: 150px; padding: 16px; }
-  .appBanner h3 { max-width: 75%; font-size: 16px; }
-  .appBanner p { max-width: 70%; }
+  .successCheck { width: 48px; height: 48px; }
+  .successHeadline { font-size: 16px; }
+  .referenceBlock { max-width: 100%; padding: 10px 14px; }
+  .referenceId { font-size: 11px; }
+  .appBanner { min-height: auto; padding: 16px 16px 80px; overflow: hidden; }
+  .appBanner h3 { max-width: 65%; font-size: 15px; }
+  .appBanner p { max-width: 65%; }
   .appRadar { right: -8%; opacity: .35; }
-  .appPhones { width: 145px; opacity: .48; right: -18px; bottom: -18px; }
+  .appPhones { width: 130px; opacity: .55; right: -10px; bottom: -20px; }
   .appBanner h3, .appBanner p, .stores { position: relative; z-index: 3; }
   .successBody .footerActions { margin-top: 24px; }
 }
