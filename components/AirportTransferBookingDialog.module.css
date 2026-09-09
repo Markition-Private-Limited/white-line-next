@@ -231,18 +231,25 @@
 .inputWithStartIcon { padding-inline-start: 40px !important; }
 
 .phoneControl { position: relative; display: flex; min-height: 39px; align-items: center; border: 1px solid rgba(255,255,255,.34); border-radius: 11px; background: rgba(255,255,255,.20); }
-.phoneCodeBtn { display: flex; flex: 0 0 auto; align-items: center; gap: 4px; height: 100%; padding-inline: 14px 10px; border: 0; border-inline-end: 1px solid rgba(255,255,255,.28); color: #fff; background: transparent; font: inherit; font-size: 12px; font-weight: 500; white-space: nowrap; cursor: pointer; }
+.phoneCodeBtn { display: flex; flex: 0 0 auto; align-items: center; gap: 5px; height: 100%; padding-inline: 10px 8px; border: 0; border-inline-end: 1px solid rgba(255,255,255,.28); color: #fff; background: transparent; font: inherit; font-size: 12px; font-weight: 500; white-space: nowrap; cursor: pointer; }
 .phoneCodeBtn svg { opacity: .75; transition: transform .18s ease; }
+.phoneCodeBtnFlag { display: inline-block; flex-shrink: 0; width: 16px; height: 12px; border-radius: 2px; overflow: hidden; vertical-align: middle; background-size: cover; }
 .phoneCodeOpen { transform: rotate(180deg); }
 .phoneNumberInput { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; padding-inline: 12px 21px; color: #fff; background: transparent; font: inherit; font-size: 12px; }
 .phoneNumberInput::placeholder { color: rgba(255,255,255,.62); }
 [dir='rtl'] .phoneNumberInput { direction: ltr; text-align: right; padding-inline: 21px 12px; }
-.phoneCodeMenu { position: absolute; z-index: 40; top: calc(100% + 7px); inset-inline-start: 0; width: 230px; max-height: 260px; overflow-y: auto; border-radius: 12px; background: #fff; box-shadow: 0 18px 45px rgba(0,0,0,.28); transform-origin: top; scrollbar-width: thin; scrollbar-color: #aeb6bc transparent; }
-.phoneCodeMenu > button { display: flex; align-items: center; width: 100%; min-height: 38px; padding: 8px 14px; border: 0; border-bottom: 1px solid #edf0f2; color: #303238; background: #fff; font: inherit; font-size: 11px; text-align: start; cursor: pointer; transition: color .18s ease, background-color .18s ease; }
-.phoneCodeMenu > button:hover,
-.phoneCodeOptionActive { color: #017b87 !important; background: #effbfc !important; }
-.phoneCodeMenu > button:last-child { border-bottom: 0; }
-.phoneCodeDial { margin-inline-start: auto; padding-inline-start: 10px; color: #8b939a; font-size: 10px; }
+.phoneCodeMenu { position: absolute; z-index: 40; top: calc(100% + 7px); inset-inline-start: 0; width: 270px; border-radius: 12px; background: #fff; box-shadow: 0 18px 45px rgba(0,0,0,.28); transform-origin: top; overflow: hidden; }
+.phoneCodeSearchWrap { padding: 8px; border-bottom: 1px solid #edf0f2; }
+.phoneCodeSearchInput { display: block; width: 100%; padding: 6px 10px; border: 1px solid #e2e5e8; border-radius: 8px; background: #f5f7f8; font: inherit; font-size: 11px; color: #303238; outline: none; box-sizing: border-box; }
+.phoneCodeSearchInput:focus { border-color: #9fa8b0; background: #fff; }
+.phoneCodeSearchInput::placeholder { color: #a0a8b0; }
+.phoneCodeList { max-height: 240px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #aeb6bc transparent; }
+.phoneCodeList > button { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 36px; padding: 5px 12px; border: 0; border-bottom: 1px solid #edf0f2; color: #303238; background: #fff; font: inherit; font-size: 11px; text-align: start; cursor: pointer; transition: color .15s ease, background-color .15s ease; }
+.phoneCodeList > button:hover, .phoneCodeOptionActive { color: #017b87 !important; background: #effbfc !important; }
+.phoneCodeList > button:last-child { border-bottom: 0; }
+.phoneCodeFlag { display: inline-block; flex-shrink: 0; width: 18px; height: 13px; border-radius: 2px; overflow: hidden; vertical-align: middle; background-size: cover; }
+.phoneCodeDial { margin-inline-start: auto; padding-inline-start: 8px; color: #8b939a; font-size: 10px; flex-shrink: 0; }
+.phoneCodeEmpty { padding: 14px; font-size: 11px; color: #9fa8b0; text-align: center; }
 
 .fieldInvalid .control { border-color: rgba(255,190,190,.9); box-shadow: 0 0 0 2px rgba(160,35,35,.1); }
 .fieldInvalid .pickerControl { border-color: rgba(255,190,190,.9) !important; box-shadow: 0 0 0 2px rgba(160,35,35,.1); }
@@ -794,6 +801,7 @@
 .routeSummary strong { display: block; font-size: 11px; line-height: 1.2; }
 .summaryRow { display: flex; min-height: 34px; align-items: center; justify-content: space-between; padding: 0 22px; border-top: 1px solid rgba(255,255,255,.5); background: rgba(182,182,181,.84); font-size: 12px; font-weight: 600; }
 
+.riyalSign { font-family: var(--font-noto-arabic), var(--font-cairo), sans-serif; }
 .fareCard { overflow: hidden; margin-top: 10px; border: 1px solid rgba(255,255,255,.75); border-radius: 17px; }
 .fareRow { display: flex; min-height: 40px; align-items: center; justify-content: space-between; padding: 0 28px; border-bottom: 1px solid rgba(255,255,255,.55); background: rgba(182,182,181,.84); font-size: 12px; font-weight: 600; }
 .fareTotal { min-height: 50px; color: #4b4b4e; background: #f1f1f1; font-family: var(--font-montserrat), sans-serif; font-size: 15px; }

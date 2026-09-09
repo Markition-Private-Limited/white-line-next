@@ -18,7 +18,7 @@ import {
   X,
 } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import appPhones from '../assets/global_app/app.png'
 import horizontalPlane from '../assets/dialog/horizontal plane.svg'
 import flightNumberSvg from '../assets/dialog/flight_number.svg'
@@ -187,26 +187,236 @@ function TextField({ label, placeholder, value, icon, startIcon, minLength = 2, 
   )
 }
 
-const phoneCountryCodes = [
-  { iso: 'SA', dial: '+966', name: 'Saudi Arabia', nameAr: 'السعودية', len: 9 },
-  { iso: 'AE', dial: '+971', name: 'United Arab Emirates', nameAr: 'الإمارات', len: 9 },
-  { iso: 'KW', dial: '+965', name: 'Kuwait', nameAr: 'الكويت', len: 8 },
-  { iso: 'QA', dial: '+974', name: 'Qatar', nameAr: 'قطر', len: 8 },
-  { iso: 'BH', dial: '+973', name: 'Bahrain', nameAr: 'البحرين', len: 8 },
-  { iso: 'OM', dial: '+968', name: 'Oman', nameAr: 'عُمان', len: 8 },
-  { iso: 'PK', dial: '+92', name: 'Pakistan', nameAr: 'باكستان', len: 10 },
-  { iso: 'EG', dial: '+20', name: 'Egypt', nameAr: 'مصر', len: 10 },
-  { iso: 'IN', dial: '+91', name: 'India', nameAr: 'الهند', len: 10 },
-  { iso: 'JO', dial: '+962', name: 'Jordan', nameAr: 'الأردن', len: 9 },
-  { iso: 'GB', dial: '+44', name: 'United Kingdom', nameAr: 'المملكة المتحدة', len: 10 },
-  { iso: 'US', dial: '+1', name: 'United States', nameAr: 'الولايات المتحدة', len: 10 },
+type CountryCode = { iso: string; dial: string; name: string; nameAr?: string; len: number }
+const phoneCountryCodes: CountryCode[] = [
+  { iso: 'SA', dial: '+966', name: 'Saudi Arabia',             nameAr: 'السعودية',       len: 9  },
+  { iso: 'AF', dial: '+93',  name: 'Afghanistan',                                         len: 9  },
+  { iso: 'AL', dial: '+355', name: 'Albania',                                              len: 9  },
+  { iso: 'DZ', dial: '+213', name: 'Algeria',                  nameAr: 'الجزائر',         len: 9  },
+  { iso: 'AD', dial: '+376', name: 'Andorra',                                              len: 6  },
+  { iso: 'AO', dial: '+244', name: 'Angola',                                               len: 9  },
+  { iso: 'AG', dial: '+1268',name: 'Antigua & Barbuda',                                    len: 10 },
+  { iso: 'AR', dial: '+54',  name: 'Argentina',                                            len: 10 },
+  { iso: 'AM', dial: '+374', name: 'Armenia',                                              len: 8  },
+  { iso: 'AU', dial: '+61',  name: 'Australia',                                            len: 9  },
+  { iso: 'AT', dial: '+43',  name: 'Austria',                                              len: 10 },
+  { iso: 'AZ', dial: '+994', name: 'Azerbaijan',                                           len: 9  },
+  { iso: 'BS', dial: '+1242',name: 'Bahamas',                                              len: 10 },
+  { iso: 'BH', dial: '+973', name: 'Bahrain',                  nameAr: 'البحرين',         len: 8  },
+  { iso: 'BD', dial: '+880', name: 'Bangladesh',                                           len: 10 },
+  { iso: 'BB', dial: '+1246',name: 'Barbados',                                             len: 10 },
+  { iso: 'BY', dial: '+375', name: 'Belarus',                                              len: 9  },
+  { iso: 'BE', dial: '+32',  name: 'Belgium',                                              len: 9  },
+  { iso: 'BZ', dial: '+501', name: 'Belize',                                               len: 7  },
+  { iso: 'BJ', dial: '+229', name: 'Benin',                                                len: 8  },
+  { iso: 'BT', dial: '+975', name: 'Bhutan',                                               len: 8  },
+  { iso: 'BO', dial: '+591', name: 'Bolivia',                                              len: 8  },
+  { iso: 'BA', dial: '+387', name: 'Bosnia & Herzegovina',                                 len: 8  },
+  { iso: 'BW', dial: '+267', name: 'Botswana',                                             len: 7  },
+  { iso: 'BR', dial: '+55',  name: 'Brazil',                                               len: 11 },
+  { iso: 'BN', dial: '+673', name: 'Brunei',                                               len: 7  },
+  { iso: 'BG', dial: '+359', name: 'Bulgaria',                                             len: 9  },
+  { iso: 'BF', dial: '+226', name: 'Burkina Faso',                                         len: 8  },
+  { iso: 'BI', dial: '+257', name: 'Burundi',                                              len: 8  },
+  { iso: 'CV', dial: '+238', name: 'Cape Verde',                                           len: 7  },
+  { iso: 'KH', dial: '+855', name: 'Cambodia',                                             len: 9  },
+  { iso: 'CM', dial: '+237', name: 'Cameroon',                                             len: 9  },
+  { iso: 'CA', dial: '+1',   name: 'Canada',                                               len: 10 },
+  { iso: 'CF', dial: '+236', name: 'Central African Republic',                             len: 8  },
+  { iso: 'TD', dial: '+235', name: 'Chad',                                                 len: 8  },
+  { iso: 'CL', dial: '+56',  name: 'Chile',                                                len: 9  },
+  { iso: 'CN', dial: '+86',  name: 'China',                                                len: 11 },
+  { iso: 'CO', dial: '+57',  name: 'Colombia',                                             len: 10 },
+  { iso: 'KM', dial: '+269', name: 'Comoros',                                              len: 7  },
+  { iso: 'CG', dial: '+242', name: 'Congo',                                                len: 9  },
+  { iso: 'CD', dial: '+243', name: 'Congo (DRC)',                                          len: 9  },
+  { iso: 'CR', dial: '+506', name: 'Costa Rica',                                           len: 8  },
+  { iso: 'HR', dial: '+385', name: 'Croatia',                                              len: 9  },
+  { iso: 'CU', dial: '+53',  name: 'Cuba',                                                 len: 8  },
+  { iso: 'CY', dial: '+357', name: 'Cyprus',                                               len: 8  },
+  { iso: 'CZ', dial: '+420', name: 'Czech Republic',                                       len: 9  },
+  { iso: 'DK', dial: '+45',  name: 'Denmark',                                              len: 8  },
+  { iso: 'DJ', dial: '+253', name: 'Djibouti',                                             len: 8  },
+  { iso: 'DM', dial: '+1767',name: 'Dominica',                                             len: 10 },
+  { iso: 'DO', dial: '+1809',name: 'Dominican Republic',                                   len: 10 },
+  { iso: 'EC', dial: '+593', name: 'Ecuador',                                              len: 9  },
+  { iso: 'EG', dial: '+20',  name: 'Egypt',                    nameAr: 'مصر',             len: 10 },
+  { iso: 'SV', dial: '+503', name: 'El Salvador',                                          len: 8  },
+  { iso: 'GQ', dial: '+240', name: 'Equatorial Guinea',                                    len: 9  },
+  { iso: 'ER', dial: '+291', name: 'Eritrea',                                              len: 7  },
+  { iso: 'EE', dial: '+372', name: 'Estonia',                                              len: 8  },
+  { iso: 'SZ', dial: '+268', name: 'Eswatini',                                             len: 8  },
+  { iso: 'ET', dial: '+251', name: 'Ethiopia',                                             len: 9  },
+  { iso: 'FJ', dial: '+679', name: 'Fiji',                                                 len: 7  },
+  { iso: 'FI', dial: '+358', name: 'Finland',                                              len: 10 },
+  { iso: 'FR', dial: '+33',  name: 'France',                                               len: 9  },
+  { iso: 'GA', dial: '+241', name: 'Gabon',                                                len: 8  },
+  { iso: 'GM', dial: '+220', name: 'Gambia',                                               len: 7  },
+  { iso: 'GE', dial: '+995', name: 'Georgia',                                              len: 9  },
+  { iso: 'DE', dial: '+49',  name: 'Germany',                                              len: 11 },
+  { iso: 'GH', dial: '+233', name: 'Ghana',                                                len: 9  },
+  { iso: 'GR', dial: '+30',  name: 'Greece',                                               len: 10 },
+  { iso: 'GD', dial: '+1473',name: 'Grenada',                                              len: 10 },
+  { iso: 'GT', dial: '+502', name: 'Guatemala',                                            len: 8  },
+  { iso: 'GN', dial: '+224', name: 'Guinea',                                               len: 9  },
+  { iso: 'GW', dial: '+245', name: 'Guinea-Bissau',                                        len: 7  },
+  { iso: 'GY', dial: '+592', name: 'Guyana',                                               len: 7  },
+  { iso: 'HT', dial: '+509', name: 'Haiti',                                                len: 8  },
+  { iso: 'HN', dial: '+504', name: 'Honduras',                                             len: 8  },
+  { iso: 'HU', dial: '+36',  name: 'Hungary',                                              len: 9  },
+  { iso: 'IS', dial: '+354', name: 'Iceland',                                              len: 7  },
+  { iso: 'IN', dial: '+91',  name: 'India',                    nameAr: 'الهند',           len: 10 },
+  { iso: 'ID', dial: '+62',  name: 'Indonesia',                                            len: 12 },
+  { iso: 'IR', dial: '+98',  name: 'Iran',                     nameAr: 'إيران',           len: 10 },
+  { iso: 'IQ', dial: '+964', name: 'Iraq',                     nameAr: 'العراق',          len: 10 },
+  { iso: 'IE', dial: '+353', name: 'Ireland',                                              len: 9  },
+  { iso: 'IL', dial: '+972', name: 'Israel',                                               len: 9  },
+  { iso: 'IT', dial: '+39',  name: 'Italy',                                                len: 10 },
+  { iso: 'CI', dial: '+225', name: "Côte d'Ivoire",                                        len: 10 },
+  { iso: 'JM', dial: '+1876',name: 'Jamaica',                                              len: 10 },
+  { iso: 'JP', dial: '+81',  name: 'Japan',                                                len: 10 },
+  { iso: 'JO', dial: '+962', name: 'Jordan',                   nameAr: 'الأردن',          len: 9  },
+  { iso: 'KZ', dial: '+77',  name: 'Kazakhstan',                                           len: 10 },
+  { iso: 'KE', dial: '+254', name: 'Kenya',                                                len: 9  },
+  { iso: 'KI', dial: '+686', name: 'Kiribati',                                             len: 5  },
+  { iso: 'KW', dial: '+965', name: 'Kuwait',                   nameAr: 'الكويت',          len: 8  },
+  { iso: 'KG', dial: '+996', name: 'Kyrgyzstan',                                           len: 9  },
+  { iso: 'LA', dial: '+856', name: 'Laos',                                                 len: 9  },
+  { iso: 'LV', dial: '+371', name: 'Latvia',                                               len: 8  },
+  { iso: 'LB', dial: '+961', name: 'Lebanon',                  nameAr: 'لبنان',           len: 8  },
+  { iso: 'LS', dial: '+266', name: 'Lesotho',                                              len: 8  },
+  { iso: 'LR', dial: '+231', name: 'Liberia',                                              len: 8  },
+  { iso: 'LY', dial: '+218', name: 'Libya',                    nameAr: 'ليبيا',           len: 9  },
+  { iso: 'LI', dial: '+423', name: 'Liechtenstein',                                        len: 7  },
+  { iso: 'LT', dial: '+370', name: 'Lithuania',                                            len: 8  },
+  { iso: 'LU', dial: '+352', name: 'Luxembourg',                                           len: 9  },
+  { iso: 'MG', dial: '+261', name: 'Madagascar',                                           len: 9  },
+  { iso: 'MW', dial: '+265', name: 'Malawi',                                               len: 9  },
+  { iso: 'MY', dial: '+60',  name: 'Malaysia',                                             len: 11 },
+  { iso: 'MV', dial: '+960', name: 'Maldives',                                             len: 7  },
+  { iso: 'ML', dial: '+223', name: 'Mali',                                                 len: 8  },
+  { iso: 'MT', dial: '+356', name: 'Malta',                                                len: 8  },
+  { iso: 'MH', dial: '+692', name: 'Marshall Islands',                                     len: 7  },
+  { iso: 'MR', dial: '+222', name: 'Mauritania',                                           len: 8  },
+  { iso: 'MU', dial: '+230', name: 'Mauritius',                                            len: 8  },
+  { iso: 'MX', dial: '+52',  name: 'Mexico',                                               len: 10 },
+  { iso: 'FM', dial: '+691', name: 'Micronesia',                                           len: 7  },
+  { iso: 'MD', dial: '+373', name: 'Moldova',                                              len: 8  },
+  { iso: 'MC', dial: '+377', name: 'Monaco',                                               len: 8  },
+  { iso: 'MN', dial: '+976', name: 'Mongolia',                                             len: 8  },
+  { iso: 'ME', dial: '+382', name: 'Montenegro',                                           len: 8  },
+  { iso: 'MA', dial: '+212', name: 'Morocco',                  nameAr: 'المغرب',          len: 9  },
+  { iso: 'MZ', dial: '+258', name: 'Mozambique',                                           len: 9  },
+  { iso: 'MM', dial: '+95',  name: 'Myanmar',                                              len: 9  },
+  { iso: 'NA', dial: '+264', name: 'Namibia',                                              len: 9  },
+  { iso: 'NR', dial: '+674', name: 'Nauru',                                                len: 7  },
+  { iso: 'NP', dial: '+977', name: 'Nepal',                                                len: 10 },
+  { iso: 'NL', dial: '+31',  name: 'Netherlands',                                          len: 9  },
+  { iso: 'NZ', dial: '+64',  name: 'New Zealand',                                          len: 9  },
+  { iso: 'NI', dial: '+505', name: 'Nicaragua',                                            len: 8  },
+  { iso: 'NE', dial: '+227', name: 'Niger',                                                len: 8  },
+  { iso: 'NG', dial: '+234', name: 'Nigeria',                                              len: 10 },
+  { iso: 'KP', dial: '+850', name: 'North Korea',                                          len: 10 },
+  { iso: 'MK', dial: '+389', name: 'North Macedonia',                                      len: 8  },
+  { iso: 'NO', dial: '+47',  name: 'Norway',                                               len: 8  },
+  { iso: 'OM', dial: '+968', name: 'Oman',                     nameAr: 'عُمان',           len: 8  },
+  { iso: 'PK', dial: '+92',  name: 'Pakistan',                 nameAr: 'باكستان',         len: 10 },
+  { iso: 'PW', dial: '+680', name: 'Palau',                                                len: 7  },
+  { iso: 'PS', dial: '+970', name: 'Palestine',                nameAr: 'فلسطين',          len: 9  },
+  { iso: 'PA', dial: '+507', name: 'Panama',                                               len: 8  },
+  { iso: 'PG', dial: '+675', name: 'Papua New Guinea',                                     len: 8  },
+  { iso: 'PY', dial: '+595', name: 'Paraguay',                                             len: 9  },
+  { iso: 'PE', dial: '+51',  name: 'Peru',                                                 len: 9  },
+  { iso: 'PH', dial: '+63',  name: 'Philippines',                                          len: 10 },
+  { iso: 'PL', dial: '+48',  name: 'Poland',                                               len: 9  },
+  { iso: 'PT', dial: '+351', name: 'Portugal',                                             len: 9  },
+  { iso: 'QA', dial: '+974', name: 'Qatar',                    nameAr: 'قطر',             len: 8  },
+  { iso: 'RO', dial: '+40',  name: 'Romania',                                              len: 9  },
+  { iso: 'RU', dial: '+7',   name: 'Russia',                                               len: 10 },
+  { iso: 'RW', dial: '+250', name: 'Rwanda',                                               len: 9  },
+  { iso: 'KN', dial: '+1869',name: 'Saint Kitts & Nevis',                                  len: 10 },
+  { iso: 'LC', dial: '+1758',name: 'Saint Lucia',                                          len: 10 },
+  { iso: 'VC', dial: '+1784',name: 'Saint Vincent & Grenadines',                           len: 10 },
+  { iso: 'WS', dial: '+685', name: 'Samoa',                                                len: 7  },
+  { iso: 'SM', dial: '+378', name: 'San Marino',                                           len: 10 },
+  { iso: 'ST', dial: '+239', name: 'São Tomé & Príncipe',                                  len: 7  },
+  { iso: 'SN', dial: '+221', name: 'Senegal',                                              len: 9  },
+  { iso: 'RS', dial: '+381', name: 'Serbia',                                               len: 9  },
+  { iso: 'SC', dial: '+248', name: 'Seychelles',                                           len: 7  },
+  { iso: 'SL', dial: '+232', name: 'Sierra Leone',                                         len: 8  },
+  { iso: 'SG', dial: '+65',  name: 'Singapore',                                            len: 8  },
+  { iso: 'SK', dial: '+421', name: 'Slovakia',                                             len: 9  },
+  { iso: 'SI', dial: '+386', name: 'Slovenia',                                             len: 8  },
+  { iso: 'SB', dial: '+677', name: 'Solomon Islands',                                      len: 7  },
+  { iso: 'SO', dial: '+252', name: 'Somalia',                  nameAr: 'الصومال',         len: 9  },
+  { iso: 'ZA', dial: '+27',  name: 'South Africa',                                         len: 9  },
+  { iso: 'KR', dial: '+82',  name: 'South Korea',                                          len: 10 },
+  { iso: 'SS', dial: '+211', name: 'South Sudan',                                          len: 9  },
+  { iso: 'ES', dial: '+34',  name: 'Spain',                                                len: 9  },
+  { iso: 'LK', dial: '+94',  name: 'Sri Lanka',                                            len: 9  },
+  { iso: 'SD', dial: '+249', name: 'Sudan',                    nameAr: 'السودان',         len: 9  },
+  { iso: 'SR', dial: '+597', name: 'Suriname',                                             len: 7  },
+  { iso: 'SE', dial: '+46',  name: 'Sweden',                                               len: 9  },
+  { iso: 'CH', dial: '+41',  name: 'Switzerland',                                          len: 9  },
+  { iso: 'SY', dial: '+963', name: 'Syria',                    nameAr: 'سوريا',           len: 9  },
+  { iso: 'TW', dial: '+886', name: 'Taiwan',                                               len: 9  },
+  { iso: 'TJ', dial: '+992', name: 'Tajikistan',                                           len: 9  },
+  { iso: 'TZ', dial: '+255', name: 'Tanzania',                                             len: 9  },
+  { iso: 'TH', dial: '+66',  name: 'Thailand',                                             len: 9  },
+  { iso: 'TL', dial: '+670', name: 'Timor-Leste',                                          len: 8  },
+  { iso: 'TG', dial: '+228', name: 'Togo',                                                 len: 8  },
+  { iso: 'TO', dial: '+676', name: 'Tonga',                                                len: 5  },
+  { iso: 'TT', dial: '+1868',name: 'Trinidad & Tobago',                                    len: 10 },
+  { iso: 'TN', dial: '+216', name: 'Tunisia',                  nameAr: 'تونس',            len: 8  },
+  { iso: 'TR', dial: '+90',  name: 'Turkey',                                               len: 10 },
+  { iso: 'TM', dial: '+993', name: 'Turkmenistan',                                         len: 8  },
+  { iso: 'TV', dial: '+688', name: 'Tuvalu',                                               len: 5  },
+  { iso: 'UG', dial: '+256', name: 'Uganda',                                               len: 9  },
+  { iso: 'UA', dial: '+380', name: 'Ukraine',                                              len: 9  },
+  { iso: 'AE', dial: '+971', name: 'United Arab Emirates',     nameAr: 'الإمارات',        len: 9  },
+  { iso: 'GB', dial: '+44',  name: 'United Kingdom',           nameAr: 'المملكة المتحدة', len: 10 },
+  { iso: 'US', dial: '+1',   name: 'United States',            nameAr: 'الولايات المتحدة',len: 10 },
+  { iso: 'UY', dial: '+598', name: 'Uruguay',                                              len: 8  },
+  { iso: 'UZ', dial: '+998', name: 'Uzbekistan',                                           len: 9  },
+  { iso: 'VU', dial: '+678', name: 'Vanuatu',                                              len: 7  },
+  { iso: 'VE', dial: '+58',  name: 'Venezuela',                                            len: 10 },
+  { iso: 'VN', dial: '+84',  name: 'Vietnam',                                              len: 9  },
+  { iso: 'YE', dial: '+967', name: 'Yemen',                    nameAr: 'اليمن',           len: 9  },
+  { iso: 'ZM', dial: '+260', name: 'Zambia',                                               len: 9  },
+  { iso: 'ZW', dial: '+263', name: 'Zimbabwe',                                             len: 9  },
 ]
 
 function PhoneField({ label, value, onChange, attempted }: { label: string; value: string; onChange: (value: string) => void; attempted?: boolean }) {
   const { copy, lang } = useBookingDialogCopy()
-  const [dial, setDial] = useState(() => phoneCountryCodes.find(c => value.startsWith(c.dial))?.dial ?? '+966')
+
+  const [selectedIso, setSelectedIso] = useState<string>(() => {
+    if (!value) return 'SA'
+    const sorted = [...phoneCountryCodes].sort((a, b) => b.dial.length - a.dial.length)
+    return sorted.find(c => value.startsWith(c.dial))?.iso ?? 'SA'
+  })
   const [open, setOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const wrapRef = useRef<HTMLDivElement>(null)
+  const searchRef = useRef<HTMLInputElement>(null)
+
+  const active = phoneCountryCodes.find(c => c.iso === selectedIso) ?? phoneCountryCodes[0]
+  const localNumber = value.startsWith(active.dial) ? value.slice(active.dial.length).trimStart() : value
+
+  const filteredCountries = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return phoneCountryCodes
+    return phoneCountryCodes.filter(c =>
+      c.name.toLowerCase().includes(q) ||
+      (c.nameAr?.includes(searchQuery)) ||
+      c.dial.includes(q)
+    )
+  }, [searchQuery])
+
+  useEffect(() => {
+    if (!open) { setSearchQuery(''); return }
+    const t = setTimeout(() => searchRef.current?.focus(), 80)
+    return () => clearTimeout(t)
+  }, [open])
 
   useEffect(() => {
     if (!open) return
@@ -217,25 +427,22 @@ function PhoneField({ label, value, onChange, attempted }: { label: string; valu
     return () => document.removeEventListener('mousedown', handler)
   }, [open])
 
-  const localNumber = value.startsWith(dial) ? value.slice(dial.length).trimStart() : value
   const trimmed = value.trim()
   const isEmpty = attempted && trimmed.length === 0
   const phoneInvalid = trimmed.length > 0 && value.replace(/\D/g, '').length < 8
   const invalid = isEmpty || phoneInvalid
   const validationMessage = isEmpty ? copy.validation.required : phoneInvalid ? copy.validation.phone : ''
-  const active = phoneCountryCodes.find(c => c.dial === dial) ?? phoneCountryCodes[0]
 
-  const selectDial = (newDial: string) => {
-    const newLen = phoneCountryCodes.find(c => c.dial === newDial)?.len ?? 15
-    const digits = localNumber.replace(/\D/g, '').slice(0, newLen)
-    setDial(newDial)
-    onChange(digits.length ? `${newDial} ${digits}` : '')
+  const selectCountry = (country: CountryCode) => {
+    const digits = localNumber.replace(/\D/g, '').slice(0, country.len)
+    setSelectedIso(country.iso)
+    onChange(digits.length ? `${country.dial} ${digits}` : '')
     setOpen(false)
   }
 
   const handleNumberChange = (raw: string) => {
     const digits = raw.replace(/\D/g, '').slice(0, active.len)
-    onChange(digits.length ? `${dial} ${digits}` : '')
+    onChange(digits.length ? `${active.dial} ${digits}` : '')
   }
 
   return (
@@ -243,19 +450,37 @@ function PhoneField({ label, value, onChange, attempted }: { label: string; valu
       <label>{label}</label>
       <div className={styles.phoneControl}>
         <button type="button" className={styles.phoneCodeBtn} onClick={() => setOpen(o => !o)} aria-haspopup="listbox" aria-expanded={open}>
+          <span className={`fi fi-${active.iso.toLowerCase()} ${styles.phoneCodeBtnFlag}`} aria-hidden="true" />
           <span>{active.dial}</span>
           <ChevronDown size={12} className={open ? styles.phoneCodeOpen : undefined} />
         </button>
-        <input aria-label={label} aria-invalid={invalid} type="tel" inputMode="tel" value={localNumber} onChange={event => handleNumberChange(event.target.value)} placeholder="501234567" className={styles.phoneNumberInput} />
+        <input aria-label={label} aria-invalid={invalid} type="tel" inputMode="tel" value={localNumber} onChange={event => handleNumberChange(event.target.value)} placeholder={active.iso === 'SA' ? '501234567' : ''} className={styles.phoneNumberInput} />
         <AnimatePresence>
           {open && (
             <motion.div className={styles.phoneCodeMenu} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.16 }}>
-              {phoneCountryCodes.map(country => (
-                <button type="button" key={country.iso} className={country.dial === dial ? styles.phoneCodeOptionActive : undefined} onClick={() => selectDial(country.dial)}>
-                  {lang === 'ar' ? country.nameAr : country.name}
-                  <span className={styles.phoneCodeDial}>{country.dial}</span>
-                </button>
-              ))}
+              <div className={styles.phoneCodeSearchWrap}>
+                <input
+                  ref={searchRef}
+                  type="text"
+                  className={styles.phoneCodeSearchInput}
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder={lang === 'ar' ? 'ابحث عن الدولة أو الرمز...' : 'Search country or code…'}
+                  autoComplete="off"
+                />
+              </div>
+              <div className={styles.phoneCodeList}>
+                {filteredCountries.length === 0 && (
+                  <div className={styles.phoneCodeEmpty}>{lang === 'ar' ? 'لا توجد نتائج' : 'No results'}</div>
+                )}
+                {filteredCountries.map(country => (
+                  <button type="button" key={country.iso} role="option" aria-selected={country.iso === selectedIso} className={country.iso === selectedIso ? styles.phoneCodeOptionActive : undefined} onClick={() => selectCountry(country)}>
+                    <span className={`fi fi-${country.iso.toLowerCase()} ${styles.phoneCodeFlag}`} aria-hidden="true" />
+                    {(lang === 'ar' && country.nameAr) ? country.nameAr : country.name}
+                    <span className={styles.phoneCodeDial}>{country.dial}</span>
+                  </button>
+                ))}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1021,9 +1246,9 @@ function FareStep({ back, next, booking }: { back: () => void; next: () => void;
       </div>
 
       <div className={styles.fareCard}>
-        <div className={styles.fareRow}><span>{copy.baseFare}</span><span>⃁ 150.00</span></div>
-        <div className={styles.fareRow}><span>{copy.vat}</span><span>⃁ 22.50</span></div>
-        <div className={`${styles.fareRow} ${styles.fareTotal}`}><span>{copy.totalFare}</span><span>⃁ 172.50</span></div>
+        <div className={styles.fareRow}><span>{copy.baseFare}</span><span><span className={styles.riyalSign}>⃁</span> 150.00</span></div>
+        <div className={styles.fareRow}><span>{copy.vat}</span><span><span className={styles.riyalSign}>⃁</span> 22.50</span></div>
+        <div className={`${styles.fareRow} ${styles.fareTotal}`}><span>{copy.totalFare}</span><span><span className={styles.riyalSign}>⃁</span> 172.50</span></div>
       </div>
 
       <FooterActions back={back} next={next} />
@@ -1163,6 +1388,10 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
   }, [step, resetAndClose])
 
   useEffect(() => {
+    if (open) dialogRef.current?.focus()
+  }, [open])
+
+  useEffect(() => {
     if (!open) return
     const prev = {
       bodyOverflow: document.body.style.overflow,
@@ -1170,7 +1399,6 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
     }
     document.body.style.overflow = 'hidden'
     document.body.style.overscrollBehavior = 'none'
-    dialogRef.current?.focus()
     const onKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') requestClose() }
     window.addEventListener('keydown', onKeyDown)
     return () => {

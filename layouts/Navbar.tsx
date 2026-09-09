@@ -8,6 +8,7 @@ import hamburgerSvg from '../assets/home/hamburger.svg'
 import logoSvg from '../assets/fav_icon_black.svg'
 import { useLanguage } from '../context/LanguageContext'
 import { LANG_META, type LangCode, translations } from '../lib/i18n'
+import DownloadDialog from '../components/DownloadDialog'
 
 const BUTTON_BG = [
   'linear-gradient(0deg, rgba(0,92,102,0.55), rgba(0,92,102,0.55))',
@@ -130,6 +131,7 @@ export default function Navbar({ solid = false }: { solid?: boolean }) {
   const { trans, dir } = useLanguage()
   const isRtl = dir === 'rtl'
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false)
   const pathname = usePathname()
 
   useEffect(() => {
@@ -147,6 +149,13 @@ export default function Navbar({ solid = false }: { solid?: boolean }) {
   }, [drawerOpen])
 
   useEffect(() => { setDrawerOpen(false) }, [pathname])
+
+  // Listen for download dialog open event dispatched by other components (e.g. AppSection)
+  useEffect(() => {
+    const handler = () => setDialogOpen(true)
+    window.addEventListener('download-dialog:open', handler)
+    return () => window.removeEventListener('download-dialog:open', handler)
+  }, [])
 
   const isActive = (to: string) => to === '/' ? pathname === '/' : pathname.startsWith(to)
 
@@ -206,6 +215,7 @@ export default function Navbar({ solid = false }: { solid?: boolean }) {
             <LangDropdown solid={solid} />
 
             <button
+              onClick={() => setDialogOpen(true)}
               className="group hidden sm:inline-flex relative h-10 items-center justify-center overflow-hidden rounded-full text-sm font-semibold"
               style={{
                 fontFamily: 'Inter, sans-serif',
@@ -241,6 +251,8 @@ export default function Navbar({ solid = false }: { solid?: boolean }) {
           </div>
         </div>
       </nav>
+
+      <DownloadDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
 
       {/* Mobile drawer */}
       <AnimatePresence>
@@ -333,6 +345,7 @@ export default function Navbar({ solid = false }: { solid?: boolean }) {
                 <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', marginBottom: 4 }} />
                 <MobileLangSwitcher />
                 <button
+                  onClick={() => { setDrawerOpen(false); setDialogOpen(true) }}
                   className="group relative w-full h-12 overflow-hidden rounded-full text-white font-semibold text-sm"
                   style={{ fontFamily: 'Inter, sans-serif', background: BUTTON_BG, border: '1px solid rgba(255,255,255,0.16)' }}
                 >

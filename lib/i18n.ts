@@ -25,7 +25,15 @@ const en = {
       { label: 'White Line Partners', to: '/partner/login' },
       { label: 'Contact Us', to: '/contact' },
     ],
-    download: 'Coming Soon',
+    download: 'Download Now',
+    appDialog: {
+      badge: 'Coming Soon',
+      h1: 'White Line',
+      h2: 'is coming to your phone.',
+      sub: 'The premium chauffeur service is launching soon on iOS and Android. Be the first to experience seamless luxury travel at your fingertips.',
+      apple:  { sub: 'Download on the', main: 'App Store' },
+      google: { sub: 'Get it on',       main: 'Google Play' },
+    },
   },
 
   hero: {
@@ -1158,7 +1166,15 @@ const ar: typeof en = {
       { label: 'شركاء وايت لاين', to: '/partner/login' },
       { label: 'تواصل معنا', to: '/contact' },
     ],
-    download: 'قريباً',
+    download: 'تحميل الآن',
+    appDialog: {
+      badge: 'قريباً',
+      h1: 'وايت لاين',
+      h2: 'قادم إلى هاتفك.',
+      sub: 'ستُطلق خدمة التوصيل الفاخرة قريباً على iOS وAndroid. كن أول من يختبر تجربة السفر الفاخرة في متناول يدك.',
+      apple:  { sub: 'متوفر على',    main: 'آب ستور' },
+      google: { sub: 'احصل عليه من', main: 'جوجل بلاي' },
+    },
   },
 
   hero: {

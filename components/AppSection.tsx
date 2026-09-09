@@ -66,11 +66,12 @@ export function RadarGraphic({ className, style }: { className?: string; style?:
 }
 
 /* ── Store button ────────────────────────────────────────────────── */
-export function StoreButton({ variant, compact, mini, sub, main, isRtl }: { variant: 'apple' | 'google'; compact?: boolean; mini?: boolean; sub: string; main: string; isRtl?: boolean }) {
+export function StoreButton({ variant, compact, mini, sub, main, isRtl, onClick }: { variant: 'apple' | 'google'; compact?: boolean; mini?: boolean; sub: string; main: string; isRtl?: boolean; onClick?: () => void }) {
   const isApple = variant === 'apple'
   return (
     <a
       href="#"
+      onClick={(e) => { e.preventDefault(); onClick?.() }}
       className="flex items-center"
       style={{
         background: '#fff',
@@ -116,6 +117,8 @@ export default function AppSection() {
   const isRtl = dir === 'rtl'
   const sectionRef = useRef<HTMLElement>(null)
   const inView = useInView(sectionRef, { once: true, margin: '-10% 0px' })
+
+  const openDownloadDialog = () => window.dispatchEvent(new CustomEvent('download-dialog:open'))
 
   return (
     <section
@@ -207,8 +210,8 @@ export default function AppSection() {
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
               >
-                <StoreButton variant="apple" sub={app.apple.sub} main={app.apple.main} isRtl={isRtl} />
-                <StoreButton variant="google" sub={app.google.sub} main={app.google.main} isRtl={isRtl} />
+                <StoreButton variant="apple" sub={app.apple.sub} main={app.apple.main} isRtl={isRtl} onClick={openDownloadDialog} />
+                <StoreButton variant="google" sub={app.google.sub} main={app.google.main} isRtl={isRtl} onClick={openDownloadDialog} />
               </motion.div>
             </div>
           </div>
@@ -300,8 +303,8 @@ export default function AppSection() {
               transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
               style={{ marginBottom: 32 }}
             >
-              <StoreButton variant="apple" compact sub={app.apple.sub} main={app.apple.main} isRtl={isRtl} />
-              <StoreButton variant="google" compact sub={app.google.sub} main={app.google.main} isRtl={isRtl} />
+              <StoreButton variant="apple" compact sub={app.apple.sub} main={app.apple.main} isRtl={isRtl} onClick={openDownloadDialog} />
+              <StoreButton variant="google" compact sub={app.google.sub} main={app.google.main} isRtl={isRtl} onClick={openDownloadDialog} />
             </motion.div>
 
             <motion.img
