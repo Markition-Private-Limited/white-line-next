@@ -1,6 +1,6 @@
 'use client'
 
-import Image, { type StaticImageData } from 'next/image'
+import Image from 'next/image'
 import {
   ArrowLeft,
   ArrowRight,
@@ -22,14 +22,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import appPhones from '../assets/global_app/app.png'
 import horizontalPlane from '../assets/dialog/horizontal plane.svg'
 import flightNumberSvg from '../assets/dialog/flight_number.svg'
-import firstClassImg from '../assets/dialog/first.svg'
-import businessClassImg from '../assets/dialog/business_class.svg'
-import vanImg from '../assets/dialog/van.svg'
-import sedanImg from '../assets/dialog/sedan.svg'
-import suvImg from '../assets/dialog/suv.svg'
-import vCar1 from '../assets/dialog/business_Car_1.png'
-import vCar2 from '../assets/dialog/business_Car_2.png'
-import vCar3 from '../assets/dialog/business_Car_3.jpg'
 import { useLanguage } from '../context/LanguageContext'
 import { bookingDialogCopy } from '../lib/bookingDialogCopy'
 import { RadarGraphic, StoreButton } from './AppSection'
@@ -62,10 +54,72 @@ type BookingState = {
   otp: string[]
 }
 
-const categoryImages: StaticImageData[] = [firstClassImg, businessClassImg, vanImg, sedanImg, suvImg]
-
-const vehicles = [vCar1, vCar2, vCar3]
 const hourlyDurations = Array.from({ length: 15 }, (_, index) => index + 2)
+
+// ─── Live fleet data (vehicle-classes / vehicles-per-class) ─────────────────
+// Backed by a small proxy in app/api/fleet/**, which caches the upstream
+// fleet API server-side. Mirrored here with a short-lived client cache so
+// reopening the booking dialog doesn't refetch on every open. Any failure
+// (network, non-2xx, empty response) falls back to the static local copy —
+// the fleet/vehicle section never breaks the booking flow.
+type VehicleClass = { id: string; className: string; description: string; passengerCapacity: number; luggageCapacity: number; isActive: boolean }
+type ClassVehicle = { id: string; make: string; model: string; year: number; plate_number: string; color: string; status: string; vehicle_front_photo_url: string | null }
+
+const FLEET_CACHE_TTL_MS = 5 * 60 * 1000
+let fleetClassesCache: { data: VehicleClass[]; timestamp: number } | null = null
+const fleetVehiclesCache = new Map<string, { data: ClassVehicle[]; timestamp: number }>()
+
+async function getFleetClasses(): Promise<VehicleClass[]> {
+  if (fleetClassesCache && Date.now() - fleetClassesCache.timestamp < FLEET_CACHE_TTL_MS) return fleetClassesCache.data
+  try {
+    const res = await fetch('/api/fleet/vehicle-classes')
+    const data = res.ok ? await res.json() : []
+    const classes: VehicleClass[] = Array.isArray(data) ? data : []
+    fleetClassesCache = { data: classes, timestamp: Date.now() }
+    return classes
+  } catch {
+    return fleetClassesCache?.data ?? []
+  }
+}
+
+async function getFleetVehicles(classId: string): Promise<ClassVehicle[]> {
+  const cached = fleetVehiclesCache.get(classId)
+  if (cached && Date.now() - cached.timestamp < FLEET_CACHE_TTL_MS) return cached.data
+  try {
+    const res = await fetch(`/api/fleet/vehicle-classes/${encodeURIComponent(classId)}/vehicles`)
+    const data = res.ok ? await res.json() : []
+    const list: ClassVehicle[] = Array.isArray(data) ? data : []
+    fleetVehiclesCache.set(classId, { data: list, timestamp: Date.now() })
+    return list
+  } catch {
+    return cached?.data ?? []
+  }
+}
+
+type CategoryTile = { id?: string; name: string; copy: string }
+
+function buildCategoryTiles(fleetClasses: VehicleClass[] | null): CategoryTile[] {
+  if (!fleetClasses) return []
+  return fleetClasses.map(cls => ({
+    id: cls.id,
+    name: cls.className,
+    copy: cls.description,
+  }))
+}
+
+type VehicleCard = { key: string; image: string | null; title: string; passengers: number; bags: number }
+
+function buildVehicleCards(activeVehicles: ClassVehicle[], activeClass: VehicleClass | null): VehicleCard[] {
+  const passengers = activeClass?.passengerCapacity ?? 2
+  const bags = activeClass?.luggageCapacity ?? 4
+  return activeVehicles.map(vehicle => ({
+    key: vehicle.id,
+    image: vehicle.vehicle_front_photo_url,
+    title: vehicle.model && vehicle.model !== '-' ? `${vehicle.make} ${vehicle.model}` : vehicle.make,
+    passengers,
+    bags,
+  }))
+}
 
 const blankGuest = (): GuestDetails => ({ name: '', phone: '', email: '' })
 const createInitialBookingState = (service: BookingService): BookingState => ({
@@ -109,23 +163,102 @@ function useBookingDialogCopy() {
   return { copy: bookingDialogCopy[lang], lang, dir }
 }
 
-function TextField({ label, placeholder, value, icon, startIcon, minLength = 2, inputType = 'text', onChange, attempted }: { label: string; placeholder: string; value: string; icon?: React.ReactNode; startIcon?: React.ReactNode; minLength?: number; inputType?: 'text' | 'email' | 'tel'; onChange: (value: string) => void; attempted?: boolean }) {
+function TextField({ label, placeholder, value, icon, startIcon, minLength = 2, inputType = 'text', onChange, attempted }: { label: string; placeholder: string; value: string; icon?: React.ReactNode; startIcon?: React.ReactNode; minLength?: number; inputType?: 'text' | 'email'; onChange: (value: string) => void; attempted?: boolean }) {
   const { copy } = useBookingDialogCopy()
   const trimmed = value.trim()
   const isEmpty = attempted && trimmed.length === 0
   const emailInvalid = inputType === 'email' && trimmed.length > 0 && !/^\S+@\S+\.\S+$/.test(trimmed)
-  const phoneInvalid = inputType === 'tel' && trimmed.length > 0 && value.replace(/\D/g, '').length < 8
   const lengthInvalid = inputType === 'text' && trimmed.length > 0 && trimmed.length < minLength
-  const invalid = isEmpty || emailInvalid || phoneInvalid || lengthInvalid
-  const validationMessage = isEmpty ? copy.validation.required : emailInvalid ? copy.validation.email : phoneInvalid ? copy.validation.phone : lengthInvalid ? copy.validation.characters(minLength) : ''
+  const invalid = isEmpty || emailInvalid || lengthInvalid
+  const validationMessage = isEmpty ? copy.validation.required : emailInvalid ? copy.validation.email : lengthInvalid ? copy.validation.characters(minLength) : ''
 
   return (
     <div className={`${styles.field} ${invalid ? styles.fieldInvalid : ''}`}>
       <label>{label}</label>
       <div className={styles.control}>
         {startIcon && <span className={styles.controlStartIcon}>{startIcon}</span>}
-        <input aria-label={label} aria-invalid={invalid} type={inputType} value={value} onChange={event => onChange(event.target.value)} placeholder={placeholder} maxLength={inputType === 'tel' ? 17 : undefined} className={startIcon ? styles.inputWithStartIcon : undefined} />
+        <input aria-label={label} aria-invalid={invalid} type={inputType} value={value} onChange={event => onChange(event.target.value)} placeholder={placeholder} className={startIcon ? styles.inputWithStartIcon : undefined} />
         {icon && <span className={styles.controlIcon}>{icon}</span>}
+      </div>
+      <AnimatePresence initial={false}>
+        {invalid && <motion.small className={styles.fieldError} initial={{ opacity: 0, y: -3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }}>{validationMessage}</motion.small>}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+const phoneCountryCodes = [
+  { iso: 'SA', dial: '+966', name: 'Saudi Arabia', nameAr: 'السعودية', len: 9 },
+  { iso: 'AE', dial: '+971', name: 'United Arab Emirates', nameAr: 'الإمارات', len: 9 },
+  { iso: 'KW', dial: '+965', name: 'Kuwait', nameAr: 'الكويت', len: 8 },
+  { iso: 'QA', dial: '+974', name: 'Qatar', nameAr: 'قطر', len: 8 },
+  { iso: 'BH', dial: '+973', name: 'Bahrain', nameAr: 'البحرين', len: 8 },
+  { iso: 'OM', dial: '+968', name: 'Oman', nameAr: 'عُمان', len: 8 },
+  { iso: 'PK', dial: '+92', name: 'Pakistan', nameAr: 'باكستان', len: 10 },
+  { iso: 'EG', dial: '+20', name: 'Egypt', nameAr: 'مصر', len: 10 },
+  { iso: 'IN', dial: '+91', name: 'India', nameAr: 'الهند', len: 10 },
+  { iso: 'JO', dial: '+962', name: 'Jordan', nameAr: 'الأردن', len: 9 },
+  { iso: 'GB', dial: '+44', name: 'United Kingdom', nameAr: 'المملكة المتحدة', len: 10 },
+  { iso: 'US', dial: '+1', name: 'United States', nameAr: 'الولايات المتحدة', len: 10 },
+]
+
+function PhoneField({ label, value, onChange, attempted }: { label: string; value: string; onChange: (value: string) => void; attempted?: boolean }) {
+  const { copy, lang } = useBookingDialogCopy()
+  const [dial, setDial] = useState(() => phoneCountryCodes.find(c => value.startsWith(c.dial))?.dial ?? '+966')
+  const [open, setOpen] = useState(false)
+  const wrapRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const handler = (event: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(event.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  const localNumber = value.startsWith(dial) ? value.slice(dial.length).trimStart() : value
+  const trimmed = value.trim()
+  const isEmpty = attempted && trimmed.length === 0
+  const phoneInvalid = trimmed.length > 0 && value.replace(/\D/g, '').length < 8
+  const invalid = isEmpty || phoneInvalid
+  const validationMessage = isEmpty ? copy.validation.required : phoneInvalid ? copy.validation.phone : ''
+  const active = phoneCountryCodes.find(c => c.dial === dial) ?? phoneCountryCodes[0]
+
+  const selectDial = (newDial: string) => {
+    const newLen = phoneCountryCodes.find(c => c.dial === newDial)?.len ?? 15
+    const digits = localNumber.replace(/\D/g, '').slice(0, newLen)
+    setDial(newDial)
+    onChange(digits.length ? `${newDial} ${digits}` : '')
+    setOpen(false)
+  }
+
+  const handleNumberChange = (raw: string) => {
+    const digits = raw.replace(/\D/g, '').slice(0, active.len)
+    onChange(digits.length ? `${dial} ${digits}` : '')
+  }
+
+  return (
+    <div className={`${styles.field} ${invalid ? styles.fieldInvalid : ''}`} ref={wrapRef}>
+      <label>{label}</label>
+      <div className={styles.phoneControl}>
+        <button type="button" className={styles.phoneCodeBtn} onClick={() => setOpen(o => !o)} aria-haspopup="listbox" aria-expanded={open}>
+          <span>{active.dial}</span>
+          <ChevronDown size={12} className={open ? styles.phoneCodeOpen : undefined} />
+        </button>
+        <input aria-label={label} aria-invalid={invalid} type="tel" inputMode="tel" value={localNumber} onChange={event => handleNumberChange(event.target.value)} placeholder="501234567" className={styles.phoneNumberInput} />
+        <AnimatePresence>
+          {open && (
+            <motion.div className={styles.phoneCodeMenu} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.16 }}>
+              {phoneCountryCodes.map(country => (
+                <button type="button" key={country.iso} className={country.dial === dial ? styles.phoneCodeOptionActive : undefined} onClick={() => selectDial(country.dial)}>
+                  {lang === 'ar' ? country.nameAr : country.name}
+                  <span className={styles.phoneCodeDial}>{country.dial}</span>
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       <AnimatePresence initial={false}>
         {invalid && <motion.small className={styles.fieldError} initial={{ opacity: 0, y: -3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }}>{validationMessage}</motion.small>}
@@ -326,11 +459,9 @@ function TimePickerField({ label, value, onChange, attempted }: { label: string;
   }
 
   const setPeriod = (nextPeriod: 'AM' | 'PM') => {
-    setDraft(current => {
-      const next = { ...current, hour: nextPeriod === 'AM' ? current.hour % 12 : current.hour % 12 + 12 }
-      onChange(next)
-      return next
-    })
+    const next = { ...draft, hour: nextPeriod === 'AM' ? draft.hour % 12 : draft.hour % 12 + 12 }
+    setDraft(next)
+    onChange(next)
   }
 
   const handleClockKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -410,8 +541,8 @@ function TimePickerField({ label, value, onChange, attempted }: { label: string;
               )}
             </div>
             <div className={styles.clockFormat} role="group" aria-label={copy.timePicker.timeFormat}>
-              <button type="button" aria-pressed={!draft.use24Hour} className={!draft.use24Hour ? styles.clockFormatActive : ''} onClick={() => setDraft(current => { const next = { ...current, use24Hour: false }; onChange(next); return next })}>{copy.timePicker.twelveHour}</button>
-              <button type="button" aria-pressed={draft.use24Hour} className={draft.use24Hour ? styles.clockFormatActive : ''} onClick={() => setDraft(current => { const next = { ...current, use24Hour: true }; onChange(next); return next })}>{copy.timePicker.twentyFourHour}</button>
+              <button type="button" aria-pressed={!draft.use24Hour} className={!draft.use24Hour ? styles.clockFormatActive : ''} onClick={() => { const next = { ...draft, use24Hour: false }; setDraft(next); onChange(next) }}>{copy.timePicker.twelveHour}</button>
+              <button type="button" aria-pressed={draft.use24Hour} className={draft.use24Hour ? styles.clockFormatActive : ''} onClick={() => { const next = { ...draft, use24Hour: true }; setDraft(next); onChange(next) }}>{copy.timePicker.twentyFourHour}</button>
             </div>
             <div ref={clockRef} className={`${styles.clockFace} ${draft.use24Hour && mode === 'hour' ? styles.clockFace24 : ''}`} onPointerDown={handleClockPointerDown} onKeyDown={handleClockKeyDown} style={{ touchAction: 'none' }}
               role="slider" tabIndex={0} aria-label={mode === 'hour' ? copy.timePicker.hour : copy.timePicker.minute}
@@ -515,7 +646,7 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
           <h3>{copy.yourDetails}</h3>
           <p>{copy.enterYourDetails}</p>
           <TextField label={copy.fullName} placeholder={copy.namePlaceholder} value={booking.name} minLength={2} attempted={attempted} onChange={value => updateBooking({ name: value })} />
-          <TextField label={copy.phoneNumber} placeholder="+966 50 123 4567" value={booking.phone} inputType="tel" attempted={attempted} onChange={value => updateBooking({ phone: value })} />
+          <PhoneField label={copy.phoneNumber} value={booking.phone} attempted={attempted} onChange={value => updateBooking({ phone: value })} />
           <TextField label={copy.emailAddress} placeholder="you@example.com" value={booking.email} inputType="email" attempted={attempted} onChange={value => updateBooking({ email: value })} />
         </div>
       )}
@@ -525,7 +656,7 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
           <h3>{copy.guestDetails}</h3>
           <p>{copy.enterGuestDetails}</p>
           <TextField label={copy.fullName} placeholder={copy.guestName} value={booking.guest.name} minLength={2} attempted={attempted} onChange={value => updateBooking({ guest: { ...booking.guest, name: value } })} />
-          <TextField label={copy.phoneNumber} placeholder="+966 50 123 4567" value={booking.guest.phone} inputType="tel" attempted={attempted} onChange={value => updateBooking({ guest: { ...booking.guest, phone: value } })} />
+          <PhoneField label={copy.phoneNumber} value={booking.guest.phone} attempted={attempted} onChange={value => updateBooking({ guest: { ...booking.guest, phone: value } })} />
           <TextField label={copy.emailAddress} placeholder="guest@gmail.com" value={booking.guest.email} inputType="email" attempted={attempted} onChange={value => updateBooking({ guest: { ...booking.guest, email: value } })} />
         </div>
       )}
@@ -719,9 +850,32 @@ function DayTripDetails({ booking, updateBooking, next, back }: {
 
 function RideStep({ back, next, booking, updateBooking }: { back: () => void; next: () => void; booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void }) {
   const { copy, dir, lang } = useBookingDialogCopy()
-  const categories = copy.categories.map((item, index) => ({ ...item, image: categoryImages[index] }))
-  const categoryIndex = Math.min(booking.categoryIndex, categories.length - 1)
-  const category = categories[categoryIndex].name
+  const [fleetClasses, setFleetClasses] = useState<VehicleClass[] | null>(null)
+  const [vehiclesByClass, setVehiclesByClass] = useState<{ classId: string; data: ClassVehicle[] } | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    getFleetClasses().then(data => { if (!cancelled) setFleetClasses(data) })
+    return () => { cancelled = true }
+  }, [])
+
+  const categories = buildCategoryTiles(fleetClasses)
+  const categoryIndex = categories.length > 0 ? Math.min(booking.categoryIndex, categories.length - 1) : 0
+  const category = categories[categoryIndex]?.name ?? ''
+  const activeCategoryId = categories[categoryIndex]?.id
+
+  useEffect(() => {
+    if (!activeCategoryId) return
+    let cancelled = false
+    getFleetVehicles(activeCategoryId).then(data => { if (!cancelled) setVehiclesByClass({ classId: activeCategoryId, data }) })
+    return () => { cancelled = true }
+  }, [activeCategoryId])
+
+  const activeVehicles = vehiclesByClass && vehiclesByClass.classId === activeCategoryId ? vehiclesByClass.data : null
+  const activeClass = fleetClasses?.find(cls => cls.id === activeCategoryId) ?? null
+  const vehicleCards = activeVehicles ? buildVehicleCards(activeVehicles, activeClass) : null
+  const vehicleIndex = Math.min(booking.vehicle, (vehicleCards?.length ?? 1) - 1)
+  const vehicleLabel = vehicleCards?.[vehicleIndex]?.title ?? ''
   const service = booking.service
   const isHourly = service === 'hourly'
   const isCity = service === 'city'
@@ -729,14 +883,14 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
   const isOneWay = service === 'oneWay'
   const l = copy.summaryLabels
   const summaryRows = isHourly
-    ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.duration, `${booking.duration} ${copy.hours}`], [l.category, category], [l.vehicle, `Mercedes E-Class #${booking.vehicle + 1}`]]
+    ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.duration, `${booking.duration} ${copy.hours}`], [l.category, category], [l.vehicle, vehicleLabel]]
     : isCity
-      ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.journey, copy.summaryValues.city], [l.category, category], [l.vehicle, `Mercedes E-Class #${booking.vehicle + 1}`]]
+      ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.journey, copy.summaryValues.city], [l.category, category], [l.vehicle, vehicleLabel]]
       : isDay
-        ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.duration, booking.dayDuration === 'full' ? copy.fullDay : copy.halfDay], [l.category, category], [l.vehicle, `Mercedes E-Class #${booking.vehicle + 1}`]]
+        ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.duration, booking.dayDuration === 'full' ? copy.fullDay : copy.halfDay], [l.category, category], [l.vehicle, vehicleLabel]]
         : isOneWay
-          ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.journey, copy.summaryValues.oneWay], [l.category, category], [l.vehicle, `Mercedes E-Class #${booking.vehicle + 1}`]]
-          : [[l.flight, booking.flightNumber || '--'], [l.flightDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.category, category], [l.vehicle, `Mercedes E-Class #${booking.vehicle + 1}`]]
+          ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.journey, copy.summaryValues.oneWay], [l.category, category], [l.vehicle, vehicleLabel]]
+          : [[l.flight, booking.flightNumber || '--'], [l.flightDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.category, category], [l.vehicle, vehicleLabel]]
   const SummaryArrow = dir === 'rtl' ? ArrowLeft : ArrowRight
 
   return (
@@ -745,29 +899,51 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
       <h2 className={styles.title}>{copy.selectRide}</h2>
       <p className={styles.subtitle}>{copy.selectRideSubtitle}</p>
       <p className={styles.categoryIntro}>{copy.chooseCategory}</p>
-      <div className={styles.categoryGrid}>
-        {categories.map((item, index) => (
-          <button type="button" key={item.name} className={`${styles.categoryCard} ${categoryIndex === index ? styles.categoryActive : ''}`} onClick={() => updateBooking({ categoryIndex: index })}>
-            <strong>{item.name}</strong><small>{item.copy}</small><Image src={item.image} alt="" />
-          </button>
-        ))}
-      </div>
-      <div className={styles.vehiclePanel}>
-        <p>{copy.availableVehicles(category)}</p>
-        <div className={styles.vehicleGrid}>
-          {vehicles.map((image, index) => (
-            <button type="button" key={image.src} className={`${styles.vehicleCard} ${booking.vehicle === index ? styles.vehicleSelected : ''}`} onClick={() => updateBooking({ vehicle: index })}>
-              <Image src={image} alt="Mercedes E-Class" />
-              <span>
-                <strong>Mercedes E-Class</strong>
-                <small className={styles.vehicleSpecs} aria-label={copy.passengersAndBags}>
-                  <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><UsersRound size={8} /></span><span>2</span></span>
-                  <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><Luggage size={8} /></span><span>4</span></span>
-                </small>
+      {fleetClasses === null ? (
+        <p className={styles.vehicleLoading}>{lang === 'ar' ? 'جارٍ تحميل الفئات…' : 'Loading categories…'}</p>
+      ) : categories.length === 0 ? (
+        <p className={styles.vehicleEmpty}>{lang === 'ar' ? 'لا توجد فئات مركبات متاحة.' : 'No vehicle classes available.'}</p>
+      ) : (
+        <div className={styles.categoryGrid}>
+          {categories.map((item, index) => (
+            <button type="button" key={item.id ?? item.name} className={`${styles.categoryCard} ${categoryIndex === index ? styles.categoryActive : ''}`} onClick={() => updateBooking({ categoryIndex: index, vehicle: 0 })}>
+              <span className={styles.categoryCopy}>
+                <strong>{item.name}</strong>
+                <small>{item.copy}</small>
               </span>
+              <span className={styles.categoryPlaceholder} aria-hidden="true" />
             </button>
           ))}
         </div>
+      )}
+      <div className={styles.vehiclePanel}>
+        {category && <p>{copy.availableVehicles(category)}</p>}
+        {!category ? (
+          <p className={styles.vehicleEmpty}>{lang === 'ar' ? 'اختر فئة مركبة لعرض السيارات.' : 'Choose a vehicle class to view vehicles.'}</p>
+        ) : vehicleCards === null ? (
+          <p className={styles.vehicleLoading}>{lang === 'ar' ? 'جارٍ تحميل السيارات…' : 'Loading vehicles…'}</p>
+        ) : vehicleCards.length === 0 ? (
+          <p className={styles.vehicleEmpty}>{lang === 'ar' ? 'لا توجد سيارات متاحة لهذه الفئة.' : 'No vehicles available for this class.'}</p>
+        ) : (
+          <div className={styles.vehicleGrid}>
+            {vehicleCards.map((card, index) => (
+              <button type="button" key={card.key} className={`${styles.vehicleCard} ${vehicleIndex === index ? styles.vehicleSelected : ''}`} onClick={() => updateBooking({ vehicle: index })}>
+                {card.image ? (
+                  <img src={card.image} alt={card.title} className={styles.vehicleImg} />
+                ) : (
+                  <span className={styles.vehicleNoImage}><CircleInfo size={20} /></span>
+                )}
+                <span className={styles.vehicleCopy}>
+                  <strong>{card.title}</strong>
+                  <small className={styles.vehicleSpecs} aria-label={copy.passengersAndBags}>
+                    <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><UsersRound size={8} /></span><span>{card.passengers}</span></span>
+                    <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><Luggage size={8} /></span><span>{card.bags}</span></span>
+                  </small>
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       <h3 className={styles.reviewTitle}>{copy.reviewBooking}</h3>
       <div className={styles.summaryCard}>
@@ -793,8 +969,31 @@ function FareStep({ back, next, booking }: { back: () => void; next: () => void;
   const isDay = service === 'day'
   const isOneWay = service === 'oneWay'
   const SummaryArrow = dir === 'rtl' ? ArrowLeft : ArrowRight
-  const categories = copy.categories.map((item, index) => ({ ...item, image: categoryImages[index] }))
-  const category = categories[Math.min(booking.categoryIndex, categories.length - 1)].name
+  const [fleetClasses, setFleetClasses] = useState<VehicleClass[] | null>(null)
+  const [vehiclesByClass, setVehiclesByClass] = useState<{ classId: string; data: ClassVehicle[] } | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    getFleetClasses().then(data => { if (!cancelled) setFleetClasses(data) })
+    return () => { cancelled = true }
+  }, [])
+
+  const categories = buildCategoryTiles(fleetClasses)
+  const categoryIndex = categories.length > 0 ? Math.min(booking.categoryIndex, categories.length - 1) : 0
+  const category = categories[categoryIndex]?.name ?? ''
+  const activeCategoryId = categories[categoryIndex]?.id
+
+  useEffect(() => {
+    if (!activeCategoryId) return
+    let cancelled = false
+    getFleetVehicles(activeCategoryId).then(data => { if (!cancelled) setVehiclesByClass({ classId: activeCategoryId, data }) })
+    return () => { cancelled = true }
+  }, [activeCategoryId])
+
+  const activeVehicles = vehiclesByClass && vehiclesByClass.classId === activeCategoryId ? vehiclesByClass.data : null
+  const activeClass = fleetClasses?.find(cls => cls.id === activeCategoryId) ?? null
+  const vehicleCards = activeVehicles ? buildVehicleCards(activeVehicles, activeClass) : null
+  const vehicleLabel = vehicleCards ? (vehicleCards[Math.min(booking.vehicle, vehicleCards.length - 1)]?.title ?? '') : ''
   const serviceSpecific = isHourly
     ? `${booking.duration} ${copy.hours}`
     : isDay ? (booking.dayDuration === 'full' ? copy.fullDay : copy.halfDay)
@@ -818,7 +1017,7 @@ function FareStep({ back, next, booking }: { back: () => void; next: () => void;
         <div className={styles.summaryRow}><span>{copy.summaryLabels.pickupTime}</span><span>{formatBookingTime(booking.time, lang)}</span></div>
         <div className={styles.summaryRow}><span>{isHourly || isDay ? copy.summaryLabels.duration : service === 'airport' ? copy.summaryLabels.flight : copy.summaryLabels.journey}</span><span>{serviceSpecific}</span></div>
         <div className={styles.summaryRow}><span>{copy.summaryLabels.category}</span><span>{category}</span></div>
-        <div className={styles.summaryRow}><span>{copy.summaryLabels.vehicle}</span><span>{`Mercedes E-Class #${booking.vehicle + 1}`}</span></div>
+        <div className={styles.summaryRow}><span>{copy.summaryLabels.vehicle}</span><span>{vehicleLabel}</span></div>
       </div>
 
       <div className={styles.fareCard}>
