@@ -1246,9 +1246,9 @@ function FareStep({ back, next, booking }: { back: () => void; next: () => void;
       </div>
 
       <div className={styles.fareCard}>
-        <div className={styles.fareRow}><span>{copy.baseFare}</span><span><span className={styles.riyalSign}>⃁</span> 150.00</span></div>
-        <div className={styles.fareRow}><span>{copy.vat}</span><span><span className={styles.riyalSign}>⃁</span> 22.50</span></div>
-        <div className={`${styles.fareRow} ${styles.fareTotal}`}><span>{copy.totalFare}</span><span><span className={styles.riyalSign}>⃁</span> 172.50</span></div>
+        <div className={styles.fareRow}><span>{copy.baseFare}</span><span className={styles.fareAmount}><Image src="/riyal_Currency.svg" alt="SAR" width={13} height={13} className={styles.riyalIcon} /> 150.00</span></div>
+        <div className={styles.fareRow}><span>{copy.vat}</span><span className={styles.fareAmount}><Image src="/riyal_Currency.svg" alt="SAR" width={13} height={13} className={styles.riyalIcon} /> 22.50</span></div>
+        <div className={`${styles.fareRow} ${styles.fareTotal}`}><span>{copy.totalFare}</span><span className={styles.fareAmount}><Image src="/riyal_Currency.svg" alt="SAR" width={13} height={13} className={styles.riyalIcon} /> 172.50</span></div>
       </div>
 
       <FooterActions back={back} next={next} />

@@ -801,7 +801,8 @@
 .routeSummary strong { display: block; font-size: 11px; line-height: 1.2; }
 .summaryRow { display: flex; min-height: 34px; align-items: center; justify-content: space-between; padding: 0 22px; border-top: 1px solid rgba(255,255,255,.5); background: rgba(182,182,181,.84); font-size: 12px; font-weight: 600; }
 
-.riyalSign { font-family: var(--font-noto-arabic), var(--font-cairo), sans-serif; }
+.riyalIcon { display: inline-block; vertical-align: middle; position: relative; top: -1px; }
+.fareAmount { display: inline-flex; align-items: center; gap: 4px; }
 .fareCard { overflow: hidden; margin-top: 10px; border: 1px solid rgba(255,255,255,.75); border-radius: 17px; }
 .fareRow { display: flex; min-height: 40px; align-items: center; justify-content: space-between; padding: 0 28px; border-bottom: 1px solid rgba(255,255,255,.55); background: rgba(182,182,181,.84); font-size: 12px; font-weight: 600; }
 .fareTotal { min-height: 50px; color: #4b4b4e; background: #f1f1f1; font-family: var(--font-montserrat), sans-serif; font-size: 15px; }

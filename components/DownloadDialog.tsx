@@ -186,11 +186,11 @@ export default function DownloadDialog({ open, onClose }: { open: boolean; onClo
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.55, delay: 0.28 }}
                     >
-                      <div style={{ background: '#fff', borderRadius: 12, padding: 13, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(0,0,0,0.07)', flexShrink: 0 }}>
-                        <img src={appleIcon.src ?? appleIcon} alt="App Store" style={{ width: 30, height: 30, objectFit: 'contain', display: 'block' }} />
+                      <div style={{ background: '#fff', color: '#000', borderRadius: 12, padding: 13, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(0,0,0,0.07)', flexShrink: 0 }}>
+                        <img src={appleIcon.src ?? appleIcon} alt="App Store" style={{ width: 30, height: 30, objectFit: 'contain', display: 'block', filter: 'none' }} />
                       </div>
-                      <div style={{ background: '#fff', borderRadius: 12, padding: 13, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(0,0,0,0.07)', flexShrink: 0 }}>
-                        <img src={playIcon.src ?? playIcon} alt="Google Play" style={{ width: 30, height: 30, objectFit: 'contain', display: 'block' }} />
+                      <div style={{ background: '#fff', color: '#000', borderRadius: 12, padding: 13, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(0,0,0,0.07)', flexShrink: 0 }}>
+                        <img src={playIcon.src ?? playIcon} alt="Google Play" style={{ width: 30, height: 30, objectFit: 'contain', display: 'block', filter: 'none' }} />
                       </div>
                     </motion.div>
                   </div>
