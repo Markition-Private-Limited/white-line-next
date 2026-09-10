@@ -3,7 +3,10 @@ const REQUEST_TIMEOUT_MS = 8000
 
 function isAllowedFleetImage(url: URL): boolean {
   const apiBaseUrl = new URL(FLEET_API_BASE)
-  return url.origin === apiBaseUrl.origin && url.pathname.startsWith('/api/v1/public-files/')
+  return url.origin === apiBaseUrl.origin && (
+    url.pathname.startsWith('/api/v1/public-files/') ||
+    url.pathname.startsWith('/api/v1/uploads/drivers/vehicles/')
+  )
 }
 
 export async function GET(request: Request) {

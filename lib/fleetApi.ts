@@ -43,7 +43,10 @@ function proxiedFleetImageUrl(url: string | null | undefined): string | null {
   try {
     const imageUrl = new URL(url)
     const apiBaseUrl = new URL(FLEET_API_BASE)
-    if (imageUrl.origin !== apiBaseUrl.origin || !imageUrl.pathname.startsWith('/api/v1/public-files/')) return url
+    const isFleetImage =
+      imageUrl.pathname.startsWith('/api/v1/public-files/') ||
+      imageUrl.pathname.startsWith('/api/v1/uploads/drivers/vehicles/')
+    if (imageUrl.origin !== apiBaseUrl.origin || !isFleetImage) return url
     return `/api/fleet/image?url=${encodeURIComponent(imageUrl.toString())}`
   } catch {
     return url
@@ -73,6 +76,15 @@ export async function fetchVehicleClasses(): Promise<VehicleClass[]> {
 export async function fetchVehiclesForClass(id: string): Promise<ClassVehicle[]> {
   const data = await fleetGet<ClassVehicle[]>(`/api/v1/public/customers/vehicle-classes/${encodeURIComponent(id)}/vehicles`)
   return Array.isArray(data)
-    ? data.map(item => ({ ...item, vehicle_front_photo_url: proxiedFleetImageUrl(item.vehicle_front_photo_url) }))
+    ? data.map(item => ({
+      id: item.id,
+      make: item.make,
+      model: item.model,
+      year: item.year,
+      plate_number: item.plate_number,
+      color: item.color,
+      status: item.status,
+      vehicle_front_photo_url: proxiedFleetImageUrl(item.vehicle_front_photo_url),
+    }))
     : []
 }
