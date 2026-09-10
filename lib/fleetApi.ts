@@ -38,6 +38,18 @@ const FLEET_API_BASE = process.env.FLEET_API_BASE_URL ?? 'http://34.166.167.2'
 const REVALIDATE_SECONDS = 300
 const REQUEST_TIMEOUT_MS = 8000
 
+function proxiedFleetImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null
+  try {
+    const imageUrl = new URL(url)
+    const apiBaseUrl = new URL(FLEET_API_BASE)
+    if (imageUrl.origin !== apiBaseUrl.origin || !imageUrl.pathname.startsWith('/api/v1/public-files/')) return url
+    return `/api/fleet/image?url=${encodeURIComponent(imageUrl.toString())}`
+  } catch {
+    return url
+  }
+}
+
 async function fleetGet<T>(path: string): Promise<T> {
   const res = await fetch(`${FLEET_API_BASE}${path}`, {
     next: { revalidate: REVALIDATE_SECONDS },
@@ -51,10 +63,16 @@ async function fleetGet<T>(path: string): Promise<T> {
 
 export async function fetchVehicleClasses(): Promise<VehicleClass[]> {
   const data = await fleetGet<VehicleClass[]>('/api/v1/public/customers/vehicle-classes')
-  return Array.isArray(data) ? data.filter(item => item.isActive !== false) : []
+  return Array.isArray(data)
+    ? data
+      .filter(item => item.isActive !== false)
+      .map(item => ({ ...item, imageUrl: proxiedFleetImageUrl(item.imageUrl) ?? undefined }))
+    : []
 }
 
 export async function fetchVehiclesForClass(id: string): Promise<ClassVehicle[]> {
   const data = await fleetGet<ClassVehicle[]>(`/api/v1/public/customers/vehicle-classes/${encodeURIComponent(id)}/vehicles`)
-  return Array.isArray(data) ? data : []
+  return Array.isArray(data)
+    ? data.map(item => ({ ...item, vehicle_front_photo_url: proxiedFleetImageUrl(item.vehicle_front_photo_url) }))
+    : []
 }
