@@ -801,7 +801,7 @@
 .routeSummary strong { display: block; font-size: 11px; line-height: 1.2; }
 .summaryRow { display: flex; min-height: 34px; align-items: center; justify-content: space-between; padding: 0 22px; border-top: 1px solid rgba(255,255,255,.5); background: rgba(182,182,181,.84); font-size: 12px; font-weight: 600; }
 
-.riyalIcon { display: inline-block; vertical-align: middle; position: relative; top: -1px; }
+.riyalIcon { display: inline-block; vertical-align: middle; position: relative; top: -1px; filter: brightness(0) invert(1); }
 .fareAmount { display: inline-flex; align-items: center; gap: 4px; }
 .fareLoadingRow { justify-content: center; color: #fff; font-style: italic; font-weight: 500; }
 .fareErrorRow { justify-content: center; color: #c0392b; font-weight: 500; font-size: 11px; text-align: center; padding: 14px 28px; }
@@ -810,6 +810,7 @@
 .fareCard { overflow: hidden; margin-top: 10px; border: 1px solid rgba(255,255,255,.75); border-radius: 17px; }
 .fareRow { display: flex; min-height: 40px; align-items: center; justify-content: space-between; padding: 0 28px; border-bottom: 1px solid rgba(255,255,255,.55); background: rgba(182,182,181,.84); font-size: 12px; font-weight: 600; }
 .fareTotal { min-height: 50px; color: #4b4b4e; background: #f1f1f1; font-family: var(--font-montserrat), sans-serif; font-size: 15px; }
+.fareTotal .riyalIcon { filter: brightness(0); }
 .paymentMethodRow { display: flex; align-items: center; gap: 13px; margin: 18px 0 15px; }
 .paymentTitle { margin: 0; font-family: var(--font-montserrat), sans-serif; font-size: 14px; font-weight: 600; }
 .brands { display: flex; gap: 10px; align-items: center; margin: 0; }
@@ -931,18 +932,21 @@
 
   .categoryGrid { grid-template-columns: 1fr 1fr; gap: 8px; }
   .categoryCard { min-height: 86px; }
+  .categorySkeletonGrid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .categorySkeletonCard { min-height: 86px; }
   .categoryCopy { inset-inline-end: 82px; }
 
   .vehiclePanel { padding: 14px 12px; }
   .vehicleGrid { grid-template-columns: 1fr; }
   .vehicleCard { grid-template-columns: 84px minmax(0, 1fr); min-height: 64px; }
+  .vehicleSkeletonCard { min-height: 64px; }
   .vehicleImg { width: 84px; height: 54px; }
   .vehicleNoImage { width: 84px; height: 54px; }
   .vehicleCard strong { white-space: normal; }
 
   .routeSummary { padding-inline: 12px; gap: 5px; }
   .routeSummary strong { overflow-wrap: anywhere; }
-  .summaryRow, .fareRow { padding-inline: 14px; }
+  .summaryRow, .fareRow, .fareSkeletonRow { padding-inline: 14px; }
 
   .paymentMethodRow { flex-wrap: wrap; }
   .paymentGrid { grid-template-columns: 1fr; gap: 16px; }
@@ -963,11 +967,125 @@
   .successBody .footerActions { margin-top: 24px; }
 }
 
+@keyframes skeletonShimmer {
+  0%   { background-position: -700px 0; }
+  100% { background-position:  700px 0; }
+}
+
+.skeletonShimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,.06) 0%,
+    rgba(255,255,255,.16) 40%,
+    rgba(255,255,255,.06) 100%
+  );
+  background-size: 700px 100%;
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+}
+
+/* Category skeleton */
+.categorySkeletonGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px 17px; }
+
+.categorySkeletonCard {
+  position: relative;
+  overflow: hidden;
+  min-height: 72px;
+  border-radius: 13px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+}
+
+.categorySkeletonCard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(255,255,255,.04) 0%, rgba(255,255,255,.14) 40%, rgba(255,255,255,.04) 100%);
+  background-size: 700px 100%;
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+}
+
+.categorySkeletonLine {
+  position: absolute;
+  inset-block-start: 12px;
+  inset-inline-start: 11px;
+  border-radius: 4px;
+  background: rgba(255,255,255,.14);
+}
+
+.categorySkeletonLine + .categorySkeletonLine {
+  inset-block-start: 28px;
+  width: 44% !important;
+  height: 7px !important;
+  background: rgba(255,255,255,.09);
+}
+
+/* Vehicle skeleton */
+.vehicleSkeletonCard {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  overflow: hidden;
+  min-height: 72px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+}
+
+.vehicleSkeletonMedia {
+  width: 80px;
+  height: 100%;
+  min-height: 72px;
+  background: rgba(255,255,255,.1);
+}
+
+.vehicleSkeletonCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 12px;
+}
+
+.vehicleSkeletonLine {
+  border-radius: 4px;
+  background: rgba(255,255,255,.14);
+}
+
+/* Fare skeleton */
+.fareSkeletonCard {
+  overflow: hidden;
+  margin-top: 10px;
+  border: 1px solid rgba(255,255,255,.75);
+  border-radius: 17px;
+}
+
+.fareSkeletonRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 40px;
+  padding: 0 28px;
+  border-bottom: 1px solid rgba(255,255,255,.3);
+  background: rgba(182,182,181,.84);
+}
+
+.fareSkeletonRow:last-child {
+  border-bottom: none;
+  min-height: 50px;
+  background: rgba(200,200,198,.92);
+}
+
+.fareSkeletonPill {
+  border-radius: 5px;
+  background: rgba(255,255,255,.22);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .categoryCard,
   .categoryCard::after,
   .categoryPlaceholder,
   .dayDurationOption { transition: none; }
+
+  .categorySkeletonCard::after,
+  .skeletonShimmer { animation: none; }
 }
 
 @media (max-width: 350px) {
@@ -978,6 +1096,8 @@
   .choice > svg { display: block; }
   .categoryGrid { grid-template-columns: 1fr; }
   .categoryCard { min-height: 74px; }
+  .categorySkeletonGrid { grid-template-columns: 1fr; }
+  .categorySkeletonCard { min-height: 74px; }
   .categoryCopy small { margin-top: 7px; }
   .routeSummary { grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr); padding-inline: 9px; }
   .routeSummary strong { font-size: 10px; }

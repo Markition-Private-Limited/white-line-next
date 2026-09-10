@@ -1176,7 +1176,14 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
       <p className={styles.subtitle}>{copy.selectRideSubtitle}</p>
       <p className={styles.categoryIntro}>{copy.chooseCategory}</p>
       {fleetClasses === null ? (
-        <p className={styles.vehicleLoading}>{lang === 'ar' ? 'جارٍ تحميل الفئات…' : 'Loading categories…'}</p>
+        <div className={styles.categorySkeletonGrid} aria-hidden="true">
+          {[68, 55, 72].map((w, i) => (
+            <div key={i} className={styles.categorySkeletonCard}>
+              <span className={styles.categorySkeletonLine} style={{ width: `${w}%`, height: 10 }} />
+              <span className={styles.categorySkeletonLine} style={{ width: 44, height: 7 }} />
+            </div>
+          ))}
+        </div>
       ) : categories.length === 0 ? (
         <p className={styles.vehicleEmpty}>{lang === 'ar' ? 'لا توجد فئات مركبات متاحة.' : 'No vehicle classes available.'}</p>
       ) : (
@@ -1197,7 +1204,17 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
         {!category ? (
           <p className={styles.vehicleEmpty}>{lang === 'ar' ? 'اختر فئة مركبة لعرض السيارات.' : 'Choose a vehicle class to view vehicles.'}</p>
         ) : vehicleCards === null ? (
-          <p className={styles.vehicleLoading}>{lang === 'ar' ? 'جارٍ تحميل السيارات…' : 'Loading vehicles…'}</p>
+          <div className={styles.vehicleGrid} aria-hidden="true">
+            {[0, 1, 2].map(i => (
+              <div key={i} className={styles.vehicleSkeletonCard}>
+                <div className={`${styles.vehicleSkeletonMedia} ${styles.skeletonShimmer}`} />
+                <div className={styles.vehicleSkeletonCopy}>
+                  <div className={`${styles.vehicleSkeletonLine} ${styles.skeletonShimmer}`} style={{ width: '70%', height: 10 }} />
+                  <div className={`${styles.vehicleSkeletonLine} ${styles.skeletonShimmer}`} style={{ width: '50%', height: 8 }} />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : vehicleCards.length === 0 ? (
           <p className={styles.vehicleEmpty}>{lang === 'ar' ? 'لا توجد سيارات متاحة لهذه الفئة.' : 'No vehicles available for this class.'}</p>
         ) : (
@@ -1355,7 +1372,7 @@ function FareStep({ back, onSuccess, booking }: { back: () => void; onSuccess: (
   const fmt = (n: number | undefined | null) => (typeof n === 'number' && isFinite(n) ? n.toFixed(2) : '0.00')
   const RiyalIcon = () => <Image src="/riyal_Currency.svg" alt="SAR" width={13} height={13} className={styles.riyalIcon} />
   const FareAmount = ({ value }: { value: number | undefined }) => (
-    <span className={styles.fareAmount} dir="ltr">{dir === 'rtl' ? <>{fmt(value)} <RiyalIcon /></> : <><RiyalIcon /> {fmt(value)}</>}</span>
+    <span className={styles.fareAmount} dir="ltr">{fmt(value)} <RiyalIcon /></span>
   )
   const BackIcon = dir === 'rtl' ? ArrowRight : ArrowLeft
   const NextIcon = dir === 'rtl' ? ArrowLeft : ArrowRight
@@ -1380,8 +1397,13 @@ function FareStep({ back, onSuccess, booking }: { back: () => void; onSuccess: (
       </div>
 
       {fareLoading && (
-        <div className={styles.fareCard}>
-          <div className={`${styles.fareRow} ${styles.fareLoadingRow}`}><span>{copy.fareLoading}</span></div>
+        <div className={styles.fareSkeletonCard} aria-hidden="true">
+          {[['55%', '18%'], ['60%', '15%'], ['48%', '20%'], ['52%', '22%'], ['44%', '26%']].map(([l, r], i) => (
+            <div key={i} className={styles.fareSkeletonRow}>
+              <div className={`${styles.fareSkeletonPill} ${styles.skeletonShimmer}`} style={{ width: l, height: 11, borderRadius: 5 }} />
+              <div className={`${styles.fareSkeletonPill} ${styles.skeletonShimmer}`} style={{ width: r, height: 11, borderRadius: 5 }} />
+            </div>
+          ))}
         </div>
       )}
 
@@ -1395,7 +1417,6 @@ function FareStep({ back, onSuccess, booking }: { back: () => void; onSuccess: (
         <div className={styles.fareCard}>
           <div className={styles.fareRow}><span>{copy.baseFare}</span><FareAmount value={fare.base_fare} /></div>
           {(fare.service_fee ?? 0) > 0 && <div className={styles.fareRow}><span>{copy.serviceFee}</span><FareAmount value={fare.service_fee} /></div>}
-          <div className={`${styles.fareRow} ${styles.fareSubtotal}`}><span>{copy.subtotal}</span><FareAmount value={fare.subtotal} /></div>
           <div className={styles.fareRow}><span>{copy.vat}</span><FareAmount value={fare.vat_amount} /></div>
           <div className={`${styles.fareRow} ${styles.fareTotal}`}><span>{copy.totalFare}</span><FareAmount value={fare.total_fare} /></div>
         </div>

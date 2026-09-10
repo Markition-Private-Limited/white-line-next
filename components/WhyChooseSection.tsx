@@ -89,7 +89,7 @@ export default function WhyChooseSection() {
         <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:gap-16">
 
           {/* ── Left: text ── */}
-          <div className="flex-shrink-0 lg:w-[38%]">
+          <div className="flex-shrink-0 lg:w-[38%] text-center flex flex-col items-center">
             <motion.h2
               {...fadeUp(0)}
               className="text-[#111118] leading-tight mb-6"
@@ -123,9 +123,9 @@ export default function WhyChooseSection() {
           <motion.div
             className="flex-1 grid gap-3"
             style={{
-              gridTemplateColumns: '1fr 1fr',
+              gridTemplateColumns: isMobile ? '1.25fr 1fr' : '1fr 1fr',
               gridTemplateRows: '1fr 1fr',
-              height: 'clamp(300px, 42vw, 480px)',
+              height: isMobile ? 'clamp(180px, 58vw, 240px)' : 'clamp(300px, 42vw, 480px)',
             }}
             initial={{ opacity: 0, x: 40 }}
             animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: 40 }}

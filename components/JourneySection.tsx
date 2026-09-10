@@ -158,7 +158,7 @@ export default function JourneySection() {
           style={{
             borderRadius: 15,
             flex: '0 0 67%',
-            aspectRatio: '843 / 414',
+            aspectRatio: '843 / 460',
           }}
           initial={{ opacity: 0, x: -36 }}
           animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -36 }}
