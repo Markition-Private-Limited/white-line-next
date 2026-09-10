@@ -18,6 +18,7 @@ export type VehicleClass = {
   baseFare: string
   perKmRate: string
   isActive: boolean
+  imageUrl?: string
 }
 
 export type ClassVehicle = {

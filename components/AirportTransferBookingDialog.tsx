@@ -49,8 +49,8 @@ type BookingState = {
   phone: string
   bookingFor: BookingFor
   guest: GuestDetails
-  categoryIndex: number
-  vehicle: number
+  categoryIndex: number | null
+  vehicle: number | null
   otp: string[]
 }
 
@@ -62,7 +62,7 @@ const hourlyDurations = Array.from({ length: 15 }, (_, index) => index + 2)
 // reopening the booking dialog doesn't refetch on every open. Any failure
 // (network, non-2xx, empty response) falls back to the static local copy —
 // the fleet/vehicle section never breaks the booking flow.
-type VehicleClass = { id: string; className: string; description: string; passengerCapacity: number; luggageCapacity: number; isActive: boolean }
+type VehicleClass = { id: string; className: string; description: string; passengerCapacity: number; luggageCapacity: number; isActive: boolean; imageUrl?: string }
 type ClassVehicle = { id: string; make: string; model: string; year: number; plate_number: string; color: string; status: string; vehicle_front_photo_url: string | null }
 
 const FLEET_CACHE_TTL_MS = 5 * 60 * 1000
@@ -96,7 +96,7 @@ async function getFleetVehicles(classId: string): Promise<ClassVehicle[]> {
   }
 }
 
-type CategoryTile = { id?: string; name: string; copy: string }
+type CategoryTile = { id?: string; name: string; copy: string; imageUrl?: string }
 
 function buildCategoryTiles(fleetClasses: VehicleClass[] | null): CategoryTile[] {
   if (!fleetClasses) return []
@@ -104,6 +104,7 @@ function buildCategoryTiles(fleetClasses: VehicleClass[] | null): CategoryTile[]
     id: cls.id,
     name: cls.className,
     copy: cls.description,
+    imageUrl: cls.imageUrl || undefined,
   }))
 }
 
@@ -137,8 +138,8 @@ const createInitialBookingState = (service: BookingService): BookingState => ({
   phone: '',
   bookingFor: null,
   guest: blankGuest(),
-  categoryIndex: 1,
-  vehicle: 0,
+  categoryIndex: null,
+  vehicle: null,
   otp: Array(6).fill(''),
 })
 
@@ -864,14 +865,14 @@ function LocationScheduleFields({ booking, updateBooking, pickupLabel, pickupPla
   )
 }
 
-function FooterActions({ back, next, nextLabel = 'Continue' }: { back: () => void; next: () => void; nextLabel?: string }) {
+function FooterActions({ back, next, nextLabel = 'Continue', showNext = true }: { back: () => void; next: () => void; nextLabel?: string; showNext?: boolean }) {
   const { copy, dir } = useBookingDialogCopy()
   const BackIcon = dir === 'rtl' ? ArrowRight : ArrowLeft
   const NextIcon = dir === 'rtl' ? ArrowLeft : ArrowRight
   return (
     <div className={styles.footerActions}>
       <button type="button" className={styles.back} onClick={back}><BackIcon size={20} /> {copy.back}</button>
-      <button type="button" className={styles.continue} onClick={next}>{nextLabel === 'Continue' ? copy.continue : nextLabel} <NextIcon size={16} /></button>
+      {showNext && <button type="button" className={styles.continue} onClick={next}>{nextLabel === 'Continue' ? copy.continue : nextLabel} <NextIcon size={16} /></button>}
     </div>
   )
 }
@@ -1136,9 +1137,9 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
   }, [])
 
   const categories = buildCategoryTiles(fleetClasses)
-  const categoryIndex = categories.length > 0 ? Math.min(booking.categoryIndex, categories.length - 1) : 0
-  const category = categories[categoryIndex]?.name ?? ''
-  const activeCategoryId = categories[categoryIndex]?.id
+  const categoryIndex = booking.categoryIndex !== null && categories.length > 0 ? Math.min(booking.categoryIndex, categories.length - 1) : null
+  const category = categoryIndex !== null ? (categories[categoryIndex]?.name ?? '') : ''
+  const activeCategoryId = categoryIndex !== null ? categories[categoryIndex]?.id : undefined
 
   useEffect(() => {
     if (!activeCategoryId) return
@@ -1150,8 +1151,11 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
   const activeVehicles = vehiclesByClass && vehiclesByClass.classId === activeCategoryId ? vehiclesByClass.data : null
   const activeClass = fleetClasses?.find(cls => cls.id === activeCategoryId) ?? null
   const vehicleCards = activeVehicles ? buildVehicleCards(activeVehicles, activeClass) : null
-  const vehicleIndex = Math.min(booking.vehicle, (vehicleCards?.length ?? 1) - 1)
-  const vehicleLabel = vehicleCards?.[vehicleIndex]?.title ?? ''
+  const vehicleIndex = booking.vehicle !== null && vehicleCards?.length ? Math.min(booking.vehicle, vehicleCards.length - 1) : null
+  const vehicleLabel = vehicleIndex !== null ? (vehicleCards?.[vehicleIndex]?.title ?? '') : ''
+  const categorySummary = category || '--'
+  const vehicleSummary = vehicleLabel || '--'
+  const rideSelectionComplete = Boolean(activeCategoryId && vehicleIndex !== null)
   const service = booking.service
   const isHourly = service === 'hourly'
   const isCity = service === 'city'
@@ -1159,14 +1163,14 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
   const isOneWay = service === 'oneWay'
   const l = copy.summaryLabels
   const summaryRows = isHourly
-    ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.duration, `${booking.duration} ${copy.hours}`], [l.category, category], [l.vehicle, vehicleLabel]]
+    ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.duration, `${booking.duration} ${copy.hours}`], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
     : isCity
-      ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.journey, copy.summaryValues.city], [l.category, category], [l.vehicle, vehicleLabel]]
+      ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.journey, copy.summaryValues.city], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
       : isDay
-        ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.duration, booking.dayDuration === 'full' ? copy.fullDay : copy.halfDay], [l.category, category], [l.vehicle, vehicleLabel]]
+        ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.duration, booking.dayDuration === 'full' ? copy.fullDay : copy.halfDay], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
         : isOneWay
-          ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.journey, copy.summaryValues.oneWay], [l.category, category], [l.vehicle, vehicleLabel]]
-          : [[l.flight, booking.flightNumber || '--'], [l.flightDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.category, category], [l.vehicle, vehicleLabel]]
+          ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.journey, copy.summaryValues.oneWay], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
+          : [[l.flight, booking.flightNumber || '--'], [l.flightDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
   const SummaryArrow = dir === 'rtl' ? ArrowLeft : ArrowRight
 
   return (
@@ -1189,12 +1193,16 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
       ) : (
         <div className={styles.categoryGrid}>
           {categories.map((item, index) => (
-            <button type="button" key={item.id ?? item.name} className={`${styles.categoryCard} ${categoryIndex === index ? styles.categoryActive : ''}`} onClick={() => updateBooking({ categoryIndex: index, vehicle: 0 })}>
+            <button type="button" key={item.id ?? item.name} className={`${styles.categoryCard} ${categoryIndex === index ? styles.categoryActive : ''}`} onClick={() => updateBooking({ categoryIndex: index, vehicle: null })}>
               <span className={styles.categoryCopy}>
                 <strong>{item.name}</strong>
                 <small>{item.copy}</small>
               </span>
-              <span className={styles.categoryPlaceholder} aria-hidden="true" />
+              {item.imageUrl ? (
+                <img src={item.imageUrl} alt="" aria-hidden="true" className={styles.categoryImg} />
+              ) : (
+                <span className={styles.categoryPlaceholder} aria-hidden="true" />
+              )}
             </button>
           ))}
         </div>
@@ -1249,7 +1257,7 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
           <div className={styles.summaryRow} key={row[0]}><span>{row[0]}</span><span>{row[1]}</span></div>
         ))}
       </div>
-      <FooterActions back={back} next={next} />
+      <FooterActions back={back} next={next} showNext={rideSelectionComplete} />
     </>
   )
 }
@@ -1279,9 +1287,9 @@ function FareStep({ back, onSuccess, booking }: { back: () => void; onSuccess: (
   }, [])
 
   const categories = buildCategoryTiles(fleetClasses)
-  const categoryIndex = categories.length > 0 ? Math.min(booking.categoryIndex, categories.length - 1) : 0
-  const category = categories[categoryIndex]?.name ?? ''
-  const activeCategoryId = categories[categoryIndex]?.id
+  const categoryIndex = booking.categoryIndex !== null && categories.length > 0 ? Math.min(booking.categoryIndex, categories.length - 1) : null
+  const category = categoryIndex !== null ? (categories[categoryIndex]?.name ?? '') : ''
+  const activeCategoryId = categoryIndex !== null ? categories[categoryIndex]?.id : undefined
 
   useEffect(() => {
     if (!activeCategoryId) return
@@ -1361,7 +1369,7 @@ function FareStep({ back, onSuccess, booking }: { back: () => void; onSuccess: (
   const activeVehicles = vehiclesByClass && vehiclesByClass.classId === activeCategoryId ? vehiclesByClass.data : null
   const activeClass = fleetClasses?.find(cls => cls.id === activeCategoryId) ?? null
   const vehicleCards = activeVehicles ? buildVehicleCards(activeVehicles, activeClass) : null
-  const vehicleLabel = vehicleCards ? (vehicleCards[Math.min(booking.vehicle, vehicleCards.length - 1)]?.title ?? '') : ''
+  const vehicleLabel = booking.vehicle !== null && vehicleCards ? (vehicleCards[Math.min(booking.vehicle, vehicleCards.length - 1)]?.title ?? '') : ''
   const serviceSpecific = isHourly
     ? `${booking.duration} ${copy.hours}`
     : isDay ? (booking.dayDuration === 'full' ? copy.fullDay : copy.halfDay)

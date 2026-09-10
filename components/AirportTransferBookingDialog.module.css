@@ -685,10 +685,13 @@
 .categoryGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px 17px; }
 .categoryCard {
   position: relative;
-  display: block;
-  min-height: 72px;
+  display: grid;
+  min-height: 88px;
+  grid-template-columns: minmax(0, 1fr) 74px;
+  align-items: end;
+  gap: 8px;
   overflow: hidden;
-  padding: 9px;
+  padding: 9px 7px 10px 9px;
   border: 1px solid rgba(255,255,255,.6);
   border-radius: 8px;
   color: #4c5961;
@@ -698,9 +701,9 @@
   transition: color .28s ease, background-color .28s ease, border-color .28s ease, box-shadow .28s ease, transform .28s cubic-bezier(.22, 1, .36, 1);
 }
 .categoryCard::after { content: ''; position: absolute; z-index: 0; inset-inline-end: -42px; bottom: -53px; width: 128px; height: 128px; border-radius: 50%; background: #dfe3e9; pointer-events: none; transition: background-color .28s ease, transform .35s cubic-bezier(.22, 1, .36, 1); }
-.categoryCopy { position: absolute; z-index: 2; inset-block-start: 9px; inset-inline-start: 9px; inset-inline-end: 78px; display: block; text-align: start; }
+.categoryCopy { position: relative; z-index: 2; display: block; min-width: 0; align-self: start; text-align: start; }
 .categoryCopy strong { display: block; font-size: 12px; font-weight: 500; line-height: 1.2; overflow-wrap: anywhere; }
-.categoryCopy small { display: block; margin-top: 10px; color: #8b9297; font-size: 8px; line-height: 1.25; overflow-wrap: anywhere; }
+.categoryCopy small { display: block; margin-top: 8px; color: #8b9297; font-size: 8px; line-height: 1.3; overflow-wrap: anywhere; }
 .categoryPlaceholder { position: absolute; z-index: 1; inset-inline-end: 6px; bottom: 7px; width: 58px; height: 36px; border-radius: 9px 16px 8px 8px; background: linear-gradient(135deg, rgba(116,127,137,.2), rgba(116,127,137,.48)); box-shadow: inset 0 -9px 0 rgba(76,89,97,.16); transition: transform .35s cubic-bezier(.22, 1, .36, 1); }
 .categoryPlaceholder::before,
 .categoryPlaceholder::after { content: ''; position: absolute; bottom: -4px; width: 13px; height: 13px; border-radius: 50%; background: #4c5961; box-shadow: inset 0 0 0 3px rgba(255,255,255,.68); }
@@ -714,10 +717,27 @@
 .categoryActive .categoryPlaceholder::before,
 .categoryActive .categoryPlaceholder::after { background: rgba(255,255,255,.92); box-shadow: inset 0 0 0 3px rgba(0,113,126,.45); }
 .categoryActive .categoryCopy small { color: rgba(255,255,255,.84); }
+.categoryImg {
+  position: relative;
+  z-index: 1;
+  justify-self: end;
+  align-self: end;
+  width: 72px;
+  height: 48px;
+  object-fit: contain;
+  object-position: center bottom;
+  pointer-events: none;
+  transition: transform .35s cubic-bezier(.22, 1, .36, 1);
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.18));
+}
+.categoryActive .categoryImg { transform: translateX(-2px) scale(1.05); }
+
 [dir='rtl'] .categoryCard { text-align: right; }
 [dir='rtl'] .categoryCopy { text-align: right; }
 [dir='rtl'] .categoryActive .categoryPlaceholder { transform: translateX(2px) scaleX(-1) scale(1.04); }
 [dir='rtl'] .categoryPlaceholder { transform: scaleX(-1); }
+[dir='rtl'] .categoryImg { transform: scaleX(-1); }
+[dir='rtl'] .categoryActive .categoryImg { transform: translateX(2px) scaleX(-1) scale(1.05); }
 [dir='rtl'] .categoryIntro { text-align: right; }
 
 .vehiclePanel { margin-top: 23px; padding: 15px 19px 14px; }
@@ -931,10 +951,10 @@
   .continue { padding-inline: 20px; }
 
   .categoryGrid { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .categoryCard { min-height: 86px; }
+  .categoryCard { min-height: 104px; grid-template-columns: minmax(0, 1fr) 72px; padding-bottom: 11px; }
   .categorySkeletonGrid { grid-template-columns: 1fr 1fr; gap: 8px; }
   .categorySkeletonCard { min-height: 86px; }
-  .categoryCopy { inset-inline-end: 82px; }
+  .categoryCopy small { margin-top: 7px; }
 
   .vehiclePanel { padding: 14px 12px; }
   .vehicleGrid { grid-template-columns: 1fr; }
@@ -1095,7 +1115,7 @@
   .choice { min-height: 58px; }
   .choice > svg { display: block; }
   .categoryGrid { grid-template-columns: 1fr; }
-  .categoryCard { min-height: 74px; }
+  .categoryCard { min-height: 84px; grid-template-columns: minmax(0, 1fr) 72px; }
   .categorySkeletonGrid { grid-template-columns: 1fr; }
   .categorySkeletonCard { min-height: 74px; }
   .categoryCopy small { margin-top: 7px; }
