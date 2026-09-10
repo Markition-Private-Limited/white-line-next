@@ -5,16 +5,22 @@ import Image from 'next/image'
 import type { StaticImageData } from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
 
-import fleetSuv        from '../assets/fleet/fleet_cars/gmc-yukon-xl.png'
-import fleetExecutive  from '../assets/fleet/fleet_cars/mercedes-benz-s-class.png'
-import fleetSedan      from '../assets/fleet/fleet_cars/mercedes-benz-e-class.png'
-import fleetBizSuv     from '../assets/fleet/fleet_cars/chevrolet-suburban.png'
-import fleetCorpSedan  from '../assets/fleet/fleet_cars/bmw-5-series.png'
-import fleetVip        from '../assets/fleet/fleet_cars/bmw-7-series.png'
+import fleetFirstClass from '../assets/fleet/fleet_cars/mercedes-benz-s-class.png'
+import fleetBusinessClass from '../assets/fleet/fleet_cars/mercedes-benz-e-class.png'
+import fleetSuv from '../assets/fleet/fleet_cars/gmc-yukon-xl.png'
+import fleetSedan from '../assets/fleet/fleet_cars/lexus-es350.png'
+import fleetVan from '../assets/fleet/fleet_cars/hyundai-staria.png'
+import fleetCoasterBus from '../assets/fleet/fleet_cars/toyota-coaster.png'
 
-// Images only — titles/descs come from translations (same order)
-// Premium SUV, Executive Class, Luxury Sedan, Business SUV, Corporate Sedan, VIP Limousine
-const CAR_IMAGES: StaticImageData[] = [fleetSuv, fleetExecutive, fleetSedan, fleetBizSuv, fleetCorpSedan, fleetVip]
+// Images only. Titles/descs come from translations in the same order as fleet categories.
+const CAR_IMAGES: StaticImageData[] = [
+  fleetFirstClass,
+  fleetBusinessClass,
+  fleetSuv,
+  fleetSedan,
+  fleetVan,
+  fleetCoasterBus,
+]
 
 const GAP = 16
 

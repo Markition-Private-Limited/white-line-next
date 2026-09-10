@@ -33,6 +33,8 @@ export type PlaceValue = {
   placeId?: string
   source: 'google' | 'manual' | 'airport'
   prediction?: Prediction
+  lat?: number
+  lng?: number
 }
 
 declare global {
@@ -98,11 +100,26 @@ export default function PlacesAutocompleteField({ label, placeholder, value: sel
   }
 
   const handleSelect = (prediction: Prediction) => {
-    const place = { address: prediction.description, placeId: prediction.place_id, source: 'google' as const, prediction }
+    const place: PlaceValue = { address: prediction.description, placeId: prediction.place_id, source: 'google', prediction }
     onChange?.(place)
     onSelect?.(place)
     setPredictions([])
     setOpen(false)
+    // Resolve coordinates eagerly so FareStep doesn't need a second PlacesService call
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const g = (window as any).google
+      if (g?.maps?.places?.PlacesService) {
+        const svc = new g.maps.places.PlacesService(document.createElement('div'))
+        svc.getDetails({ placeId: prediction.place_id, fields: ['geometry'] }, (result: any, status: string) => {
+          if (status === 'OK' && result?.geometry?.location) {
+            const resolved = { ...place, lat: result.geometry.location.lat(), lng: result.geometry.location.lng() }
+            onChange?.(resolved)
+            onSelect?.(resolved)
+          }
+        })
+      }
+    } catch { /* non-critical */ }
   }
 
   useEffect(() => {

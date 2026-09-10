@@ -59,13 +59,12 @@ const hourlyDurations = Array.from({ length: 15 }, (_, index) => index + 2)
 // ─── Live fleet data (vehicle-classes / vehicles-per-class) ─────────────────
 // Backed by a small proxy in app/api/fleet/**, which caches the upstream
 // fleet API server-side. Mirrored here with a short-lived client cache so
-// reopening the booking dialog doesn't refetch on every open. Any failure
-// (network, non-2xx, empty response) falls back to the static local copy —
-// the fleet/vehicle section never breaks the booking flow.
+// reopening the booking dialog doesn't refetch on every open.
 type VehicleClass = { id: string; className: string; description: string; passengerCapacity: number; luggageCapacity: number; isActive: boolean; imageUrl?: string }
 type ClassVehicle = { id: string; make: string; model: string; year: number; plate_number: string; color: string; status: string; vehicle_front_photo_url: string | null }
 
 const FLEET_CACHE_TTL_MS = 5 * 60 * 1000
+const LOOP_COPIES = [0, 1, 2]
 let fleetClassesCache: { data: VehicleClass[]; timestamp: number } | null = null
 const fleetVehiclesCache = new Map<string, { data: ClassVehicle[]; timestamp: number }>()
 
@@ -113,10 +112,19 @@ type VehicleCard = { key: string; image: string | null; title: string; passenger
 function buildVehicleCards(activeVehicles: ClassVehicle[], activeClass: VehicleClass | null): VehicleCard[] {
   const passengers = activeClass?.passengerCapacity ?? 2
   const bags = activeClass?.luggageCapacity ?? 4
+  const vehicleTitle = (vehicle: ClassVehicle) => {
+    const make = vehicle.make.trim()
+    const model = vehicle.model.trim()
+    if (!model || model === '-') return make
+    const makeLower = make.toLowerCase()
+    const modelLower = model.toLowerCase()
+    if (makeLower === modelLower || makeLower.includes(modelLower)) return make
+    return `${make} ${model}`
+  }
   return activeVehicles.map(vehicle => ({
     key: vehicle.id,
     image: vehicle.vehicle_front_photo_url,
-    title: vehicle.model && vehicle.model !== '-' ? `${vehicle.make} ${vehicle.model}` : vehicle.make,
+    title: vehicleTitle(vehicle),
     passengers,
     bags,
   }))
@@ -169,16 +177,32 @@ type LatLng = { lat: number; lng: number }
 
 async function resolveCoords(place: PlaceValue): Promise<LatLng | null> {
   if (place.source === 'airport') return AIRPORT_COORDS[place.address] ?? null
-  if (place.source !== 'google' || !place.placeId) return null
+  // Use eagerly-resolved coords stored at selection time
+  if (typeof place.lat === 'number' && typeof place.lng === 'number') return { lat: place.lat, lng: place.lng }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const g = (window as any).google
-  if (!g?.maps?.places?.PlacesService) return null
+  if (!g?.maps) return null
+  if (place.placeId && g.maps.places?.PlacesService) {
+    const detailsCoords = await new Promise<LatLng | null>(resolve => {
+      const svc = new g.maps.places.PlacesService(document.createElement('div'))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      svc.getDetails({ placeId: place.placeId, fields: ['geometry'] }, (result: any, status: string) => {
+        if (status === 'OK' && result?.geometry?.location) {
+          resolve({ lat: result.geometry.location.lat(), lng: result.geometry.location.lng() })
+        } else {
+          resolve(null)
+        }
+      })
+    })
+    if (detailsCoords) return detailsCoords
+  }
+  if (!place.address || !g.maps.Geocoder) return null
   return new Promise(resolve => {
-    const svc = new g.maps.places.PlacesService(document.createElement('div'))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    svc.getDetails({ placeId: place.placeId, fields: ['geometry'] }, (result: any, status: string) => {
-      if (status === 'OK' && result?.geometry?.location) {
-        resolve({ lat: result.geometry.location.lat(), lng: result.geometry.location.lng() })
+    const geocoder = new g.maps.Geocoder()
+    geocoder.geocode({ address: place.address, componentRestrictions: { country: 'SA' } }, (results: unknown[] | null, status: string) => {
+      const first = Array.isArray(results) ? results[0] as { geometry?: { location?: { lat: () => number; lng: () => number } } } : null
+      if (status === 'OK' && first?.geometry?.location) {
+        resolve({ lat: first.geometry.location.lat(), lng: first.geometry.location.lng() })
       } else {
         resolve(null)
       }
@@ -1126,7 +1150,319 @@ function DayTripDetails({ booking, updateBooking, next, back }: {
 }
 
 function RideStep({ back, next, booking, updateBooking }: { back: () => void; next: () => void; booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void }) {
+  const { copy, lang } = useBookingDialogCopy()
+  const [fleetClasses, setFleetClasses] = useState<VehicleClass[] | null>(null)
+  const [vehiclesByClass, setVehiclesByClass] = useState<{ classId: string; data: ClassVehicle[] } | null>(null)
+  const [categoryScrollIndex, setCategoryScrollIndex] = useState(0)
+  const [vehicleScrollIndex, setVehicleScrollIndex] = useState(0)
+  const categoryGridRef = useRef<HTMLDivElement>(null)
+  const vehicleGridRef = useRef<HTMLDivElement>(null)
+  const categoryScrollIndexRef = useRef(0)
+  const vehicleScrollIndexRef = useRef(0)
+
+  useEffect(() => {
+    let cancelled = false
+    getFleetClasses().then(data => { if (!cancelled) setFleetClasses(data) })
+    return () => { cancelled = true }
+  }, [])
+
+  const categories = buildCategoryTiles(fleetClasses)
+  const categoryIndex = booking.categoryIndex !== null && categories.length > 0 ? Math.min(booking.categoryIndex, categories.length - 1) : null
+  const category = categoryIndex !== null ? (categories[categoryIndex]?.name ?? '') : ''
+  const activeCategoryId = categoryIndex !== null ? categories[categoryIndex]?.id : undefined
+
+  useEffect(() => {
+    if (!activeCategoryId) return
+    let cancelled = false
+    getFleetVehicles(activeCategoryId).then(data => { if (!cancelled) setVehiclesByClass({ classId: activeCategoryId, data }) })
+    return () => { cancelled = true }
+  }, [activeCategoryId])
+
+  const activeVehicles = vehiclesByClass && vehiclesByClass.classId === activeCategoryId ? vehiclesByClass.data : null
+  const activeClass = fleetClasses?.find(cls => cls.id === activeCategoryId) ?? null
+  const vehicleCards = activeVehicles ? buildVehicleCards(activeVehicles, activeClass) : null
+  const vehicleCount = vehicleCards?.length ?? 0
+  const vehicleIndex = booking.vehicle !== null && vehicleCards?.length ? Math.min(booking.vehicle, vehicleCards.length - 1) : null
+  const rideSelectionComplete = Boolean(activeCategoryId && vehicleIndex !== null)
+  const service = booking.service
+  const isHourly = service === 'hourly'
+  const isCity = service === 'city'
+  const isDay = service === 'day'
+  const isOneWay = service === 'oneWay'
+  const normalizeLoopIndex = (index: number, count: number) => (index % count + count) % count
+  const scrollGridToLoopIndex = useCallback((grid: HTMLDivElement | null, count: number, index: number, behavior: ScrollBehavior = 'smooth') => {
+    const targetIndex = count > 1 ? count + normalizeLoopIndex(index, count) : index
+    const item = grid?.children.item(targetIndex)
+    if (!(grid && item instanceof HTMLElement)) return
+    const left = item.offsetLeft - (grid.clientWidth - item.offsetWidth) / 2
+    grid.scrollTo({ left, behavior })
+  }, [])
+  const nearestLoopItemIndex = useCallback((grid: HTMLDivElement) => {
+    const children = Array.from(grid.children).filter((child): child is HTMLElement => child instanceof HTMLElement)
+    if (children.length === 0) return 0
+    const viewportCenter = grid.scrollLeft + grid.clientWidth / 2
+    return children.reduce((bestIndex, child, index) => {
+      const childCenter = child.offsetLeft + child.offsetWidth / 2
+      const best = children[bestIndex]
+      const bestCenter = best.offsetLeft + best.offsetWidth / 2
+      return Math.abs(childCenter - viewportCenter) < Math.abs(bestCenter - viewportCenter) ? index : bestIndex
+    }, 0)
+  }, [])
+  const updateScrollIndex = useCallback((grid: HTMLDivElement, count: number, setIndex: (index: number) => void) => {
+    if (count <= 0) return
+    const nearestIndex = nearestLoopItemIndex(grid)
+    setIndex(normalizeLoopIndex(nearestIndex, count))
+  }, [nearestLoopItemIndex])
+  const settleLoopPosition = useCallback((grid: HTMLDivElement, count: number) => {
+    if (count <= 1) return
+    const children = Array.from(grid.children).filter((child): child is HTMLElement => child instanceof HTMLElement)
+    if (children.length === 0) return
+    const nearestIndex = nearestLoopItemIndex(grid)
+    const middleIndex = nearestIndex < count ? nearestIndex + count : nearestIndex >= count * 2 ? nearestIndex - count : nearestIndex
+    if (middleIndex !== nearestIndex) {
+      const item = children[middleIndex]
+      grid.scrollTo({ left: item.offsetLeft - (grid.clientWidth - item.offsetWidth) / 2, behavior: 'auto' })
+    }
+  }, [nearestLoopItemIndex])
+  const selectCategory = (index: number) => {
+    updateBooking({ categoryIndex: index, vehicle: null })
+    categoryScrollIndexRef.current = index
+    vehicleScrollIndexRef.current = 0
+    setCategoryScrollIndex(index)
+    setVehicleScrollIndex(0)
+    scrollGridToLoopIndex(categoryGridRef.current, categories.length, index)
+  }
+  const selectVehicle = (index: number) => {
+    updateBooking({ vehicle: index })
+    vehicleScrollIndexRef.current = index
+    setVehicleScrollIndex(index)
+    scrollGridToLoopIndex(vehicleGridRef.current, vehicleCount, index)
+  }
+  const showCategorySlide = (index: number) => {
+    categoryScrollIndexRef.current = index
+    setCategoryScrollIndex(index)
+    scrollGridToLoopIndex(categoryGridRef.current, categories.length, index)
+  }
+  const showVehicleSlide = (index: number) => {
+    vehicleScrollIndexRef.current = index
+    setVehicleScrollIndex(index)
+    scrollGridToLoopIndex(vehicleGridRef.current, vehicleCount, index)
+  }
+
+  useEffect(() => {
+    const grid = categoryGridRef.current
+    if (!grid || categories.length <= 1) return
+    let frame = 0
+    let settleTimer: ReturnType<typeof setTimeout> | null = null
+    const onScroll = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => updateScrollIndex(grid, categories.length, index => {
+        categoryScrollIndexRef.current = index
+        setCategoryScrollIndex(index)
+      }))
+      if (settleTimer) clearTimeout(settleTimer)
+      settleTimer = setTimeout(() => settleLoopPosition(grid, categories.length), 140)
+    }
+    frame = requestAnimationFrame(() => {
+      scrollGridToLoopIndex(grid, categories.length, categoryScrollIndexRef.current, 'auto')
+      updateScrollIndex(grid, categories.length, index => {
+        categoryScrollIndexRef.current = index
+        setCategoryScrollIndex(index)
+      })
+    })
+    grid.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      cancelAnimationFrame(frame)
+      if (settleTimer) clearTimeout(settleTimer)
+      grid.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [categories.length, categoryScrollIndexRef, scrollGridToLoopIndex, settleLoopPosition, updateScrollIndex])
+
+  useEffect(() => {
+    vehicleScrollIndexRef.current = 0
+    const grid = vehicleGridRef.current
+    if (!grid || vehicleCount <= 1) return
+    let frame = 0
+    let settleTimer: ReturnType<typeof setTimeout> | null = null
+    const onScroll = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => updateScrollIndex(grid, vehicleCount, index => {
+        vehicleScrollIndexRef.current = index
+        setVehicleScrollIndex(index)
+      }))
+      if (settleTimer) clearTimeout(settleTimer)
+      settleTimer = setTimeout(() => settleLoopPosition(grid, vehicleCount), 140)
+    }
+    frame = requestAnimationFrame(() => {
+      scrollGridToLoopIndex(grid, vehicleCount, vehicleScrollIndexRef.current, 'auto')
+      updateScrollIndex(grid, vehicleCount, index => {
+        vehicleScrollIndexRef.current = index
+        setVehicleScrollIndex(index)
+      })
+    })
+    grid.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      cancelAnimationFrame(frame)
+      if (settleTimer) clearTimeout(settleTimer)
+      grid.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [activeCategoryId, vehicleCount, scrollGridToLoopIndex, settleLoopPosition, updateScrollIndex])
+
+  return (
+    <>
+      <p className={styles.eyebrow}>{isHourly ? copy.services.hourly : isCity ? copy.services.city : isDay ? copy.services.day : isOneWay ? copy.services.oneWay : copy.services.airport}</p>
+      <h2 className={styles.title}>{copy.selectRide}</h2>
+      <p className={styles.categoryIntro}>{copy.chooseCategory}</p>
+      {fleetClasses === null ? (
+        <div className={styles.categorySkeletonGrid} aria-hidden="true">
+          {[68, 55, 72].map((w, i) => (
+            <div key={i} className={styles.categorySkeletonCard}>
+              <span className={styles.categorySkeletonLine} style={{ width: `${w}%`, height: 10 }} />
+              <span className={styles.categorySkeletonLine} style={{ width: 44, height: 7 }} />
+            </div>
+          ))}
+        </div>
+      ) : categories.length === 0 ? (
+        <p className={styles.vehicleEmpty}>{lang === 'ar' ? 'لا توجد فئات مركبات متاحة.' : 'No vehicle classes available.'}</p>
+      ) : (
+        <>
+          <div ref={categoryGridRef} className={styles.categoryGrid}>
+            {(categories.length > 1 ? LOOP_COPIES : [1]).flatMap(copyIndex => categories.map((item, index) => {
+              const isInteractiveCopy = categories.length <= 1 || copyIndex === 1
+              return (
+                <button type="button" key={`${copyIndex}-${item.id ?? item.name}`} aria-hidden={!isInteractiveCopy} tabIndex={isInteractiveCopy ? 0 : -1} className={`${styles.categoryCard} ${categoryIndex === index ? styles.categoryActive : ''}`} onClick={() => selectCategory(index)}>
+                  <span className={styles.categoryCopy}>
+                    <strong>{item.name}</strong>
+                    <small>{item.copy}</small>
+                  </span>
+                  {item.imageUrl ? (
+                    <img src={item.imageUrl} alt="" aria-hidden="true" className={styles.categoryImg} />
+                  ) : (
+                    <span className={styles.categoryPlaceholder} aria-hidden="true" />
+                  )}
+                </button>
+              )
+            }))}
+          </div>
+          {categories.length > 1 && (
+            <div className={styles.sliderDots}>
+              {categories.map((item, index) => (
+                <button
+                  key={item.id ?? item.name}
+                  type="button"
+                  className={`${styles.sliderDot} ${categoryScrollIndex === index ? styles.sliderDotActive : ''}`}
+                  aria-label={copy.categoryDotLabel(index + 1)}
+                  aria-current={categoryScrollIndex === index ? 'true' : undefined}
+                  onClick={() => showCategorySlide(index)}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+      <div className={styles.vehiclePanel}>
+        {category && <p>{copy.availableVehicles(category)}</p>}
+        {!category ? (
+          <p className={styles.vehicleEmpty}>{lang === 'ar' ? 'اختر فئة مركبة لعرض السيارات.' : 'Choose a vehicle class to view vehicles.'}</p>
+        ) : vehicleCards === null ? (
+          <div className={styles.vehicleGrid} aria-hidden="true">
+            {[0, 1, 2].map(i => (
+              <div key={i} className={styles.vehicleSkeletonCard}>
+                <div className={`${styles.vehicleSkeletonMedia} ${styles.skeletonShimmer}`} />
+                <div className={styles.vehicleSkeletonCopy}>
+                  <div className={`${styles.vehicleSkeletonLine} ${styles.skeletonShimmer}`} style={{ width: '70%', height: 10 }} />
+                  <div className={`${styles.vehicleSkeletonLine} ${styles.skeletonShimmer}`} style={{ width: '50%', height: 8 }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : vehicleCards.length === 0 ? (
+          <p className={styles.vehicleEmpty}>{lang === 'ar' ? 'لا توجد سيارات متاحة لهذه الفئة.' : 'No vehicles available for this class.'}</p>
+        ) : (
+          <>
+            <div ref={vehicleGridRef} className={styles.vehicleGrid}>
+              {(vehicleCards.length > 1 ? LOOP_COPIES : [1]).flatMap(copyIndex => vehicleCards.map((card, index) => {
+                const isInteractiveCopy = vehicleCards.length <= 1 || copyIndex === 1
+                return (
+                  <button type="button" key={`${copyIndex}-${card.key}`} aria-hidden={!isInteractiveCopy} tabIndex={isInteractiveCopy ? 0 : -1} className={`${styles.vehicleCard} ${vehicleIndex === index ? styles.vehicleSelected : ''}`} onClick={() => selectVehicle(index)}>
+                    {card.image ? (
+                      <img src={card.image} alt={card.title} className={styles.vehicleImg} />
+                    ) : (
+                      <span className={styles.vehicleNoImage}><CircleInfo size={20} /></span>
+                    )}
+                    <span className={styles.vehicleCopy}>
+                      <strong>{card.title}</strong>
+                      <small className={styles.vehicleSpecs} aria-label={copy.passengersAndBags}>
+                        <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><UsersRound size={8} /></span><span>{card.passengers}</span></span>
+                        <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><Luggage size={8} /></span><span>{card.bags}</span></span>
+                      </small>
+                    </span>
+                  </button>
+                )
+              }))}
+            </div>
+            {vehicleCards.length > 1 && (
+              <div className={styles.sliderDots}>
+                {vehicleCards.map((card, index) => (
+                  <button
+                    key={card.key}
+                    type="button"
+                    className={`${styles.sliderDot} ${vehicleScrollIndex === index ? styles.sliderDotActive : ''}`}
+                    aria-label={copy.vehicleDotLabel(index + 1)}
+                    aria-current={vehicleScrollIndex === index ? 'true' : undefined}
+                    onClick={() => showVehicleSlide(index)}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+      <FooterActions back={back} next={next} showNext={rideSelectionComplete} />
+    </>
+  )
+}
+
+function BookingReviewSummary({ booking, category, vehicleLabel }: { booking: BookingState; category: string; vehicleLabel: string }) {
   const { copy, dir, lang } = useBookingDialogCopy()
+  const service = booking.service
+  const isHourly = service === 'hourly'
+  const isCity = service === 'city'
+  const isDay = service === 'day'
+  const isOneWay = service === 'oneWay'
+  const categorySummary = category || '--'
+  const vehicleSummary = vehicleLabel || '--'
+  const l = copy.summaryLabels
+  const summaryRows = isHourly
+    ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.duration, `${booking.duration} ${copy.hours}`], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
+    : isCity
+      ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.journey, copy.summaryValues.city], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
+      : isDay
+        ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.duration, booking.dayDuration === 'full' ? copy.fullDay : copy.halfDay], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
+        : isOneWay
+          ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.journey, copy.summaryValues.oneWay], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
+          : [[l.flight, booking.flightNumber || '--'], [l.flightDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
+  const SummaryArrow = dir === 'rtl' ? ArrowLeft : ArrowRight
+
+  return (
+    <div className={styles.summaryCard}>
+      <div className={styles.routeSummary}>
+        <div><small>{copy.pickup}</small><strong>{placeLabel(booking.pickup)}</strong></div>
+        <SummaryArrow size={20} />
+        <div><small>{isHourly || isCity || isDay ? copy.summaryDestination : copy.summaryDropOff}</small><strong>{placeLabel(booking.destination)}</strong></div>
+      </div>
+      {summaryRows.map(row => (
+        <div className={styles.summaryRow} key={row[0]}><span>{row[0]}</span><span>{row[1]}</span></div>
+      ))}
+    </div>
+  )
+}
+
+function useSelectedFleetLabels(booking: BookingState) {
   const [fleetClasses, setFleetClasses] = useState<VehicleClass[] | null>(null)
   const [vehiclesByClass, setVehiclesByClass] = useState<{ classId: string; data: ClassVehicle[] } | null>(null)
 
@@ -1151,127 +1487,48 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
   const activeVehicles = vehiclesByClass && vehiclesByClass.classId === activeCategoryId ? vehiclesByClass.data : null
   const activeClass = fleetClasses?.find(cls => cls.id === activeCategoryId) ?? null
   const vehicleCards = activeVehicles ? buildVehicleCards(activeVehicles, activeClass) : null
-  const vehicleIndex = booking.vehicle !== null && vehicleCards?.length ? Math.min(booking.vehicle, vehicleCards.length - 1) : null
-  const vehicleLabel = vehicleIndex !== null ? (vehicleCards?.[vehicleIndex]?.title ?? '') : ''
-  const categorySummary = category || '--'
-  const vehicleSummary = vehicleLabel || '--'
-  const rideSelectionComplete = Boolean(activeCategoryId && vehicleIndex !== null)
+  const vehicleLabel = booking.vehicle !== null && vehicleCards ? (vehicleCards[Math.min(booking.vehicle, vehicleCards.length - 1)]?.title ?? '') : ''
+
+  return { category, vehicleLabel }
+}
+
+function ReviewStep({ back, next, booking }: { back: () => void; next: () => void; booking: BookingState }) {
+  const { copy } = useBookingDialogCopy()
+  const { category, vehicleLabel } = useSelectedFleetLabels(booking)
   const service = booking.service
   const isHourly = service === 'hourly'
   const isCity = service === 'city'
   const isDay = service === 'day'
   const isOneWay = service === 'oneWay'
-  const l = copy.summaryLabels
-  const summaryRows = isHourly
-    ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.duration, `${booking.duration} ${copy.hours}`], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
-    : isCity
-      ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.journey, copy.summaryValues.city], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
-      : isDay
-        ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.duration, booking.dayDuration === 'full' ? copy.fullDay : copy.halfDay], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
-        : isOneWay
-          ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.journey, copy.summaryValues.oneWay], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
-          : [[l.flight, booking.flightNumber || '--'], [l.flightDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
-  const SummaryArrow = dir === 'rtl' ? ArrowLeft : ArrowRight
 
   return (
     <>
       <p className={styles.eyebrow}>{isHourly ? copy.services.hourly : isCity ? copy.services.city : isDay ? copy.services.day : isOneWay ? copy.services.oneWay : copy.services.airport}</p>
-      <h2 className={styles.title}>{copy.selectRide}</h2>
-      <p className={styles.subtitle}>{copy.selectRideSubtitle}</p>
-      <p className={styles.categoryIntro}>{copy.chooseCategory}</p>
-      {fleetClasses === null ? (
-        <div className={styles.categorySkeletonGrid} aria-hidden="true">
-          {[68, 55, 72].map((w, i) => (
-            <div key={i} className={styles.categorySkeletonCard}>
-              <span className={styles.categorySkeletonLine} style={{ width: `${w}%`, height: 10 }} />
-              <span className={styles.categorySkeletonLine} style={{ width: 44, height: 7 }} />
-            </div>
-          ))}
-        </div>
-      ) : categories.length === 0 ? (
-        <p className={styles.vehicleEmpty}>{lang === 'ar' ? 'لا توجد فئات مركبات متاحة.' : 'No vehicle classes available.'}</p>
-      ) : (
-        <div className={styles.categoryGrid}>
-          {categories.map((item, index) => (
-            <button type="button" key={item.id ?? item.name} className={`${styles.categoryCard} ${categoryIndex === index ? styles.categoryActive : ''}`} onClick={() => updateBooking({ categoryIndex: index, vehicle: null })}>
-              <span className={styles.categoryCopy}>
-                <strong>{item.name}</strong>
-                <small>{item.copy}</small>
-              </span>
-              {item.imageUrl ? (
-                <img src={item.imageUrl} alt="" aria-hidden="true" className={styles.categoryImg} />
-              ) : (
-                <span className={styles.categoryPlaceholder} aria-hidden="true" />
-              )}
-            </button>
-          ))}
-        </div>
-      )}
-      <div className={styles.vehiclePanel}>
-        {category && <p>{copy.availableVehicles(category)}</p>}
-        {!category ? (
-          <p className={styles.vehicleEmpty}>{lang === 'ar' ? 'اختر فئة مركبة لعرض السيارات.' : 'Choose a vehicle class to view vehicles.'}</p>
-        ) : vehicleCards === null ? (
-          <div className={styles.vehicleGrid} aria-hidden="true">
-            {[0, 1, 2].map(i => (
-              <div key={i} className={styles.vehicleSkeletonCard}>
-                <div className={`${styles.vehicleSkeletonMedia} ${styles.skeletonShimmer}`} />
-                <div className={styles.vehicleSkeletonCopy}>
-                  <div className={`${styles.vehicleSkeletonLine} ${styles.skeletonShimmer}`} style={{ width: '70%', height: 10 }} />
-                  <div className={`${styles.vehicleSkeletonLine} ${styles.skeletonShimmer}`} style={{ width: '50%', height: 8 }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : vehicleCards.length === 0 ? (
-          <p className={styles.vehicleEmpty}>{lang === 'ar' ? 'لا توجد سيارات متاحة لهذه الفئة.' : 'No vehicles available for this class.'}</p>
-        ) : (
-          <div className={styles.vehicleGrid}>
-            {vehicleCards.map((card, index) => (
-              <button type="button" key={card.key} className={`${styles.vehicleCard} ${vehicleIndex === index ? styles.vehicleSelected : ''}`} onClick={() => updateBooking({ vehicle: index })}>
-                {card.image ? (
-                  <img src={card.image} alt={card.title} className={styles.vehicleImg} />
-                ) : (
-                  <span className={styles.vehicleNoImage}><CircleInfo size={20} /></span>
-                )}
-                <span className={styles.vehicleCopy}>
-                  <strong>{card.title}</strong>
-                  <small className={styles.vehicleSpecs} aria-label={copy.passengersAndBags}>
-                    <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><UsersRound size={8} /></span><span>{card.passengers}</span></span>
-                    <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><Luggage size={8} /></span><span>{card.bags}</span></span>
-                  </small>
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-      <h3 className={styles.reviewTitle}>{copy.reviewBooking}</h3>
-      <div className={styles.summaryCard}>
-        <div className={styles.routeSummary}>
-          <div><small>{copy.pickup}</small><strong>{placeLabel(booking.pickup)}</strong></div>
-          <SummaryArrow size={20} />
-          <div><small>{isHourly || isCity || isDay ? copy.summaryDestination : copy.summaryDropOff}</small><strong>{placeLabel(booking.destination)}</strong></div>
-        </div>
-        {summaryRows.map(row => (
-          <div className={styles.summaryRow} key={row[0]}><span>{row[0]}</span><span>{row[1]}</span></div>
-        ))}
-      </div>
-      <FooterActions back={back} next={next} showNext={rideSelectionComplete} />
+      <h2 className={styles.title}>{copy.reviewBooking}</h2>
+      <p className={styles.subtitle}>{copy.reviewSubtitle}</p>
+      <BookingReviewSummary booking={booking} category={category} vehicleLabel={vehicleLabel} />
+      <FooterActions back={back} next={next} />
     </>
   )
 }
 
+function FareAmount({ value }: { value: number | undefined }) {
+  const amount = typeof value === 'number' && isFinite(value) ? value.toFixed(2) : '0.00'
+  return (
+    <span className={styles.fareAmount} dir="ltr">
+      {amount} <Image src="/riyal_Currency.svg" alt="SAR" width={13} height={13} className={styles.riyalIcon} />
+    </span>
+  )
+}
+
 function FareStep({ back, onSuccess, booking }: { back: () => void; onSuccess: (bookingId: string) => void; booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void }) {
-  const { copy, dir, lang } = useBookingDialogCopy()
+  const { copy, dir } = useBookingDialogCopy()
   const service = booking.service
   const isHourly = service === 'hourly'
   const isCity = service === 'city'
   const isDay = service === 'day'
   const isOneWay = service === 'oneWay'
-  const SummaryArrow = dir === 'rtl' ? ArrowLeft : ArrowRight
   const [fleetClasses, setFleetClasses] = useState<VehicleClass[] | null>(null)
-  const [vehiclesByClass, setVehiclesByClass] = useState<{ classId: string; data: ClassVehicle[] } | null>(null)
   const [fare, setFare] = useState<FareData | null>(null)
   const [fareLoading, setFareLoading] = useState(true)
   const [fareError, setFareError] = useState(false)
@@ -1288,15 +1545,7 @@ function FareStep({ back, onSuccess, booking }: { back: () => void; onSuccess: (
 
   const categories = buildCategoryTiles(fleetClasses)
   const categoryIndex = booking.categoryIndex !== null && categories.length > 0 ? Math.min(booking.categoryIndex, categories.length - 1) : null
-  const category = categoryIndex !== null ? (categories[categoryIndex]?.name ?? '') : ''
   const activeCategoryId = categoryIndex !== null ? categories[categoryIndex]?.id : undefined
-
-  useEffect(() => {
-    if (!activeCategoryId) return
-    let cancelled = false
-    getFleetVehicles(activeCategoryId).then(data => { if (!cancelled) setVehiclesByClass({ classId: activeCategoryId, data }) })
-    return () => { cancelled = true }
-  }, [activeCategoryId])
 
   useEffect(() => {
     if (!activeCategoryId) return
@@ -1366,22 +1615,6 @@ function FareStep({ back, onSuccess, booking }: { back: () => void; onSuccess: (
     }
   }
 
-  const activeVehicles = vehiclesByClass && vehiclesByClass.classId === activeCategoryId ? vehiclesByClass.data : null
-  const activeClass = fleetClasses?.find(cls => cls.id === activeCategoryId) ?? null
-  const vehicleCards = activeVehicles ? buildVehicleCards(activeVehicles, activeClass) : null
-  const vehicleLabel = booking.vehicle !== null && vehicleCards ? (vehicleCards[Math.min(booking.vehicle, vehicleCards.length - 1)]?.title ?? '') : ''
-  const serviceSpecific = isHourly
-    ? `${booking.duration} ${copy.hours}`
-    : isDay ? (booking.dayDuration === 'full' ? copy.fullDay : copy.halfDay)
-    : isCity ? copy.summaryValues.city
-    : isOneWay ? copy.summaryValues.oneWay
-    : booking.flightNumber || '--'
-
-  const fmt = (n: number | undefined | null) => (typeof n === 'number' && isFinite(n) ? n.toFixed(2) : '0.00')
-  const RiyalIcon = () => <Image src="/riyal_Currency.svg" alt="SAR" width={13} height={13} className={styles.riyalIcon} />
-  const FareAmount = ({ value }: { value: number | undefined }) => (
-    <span className={styles.fareAmount} dir="ltr">{fmt(value)} <RiyalIcon /></span>
-  )
   const BackIcon = dir === 'rtl' ? ArrowRight : ArrowLeft
   const NextIcon = dir === 'rtl' ? ArrowLeft : ArrowRight
 
@@ -1390,19 +1623,6 @@ function FareStep({ back, onSuccess, booking }: { back: () => void; onSuccess: (
       <p className={styles.eyebrow}>{isHourly ? copy.services.hourly : isCity ? copy.services.city : isDay ? copy.services.day : isOneWay ? copy.services.oneWay : copy.services.airport}</p>
       <h2 className={styles.title}>{copy.fareSummary}</h2>
       <p className={styles.subtitle}>{copy.fareSubtitle[service]}</p>
-
-      <div className={styles.summaryCard}>
-        <div className={styles.routeSummary}>
-          <div><small>{copy.pickup}</small><strong>{placeLabel(booking.pickup)}</strong></div>
-          <SummaryArrow size={20} />
-          <div><small>{isHourly || isCity || isDay ? copy.summaryDestination : copy.summaryDropOff}</small><strong>{placeLabel(booking.destination)}</strong></div>
-        </div>
-        <div className={styles.summaryRow}><span>{service === 'airport' ? copy.summaryLabels.flightDate : copy.summaryLabels.pickupDate}</span><span>{formatBookingDate(booking.date, copy.calendar.locale)}</span></div>
-        <div className={styles.summaryRow}><span>{copy.summaryLabels.pickupTime}</span><span>{formatBookingTime(booking.time, lang)}</span></div>
-        <div className={styles.summaryRow}><span>{isHourly || isDay ? copy.summaryLabels.duration : service === 'airport' ? copy.summaryLabels.flight : copy.summaryLabels.journey}</span><span>{serviceSpecific}</span></div>
-        <div className={styles.summaryRow}><span>{copy.summaryLabels.category}</span><span>{category}</span></div>
-        <div className={styles.summaryRow}><span>{copy.summaryLabels.vehicle}</span><span>{vehicleLabel}</span></div>
-      </div>
 
       {fareLoading && (
         <div className={styles.fareSkeletonCard} aria-hidden="true">
@@ -1444,7 +1664,7 @@ function FareStep({ back, onSuccess, booking }: { back: () => void; onSuccess: (
           onClick={handleSubmit}
           disabled={submitting || fareLoading || fareError}
         >
-          {submitting ? copy.submitting : copy.continue} {!submitting && <NextIcon size={16} />}
+          {submitting ? copy.submitting : copy.confirmBooking} {!submitting && <NextIcon size={16} />}
         </button>
       </div>
     </>
@@ -1554,7 +1774,7 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
   }, [onClose, service])
 
   const requestClose = useCallback(() => {
-    if (step === 3) {
+    if (step === 4) {
       resetAndClose()
     } else {
       setConfirmClose(true)
@@ -1616,8 +1836,9 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
           {step === 0 && service === 'day' && <DayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
           {step === 0 && service === 'oneWay' && <OneWayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
           {step === 1 && <RideStep booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(2)} />}
-          {step === 2 && <FareStep booking={booking} updateBooking={updateBooking} back={goBack} onSuccess={(id) => { setBookingId(id); setStep(3) }} />}
-          {step === 3 && <SuccessStep booking={booking} bookingId={bookingId} back={goBack} onDone={resetAndClose} />}
+          {step === 2 && <ReviewStep booking={booking} back={goBack} next={() => setStep(3)} />}
+          {step === 3 && <FareStep booking={booking} updateBooking={updateBooking} back={goBack} onSuccess={(id) => { setBookingId(id); setStep(4) }} />}
+          {step === 4 && <SuccessStep booking={booking} bookingId={bookingId} back={goBack} onDone={resetAndClose} />}
         </div>
         <AnimatePresence>
           {confirmClose && (

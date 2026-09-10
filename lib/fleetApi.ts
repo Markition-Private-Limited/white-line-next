@@ -8,6 +8,8 @@
 // camelCase — className/isActive/baseFare, not name/is_active/base_fare).
 // These types reflect what the API actually returns, verified against it directly.
 
+import { fleetGet } from './fleetHttp'
+
 export type VehicleClass = {
   id: string
   className: string
@@ -35,37 +37,34 @@ export type ClassVehicle = {
 type FleetEnvelope<T> = { success: boolean; data: T; timestamp?: string; message?: string }
 
 const FLEET_API_BASE = process.env.FLEET_API_BASE_URL ?? 'http://34.166.167.2'
-const REVALIDATE_SECONDS = 300
-const REQUEST_TIMEOUT_MS = 8000
 
 function proxiedFleetImageUrl(url: string | null | undefined): string | null {
   if (!url) return null
   try {
-    const imageUrl = new URL(url)
     const apiBaseUrl = new URL(FLEET_API_BASE)
-    const isFleetImage =
-      imageUrl.pathname.startsWith('/api/v1/public-files/') ||
-      imageUrl.pathname.startsWith('/api/v1/uploads/drivers/vehicles/')
-    if (imageUrl.origin !== apiBaseUrl.origin || !isFleetImage) return url
+    const imageUrl = new URL(url, apiBaseUrl)
+    if (imageUrl.hostname === 'localhost' || imageUrl.hostname === '127.0.0.1') {
+      imageUrl.protocol = apiBaseUrl.protocol
+      imageUrl.hostname = apiBaseUrl.hostname
+      imageUrl.port = apiBaseUrl.port
+    }
+    if (imageUrl.hostname !== apiBaseUrl.hostname) return url
     return `/api/fleet/image?url=${encodeURIComponent(imageUrl.toString())}`
   } catch {
     return url
   }
 }
 
-async function fleetGet<T>(path: string): Promise<T> {
-  const res = await fetch(`${FLEET_API_BASE}${path}`, {
-    next: { revalidate: REVALIDATE_SECONDS },
-    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-  })
-  if (!res.ok) throw new Error(`Fleet API ${path} responded ${res.status}`)
-  const envelope = (await res.json()) as FleetEnvelope<T>
+async function fleetGetData<T>(path: string): Promise<T> {
+  const { status, data } = await fleetGet<FleetEnvelope<T>>(path)
+  if (status < 200 || status >= 300) throw new Error(`Fleet API ${path} responded ${status}`)
+  const envelope = data
   if (!envelope.success) throw new Error(`Fleet API ${path} returned success:false — ${envelope.message ?? 'no message'}`)
   return envelope.data
 }
 
 export async function fetchVehicleClasses(): Promise<VehicleClass[]> {
-  const data = await fleetGet<VehicleClass[]>('/api/v1/public/customers/vehicle-classes')
+  const data = await fleetGetData<VehicleClass[]>('/api/v1/public/customers/vehicle-classes')
   return Array.isArray(data)
     ? data
       .filter(item => item.isActive !== false)
@@ -74,7 +73,7 @@ export async function fetchVehicleClasses(): Promise<VehicleClass[]> {
 }
 
 export async function fetchVehiclesForClass(id: string): Promise<ClassVehicle[]> {
-  const data = await fleetGet<ClassVehicle[]>(`/api/v1/public/customers/vehicle-classes/${encodeURIComponent(id)}/vehicles`)
+  const data = await fleetGetData<ClassVehicle[]>(`/api/v1/public/customers/vehicle-classes/${encodeURIComponent(id)}/vehicles`)
   return Array.isArray(data)
     ? data.map(item => ({
       id: item.id,
