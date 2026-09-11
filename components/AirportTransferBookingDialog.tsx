@@ -1532,6 +1532,7 @@ function FareAmount({ value }: { value: number | undefined }) {
 
 function FareStep({ back, onSuccess, booking }: { back: () => void; onSuccess: (bookingId: string) => void; booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void }) {
   const { copy, dir } = useBookingDialogCopy()
+  const { category, vehicleLabel } = useSelectedFleetLabels(booking)
   const service = booking.service
   const isHourly = service === 'hourly'
   const isCity = service === 'city'
@@ -1651,6 +1652,8 @@ function FareStep({ back, onSuccess, booking }: { back: () => void; onSuccess: (
       <p className={styles.eyebrow}>{isHourly ? copy.services.hourly : isCity ? copy.services.city : isDay ? copy.services.day : isOneWay ? copy.services.oneWay : copy.services.airport}</p>
       <h2 className={styles.title}>{copy.fareSummary}</h2>
       <p className={styles.subtitle}>{copy.fareSubtitle[service]}</p>
+
+      <BookingReviewSummary booking={booking} category={category} vehicleLabel={vehicleLabel} />
 
       {fareLoading && (
         <div className={styles.fareSkeletonCard} aria-hidden="true">
