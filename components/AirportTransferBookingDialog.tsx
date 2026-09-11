@@ -912,15 +912,15 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
   const { copy, dir } = useBookingDialogCopy()
   const [attempted, setAttempted] = useState(false)
   const ChoiceIcon = dir === 'rtl' ? ChevronLeft : ChevronRight
-  const selfComplete = booking.name.trim().length >= 2 && /^\S+@\S+\.\S+$/.test(booking.email.trim()) && booking.phone.replace(/\D/g, '').length >= 8
-  const guestComplete = booking.guest.name.trim().length >= 2 && booking.guest.phone.replace(/\D/g, '').length >= 8 && /^\S+@\S+\.\S+$/.test(booking.guest.email.trim())
+  const contactComplete = booking.name.trim().length >= 2 && /^\S+@\S+\.\S+$/.test(booking.email.trim()) && booking.phone.replace(/\D/g, '').length >= 8
+  const guestFieldsComplete = booking.guest.name.trim().length >= 2 && booking.guest.phone.replace(/\D/g, '').length >= 8 && /^\S+@\S+\.\S+$/.test(booking.guest.email.trim())
   const chooseBookingFor = (value: BookingFor) => {
     updateBooking({ bookingFor: value, guest: value === booking.bookingFor ? booking.guest : blankGuest() })
   }
   const continueTrip = () => {
     setAttempted(true)
     onAttempt()
-    const detailsComplete = booking.bookingFor === 'self' ? selfComplete : guestComplete
+    const detailsComplete = booking.bookingFor === 'self' ? contactComplete : (contactComplete && guestFieldsComplete)
     if (!booking.bookingFor || !tripComplete || !detailsComplete) return
     next()
   }
@@ -953,13 +953,22 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
       )}
 
       {booking.bookingFor === 'guest' && (
-        <div className={styles.guestPanel}>
-          <h3>{copy.guestDetails}</h3>
-          <p>{copy.enterGuestDetails}</p>
-          <TextField label={copy.fullName} placeholder={copy.guestName} value={booking.guest.name} minLength={2} attempted={attempted} onChange={value => updateBooking({ guest: { ...booking.guest, name: value } })} />
-          <PhoneField label={copy.phoneNumber} value={booking.guest.phone} attempted={attempted} onChange={value => updateBooking({ guest: { ...booking.guest, phone: value } })} />
-          <TextField label={copy.emailAddress} placeholder="guest@gmail.com" value={booking.guest.email} inputType="email" attempted={attempted} onChange={value => updateBooking({ guest: { ...booking.guest, email: value } })} />
-        </div>
+        <>
+          <div className={styles.guestPanel}>
+            <h3>{copy.yourDetails}</h3>
+            <p>{copy.enterYourDetails}</p>
+            <TextField label={copy.fullName} placeholder={copy.namePlaceholder} value={booking.name} minLength={2} attempted={attempted} onChange={value => updateBooking({ name: value })} />
+            <PhoneField label={copy.phoneNumber} value={booking.phone} attempted={attempted} onChange={value => updateBooking({ phone: value })} />
+            <TextField label={copy.emailAddress} placeholder="you@example.com" value={booking.email} inputType="email" attempted={attempted} onChange={value => updateBooking({ email: value })} />
+          </div>
+          <div className={styles.guestPanel}>
+            <h3>{copy.guestDetails}</h3>
+            <p>{copy.enterGuestDetails}</p>
+            <TextField label={copy.fullName} placeholder={copy.guestName} value={booking.guest.name} minLength={2} attempted={attempted} onChange={value => updateBooking({ guest: { ...booking.guest, name: value } })} />
+            <PhoneField label={copy.phoneNumber} value={booking.guest.phone} attempted={attempted} onChange={value => updateBooking({ guest: { ...booking.guest, phone: value } })} />
+            <TextField label={copy.emailAddress} placeholder="guest@gmail.com" value={booking.guest.email} inputType="email" attempted={attempted} onChange={value => updateBooking({ guest: { ...booking.guest, email: value } })} />
+          </div>
+        </>
       )}
 
       <FooterActions back={booking.bookingFor ? () => chooseBookingFor(null) : back} next={continueTrip} />
@@ -1586,29 +1595,48 @@ function FareStep({ back, onSuccess, booking }: { back: () => void; onSuccess: (
     if (!pickupCoords || !activeCategoryId || fareLoading || fareError || !fare || submitting) return
     setSubmitting(true)
     setSubmitError(false)
-    const contact = booking.bookingFor === 'self'
-      ? { name: booking.name, email: booking.email, phone: booking.phone.replace(/\s/g, '') }
-      : { name: booking.guest.name, email: booking.guest.email, phone: booking.guest.phone.replace(/\s/g, '') }
+
+    const scheduledDatetime = (() => {
+      if (!booking.date || !booking.time) return undefined
+      const d = new Date(booking.date)
+      d.setHours(booking.time.hour, booking.time.minute, 0, 0)
+      return d.toISOString()
+    })()
+
     const body: Record<string, unknown> = {
       vehicle_class_id: activeCategoryId,
       service_type: toApiServiceType(service, booking.dayDuration),
       pickup_lat: pickupCoords.lat,
       pickup_lng: pickupCoords.lng,
       pickup_address: booking.pickup?.address ?? '',
-      name: contact.name,
-      email: contact.email,
-      phone: contact.phone,
+      name: booking.name,
+      email: booking.email,
+      phone: booking.phone.replace(/\s/g, ''),
+      success_url: `${window.location.origin}/booking-confirmed`,
+      fail_url: `${window.location.origin}/booking-failed`,
     }
+    if (scheduledDatetime) body.scheduled_datetime = scheduledDatetime
     if (dropoffCoords) { body.dropoff_lat = dropoffCoords.lat; body.dropoff_lng = dropoffCoords.lng }
     if (booking.destination?.address) body.dropoff_address = booking.destination.address
     if (isHourly) body.duration_hours = booking.duration
     if (service === 'day' && booking.dayDuration === 'full') body.full_day_hours = 10
+    if (booking.bookingFor === 'guest') {
+      body.guest = {
+        name: booking.guest.name,
+        email: booking.guest.email,
+        phone: booking.guest.phone.replace(/\s/g, ''),
+      }
+    }
     try {
       const res = await fetch('/api/bookings/manual', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       const json = await res.json()
       if (!res.ok) { setSubmitError(true); setSubmitting(false); return }
-      const bookingId: string = json?.data?.booking_id ?? json?.booking_id ?? ''
-      onSuccess(bookingId)
+      const checkoutUrl: string = json?.data?.payment?.checkout_url ?? json?.payment?.checkout_url ?? ''
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl
+      } else {
+        onSuccess(json?.data?.booking_id ?? json?.booking_id ?? '')
+      }
     } catch {
       setSubmitError(true)
       setSubmitting(false)

@@ -8,6 +8,7 @@ import JourneySection from '@/components/JourneySection'
 import FleetSection from '@/components/FleetSection'
 import TestimonialsSection from '@/components/TestimonialsSection'
 import AppSection from '@/components/AppSection'
+import HomePaymentChecker from '@/components/HomePaymentChecker'
 
 export const metadata: Metadata = {
   title: 'White Line',
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
+      <HomePaymentChecker />
       <PageTitle en="White Line" ar="White Line" />
       <HomeHero />
       <ExperienceSection />

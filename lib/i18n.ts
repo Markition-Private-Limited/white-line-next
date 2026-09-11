@@ -1153,6 +1153,38 @@ const en = {
       poweredBy: 'Powered by White Line Consent Management',
     },
   },
+
+  bookingConfirmed: {
+    eyebrow: 'BOOKING CONFIRMED',
+    title: 'Your Booking Is',
+    titleAccent: 'Confirmed!',
+    subtitle: 'Your payment has been received and your ride request has been successfully submitted.',
+    bookingReference: 'Booking Reference',
+    statusPayment: 'Payment Received',
+    statusBooking: 'Booking Request Received',
+    statusChauffeur: 'Chauffeur Assignment',
+    statusFinal: 'Final Confirmation',
+    statusPending: 'Pending',
+    noteBody: 'Our team will review your booking and send your final chauffeur confirmation to your email shortly.',
+    emailMissing: 'Didn\'t receive the email?',
+    emailSpamNote: 'Please check your spam or junk folder. If you still haven\'t received it, reach out to us on WhatsApp.',
+    whatsapp: '+966 56 311 7770',
+    backHome: 'Back to Home',
+    appTitle: 'App Coming Soon',
+    appBody: 'The White Line app is launching soon on iOS and Android.',
+    apple: { sub: 'Download on the', main: 'Coming Soon' },
+    google: { sub: 'Get it on', main: 'Coming Soon' },
+  },
+
+  bookingFailed: {
+    eyebrow: 'White Line',
+    title: 'Payment Failed.',
+    titleAccent: 'No charge was made.',
+    subtitle: 'We were unable to process your payment. Your booking has not been confirmed.',
+    body: 'Please try again or contact our support team if the issue persists.',
+    tryAgain: 'Try Again',
+    contactSupport: 'Contact Support',
+  },
 }
 
 // ─── Arabic translations (Riyadh / Saudi dialect in formal written form) ──────
@@ -2065,6 +2097,38 @@ const ar: typeof en = {
       acceptAll: 'قبول الكل',
       poweredBy: 'مدعوم من إدارة موافقة وايت لاين',
     },
+  },
+
+  bookingConfirmed: {
+    eyebrow: 'تم تأكيد الحجز',
+    title: 'حجزك',
+    titleAccent: 'مؤكد!',
+    subtitle: 'تم استلام دفعتك وتقديم طلب رحلتك بنجاح.',
+    bookingReference: 'رقم الحجز',
+    statusPayment: 'تم استلام الدفعة',
+    statusBooking: 'تم استلام طلب الحجز',
+    statusChauffeur: 'تعيين السائق',
+    statusFinal: 'التأكيد النهائي',
+    statusPending: 'قيد الانتظار',
+    noteBody: 'سيراجع فريقنا حجزك وسيرسل تأكيد السائق النهائي إلى بريدك الإلكتروني قريباً.',
+    emailMissing: 'لم تستلم البريد الإلكتروني؟',
+    emailSpamNote: 'يرجى التحقق من مجلد الرسائل غير المرغوب فيها. إذا لم تستلمه، تواصل معنا عبر واتساب.',
+    whatsapp: '‎+966 56 311 7770',
+    backHome: 'العودة للرئيسية',
+    appTitle: 'التطبيق قريباً',
+    appBody: 'تطبيق وايت لاين قادم قريباً على iOS وAndroid.',
+    apple: { sub: 'حمّل من', main: 'قريباً' },
+    google: { sub: 'متوفر على', main: 'قريباً' },
+  },
+
+  bookingFailed: {
+    eyebrow: 'وايت لاين',
+    title: 'فشلت عملية الدفع.',
+    titleAccent: 'لم يتم خصم أي مبلغ.',
+    subtitle: 'لم نتمكن من معالجة دفعتك. لم يتم تأكيد حجزك.',
+    body: 'يرجى المحاولة مجدداً أو التواصل مع فريق الدعم إذا استمرت المشكلة.',
+    tryAgain: 'حاول مجدداً',
+    contactSupport: 'تواصل مع الدعم',
   },
 }
 
