@@ -18,7 +18,7 @@
   overflow-y: auto;
   color: #fff;
   border-radius: 18px;
- background-color: rgba(36, 36, 36, 0.90);
+ background-color: rgb(32, 32, 33);
   background-image: linear-gradient(
     203.23deg,
     rgba(255, 255, 255, 0.4) 99.31%,
@@ -44,6 +44,7 @@
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
+  display: none;
 }
 
 .closeButton {
@@ -226,6 +227,25 @@
 }
 
 .control input::placeholder { color: rgba(255,255,255,.62); }
+
+.control input:-webkit-autofill,
+.control input:-webkit-autofill:hover,
+.control input:-webkit-autofill:focus,
+.control input:-webkit-autofill:active,
+.phoneNumberInput:-webkit-autofill,
+.phoneNumberInput:-webkit-autofill:hover,
+.phoneNumberInput:-webkit-autofill:focus,
+.phoneNumberInput:-webkit-autofill:active,
+.cardFields .control input:-webkit-autofill,
+.cardFields .control input:-webkit-autofill:hover,
+.cardFields .control input:-webkit-autofill:focus,
+.cardFields .control input:-webkit-autofill:active {
+  -webkit-text-fill-color: #fff;
+  -webkit-box-shadow: 0 0 0 1000px transparent inset;
+  box-shadow: 0 0 0 1000px transparent inset;
+  transition: background-color 9999s ease-in-out 0s;
+  caret-color: #fff;
+}
 
 .controlStartIcon { position: absolute; inset-inline-start: 12px; top: 50%; display: flex; align-items: center; transform: translateY(-50%); opacity: .85; pointer-events: none; }
 .inputWithStartIcon { padding-inline-start: 40px !important; }
@@ -959,22 +979,23 @@
 
 @media (max-width: 640px) {
   .overlay {
-    display: block;
+    display: grid;
+    place-items: center;
     box-sizing: border-box;
-    overflow-x: hidden;
-    overflow-y: scroll;
-    overscroll-behavior-y: contain;
-    -webkit-overflow-scrolling: touch;
+    overflow: hidden;
     padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
   }
 
   .dialog {
     width: 100%;
-    height: auto;
-    min-height: calc(100dvh - 16px);
-    max-height: none;
+    height: 100%;
+    min-height: 100%;
+    max-height: 100%;
     margin: 0 auto;
-    overflow: visible;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
     border-radius: 14px;
   }
 

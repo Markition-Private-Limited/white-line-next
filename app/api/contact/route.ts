@@ -14,8 +14,9 @@ export async function POST(req: NextRequest) {
     const data = await res.json().catch(() => null)
 
     if (!res.ok) {
+      const message = Array.isArray(data?.message) ? data.message.join(' ') : data?.message
       return NextResponse.json(
-        { error: data?.message ?? 'Submission failed' },
+        { error: message ?? 'Submission failed' },
         { status: res.status }
       )
     }

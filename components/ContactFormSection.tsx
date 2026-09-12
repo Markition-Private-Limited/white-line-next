@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Send } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
+import { phoneCountryCodes } from '../lib/phoneCountryCodes'
+import PhoneNumberField from './PhoneNumberField'
 import callIcon from '../assets/contact_us/call.svg'
 import emailIcon from '../assets/contact_us/email.svg'
 import clockIcon from '../assets/contact_us/clock.svg'
@@ -13,8 +15,12 @@ interface FormData {
 type FormErrors = Partial<Record<keyof FormData, string>>
 
 type ErrMsgs = {
-  errFirstName: string; errLastName: string; errEmail: string
-  errEmailInvalid: string; errHelpTopic: string; errMessage: string
+  errFirstName: string; errFirstNameShort: string
+  errLastName: string; errLastNameShort: string
+  errEmail: string; errEmailInvalid: string
+  errPhoneInvalid: string
+  errHelpTopic: string
+  errMessage: string; errMessageShort: string
 }
 
 function useInView(threshold = 0.08) {
@@ -32,12 +38,21 @@ function useInView(threshold = 0.08) {
 
 function validate(data: FormData, err: ErrMsgs): FormErrors {
   const errors: FormErrors = {}
-  if (!data.firstName.trim())  errors.firstName = err.errFirstName
-  if (!data.lastName.trim())   errors.lastName  = err.errLastName
+  if (!data.firstName.trim())            errors.firstName = err.errFirstName
+  else if (data.firstName.trim().length < 2) errors.firstName = err.errFirstNameShort
+  if (!data.lastName.trim())             errors.lastName  = err.errLastName
+  else if (data.lastName.trim().length < 2) errors.lastName = err.errLastNameShort
   if (!data.email.trim())      errors.email     = err.errEmail
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) errors.email = err.errEmailInvalid
+  if (data.phone.trim()) {
+    const [dial, digits = ''] = data.phone.trim().split(' ')
+    const matched = phoneCountryCodes.find(c => c.dial === dial)
+    const minLen = matched ? matched.len : 8
+    if (digits.length < minLen) errors.phone = err.errPhoneInvalid
+  }
   if (!data.helpTopic)         errors.helpTopic = err.errHelpTopic
   if (!data.message.trim())    errors.message   = err.errMessage
+  else if (data.message.trim().length < 10) errors.message = err.errMessageShort
   return errors
 }
 
@@ -87,7 +102,7 @@ const inputBase: React.CSSProperties = {
   padding: '11px 14px', width: '100%', outline: 'none',
   boxSizing: 'border-box', transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
 }
-const inputError: React.CSSProperties = { borderColor: '#fca5a5', background: '#fff5f5' }
+const inputError: React.CSSProperties = { border: '1.5px solid #fca5a5', background: '#fff5f5' }
 
 const SELECT_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`
 
@@ -108,15 +123,23 @@ export default function ContactFormSection() {
   const [apiError, setApiError] = useState<string | null>(null)
 
   const errMsgs: ErrMsgs = {
-    errFirstName: f.errFirstName, errLastName: f.errLastName,
+    errFirstName: f.errFirstName, errFirstNameShort: f.errFirstNameShort,
+    errLastName: f.errLastName, errLastNameShort: f.errLastNameShort,
     errEmail: f.errEmail, errEmailInvalid: f.errEmailInvalid,
-    errHelpTopic: f.errHelpTopic, errMessage: f.errMessage,
+    errPhoneInvalid: f.errPhoneInvalid,
+    errHelpTopic: f.errHelpTopic,
+    errMessage: f.errMessage, errMessageShort: f.errMessageShort,
   }
 
   const set = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const val = e.target.value
     setForm(prev => ({ ...prev, [key]: val }))
     if (errors[key]) setErrors(prev => ({ ...prev, [key]: undefined }))
+  }
+
+  const setPhone = (val: string) => {
+    setForm(prev => ({ ...prev, phone: val }))
+    if (errors.phone) setErrors(prev => ({ ...prev, phone: undefined }))
   }
 
   const blur = (key: keyof FormData) => () => {
@@ -129,7 +152,7 @@ export default function ContactFormSection() {
     e.preventDefault()
     const errs = validate(form, errMsgs)
     setErrors(errs)
-    setTouched({ firstName: true, lastName: true, email: true, helpTopic: true, message: true })
+    setTouched({ firstName: true, lastName: true, email: true, phone: true, helpTopic: true, message: true })
     if (Object.keys(errs).length > 0) return
 
     setLoading(true)
@@ -139,14 +162,14 @@ export default function ContactFormSection() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          firstName: form.firstName,
-          lastName: form.lastName,
+          first_name: form.firstName,
+          last_name: form.lastName,
           email: form.email,
-          phone: form.phone || undefined,
+          phone: form.phone,
           subject: form.helpTopic,
           message: form.message,
-          preferredDate: form.preferredDate || undefined,
-          numberOfPassengers: parseInt(form.passengers, 10),
+          preferred_date: form.preferredDate,
+          passengers: form.passengers ? parseInt(form.passengers, 10) : '',
         }),
       })
       if (!res.ok) {
@@ -229,8 +252,15 @@ export default function ContactFormSection() {
                     <input type="email" placeholder={f.emailPh} value={form.email} onChange={set('email')} onBlur={blur('email')}
                       style={{ ...inputBase, ...(touched.email && errors.email ? inputError : {}) }} />
                   </Field>
-                  <Field label={f.phone}>
-                    <input type="tel" placeholder={f.phonePh} value={form.phone} onChange={set('phone')} style={inputBase} />
+                  <Field label={f.phone} error={touched.phone ? errors.phone : undefined}>
+                    <PhoneNumberField
+                      value={form.phone}
+                      onChange={setPhone}
+                      onBlur={blur('phone')}
+                      isRtl={isRtl}
+                      lang={isRtl ? 'ar' : 'en'}
+                      error={touched.phone ? errors.phone : undefined}
+                    />
                   </Field>
                 </div>
 
@@ -240,7 +270,7 @@ export default function ContactFormSection() {
                       style={{ ...inputBase, color: form.helpTopic ? '#111118' : '#9ca3af', appearance: 'none', backgroundImage: SELECT_BG, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center', paddingRight: 38, ...(touched.helpTopic && errors.helpTopic ? inputError : {}) }}>
                       <option value="" disabled>{f.helpPh}</option>
                       {f.helpOptions.map((opt, i) => (
-                        <option key={i} value={['booking','corporate','fleet','support','other'][i]}>{opt}</option>
+                        <option key={i} value={opt}>{opt}</option>
                       ))}
                     </select>
                   </Field>
@@ -267,13 +297,6 @@ export default function ContactFormSection() {
                       style={{ ...inputBase, resize: 'vertical', minHeight: 120, ...(touched.message && errors.message ? inputError : {}) }} />
                   </Field>
                 </div>
-
-                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 11.5, color: '#9ca3af', marginBottom: 20, lineHeight: 1.6 }}>
-                  {f.disclaimer}{' '}
-                  <a href="#" style={{ color: '#005C66', textDecoration: 'underline' }}>{f.privacyLink}</a>{' '}
-                  {f.and}{' '}
-                  <a href="#" style={{ color: '#005C66', textDecoration: 'underline' }}>{f.termsLink}</a>.
-                </p>
 
                 {apiError && (
                   <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 12.5, color: '#ef4444', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 5 }}>
