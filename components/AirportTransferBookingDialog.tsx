@@ -612,13 +612,33 @@ function DatePickerField({ label, value, onChange, attempted }: { label: string;
   today.setHours(0, 0, 0, 0)
   const [open, setOpen] = useState(false)
   const [month, setMonth] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1))
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({})
   const fieldRef = useRef<HTMLDivElement>(null)
+  const controlRef = useRef<HTMLButtonElement>(null)
   const year = month.getFullYear()
   const monthIndex = month.getMonth()
   const leadingDays = (new Date(year, monthIndex, 1).getDay() + 6) % 7
   const daysInMonth = new Date(year, monthIndex + 1, 0).getDate()
   const calendarDays = [...Array.from({ length: leadingDays }, () => null), ...Array.from({ length: daysInMonth }, (_, index) => index + 1)]
   const isCurrentMonth = year === today.getFullYear() && monthIndex === today.getMonth()
+
+  const openCalendar = () => {
+    const rect = controlRef.current?.getBoundingClientRect()
+    if (rect) {
+      const menuHeight = 260
+      const menuWidth = Math.min(280, window.innerWidth - 16)
+      const spaceBelow = window.innerHeight - rect.bottom
+      const openUpward = spaceBelow < menuHeight + 12 && rect.top > spaceBelow
+      const top = openUpward
+        ? Math.max(8, rect.top - menuHeight - 7)
+        : Math.min(rect.bottom + 7, window.innerHeight - menuHeight - 8)
+      let left = rect.left
+      if (left + menuWidth > window.innerWidth - 8) left = window.innerWidth - menuWidth - 8
+      if (left < 8) left = 8
+      setMenuStyle({ position: 'fixed', top, left, width: menuWidth, zIndex: 9999 })
+    }
+    setOpen(c => !c)
+  }
 
   useEffect(() => {
     if (!open) return
@@ -634,7 +654,7 @@ function DatePickerField({ label, value, onChange, attempted }: { label: string;
   return (
     <div ref={fieldRef} className={`${styles.field} ${styles.pickerField} ${isEmpty ? styles.fieldInvalid : ''}`}>
       <label>{label}</label>
-      <button type="button" className={styles.pickerControl} aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(current => !current)}>
+      <button ref={controlRef} type="button" className={styles.pickerControl} aria-expanded={open} aria-haspopup="dialog" onClick={openCalendar}>
         <span className={value ? '' : styles.pickerPlaceholder}>{formatBookingDate(value, copy.calendar.locale)}</span>
         <span className={styles.controlIcon}><CalendarDays size={16} /></span>
       </button>
@@ -643,7 +663,7 @@ function DatePickerField({ label, value, onChange, attempted }: { label: string;
       </AnimatePresence>
       <AnimatePresence>
         {open && (
-          <motion.div className={`${styles.fieldMenu} ${styles.calendarMenu}`} role="dialog" aria-label={`${label} ${copy.calendar.label}`} dir={dir} initial={{ opacity: 0, y: -7, scaleY: .97 }} animate={{ opacity: 1, y: 0, scaleY: 1 }} exit={{ opacity: 0, y: -7, scaleY: .97 }} transition={{ duration: .2, ease: 'easeOut' }}>
+          <motion.div className={styles.calendarMenu} style={menuStyle} role="dialog" aria-label={`${label} ${copy.calendar.label}`} dir={dir} initial={{ opacity: 0, y: -7, scaleY: .97 }} animate={{ opacity: 1, y: 0, scaleY: 1 }} exit={{ opacity: 0, y: -7, scaleY: .97 }} transition={{ duration: .2, ease: 'easeOut' }}>
             <div className={styles.calendarHeader}>
               <button type="button" disabled={isCurrentMonth} onClick={() => setMonth(current => new Date(current.getFullYear(), current.getMonth() - 1, 1))}><ChevronLeft size={16} /></button>
               <strong>{month.toLocaleDateString(copy.calendar.monthLocale, { month: 'long', year: 'numeric' })}</strong>
@@ -1337,6 +1357,9 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
           </div>
           {categories.length > 1 && (
             <div className={styles.sliderDots}>
+              <button type="button" className={styles.sliderArrow} aria-label="Previous category" disabled={categoryScrollIndex === 0} onClick={() => showCategorySlide(categoryScrollIndex - 1)}>
+                <ChevronLeft size={13} strokeWidth={2.5} />
+              </button>
               {categories.map((item, index) => (
                 <button
                   key={item.id ?? item.name}
@@ -1347,6 +1370,9 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
                   onClick={() => showCategorySlide(index)}
                 />
               ))}
+              <button type="button" className={styles.sliderArrow} aria-label="Next category" disabled={categoryScrollIndex === categories.length - 1} onClick={() => showCategorySlide(categoryScrollIndex + 1)}>
+                <ChevronRight size={13} strokeWidth={2.5} />
+              </button>
             </div>
           )}
         </>
@@ -1391,6 +1417,9 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
             </div>
             {vehicleCards.length > 1 && (
               <div className={styles.sliderDots}>
+                <button type="button" className={styles.sliderArrow} aria-label="Previous vehicle" disabled={vehicleScrollIndex === 0} onClick={() => showVehicleSlide(vehicleScrollIndex - 1)}>
+                  <ChevronLeft size={13} strokeWidth={2.5} />
+                </button>
                 {vehicleCards.map((card, index) => (
                   <button
                     key={card.key}
@@ -1401,6 +1430,9 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
                     onClick={() => showVehicleSlide(index)}
                   />
                 ))}
+                <button type="button" className={styles.sliderArrow} aria-label="Next vehicle" disabled={vehicleScrollIndex === vehicleCards.length - 1} onClick={() => showVehicleSlide(vehicleScrollIndex + 1)}>
+                  <ChevronRight size={13} strokeWidth={2.5} />
+                </button>
               </div>
             )}
           </>
@@ -1575,13 +1607,19 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
     const scheduledDatetime = (() => {
       if (!booking.date || !booking.time) return undefined
       const d = new Date(booking.date)
-      d.setHours(booking.time.hour, booking.time.minute, 0, 0)
-      return d.toISOString()
+      const pad = (n: number) => String(n).padStart(2, '0')
+      const yyyy = d.getFullYear()
+      const mm = pad(d.getMonth() + 1)
+      const dd = pad(d.getDate())
+      const hh = pad(booking.time.hour)
+      const min = pad(booking.time.minute)
+      return `${yyyy}-${mm}-${dd}T${hh}:${min}:00.000Z`
     })()
 
     const body: Record<string, unknown> = {
       vehicle_class_id: activeCategoryId,
       service_type: toApiServiceType(service, booking.dayDuration),
+      scheduled_datetime: scheduledDatetime,
       pickup_lat: pickupCoords.lat,
       pickup_lng: pickupCoords.lng,
       pickup_address: booking.pickup?.address ?? '',
@@ -1592,7 +1630,6 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
       fail_url: `${window.location.origin}/booking-failed`,
     }
     if (booking.vehicleId) body.vehicle_id = booking.vehicleId
-    if (scheduledDatetime) body.scheduled_datetime = scheduledDatetime
     if (dropoffCoords) { body.dropoff_lat = dropoffCoords.lat; body.dropoff_lng = dropoffCoords.lng }
     if (booking.destination?.address) body.dropoff_address = booking.destination.address
     if (isHourly) body.duration_hours = booking.duration

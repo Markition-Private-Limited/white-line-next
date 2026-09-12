@@ -119,8 +119,14 @@ const en = {
     h1: 'Travel In Exceptional',
     h2: 'Comfort.',
     sub: 'A meticulously maintained collection of luxury sedans and executive vehicles, engineered for utmost comfort, privacy, and seamless travel across the Kingdom.',
-    desc: 'Spacious, versatile, and elegant',
-    empty: 'No fleet classes are available right now.',
+    cars: [
+      { title: 'First Class', desc: 'Mercedes-Benz S-Class and BMW 7 Series vehicles, selected for flagship comfort and privacy.' },
+      { title: 'Business Premium', desc: 'Mercedes-Benz E-Class and BMW 5 Series vehicles, ideal for refined business travel.' },
+      { title: 'SUV', desc: 'Chevrolet Suburban, Chevrolet Tahoe, GMC Yukon XL, and GMC Yukon options for spacious travel.' },
+      { title: 'Business Sedan', desc: 'Lexus ES350 sedans for smooth executive city and airport journeys.' },
+      { title: 'Economy Sedan', desc: 'Ford Taurus sedans for comfortable, efficient travel.' },
+      { title: 'Van', desc: 'Hyundai Staria vans suited to larger parties and flexible transfers.' },
+    ],
   },
 
   testimonials: {
@@ -212,7 +218,7 @@ const en = {
     columns: {
       company:   { title: 'Company',   links: ['About Us', 'Terms & Conditions', 'Privacy Policy'] },
       services:  { title: 'Services',  links: ['One Way Ride', 'Hourly Chauffeur', 'City Trip', 'Day Service', 'Airport Transfer'] },
-      resources: { title: 'Our Fleet', links: [] as string[] },
+      resources: { title: 'Our Fleet', links: ['First Class', 'Business Premium', 'SUV', 'Business Sedan', 'Economy Sedan', 'Van'] },
       support:   { title: 'Support',   links: ['Contact Us', 'Customer Support', 'Testimonials'] },
     },
   },
@@ -380,9 +386,8 @@ const en = {
       sub: 'Our meticulously maintained collection of high-end vehicles represents the absolute pinnacle of automotive luxury. Each model in our fleet undergoes rigorous multi-point inspections and pristine detailing.',
       luggages: 'Luggages',
       persons: 'Persons',
-      allFilter: 'All',
+      filters: ['All', 'First Class', 'Business Premium', 'SUV', 'Business Sedan', 'Economy Sedan', 'Van'],
       desc: 'Spacious, versatile, and elegant',
-      empty: 'No fleet classes are available right now.',
     },
   },
 
@@ -1289,8 +1294,14 @@ const ar: typeof en = {
     h1: 'سافر بأقصى درجات',
     h2: 'الراحة والفخامة.',
     sub: 'مجموعة مختارة بعناية من السيارات الفاخرة والمركبات التنفيذية، مصممة لأقصى درجات الراحة والخصوصية والتنقل السلس في أرجاء المملكة.',
-    desc: 'فسيحة وأنيقة ومتعددة الاستخدامات',
-    empty: 'لا توجد فئات مركبات متاحة حالياً.',
+    cars: [
+      { title: 'الدرجة الأولى', desc: 'مركبات Mercedes-Benz S-Class وBMW 7 Series، مختارة لأعلى درجات الراحة والخصوصية.' },
+      { title: 'درجة الأعمال الممتازة', desc: 'مركبات Mercedes-Benz E-Class وBMW 5 Series، مثالية لتنقل الأعمال الراقي.' },
+      { title: 'SUV', desc: 'خيارات Chevrolet Suburban وChevrolet Tahoe وGMC Yukon XL وGMC Yukon للتنقل الرحب.' },
+      { title: 'سيدان الأعمال', desc: 'سيارات Lexus ES350 السيدان لرحلات المدينة والمطار التنفيذية السلسة.' },
+      { title: 'سيدان اقتصادية', desc: 'سيارات Ford Taurus السيدان لتنقل مريح وفعال.' },
+      { title: 'فان', desc: 'فانات Hyundai Staria المناسبة للمجموعات الأكبر والتنقلات المرنة.' },
+    ],
   },
 
   testimonials: {
@@ -1406,7 +1417,7 @@ const ar: typeof en = {
     columns: {
       company:   { title: 'الشركة',   links: ['من نحن', 'الشروط والأحكام', 'سياسة الخصوصية'] },
       services:  { title: 'الخدمات', links: ['رحلة أحادية', 'سائق بالساعة', 'رحلة المدن', 'خدمة اليوم', 'نقل المطار'] },
-      resources: { title: 'أسطولنا', links: [] },
+      resources: { title: 'أسطولنا', links: ['الدرجة الأولى', 'درجة الأعمال الممتازة', 'SUV', 'سيدان الأعمال', 'سيدان اقتصادية', 'فان'] },
       support:   { title: 'الدعم',   links: ['تواصل معنا', 'خدمة العملاء', 'التقييمات'] },
     },
   },
@@ -1550,9 +1561,8 @@ const ar: typeof en = {
       sub: 'مجموعتنا المُصانة بعناية من المركبات الفاخرة تمثل قمة الرفاهية في عالم السيارات. كل طراز في أسطولنا يخضع لفحوصات دقيقة متعددة النقاط وتجهيز احترافي.',
       luggages: 'حقيبة',
       persons: 'راكب',
-      allFilter: 'الكل',
+      filters: ['الكل', 'الدرجة الأولى', 'درجة الأعمال الممتازة', 'SUV', 'سيدان الأعمال', 'سيدان اقتصادية', 'فان'],
       desc: 'فسيحة وأنيقة ومتعددة الاستخدامات',
-      empty: 'لا توجد فئات مركبات متاحة حالياً.',
     },
   },
 

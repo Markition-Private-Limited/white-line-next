@@ -4,7 +4,6 @@ import Link from 'next/link'
 import logoSvg from '../assets/fav_icon_black.svg'
 import { useLanguage } from '../context/LanguageContext'
 import { LANG_META } from '../lib/i18n'
-import { useFleetClasses } from '../lib/useFleetClasses'
 
 // hrefs never change — only labels come from translations
 const ENTITY_TYPE_HREFS = ['/about', '/terms', '/privacy']
@@ -14,6 +13,14 @@ const SERVICE_HREFS      = [
   '/services/city-to-city',
   '/services/day-service',
   '/services/airport-transfer',
+]
+const RESOURCE_HREFS     = [
+  '/fleet?category=First%20Class',
+  '/fleet?category=Business%20Premium',
+  '/fleet?category=SUV',
+  '/fleet?category=Business%20Sedan',
+  '/fleet?category=Economy%20Sedan',
+  '/fleet?category=Van',
 ]
 const SUPPORT_HREFS      = ['/contact', '/customer-support', '/testimonials']
 
@@ -79,16 +86,11 @@ export default function Footer() {
   const { footer: f } = trans
   const { company, services, resources, support } = f.columns
   const isRTL = LANG_META[lang].dir === 'rtl'
-  const fleetClasses = useFleetClasses()
-  const fleetLinks = (fleetClasses ?? []).map(item => ({
-    label: item.className,
-    to: `/fleet?category=${encodeURIComponent(item.className)}`,
-  }))
 
   const columns = [
     { col: company,   links: company.links.map((label, i) => ({ label, to: ENTITY_TYPE_HREFS[i] ?? '#' })), arrow: false },
     { col: services,  links: services.links.map((label, i) => ({ label, to: SERVICE_HREFS[i] ?? '#' })), arrow: true  },
-    { col: resources, links: fleetLinks, arrow: false },
+    { col: resources, links: resources.links.map((label, i) => ({ label, to: RESOURCE_HREFS[i] ?? '#' })), arrow: false },
     { col: support,   links: support.links.map((label, i) => ({ label, to: SUPPORT_HREFS[i] ?? '#' })), arrow: false },
   ]
 

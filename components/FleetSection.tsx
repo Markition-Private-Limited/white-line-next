@@ -2,15 +2,31 @@
 import { motion, useInView } from 'framer-motion'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLanguage } from '../context/LanguageContext'
-import { useFleetClasses } from '../lib/useFleetClasses'
+
+import fleetFirstClass from '../assets/fleet/fleet_cars/mercedes-benz-s-class.png'
+import fleetBusinessPremium from '../assets/fleet/fleet_cars/mercedes-benz-e-class.png'
+import fleetSuv from '../assets/fleet/fleet_cars/gmc-yukon-xl.png'
+import fleetBusinessSedan from '../assets/fleet/fleet_cars/lexus-es350.png'
+import fleetEconomySedan from '../assets/fleet/fleet_cars/ford-taurus.png'
+import fleetVan from '../assets/fleet/fleet_cars/hyundai-staria.png'
+
+const _src = (i: unknown): string => (i as { src?: string }).src ?? (i as string)
+
+const CAR_IMAGES = [
+  fleetFirstClass,
+  fleetBusinessPremium,
+  fleetSuv,
+  fleetBusinessSedan,
+  fleetEconomySedan,
+  fleetVan,
+]
 
 const GAP = 16
 
 export default function FleetSection() {
   const { trans, dir } = useLanguage()
   const { fleet } = trans
-  const fleetClasses = useFleetClasses()
-  const cars = fleetClasses ?? []
+  const cars = fleet.cars.map((car, i) => ({ ...car, img: _src(CAR_IMAGES[i]) }))
 
   const sectionRef = useRef<HTMLElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -149,30 +165,9 @@ export default function FleetSection() {
                 willChange: 'transform',
               }}
             >
-              {fleetClasses === null ? [0, 1, 2].map((item) => (
+              {cars.map((car) => (
                 <div
-                  key={item}
-                  dir={dir}
-                  style={{
-                    width: cardWidth > 0
-                      ? cardWidth
-                      : `calc((100% - ${GAP * (visible - 1)}px) / ${visible})`,
-                    flexShrink: 0,
-                  }}
-                >
-                  <div
-                    className="overflow-hidden bg-white h-full animate-pulse"
-                    style={{
-                      minHeight: 320,
-                      borderRadius: 16,
-                      border: '1px solid rgba(0,0,0,0.08)',
-                      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                    }}
-                  />
-                </div>
-              )) : cars.map((car) => (
-                <div
-                  key={car.id}
+                  key={car.title}
                   dir={dir}
                   style={{
                     // fall back to equal width before JS measures container
@@ -192,14 +187,12 @@ export default function FleetSection() {
                   >
                     {/* Image with white bottom fade */}
                     <div className="relative w-full bg-[#f1f4f7]" style={{ aspectRatio: '4 / 3', padding: 'clamp(16px, 2vw, 24px)' }}>
-                      {car.imageUrl && (
-                        <img
-                          src={car.imageUrl}
-                          alt={car.className}
-                          className="w-full h-full object-contain object-center"
-                          draggable={false}
-                        />
-                      )}
+                      <img
+                        src={car.img}
+                        alt={car.title}
+                        className="w-full h-full object-contain object-center"
+                        draggable={false}
+                      />
                       <div
                         className="absolute inset-0"
                         style={{
@@ -219,7 +212,7 @@ export default function FleetSection() {
                           fontSize: 'clamp(18px, 1.8vw, 22px)',
                         }}
                       >
-                        {car.className}
+                        {car.title}
                       </h3>
                       <p
                         className="text-gray-400 leading-relaxed"
@@ -228,7 +221,7 @@ export default function FleetSection() {
                           fontSize: 'clamp(12px, 1.1vw, 14px)',
                         }}
                       >
-                        {car.description || car.exampleModels || fleet.desc}
+                        {car.desc}
                       </p>
                     </div>
                   </div>
@@ -239,32 +232,25 @@ export default function FleetSection() {
         </div>
 
         {/* Pagination dots */}
-        {fleetClasses !== null && cars.length > 0 && (
-          <div className="flex justify-center items-center gap-2 mt-8">
-            {Array.from({ length: totalPositions }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => goTo(i)}
-                aria-label={`Go to slide ${i + 1}`}
-                style={{
-                  width: i === currentIndex ? 24 : 8,
-                  height: 8,
-                  borderRadius: 999,
-                  background: i === currentIndex ? '#111118' : '#d1d5db',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: 0,
-                  transition: 'all 0.35s ease',
-                }}
-              />
-            ))}
-          </div>
-        )}
-        {fleetClasses !== null && cars.length === 0 && (
-          <p className="text-center mt-8" style={{ fontFamily: 'Inter, sans-serif', color: '#6b7280', fontSize: 14 }}>
-            {fleet.empty}
-          </p>
-        )}
+        <div className="flex justify-center items-center gap-2 mt-8">
+          {Array.from({ length: totalPositions }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              style={{
+                width: i === currentIndex ? 24 : 8,
+                height: 8,
+                borderRadius: 999,
+                background: i === currentIndex ? '#111118' : '#d1d5db',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                transition: 'all 0.35s ease',
+              }}
+            />
+          ))}
+        </div>
       </motion.div>
     </section>
   )

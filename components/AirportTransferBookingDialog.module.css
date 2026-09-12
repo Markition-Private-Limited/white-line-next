@@ -267,7 +267,7 @@
 .fieldOptionActive { color: #017b87 !important; background: #effbfc !important; }
 .fieldMenu > button:last-child { border-bottom: 0; }
 
-.calendarMenu { max-height: none; overflow: hidden; padding: 12px; color: #303238; }
+.calendarMenu { border-radius: 12px; background: #fff; box-shadow: 0 18px 45px rgba(0,0,0,.32); overflow: hidden; padding: 12px; color: #303238; transform-origin: top; }
 .calendarHeader { display: grid; grid-template-columns: 30px 1fr 30px; align-items: center; margin-bottom: 10px; text-align: center; }
 .calendarHeader strong { font-family: var(--font-montserrat), sans-serif; font-size: 11px; }
 .calendarHeader button { display: grid; width: 28px; height: 28px; place-items: center; border: 0; border-radius: 8px; color: #516066; background: #edf3f4; cursor: pointer; }
@@ -860,6 +860,24 @@
   border-radius: 999px;
   background: #00717e;
 }
+
+.sliderArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  color: #005C66;
+  cursor: pointer;
+  transition: background .18s ease, opacity .18s ease;
+  flex-shrink: 0;
+}
+.sliderArrow:hover { background: #f0fafa; }
+.sliderArrow:disabled { opacity: .3; cursor: default; pointer-events: none; }
 
 .reviewTitle { margin: 23px 0 22px; font-family: var(--font-montserrat), sans-serif; font-size: 18px; }
 .summaryCard { overflow: hidden; border: 1px solid rgba(255,255,255,.72); border-radius: 17px; }
