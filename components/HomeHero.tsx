@@ -88,6 +88,9 @@ function ParallaxCard({
         zIndex: active ? 10 : 1,
         transition: 'box-shadow 0.4s ease',
         cursor: (!comingSoon && onBook) ? 'pointer' : undefined,
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       {comingSoon && (
@@ -160,6 +163,7 @@ function ParallaxCard({
           letterSpacing: '0.06em',
           textTransform: 'uppercase',
           fontWeight: 600,
+          marginTop: 'auto',
         }}>
           {comingSoonLabel}
         </span>
@@ -174,6 +178,8 @@ function ParallaxCard({
             opacity: active ? 1 : 0.7,
             letterSpacing: active ? '0.01em' : '0',
             transition: 'opacity 0.4s ease, letter-spacing 0.4s ease',
+            marginTop: 'auto',
+            alignSelf: 'flex-start',
           }}
         >
           {bookNow} {isRtl ? <ArrowLeft size={12} /> : <ArrowRight size={12} />}
@@ -317,9 +323,9 @@ export default function HomeHero() {
             variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1, delayChildren: 0.75 } } }}
           >
             {hero.services.map((s, i) => (
-              <motion.div key={i} className="relative" variants={cardVariants}>
+              <motion.div key={i} className="relative h-full" variants={cardVariants}>
                 {/* ── Mobile: direct render, taller image ── */}
-                <div className="sm:hidden">
+                <div className="sm:hidden h-full">
                   <ParallaxCard
                     img={CARD_IMAGES[i]}
                     title={s.title}
