@@ -22,7 +22,7 @@ const RESOURCE_HREFS     = [
   '/fleet?category=Economy%20Sedan',
   '/fleet?category=Van',
 ]
-const SUPPORT_HREFS      = ['/contact', '/customer-support', '/testimonials']
+const SUPPORT_HREFS      = ['/contact', '/testimonials']
 
 function scrollToHash(hash: string) {
   const el = document.getElementById(hash)
@@ -31,7 +31,7 @@ function scrollToHash(hash: string) {
   window.scrollTo({ top, behavior: 'smooth' })
 }
 
-function FooterColumn({ title, links, showArrow = false, isRTL = false }: { title: string; links: { label: string; to: string }[]; showArrow?: boolean; isRTL?: boolean }) {
+function FooterColumn({ title, links, showArrow = false, isRTL = false, comingSoonLabel = 'Soon' }: { title: string; links: { label: string; to: string; comingSoon?: boolean }[]; showArrow?: boolean; isRTL?: boolean; comingSoonLabel?: string }) {
   const Arrow = isRTL ? ArrowUpLeft : ArrowUpRight
   return (
     <div className="flex flex-col gap-4">
@@ -41,6 +41,29 @@ function FooterColumn({ title, links, showArrow = false, isRTL = false }: { titl
       <ul className="flex flex-col gap-3 list-none m-0 p-0">
         {links.map((link) => {
           const hash = link.to.includes('#') ? link.to.split('#')[1] : null
+          if (link.comingSoon) {
+            return (
+              <li key={link.label}>
+                <span className="inline-flex items-center gap-2 text-sm" style={{ color: '#6b7280', fontFamily: 'Inter, sans-serif', opacity: 0.65 }}>
+                  {link.label}
+                  <span style={{
+                    background: '#005C66',
+                    color: '#fff',
+                    borderRadius: 999,
+                    fontSize: 8,
+                    padding: '2px 6px',
+                    fontWeight: 700,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    fontFamily: 'Inter, sans-serif',
+                    flexShrink: 0,
+                  }}>
+                    {comingSoonLabel}
+                  </span>
+                </span>
+              </li>
+            )
+          }
           return (
           <li key={link.label}>
             <Link
@@ -87,9 +110,10 @@ export default function Footer() {
   const { company, services, resources, support } = f.columns
   const isRTL = LANG_META[lang].dir === 'rtl'
 
+  const comingSoonLabel = isRTL ? 'قريباً' : 'Soon'
   const columns = [
     { col: company,   links: company.links.map((label, i) => ({ label, to: ENTITY_TYPE_HREFS[i] ?? '#' })), arrow: false },
-    { col: services,  links: services.links.map((label, i) => ({ label, to: SERVICE_HREFS[i] ?? '#' })), arrow: true  },
+    { col: services,  links: services.links.map((label, i) => ({ label, to: SERVICE_HREFS[i] ?? '#', comingSoon: SERVICE_HREFS[i] === '/services/one-way-ride' })), arrow: true  },
     { col: resources, links: resources.links.map((label, i) => ({ label, to: RESOURCE_HREFS[i] ?? '#' })), arrow: false },
     { col: support,   links: support.links.map((label, i) => ({ label, to: SUPPORT_HREFS[i] ?? '#' })), arrow: false },
   ]
@@ -131,6 +155,7 @@ export default function Footer() {
                 links={links}
                 showArrow={arrow}
                 isRTL={isRTL}
+                comingSoonLabel={comingSoonLabel}
               />
             ))}
           </div>

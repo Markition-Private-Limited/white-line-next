@@ -91,6 +91,8 @@ function ServiceBlock({
   slug,
   pageUrl,
   isRtl,
+  comingSoon = false,
+  comingSoonLabel = 'Coming Soon',
 }: {
   item: ServiceItem
   img: string
@@ -100,6 +102,8 @@ function ServiceBlock({
   slug: string
   pageUrl: string
   isRtl: boolean
+  comingSoon?: boolean
+  comingSoonLabel?: string
 }) {
   const textBlock = (
     <motion.div
@@ -123,6 +127,22 @@ function ServiceBlock({
         >
           {item.label}
         </span>
+        {comingSoon && (
+          <span style={{
+            background: '#005C66',
+            color: '#fff',
+            borderRadius: 999,
+            fontSize: 8,
+            padding: '3px 8px',
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            fontFamily: 'Inter, sans-serif',
+            flexShrink: 0,
+          }}>
+            {comingSoonLabel}
+          </span>
+        )}
       </div>
 
       <h2
@@ -151,21 +171,30 @@ function ServiceBlock({
         {item.body}
       </p>
 
-      <Link
-        href={pageUrl}
-        className="group relative inline-flex h-11 items-center justify-center overflow-hidden rounded-full self-start"
-        style={{ fontFamily: 'Inter, sans-serif', background: '#005C66', minWidth: 160, textDecoration: 'none' }}
-      >
-        <span className="inline-flex h-11 items-center justify-center gap-2 px-6 text-white text-sm font-semibold transition duration-500 group-hover:-translate-y-[150%]">
-          {explore} {isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />}
+      {comingSoon ? (
+        <span
+          className="inline-flex h-11 items-center justify-center rounded-full self-start px-6"
+          style={{ fontFamily: 'Inter, sans-serif', background: '#e8f4f5', color: '#005C66', fontSize: 14, fontWeight: 600, letterSpacing: '0.06em', minWidth: 160, opacity: 0.7 }}
+        >
+          {comingSoonLabel}
         </span>
-        <span className="absolute inline-flex h-11 w-full translate-y-full items-center justify-center gap-2 transition duration-500 group-hover:translate-y-0">
-          <span className="absolute h-full w-full translate-y-full skew-y-12 scale-y-0 bg-[#004d57] transition duration-500 group-hover:translate-y-0 group-hover:scale-150" />
-          <span className="relative z-10 inline-flex items-center gap-2 text-white text-sm font-semibold">
+      ) : (
+        <Link
+          href={pageUrl}
+          className="group relative inline-flex h-11 items-center justify-center overflow-hidden rounded-full self-start"
+          style={{ fontFamily: 'Inter, sans-serif', background: '#005C66', minWidth: 160, textDecoration: 'none' }}
+        >
+          <span className="inline-flex h-11 items-center justify-center gap-2 px-6 text-white text-sm font-semibold transition duration-500 group-hover:-translate-y-[150%]">
             {explore} {isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />}
           </span>
-        </span>
-      </Link>
+          <span className="absolute inline-flex h-11 w-full translate-y-full items-center justify-center gap-2 transition duration-500 group-hover:translate-y-0">
+            <span className="absolute h-full w-full translate-y-full skew-y-12 scale-y-0 bg-[#004d57] transition duration-500 group-hover:translate-y-0 group-hover:scale-150" />
+            <span className="relative z-10 inline-flex items-center gap-2 text-white text-sm font-semibold">
+              {explore} {isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />}
+            </span>
+          </span>
+        </Link>
+      )}
     </motion.div>
   )
 
@@ -278,6 +307,8 @@ export default function ServicesListSection() {
             slug={SLUGS[i]}
             pageUrl={SERVICE_PAGE_URLS[i]}
             isRtl={isRtl}
+            comingSoon={SLUGS[i] === 'one-way-ride'}
+            comingSoonLabel={isRtl ? 'قريباً' : 'Coming Soon'}
           />
         ))}
 

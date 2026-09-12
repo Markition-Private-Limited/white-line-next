@@ -93,6 +93,19 @@ export default function DownloadDialog({ open, onClose }: { open: boolean; onClo
                   minHeight: 380,
                 }}
               >
+                {/* Radar — anchored to the corner of the modal */}
+                <RadarGraphic
+                  style={{
+                    position: 'absolute',
+                    ...(isRtl ? { left: '-6%', top: '-8%' } : { right: '-6%', top: '-8%' }),
+                    width: '30%',
+                    opacity: 0.25,
+                    pointerEvents: 'none',
+                    zIndex: 0,
+                    transform: isRtl ? 'rotate(85deg)' : 'rotate(275deg)',
+                  }}
+                />
+
                 {/* ── Left: text ── */}
                 <div
                   style={{
@@ -107,19 +120,6 @@ export default function DownloadDialog({ open, onClose }: { open: boolean; onClo
                     zIndex: 10,
                   }}
                 >
-                  {/* Radar ghost in text area */}
-                  <RadarGraphic
-                    style={{
-                      position: 'absolute',
-                      ...(isRtl ? { left: '-8%' } : { right: '-24%' }),
-                      top: '10%',
-                      width: '42%',
-                      opacity: 0.3,
-                      pointerEvents: 'none',
-                      zIndex: 0,
-                      transform: isRtl ? 'rotate(85deg)' : 'rotate(275deg)',
-                    }}
-                  />
 
                   <div style={{ position: 'relative', zIndex: 1 }}>
                     {/* Logo row */}
@@ -196,28 +196,27 @@ export default function DownloadDialog({ open, onClose }: { open: boolean; onClo
                   </div>
                 </div>
 
-                {/* ── Right: app image panel — full height, fixed width ── */}
+                {/* ── Right: app image panel — bottom-anchored, 50% of popup height ── */}
                 <motion.div
                   className="hidden sm:flex items-end justify-center"
                   style={{
-                    width: 'clamp(200px, 33%, 280px)',
+                    width: 'clamp(220px, 38%, 320px)',
                     flexShrink: 0,
                     alignSelf: 'stretch',
                     overflow: 'hidden',
                   }}
-                  initial={{ opacity: 0, x: isRtl ? -50 : 50 }}
-                  animate={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.7, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
                 >
                   <img
                     src={appImg.src}
                     alt="White Line app preview"
                     style={{
-                      width: '130%',
-                      height: 'auto',
+                      height: '70%',
+                      width: 'auto',
                       display: 'block',
-                      objectFit: 'contain',
-                      ...(isRtl ? { marginLeft: '-15%' } : { marginRight: '-15%' }),
+                      flexShrink: 0,
                     }}
                   />
                 </motion.div>

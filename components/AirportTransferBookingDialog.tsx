@@ -140,7 +140,7 @@ const createInitialBookingState = (service: BookingService): BookingState => ({
   isDeparture: false,
   flightNumber: '',
   duration: 2,
-  dayDuration: 'full',
+  dayDuration: 'half',
   name: '',
   email: '',
   phone: '',

@@ -52,12 +52,16 @@ function ServiceCard({
   scrollYProgress,
   total,
   isRtl,
+  comingSoon = false,
+  comingSoonLabel = 'Coming Soon',
 }: {
   card: CardData
   index: number
   scrollYProgress: ReturnType<typeof useScroll>['scrollYProgress']
   total: number
   isRtl: boolean
+  comingSoon?: boolean
+  comingSoonLabel?: string
 }) {
   const targetScale = 1 - (total - 1 - index) * 0.03
 
@@ -109,6 +113,29 @@ function ServiceCard({
           >
             {isRtl ? toArabicNumerals(card.num) : card.num}
           </span>
+          {comingSoon && (
+            <span style={{
+              position: 'absolute',
+              top: 18,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              background: 'rgba(255,255,255,0.15)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              color: '#fff',
+              borderRadius: 999,
+              fontSize: 9,
+              padding: '4px 12px',
+              fontWeight: 700,
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              fontFamily: 'Inter, sans-serif',
+              border: '1px solid rgba(255,255,255,0.3)',
+              whiteSpace: 'nowrap',
+            }}>
+              {comingSoonLabel}
+            </span>
+          )}
 
           <div
             className="absolute top-4 flex items-center justify-center rounded-full"
@@ -158,17 +185,30 @@ fontSize: 'clamp(13px, 1.5vw, 16px)',
               >
                 {card.desc}
               </p>
-              <a
-                href={card.link}
-                className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80 underline underline-offset-2"
-                style={{
+              {comingSoon ? (
+                <span style={{
                   fontFamily: 'Inter, sans-serif',
-                  fontSize: 'clamp(13px, 1.4vw, 15px)',
-                  color: '#D4FBFF',
-                }}
-              >
-                {card.explore} {isRtl ? <ArrowLeft size={13} color="#D4FBFF" /> : <ArrowRight size={13} color="#D4FBFF" />}
-              </a>
+                  fontSize: 'clamp(11px, 1.2vw, 13px)',
+                  color: 'rgba(255,255,255,0.38)',
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  fontWeight: 600,
+                }}>
+                  {comingSoonLabel}
+                </span>
+              ) : (
+                <a
+                  href={card.link}
+                  className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80 underline underline-offset-2"
+                  style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: 'clamp(13px, 1.4vw, 15px)',
+                    color: '#D4FBFF',
+                  }}
+                >
+                  {card.explore} {isRtl ? <ArrowLeft size={13} color="#D4FBFF" /> : <ArrowRight size={13} color="#D4FBFF" />}
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -255,6 +295,8 @@ export default function ServicesSection() {
             total={cards.length}
             scrollYProgress={scrollYProgress}
             isRtl={isRtl}
+            comingSoon={card.link === '/services/one-way-ride'}
+            comingSoonLabel={isRtl ? 'قريباً' : 'Coming Soon'}
           />
         ))}
       </div>

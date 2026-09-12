@@ -104,6 +104,8 @@ export default function ContactFormSection() {
   const [errors, setErrors] = useState<FormErrors>({})
   const [touched, setTouched] = useState<Partial<Record<keyof FormData, boolean>>>({})
   const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [apiError, setApiError] = useState<string | null>(null)
 
   const errMsgs: ErrMsgs = {
     errFirstName: f.errFirstName, errLastName: f.errLastName,
@@ -123,12 +125,41 @@ export default function ContactFormSection() {
     setErrors(prev => ({ ...prev, [key]: errs[key] }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const errs = validate(form, errMsgs)
     setErrors(errs)
     setTouched({ firstName: true, lastName: true, email: true, helpTopic: true, message: true })
-    if (Object.keys(errs).length === 0) setSubmitted(true)
+    if (Object.keys(errs).length > 0) return
+
+    setLoading(true)
+    setApiError(null)
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: form.firstName,
+          lastName: form.lastName,
+          email: form.email,
+          phone: form.phone || undefined,
+          subject: form.helpTopic,
+          message: form.message,
+          preferredDate: form.preferredDate || undefined,
+          numberOfPassengers: parseInt(form.passengers, 10),
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => null)
+        setApiError(data?.error ?? 'Something went wrong. Please try again.')
+      } else {
+        setSubmitted(true)
+      }
+    } catch {
+      setApiError('Network error. Please check your connection and try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const fadeUp = (delay = 0): React.CSSProperties => ({
@@ -244,11 +275,16 @@ export default function ContactFormSection() {
                   <a href="#" style={{ color: '#005C66', textDecoration: 'underline' }}>{f.termsLink}</a>.
                 </p>
 
-                <button type="submit"
+                {apiError && (
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 12.5, color: '#ef4444', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <span>⚠</span> {apiError}
+                  </p>
+                )}
+                <button type="submit" disabled={loading}
                   className="flex items-center gap-2.5 font-semibold transition-opacity hover:opacity-85 active:scale-[0.98]"
-                  style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#fff', background: '#0A3B3C', border: 'none', borderRadius: 50, padding: '13px 28px', cursor: 'pointer', transition: 'opacity 0.2s ease, transform 0.15s ease' }}>
-                  {f.sendBtn}
-                  <Send size={15} style={{ transform: isRtl ? 'scaleX(-1)' : undefined }} />
+                  style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#fff', background: '#0A3B3C', border: 'none', borderRadius: 50, padding: '13px 28px', cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.7 : 1, transition: 'opacity 0.2s ease, transform 0.15s ease' }}>
+                  {loading ? (isRtl ? 'جارٍ الإرسال...' : 'Sending...') : f.sendBtn}
+                  {!loading && <Send size={15} style={{ transform: isRtl ? 'scaleX(-1)' : undefined }} />}
                 </button>
               </form>
             </>

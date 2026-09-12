@@ -93,6 +93,29 @@ export default function AirportTransferHero({ servicePage = 'airportTransferPage
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
+            {servicePage === 'oneWayRidePage' && (
+              <motion.div
+                className="mb-5"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.05, ease: 'easeOut' }}
+              >
+                <span style={{
+                  display: 'inline-block',
+                  background: '#fff',
+                  color: '#005C66',
+                  borderRadius: 999,
+                  fontSize: 11,
+                  padding: '5px 14px',
+                  fontWeight: 700,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  fontFamily: 'Inter, sans-serif',
+                }}>
+                  {dir === 'rtl' ? 'قريباً' : 'Coming Soon'}
+                </span>
+              </motion.div>
+            )}
             <motion.h1
               className="mb-6 leading-tight text-white"
               style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(34px, 5.5vw, 68px)' }}

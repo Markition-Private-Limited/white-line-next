@@ -20,8 +20,8 @@ import card4 from '../assets/home/home_page_banner_Sub_images/4.jpg'
 import card5 from '../assets/home/home_page_banner_Sub_images/5.jpg'
 
 // Images mapped in the same order as translations.hero.services
-// Order: Airport Transfer, One-Way Ride, City-to-City, Day Service, Hourly Chauffeur
-const CARD_IMAGES = [card4, card3, card2, card5, card1]
+// Order: Airport Transfer, City-to-City, Day Service, Hourly Chauffeur, One-Way Ride
+const CARD_IMAGES = [card4, card2, card5, card1, card3]
 
 type Tilt = { rotX: number; rotY: number; imgX: number; imgY: number }
 
@@ -34,6 +34,8 @@ function ParallaxCard({
   objectPosition = 'center',
   defaultPb = '40%',
   onBook,
+  comingSoon = false,
+  comingSoonLabel = 'Coming Soon',
 }: {
   img: { src: string } | string
   title: string
@@ -43,6 +45,8 @@ function ParallaxCard({
   objectPosition?: string
   defaultPb?: string
   onBook?: () => void
+  comingSoon?: boolean
+  comingSoonLabel?: string
 }) {
   const cardRef = useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = useState<Tilt>({ rotX: 0, rotY: 0, imgX: 0, imgY: 0 })
@@ -67,8 +71,8 @@ function ParallaxCard({
   return (
     <div
       ref={cardRef}
-      onClick={onBook}
-      onMouseMove={handleMove}
+      onClick={comingSoon ? undefined : onBook}
+      onMouseMove={comingSoon ? undefined : handleMove}
       onMouseEnter={() => setActive(true)}
       onMouseLeave={reset}
       className="rounded-2xl p-3"
@@ -83,9 +87,29 @@ function ParallaxCard({
         position: 'relative',
         zIndex: active ? 10 : 1,
         transition: 'box-shadow 0.4s ease',
-        cursor: onBook ? 'pointer' : undefined,
+        cursor: (!comingSoon && onBook) ? 'pointer' : undefined,
       }}
     >
+      {comingSoon && (
+        <span style={{
+          position: 'absolute',
+          top: 10,
+          ...(isRtl ? { left: 10 } : { right: 10 }),
+          background: '#005C66',
+          color: '#fff',
+          borderRadius: 999,
+          fontSize: 9,
+          padding: '4px 9px',
+          fontWeight: 700,
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+          fontFamily: 'Inter, sans-serif',
+          zIndex: 20,
+          pointerEvents: 'none',
+        }}>
+          {comingSoonLabel}
+        </span>
+      )}
       <div className="overflow-hidden rounded-lg mb-3 relative w-full">
         <motion.div
           className="w-full"
@@ -128,20 +152,33 @@ function ParallaxCard({
       >
         {desc}
       </p>
-      <button
-        type="button"
-        onClick={event => { event.stopPropagation(); onBook?.() }}
-        className="inline-flex items-center gap-1 text-sm font-medium underline underline-offset-2"
-        style={{
+      {comingSoon ? (
+        <span style={{
           fontFamily: 'Inter, sans-serif',
-          color: '#D4FBFF',
-          opacity: active ? 1 : 0.7,
-          letterSpacing: active ? '0.01em' : '0',
-          transition: 'opacity 0.4s ease, letter-spacing 0.4s ease',
-        }}
-      >
-        {bookNow} {isRtl ? <ArrowLeft size={12} /> : <ArrowRight size={12} />}
-      </button>
+          fontSize: 12,
+          color: 'rgba(255,255,255,0.42)',
+          letterSpacing: '0.06em',
+          textTransform: 'uppercase',
+          fontWeight: 600,
+        }}>
+          {comingSoonLabel}
+        </span>
+      ) : (
+        <button
+          type="button"
+          onClick={event => { event.stopPropagation(); onBook?.() }}
+          className="inline-flex items-center gap-1 text-sm font-medium underline underline-offset-2"
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            color: '#D4FBFF',
+            opacity: active ? 1 : 0.7,
+            letterSpacing: active ? '0.01em' : '0',
+            transition: 'opacity 0.4s ease, letter-spacing 0.4s ease',
+          }}
+        >
+          {bookNow} {isRtl ? <ArrowLeft size={12} /> : <ArrowRight size={12} />}
+        </button>
+      )}
     </div>
   )
 }
@@ -182,10 +219,10 @@ export default function HomeHero() {
 
   const bookingForCard = (index: number) => {
     if (index === 0) return () => setBookingType('airport')
-    if (index === 1) return () => setBookingType('oneWay')
-    if (index === 2) return () => setBookingType('city')
-    if (index === 3) return () => setBookingType('day')
-    if (index === 4) return () => setBookingType('hourly')
+    if (index === 1) return () => setBookingType('city')
+    if (index === 2) return () => setBookingType('day')
+    if (index === 3) return () => setBookingType('hourly')
+    if (index === 4) return () => setBookingType('oneWay')
     return undefined
   }
 
@@ -290,8 +327,10 @@ export default function HomeHero() {
                     bookNow={hero.bookNow}
                     isRtl={isRtl}
                     defaultPb="70%"
-                    objectPosition={i === 3 ? '50% 15%' : 'center'}
+                    objectPosition={i === 2 ? '50% 15%' : 'center'}
                     onBook={bookingForCard(i)}
+                    comingSoon={i === 4}
+                    comingSoonLabel={dir === 'rtl' ? 'قريباً' : 'Coming Soon'}
                   />
                 </div>
                 {/* ── Sm+: ghost sizes the cell; card expands upward on hover ── */}
@@ -309,8 +348,10 @@ export default function HomeHero() {
                       desc={s.desc}
                       bookNow={hero.bookNow}
                       isRtl={isRtl}
-                      objectPosition={i === 3 ? '50% 15%' : 'center'}
+                      objectPosition={i === 2 ? '50% 15%' : 'center'}
                       onBook={bookingForCard(i)}
+                      comingSoon={i === 4}
+                      comingSoonLabel={dir === 'rtl' ? 'قريباً' : 'Coming Soon'}
                     />
                   </div>
                 </div>

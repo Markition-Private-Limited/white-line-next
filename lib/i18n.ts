@@ -31,8 +31,8 @@ const en = {
       h1: 'White Line',
       h2: 'is coming to your phone.',
       sub: 'The premium chauffeur service is launching soon on iOS and Android. Be the first to experience seamless luxury travel at your fingertips.',
-      apple:  { sub: 'Download on the', main: 'App Store' },
-      google: { sub: 'Get it on',       main: 'Google Play' },
+      apple:  { sub: 'Get it on', main: 'App Store' },
+      google: { sub: 'Get it on', main: 'Google Play' },
     },
   },
 
@@ -59,10 +59,10 @@ const en = {
     ],
     services: [
       { title: 'Airport Transfer',  desc: 'Airport pickups and drop-offs.' },
-      { title: 'One Way Ride',      desc: 'Simple point-to-point travel.' },
       { title: 'City Trip',           desc: 'Comfortable intercity travel.' },
       { title: 'Day Service',       desc: 'Full-day vehicle block.' },
       { title: 'Hourly Chauffeur',  desc: 'Keep your chauffeur by the hour.' },
+      { title: 'One Way Ride',      desc: 'Simple point-to-point travel.' },
     ],
     bookNow: 'Book Now',
   },
@@ -155,8 +155,8 @@ const en = {
     hMob2: 'Chauffeurs',
     hMob3: 'At Your Fingertips',
     sub: 'Download the White Line Chauffeur Hailing™ app to hail chauffeurs on demand in select cities.',
-    apple:  { sub: 'Download on the', main: 'Coming Soon' },
-    google: { sub: 'Get it on',        main: 'Coming Soon' },
+    apple:  { sub: 'Get it on', main: 'Coming Soon' },
+    google: { sub: 'Get it on', main: 'Coming Soon' },
   },
 
   about: {
@@ -219,7 +219,7 @@ const en = {
       company:   { title: 'Company',   links: ['About Us', 'Terms & Conditions', 'Privacy Policy'] },
       services:  { title: 'Services',  links: ['One Way Ride', 'Hourly Chauffeur', 'City Trip', 'Day Service', 'Airport Transfer'] },
       resources: { title: 'Our Fleet', links: ['First Class', 'Business Premium', 'SUV', 'Business Sedan', 'Economy Sedan', 'Van'] },
-      support:   { title: 'Support',   links: ['Contact Us', 'Customer Support', 'Testimonials'] },
+      support:   { title: 'Support',   links: ['Contact Us', 'Testimonials'] },
     },
   },
 
@@ -1174,7 +1174,7 @@ const en = {
     backHome: 'Back to Home',
     appTitle: 'App Coming Soon',
     appBody: 'The White Line app is launching soon on iOS and Android.',
-    apple: { sub: 'Download on the', main: 'Coming Soon' },
+    apple: { sub: 'Get it on', main: 'Coming Soon' },
     google: { sub: 'Get it on', main: 'Coming Soon' },
   },
 
@@ -1206,7 +1206,7 @@ const ar: typeof en = {
       h1: 'وايت لاين',
       h2: 'قادم إلى هاتفك.',
       sub: 'ستُطلق خدمة التوصيل الفاخرة قريباً على iOS وAndroid. كن أول من يختبر تجربة السفر الفاخرة في متناول يدك.',
-      apple:  { sub: 'متوفر على',    main: 'آب ستور' },
+      apple:  { sub: 'احصل عليه من', main: 'آب ستور' },
       google: { sub: 'احصل عليه من', main: 'جوجل بلاي' },
     },
   },
@@ -1234,10 +1234,10 @@ const ar: typeof en = {
     ],
     services: [
       { title: 'نقل المطار',    desc: 'استقبال وتوصيل من وإلى المطار.' },
-      { title: 'رحلة أحادية',   desc: 'تنقل مباشر من نقطة لأخرى.' },
       { title: 'رحلة المدن',    desc: 'رحلات مريحة بين المدن.' },
       { title: 'خدمة اليوم',   desc: 'حجز السيارة ليوم كامل.' },
       { title: 'سائق بالساعة', desc: 'احتفظ بسائقك الخاص بالساعة.' },
+      { title: 'رحلة أحادية',   desc: 'تنقل مباشر من نقطة لأخرى.' },
     ],
     bookNow: 'احجز الآن',
   },
@@ -1330,7 +1330,7 @@ const ar: typeof en = {
     hMob2: 'محترفون',
     hMob3: 'في متناول يدك',
     sub: 'حمّل تطبيق وايت لاين للطلب الفوري للسائقين في المدن المتاحة.',
-    apple:  { sub: 'حمّل من',      main: 'قريباً' },
+    apple:  { sub: 'احصل عليه من', main: 'قريباً' },
     google: { sub: 'احصل عليه من', main: 'قريباً' },
   },
 
@@ -1418,7 +1418,7 @@ const ar: typeof en = {
       company:   { title: 'الشركة',   links: ['من نحن', 'الشروط والأحكام', 'سياسة الخصوصية'] },
       services:  { title: 'الخدمات', links: ['رحلة أحادية', 'سائق بالساعة', 'رحلة المدن', 'خدمة اليوم', 'نقل المطار'] },
       resources: { title: 'أسطولنا', links: ['الدرجة الأولى', 'درجة الأعمال الممتازة', 'SUV', 'سيدان الأعمال', 'سيدان اقتصادية', 'فان'] },
-      support:   { title: 'الدعم',   links: ['تواصل معنا', 'خدمة العملاء', 'التقييمات'] },
+      support:   { title: 'الدعم',   links: ['تواصل معنا', 'التقييمات'] },
     },
   },
 
@@ -2121,8 +2121,8 @@ const ar: typeof en = {
     backHome: 'العودة للرئيسية',
     appTitle: 'التطبيق قريباً',
     appBody: 'تطبيق وايت لاين قادم قريباً على iOS وAndroid.',
-    apple: { sub: 'حمّل من', main: 'قريباً' },
-    google: { sub: 'متوفر على', main: 'قريباً' },
+    apple: { sub: 'احصل عليه من', main: 'قريباً' },
+    google: { sub: 'احصل عليه من', main: 'قريباً' },
   },
 
   bookingFailed: {
