@@ -64,7 +64,6 @@ type VehicleClass = { id: string; className: string; description: string; passen
 type ClassVehicle = { id: string; make: string; model: string; year: number; plate_number: string; color: string; status: string; vehicle_front_photo_url: string | null }
 
 const FLEET_CACHE_TTL_MS = 5 * 60 * 1000
-const LOOP_COPIES = [0, 1, 2]
 let fleetClassesCache: { data: VehicleClass[]; timestamp: number } | null = null
 const fleetVehiclesCache = new Map<string, { data: ClassVehicle[]; timestamp: number }>()
 
@@ -1199,9 +1198,8 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
   const isDay = service === 'day'
   const isOneWay = service === 'oneWay'
   const normalizeLoopIndex = (index: number, count: number) => (index % count + count) % count
-  const scrollGridToLoopIndex = useCallback((grid: HTMLDivElement | null, count: number, index: number, behavior: ScrollBehavior = 'smooth') => {
-    const targetIndex = count > 1 ? count + normalizeLoopIndex(index, count) : index
-    const item = grid?.children.item(targetIndex)
+  const scrollGridToIndex = useCallback((grid: HTMLDivElement | null, index: number, behavior: ScrollBehavior = 'smooth') => {
+    const item = grid?.children.item(index)
     if (!(grid && item instanceof HTMLElement)) return
     const left = item.offsetLeft - (grid.clientWidth - item.offsetWidth) / 2
     grid.scrollTo({ left, behavior })
@@ -1222,58 +1220,44 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
     const nearestIndex = nearestLoopItemIndex(grid)
     setIndex(normalizeLoopIndex(nearestIndex, count))
   }, [nearestLoopItemIndex])
-  const settleLoopPosition = useCallback((grid: HTMLDivElement, count: number) => {
-    if (count <= 1) return
-    const children = Array.from(grid.children).filter((child): child is HTMLElement => child instanceof HTMLElement)
-    if (children.length === 0) return
-    const nearestIndex = nearestLoopItemIndex(grid)
-    const middleIndex = nearestIndex < count ? nearestIndex + count : nearestIndex >= count * 2 ? nearestIndex - count : nearestIndex
-    if (middleIndex !== nearestIndex) {
-      const item = children[middleIndex]
-      grid.scrollTo({ left: item.offsetLeft - (grid.clientWidth - item.offsetWidth) / 2, behavior: 'auto' })
-    }
-  }, [nearestLoopItemIndex])
   const selectCategory = (index: number) => {
     updateBooking({ categoryIndex: index, vehicle: null })
     categoryScrollIndexRef.current = index
     vehicleScrollIndexRef.current = 0
     setCategoryScrollIndex(index)
     setVehicleScrollIndex(0)
-    scrollGridToLoopIndex(categoryGridRef.current, categories.length, index)
+    scrollGridToIndex(categoryGridRef.current, index)
   }
   const selectVehicle = (index: number) => {
     updateBooking({ vehicle: index })
     vehicleScrollIndexRef.current = index
     setVehicleScrollIndex(index)
-    scrollGridToLoopIndex(vehicleGridRef.current, vehicleCount, index)
+    scrollGridToIndex(vehicleGridRef.current, index)
   }
   const showCategorySlide = (index: number) => {
     categoryScrollIndexRef.current = index
     setCategoryScrollIndex(index)
-    scrollGridToLoopIndex(categoryGridRef.current, categories.length, index)
+    scrollGridToIndex(categoryGridRef.current, index)
   }
   const showVehicleSlide = (index: number) => {
     vehicleScrollIndexRef.current = index
     setVehicleScrollIndex(index)
-    scrollGridToLoopIndex(vehicleGridRef.current, vehicleCount, index)
+    scrollGridToIndex(vehicleGridRef.current, index)
   }
 
   useEffect(() => {
     const grid = categoryGridRef.current
     if (!grid || categories.length <= 1) return
     let frame = 0
-    let settleTimer: ReturnType<typeof setTimeout> | null = null
     const onScroll = () => {
       cancelAnimationFrame(frame)
       frame = requestAnimationFrame(() => updateScrollIndex(grid, categories.length, index => {
         categoryScrollIndexRef.current = index
         setCategoryScrollIndex(index)
       }))
-      if (settleTimer) clearTimeout(settleTimer)
-      settleTimer = setTimeout(() => settleLoopPosition(grid, categories.length), 140)
     }
     frame = requestAnimationFrame(() => {
-      scrollGridToLoopIndex(grid, categories.length, categoryScrollIndexRef.current, 'auto')
+      scrollGridToIndex(grid, categoryScrollIndexRef.current, 'auto')
       updateScrollIndex(grid, categories.length, index => {
         categoryScrollIndexRef.current = index
         setCategoryScrollIndex(index)
@@ -1283,29 +1267,25 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
     window.addEventListener('resize', onScroll)
     return () => {
       cancelAnimationFrame(frame)
-      if (settleTimer) clearTimeout(settleTimer)
       grid.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
     }
-  }, [categories.length, categoryScrollIndexRef, scrollGridToLoopIndex, settleLoopPosition, updateScrollIndex])
+  }, [categories.length, categoryScrollIndexRef, scrollGridToIndex, categoryGridRef, updateScrollIndex])
 
   useEffect(() => {
     vehicleScrollIndexRef.current = 0
     const grid = vehicleGridRef.current
     if (!grid || vehicleCount <= 1) return
     let frame = 0
-    let settleTimer: ReturnType<typeof setTimeout> | null = null
     const onScroll = () => {
       cancelAnimationFrame(frame)
       frame = requestAnimationFrame(() => updateScrollIndex(grid, vehicleCount, index => {
         vehicleScrollIndexRef.current = index
         setVehicleScrollIndex(index)
       }))
-      if (settleTimer) clearTimeout(settleTimer)
-      settleTimer = setTimeout(() => settleLoopPosition(grid, vehicleCount), 140)
     }
     frame = requestAnimationFrame(() => {
-      scrollGridToLoopIndex(grid, vehicleCount, vehicleScrollIndexRef.current, 'auto')
+      scrollGridToIndex(grid, vehicleScrollIndexRef.current, 'auto')
       updateScrollIndex(grid, vehicleCount, index => {
         vehicleScrollIndexRef.current = index
         setVehicleScrollIndex(index)
@@ -1315,11 +1295,10 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
     window.addEventListener('resize', onScroll)
     return () => {
       cancelAnimationFrame(frame)
-      if (settleTimer) clearTimeout(settleTimer)
       grid.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
     }
-  }, [activeCategoryId, vehicleCount, scrollGridToLoopIndex, settleLoopPosition, updateScrollIndex])
+  }, [activeCategoryId, vehicleCount, vehicleScrollIndexRef, scrollGridToIndex, updateScrollIndex])
 
   return (
     <>
@@ -1340,22 +1319,19 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
       ) : (
         <>
           <div ref={categoryGridRef} className={styles.categoryGrid}>
-            {(categories.length > 1 ? LOOP_COPIES : [1]).flatMap(copyIndex => categories.map((item, index) => {
-              const isInteractiveCopy = categories.length <= 1 || copyIndex === 1
-              return (
-                <button type="button" key={`${copyIndex}-${item.id ?? item.name}`} aria-hidden={!isInteractiveCopy} tabIndex={isInteractiveCopy ? 0 : -1} className={`${styles.categoryCard} ${categoryIndex === index ? styles.categoryActive : ''}`} onClick={() => selectCategory(index)}>
-                  <span className={styles.categoryCopy}>
-                    <strong>{item.name}</strong>
-                    <small>{item.copy}</small>
-                  </span>
-                  {item.imageUrl ? (
-                    <img src={item.imageUrl} alt="" aria-hidden="true" className={styles.categoryImg} />
-                  ) : (
-                    <span className={styles.categoryPlaceholder} aria-hidden="true" />
-                  )}
-                </button>
-              )
-            }))}
+            {categories.map((item, index) => (
+              <button type="button" key={item.id ?? item.name} className={`${styles.categoryCard} ${categoryIndex === index ? styles.categoryActive : ''}`} onClick={() => selectCategory(index)}>
+                <span className={styles.categoryCopy}>
+                  <strong>{item.name}</strong>
+                  <small>{item.copy}</small>
+                </span>
+                {item.imageUrl ? (
+                  <img src={item.imageUrl} alt="" aria-hidden="true" className={styles.categoryImg} />
+                ) : (
+                  <span className={styles.categoryPlaceholder} aria-hidden="true" />
+                )}
+              </button>
+            ))}
           </div>
           {categories.length > 1 && (
             <div className={styles.sliderDots}>
@@ -1394,25 +1370,22 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
         ) : (
           <>
             <div ref={vehicleGridRef} className={styles.vehicleGrid}>
-              {(vehicleCards.length > 1 ? LOOP_COPIES : [1]).flatMap(copyIndex => vehicleCards.map((card, index) => {
-                const isInteractiveCopy = vehicleCards.length <= 1 || copyIndex === 1
-                return (
-                  <button type="button" key={`${copyIndex}-${card.key}`} aria-hidden={!isInteractiveCopy} tabIndex={isInteractiveCopy ? 0 : -1} className={`${styles.vehicleCard} ${vehicleIndex === index ? styles.vehicleSelected : ''}`} onClick={() => selectVehicle(index)}>
-                    {card.image ? (
-                      <img src={card.image} alt={card.title} className={styles.vehicleImg} />
-                    ) : (
-                      <span className={styles.vehicleNoImage}><CircleInfo size={20} /></span>
-                    )}
-                    <span className={styles.vehicleCopy}>
-                      <strong>{card.title}</strong>
-                      <small className={styles.vehicleSpecs} aria-label={copy.passengersAndBags}>
-                        <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><UsersRound size={8} /></span><span>{card.passengers}</span></span>
-                        <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><Luggage size={8} /></span><span>{card.bags}</span></span>
-                      </small>
-                    </span>
-                  </button>
-                )
-              }))}
+              {vehicleCards.map((card, index) => (
+                <button type="button" key={card.key} className={`${styles.vehicleCard} ${vehicleIndex === index ? styles.vehicleSelected : ''}`} onClick={() => selectVehicle(index)}>
+                  {card.image ? (
+                    <img src={card.image} alt={card.title} className={styles.vehicleImg} />
+                  ) : (
+                    <span className={styles.vehicleNoImage}><CircleInfo size={20} /></span>
+                  )}
+                  <span className={styles.vehicleCopy}>
+                    <strong>{card.title}</strong>
+                    <small className={styles.vehicleSpecs} aria-label={copy.passengersAndBags}>
+                      <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><UsersRound size={8} /></span><span>{card.passengers}</span></span>
+                      <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><Luggage size={8} /></span><span>{card.bags}</span></span>
+                    </small>
+                  </span>
+                </button>
+              ))}
             </div>
             {vehicleCards.length > 1 && (
               <div className={styles.sliderDots}>
