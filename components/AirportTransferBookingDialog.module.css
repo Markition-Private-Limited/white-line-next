@@ -871,20 +871,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   padding: 0;
-  border: none;
+  border: 1px solid rgba(0,0,0,.06);
   border-radius: 50%;
   background: #fff;
   color: #005C66;
   cursor: pointer;
-  transition: background .18s ease, opacity .18s ease;
+  box-shadow: 0 4px 14px rgba(0,0,0,.28), 0 1px 3px rgba(0,0,0,.14);
+  transition: background .18s ease, opacity .18s ease, transform .18s ease, box-shadow .18s ease;
 }
 .sliderArrowLeft { left: 8px; }
 .sliderArrowRight { right: 8px; }
-.sliderArrow:hover { background: #f0fafa; }
-.sliderArrow:disabled { opacity: .3; cursor: default; pointer-events: none; }
+.sliderArrow:hover { background: #f0fafa; box-shadow: 0 6px 18px rgba(0,0,0,.32), 0 1px 3px rgba(0,0,0,.16); transform: translateY(-50%) scale(1.06); }
+.sliderArrow:disabled { opacity: .3; cursor: default; pointer-events: none; box-shadow: 0 2px 8px rgba(0,0,0,.16); }
 
 .reviewTitle { margin: 23px 0 22px; font-family: var(--font-montserrat), sans-serif; font-size: 18px; }
 .summaryCard { overflow: hidden; border: 1px solid rgba(255,255,255,.72); border-radius: 17px; }
@@ -978,6 +979,8 @@
   }
 
   .content {
+    display: flex;
+    flex-direction: column;
     min-height: 100%;
     box-sizing: border-box;
     padding: 18px 16px 14px;
@@ -1029,12 +1032,12 @@
   .choiceCopy small { font-size: 7px; line-height: 1.35; }
 
   .guestPanel { padding: 18px 16px; }
-  .footerActions { margin-top: 17px; padding-bottom: env(safe-area-inset-bottom); }
+  .footerActions { margin-top: auto; padding-top: 24px; padding-bottom: env(safe-area-inset-bottom); }
   .back, .continue { min-height: 44px; }
   .back { padding-inline: 4px; }
   .continue { padding-inline: 20px; }
 
-  .categoryGrid { grid-auto-columns: minmax(230px, 82vw); gap: 10px; }
+  .categoryGrid { grid-auto-columns: 100%; gap: 10px; }
   .categoryCard { min-height: 224px; padding: 13px 13px 126px; }
   .categoryImg { height: 126px; }
   .categorySkeletonGrid { grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -1042,7 +1045,7 @@
   .categoryCopy small { margin-top: 7px; }
 
   .vehiclePanel { padding: 14px 12px 15px; }
-  .vehicleGrid { grid-auto-columns: minmax(230px, 82vw); gap: 10px; }
+  .vehicleGrid { grid-auto-columns: 100%; gap: 10px; }
   .vehicleCard { grid-template-rows: 150px auto; min-height: 0; }
   .vehicleSkeletonCard { min-height: 150px; }
   .vehicleImg { width: 100%; height: 150px; padding: 16px 18px; }
@@ -1199,7 +1202,7 @@
   .dayDurationGrid { grid-template-columns: 1fr; }
   .choice { min-height: 58px; }
   .choice > svg { display: block; }
-  .categoryGrid { grid-auto-columns: minmax(218px, 88vw); }
+  .categoryGrid { grid-auto-columns: 100%; }
   .categoryCard { min-height: 216px; padding-bottom: 120px; }
   .categorySkeletonGrid { grid-template-columns: 1fr; }
   .categorySkeletonCard { min-height: 74px; }
