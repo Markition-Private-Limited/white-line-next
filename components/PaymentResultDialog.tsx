@@ -56,7 +56,7 @@ export default function PaymentResultDialog({ type, bookingId, onClose }: Props)
         >
           {/* Close */}
           <button type="button" className={styles.closeButton} aria-label="Close" onClick={onClose}>
-            <X size={13} />
+            <X size={16} strokeWidth={2.5} />
           </button>
 
           <div className={styles.content}>
@@ -126,7 +126,7 @@ export default function PaymentResultDialog({ type, bookingId, onClose }: Props)
                           <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'rgba(255,255,255,0.25)' }} />
                         </span>
                       )}
-                      <span style={{ fontSize: 12.5, fontWeight: 500, color: item.done ? '#fff' : 'rgba(255,255,255,0.45)' }}>
+                      <span style={{ fontSize: 12.5, fontWeight: 500, color: '#fff' }}>
                         {item.label}
                       </span>
                       {!item.done && (
