@@ -1059,7 +1059,6 @@ function HourlyTripDetails({ booking, updateBooking, next, back }: {
   back: () => void
 }) {
   const { copy } = useBookingDialogCopy()
-  const [durationOpen, setDurationOpen] = useState(false)
   const [attempted, setAttempted] = useState(false)
 
   return (
@@ -1072,27 +1071,20 @@ function HourlyTripDetails({ booking, updateBooking, next, back }: {
 
       <div className={styles.durationField}>
         <label>{copy.selectDuration}</label>
-        <button type="button" className={styles.durationControl} aria-expanded={durationOpen} aria-haspopup="listbox" onClick={() => setDurationOpen(open => !open)}>
+        <div className={styles.durationControl}>
           <span>{booking.duration} {copy.hours}</span>
-          <ChevronDown size={18} className={durationOpen ? styles.durationChevronOpen : ''} />
-        </button>
-        <AnimatePresence>
-          {durationOpen && (
-            <motion.div className={styles.durationMenu} role="listbox" initial={{ opacity: 0, y: -8, scaleY: .96 }} animate={{ opacity: 1, y: 0, scaleY: 1 }} exit={{ opacity: 0, y: -8, scaleY: .96 }} transition={{ duration: .2, ease: 'easeOut' }}>
-              {hourlyDurations.map(hours => (
-                <button key={hours} type="button" role="option" aria-selected={booking.duration === hours} className={booking.duration === hours ? styles.durationOptionActive : ''} onClick={() => { updateBooking({ duration: hours }); setDurationOpen(false) }}>
-                  {hours} {copy.hours} ({hours * 40} {copy.km} {copy.included})
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        </div>
       </div>
 
-      <div className={styles.durationInfo}>
+      <div
+        className={styles.durationInfo}
+        role="button"
+        tabIndex={0}
+        onClick={() => updateBooking({ service: 'day' })}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); updateBooking({ service: 'day' }) } }}
+      >
         <CircleInfo size={19} />
         <span><strong>{copy.needMore}</strong><small>{copy.chooseDayOption}</small></span>
-        <ChevronDown size={16} />
       </div>
 
       <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripIsComplete(booking)} onAttempt={() => setAttempted(true)} />
@@ -1340,26 +1332,35 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
         <p className={styles.vehicleEmpty}>{lang === 'ar' ? 'لا توجد فئات مركبات متاحة.' : 'No vehicle classes available.'}</p>
       ) : (
         <>
-          <div ref={categoryGridRef} className={styles.categoryGrid}>
-            {categories.map((item, index) => (
-              <button type="button" key={item.id ?? item.name} className={`${styles.categoryCard} ${categoryIndex === index ? styles.categoryActive : ''}`} onClick={() => selectCategory(index)}>
-                <span className={styles.categoryCopy}>
-                  <strong>{item.name}</strong>
-                  <small>{item.copy}</small>
-                </span>
-                {item.imageUrl ? (
-                  <img src={item.imageUrl} alt="" aria-hidden="true" className={styles.categoryImg} />
-                ) : (
-                  <span className={styles.categoryPlaceholder} aria-hidden="true" />
-                )}
+          <div className={styles.carouselWrap}>
+            {categories.length > 1 && (
+              <button type="button" className={`${styles.sliderArrow} ${styles.sliderArrowLeft}`} aria-label="Previous category" disabled={categoryScrollIndex === 0} onClick={() => showCategorySlide(categoryScrollIndex - 1)}>
+                <ChevronLeft size={13} strokeWidth={2.5} />
               </button>
-            ))}
+            )}
+            <div ref={categoryGridRef} className={styles.categoryGrid}>
+              {categories.map((item, index) => (
+                <button type="button" key={item.id ?? item.name} className={`${styles.categoryCard} ${categoryIndex === index ? styles.categoryActive : ''}`} onClick={() => selectCategory(index)}>
+                  <span className={styles.categoryCopy}>
+                    <strong>{item.name}</strong>
+                    <small>{item.copy}</small>
+                  </span>
+                  {item.imageUrl ? (
+                    <img src={item.imageUrl} alt="" aria-hidden="true" className={styles.categoryImg} />
+                  ) : (
+                    <span className={styles.categoryPlaceholder} aria-hidden="true" />
+                  )}
+                </button>
+              ))}
+            </div>
+            {categories.length > 1 && (
+              <button type="button" className={`${styles.sliderArrow} ${styles.sliderArrowRight}`} aria-label="Next category" disabled={categoryScrollIndex === categories.length - 1} onClick={() => showCategorySlide(categoryScrollIndex + 1)}>
+                <ChevronRight size={13} strokeWidth={2.5} />
+              </button>
+            )}
           </div>
           {categories.length > 1 && (
             <div className={styles.sliderDots}>
-              <button type="button" className={styles.sliderArrow} aria-label="Previous category" disabled={categoryScrollIndex === 0} onClick={() => showCategorySlide(categoryScrollIndex - 1)}>
-                <ChevronLeft size={13} strokeWidth={2.5} />
-              </button>
               {categories.map((item, index) => (
                 <button
                   key={item.id ?? item.name}
@@ -1370,9 +1371,6 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
                   onClick={() => showCategorySlide(index)}
                 />
               ))}
-              <button type="button" className={styles.sliderArrow} aria-label="Next category" disabled={categoryScrollIndex === categories.length - 1} onClick={() => showCategorySlide(categoryScrollIndex + 1)}>
-                <ChevronRight size={13} strokeWidth={2.5} />
-              </button>
             </div>
           )}
         </>
@@ -1397,29 +1395,38 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
           <p className={styles.vehicleEmpty}>{lang === 'ar' ? 'لا توجد سيارات متاحة لهذه الفئة.' : 'No vehicles available for this class.'}</p>
         ) : (
           <>
-            <div ref={vehicleGridRef} className={styles.vehicleGrid}>
-              {vehicleCards.map((card, index) => (
-                <button type="button" key={card.key} className={`${styles.vehicleCard} ${vehicleIndex === index ? styles.vehicleSelected : ''}`} onClick={() => selectVehicle(index)}>
-                  {card.image ? (
-                    <img src={card.image} alt={card.title} className={styles.vehicleImg} />
-                  ) : (
-                    <span className={styles.vehicleNoImage}><CircleInfo size={20} /></span>
-                  )}
-                  <span className={styles.vehicleCopy}>
-                    <strong>{card.title}</strong>
-                    <small className={styles.vehicleSpecs} aria-label={copy.passengersAndBags}>
-                      <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><UsersRound size={8} /></span><span>{card.passengers}</span></span>
-                      <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><Luggage size={8} /></span><span>{card.bags}</span></span>
-                    </small>
-                  </span>
+            <div className={styles.carouselWrap}>
+              {vehicleCards.length > 1 && (
+                <button type="button" className={`${styles.sliderArrow} ${styles.sliderArrowLeft}`} aria-label="Previous vehicle" disabled={vehicleScrollIndex === 0} onClick={() => showVehicleSlide(vehicleScrollIndex - 1)}>
+                  <ChevronLeft size={13} strokeWidth={2.5} />
                 </button>
-              ))}
+              )}
+              <div ref={vehicleGridRef} className={styles.vehicleGrid}>
+                {vehicleCards.map((card, index) => (
+                  <button type="button" key={card.key} className={`${styles.vehicleCard} ${vehicleIndex === index ? styles.vehicleSelected : ''}`} onClick={() => selectVehicle(index)}>
+                    {card.image ? (
+                      <img src={card.image} alt={card.title} className={styles.vehicleImg} />
+                    ) : (
+                      <span className={styles.vehicleNoImage}><CircleInfo size={20} /></span>
+                    )}
+                    <span className={styles.vehicleCopy}>
+                      <strong>{card.title}</strong>
+                      <small className={styles.vehicleSpecs} aria-label={copy.passengersAndBags}>
+                        <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><UsersRound size={8} /></span><span>{card.passengers}</span></span>
+                        <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><Luggage size={8} /></span><span>{card.bags}</span></span>
+                      </small>
+                    </span>
+                  </button>
+                ))}
+              </div>
+              {vehicleCards.length > 1 && (
+                <button type="button" className={`${styles.sliderArrow} ${styles.sliderArrowRight}`} aria-label="Next vehicle" disabled={vehicleScrollIndex === vehicleCards.length - 1} onClick={() => showVehicleSlide(vehicleScrollIndex + 1)}>
+                  <ChevronRight size={13} strokeWidth={2.5} />
+                </button>
+              )}
             </div>
             {vehicleCards.length > 1 && (
               <div className={styles.sliderDots}>
-                <button type="button" className={styles.sliderArrow} aria-label="Previous vehicle" disabled={vehicleScrollIndex === 0} onClick={() => showVehicleSlide(vehicleScrollIndex - 1)}>
-                  <ChevronLeft size={13} strokeWidth={2.5} />
-                </button>
                 {vehicleCards.map((card, index) => (
                   <button
                     key={card.key}
@@ -1430,9 +1437,6 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
                     onClick={() => showVehicleSlide(index)}
                   />
                 ))}
-                <button type="button" className={styles.sliderArrow} aria-label="Next vehicle" disabled={vehicleScrollIndex === vehicleCards.length - 1} onClick={() => showVehicleSlide(vehicleScrollIndex + 1)}>
-                  <ChevronRight size={13} strokeWidth={2.5} />
-                </button>
               </div>
             )}
           </>
@@ -1876,12 +1880,12 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
           <X size={15} strokeWidth={2} />
         </button>
         <div className={styles.content}>
-          <span id="airport-dialog-title" className="sr-only">{copy.services[service]} {copy.dialogLabel}</span>
-          {step === 0 && service === 'airport' && <TripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
-          {step === 0 && service === 'hourly' && <HourlyTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
-          {step === 0 && service === 'city' && <CityTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
-          {step === 0 && service === 'day' && <DayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
-          {step === 0 && service === 'oneWay' && <OneWayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
+          <span id="airport-dialog-title" className="sr-only">{copy.services[booking.service]} {copy.dialogLabel}</span>
+          {step === 0 && booking.service === 'airport' && <TripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
+          {step === 0 && booking.service === 'hourly' && <HourlyTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
+          {step === 0 && booking.service === 'city' && <CityTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
+          {step === 0 && booking.service === 'day' && <DayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
+          {step === 0 && booking.service === 'oneWay' && <OneWayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
           {step === 1 && <RideStep booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(2)} />}
           {step === 2 && <ReviewStep booking={booking} back={goBack} next={() => setStep(3)} />}
           {step === 3 && <FareStep booking={booking} updateBooking={updateBooking} back={goBack} onSuccess={(id) => { setBookingId(id); setStep(4) }} onRedirecting={() => { redirectingRef.current = true; setRedirecting(true) }} />}

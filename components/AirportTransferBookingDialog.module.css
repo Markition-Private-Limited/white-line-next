@@ -573,7 +573,7 @@
 .durationMenu button:hover,
 .durationOptionActive { color: #017b87 !important; background: #effbfc !important; }
 .durationMenu button:last-child { border-bottom: 0; }
-.durationInfo { display: grid; min-height: 51px; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; margin-top: 23px; padding: 8px 16px; border-radius: 15px; color: #27383c; background: #e5f8fc; }
+.durationInfo { display: grid; min-height: 51px; grid-template-columns: auto 1fr; align-items: center; gap: 12px; margin-top: 23px; padding: 8px 16px; border-radius: 15px; color: #27383c; background: #e5f8fc; cursor: pointer; }
 .durationInfo > svg:first-child { color: #008a98; }
 .durationInfo > span { min-width: 0; }
 .durationInfo strong,
@@ -861,7 +861,13 @@
   background: #00717e;
 }
 
+.carouselWrap { position: relative; }
+
 .sliderArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -874,8 +880,9 @@
   color: #005C66;
   cursor: pointer;
   transition: background .18s ease, opacity .18s ease;
-  flex-shrink: 0;
 }
+.sliderArrowLeft { left: 8px; }
+.sliderArrowRight { right: 8px; }
 .sliderArrow:hover { background: #f0fafa; }
 .sliderArrow:disabled { opacity: .3; cursor: default; pointer-events: none; }
 
