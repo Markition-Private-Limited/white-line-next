@@ -960,7 +960,8 @@
 .otpInvalid input[aria-invalid='true'] { border-color: #ffd0d0; box-shadow: 0 0 0 2px rgba(160,35,35,.12); }
 .resend { border: 0; color: #c9f5fa; background: transparent; font-size: 9px; font-weight: 700; cursor: pointer; }
 
-.successBody { min-height: 445px; }
+.successBody { min-height: 445px; height: 100%; display: flex; flex-direction: column; }
+.successBody .footerActions { margin-top: auto; padding-top: 23px; }
 .successCenter { display: flex; flex-direction: column; align-items: center; margin-top: 24px; text-align: center; gap: 0; }
 .successCheck { display: grid; width: 56px; height: 56px; place-items: center; border-radius: 50%; color: #087b69; background: #78ffa2; flex-shrink: 0; }
 .successHeadline { margin: 16px 0 8px; font-size: 18px; font-weight: 700; line-height: 1.3; }

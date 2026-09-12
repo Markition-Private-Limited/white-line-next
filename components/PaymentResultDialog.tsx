@@ -1,11 +1,8 @@
 'use client'
-import Image from 'next/image'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, X, Clock, MessageCircle, ArrowLeft, ArrowRight } from 'lucide-react'
-import appPhones from '../assets/global_app/app.png'
 import { useLanguage } from '../context/LanguageContext'
 import { bookingDialogCopy } from '../lib/bookingDialogCopy'
-import { RadarGraphic, StoreButton } from './AppSection'
 import styles from './AirportTransferBookingDialog.module.css'
 
 interface Props {
@@ -103,7 +100,6 @@ export default function PaymentResultDialog({ type, bookingId, onClose }: Props)
                         gap: 10,
                         padding: '11px 16px',
                         borderBottom: i < statusItems.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none',
-                        flexDirection: isRtl ? 'row-reverse' : 'row',
                         fontFamily: 'var(--font-inter), sans-serif',
                       }}
                     >
@@ -172,35 +168,6 @@ export default function PaymentResultDialog({ type, bookingId, onClose }: Props)
                     <MessageCircle size={14} strokeWidth={2} />
                     {bc.whatsapp}
                   </a>
-                </div>
-
-                {/* App banner — exact copy from SuccessStep */}
-                <div className={styles.appBanner}>
-                  <span className={styles.appRadarClip} aria-hidden="true">
-                    <RadarGraphic
-                      className={styles.appRadar}
-                      style={{
-                        right: isRtl ? 'auto' : undefined,
-                        left: isRtl ? '13%' : undefined,
-                        transform: isRtl ? 'rotate(85deg)' : undefined,
-                      }}
-                    />
-                  </span>
-                  <h3>{copy.trackJourney}</h3>
-                  <p>{copy.trackBody}</p>
-                  <div className={styles.stores}>
-                    <StoreButton variant="apple" mini sub={copy.downloadOn} main={lang === 'ar' ? 'قريباً' : 'Coming Soon'} isRtl={isRtl} />
-                    <StoreButton variant="google" mini sub={copy.getItOn} main={lang === 'ar' ? 'قريباً' : 'Coming Soon'} isRtl={isRtl} />
-                  </div>
-                  <Image
-                    className={styles.appPhones}
-                    src={appPhones}
-                    alt={copy.mobileAppAlt}
-                    style={{
-                      right: isRtl ? 'auto' : undefined,
-                      left: isRtl ? '20px' : undefined,
-                    }}
-                  />
                 </div>
 
                 {/* Footer: close */}
