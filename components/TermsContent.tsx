@@ -4,7 +4,7 @@ import { useLanguage } from '../context/LanguageContext'
 export default function TermsContent() {
   const { trans, dir } = useLanguage()
   const isRtl = dir === 'rtl'
-  const { effectiveDate, intro, sections } = trans.termsPage
+  const { effectiveDate, copyright, intro, sections } = trans.termsPage
 
   return (
     <section className="w-full bg-white">
@@ -119,7 +119,7 @@ export default function TermsContent() {
           className="mt-6 text-center"
           style={{ fontSize: '12px', color: '#999', fontFamily: 'Montserrat, sans-serif' }}
         >
-          © {new Date().getFullYear()} White Line. All rights reserved.
+          © {new Date().getFullYear()} {copyright}
         </p>
       </div>
     </section>

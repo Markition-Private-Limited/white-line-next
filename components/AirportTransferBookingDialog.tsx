@@ -51,6 +51,7 @@ type BookingState = {
   guest: GuestDetails
   categoryIndex: number | null
   vehicle: number | null
+  vehicleId: string | null
   otp: string[]
 }
 
@@ -147,6 +148,7 @@ const createInitialBookingState = (service: BookingService): BookingState => ({
   guest: blankGuest(),
   categoryIndex: null,
   vehicle: null,
+  vehicleId: null,
   otp: Array(6).fill(''),
 })
 
@@ -1221,7 +1223,7 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
     setIndex(normalizeLoopIndex(nearestIndex, count))
   }, [nearestLoopItemIndex])
   const selectCategory = (index: number) => {
-    updateBooking({ categoryIndex: index, vehicle: null })
+    updateBooking({ categoryIndex: index, vehicle: null, vehicleId: null })
     categoryScrollIndexRef.current = index
     vehicleScrollIndexRef.current = 0
     setCategoryScrollIndex(index)
@@ -1229,7 +1231,7 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
     scrollGridToIndex(categoryGridRef.current, index)
   }
   const selectVehicle = (index: number) => {
-    updateBooking({ vehicle: index })
+    updateBooking({ vehicle: index, vehicleId: vehicleCards?.[index]?.key ?? null })
     vehicleScrollIndexRef.current = index
     setVehicleScrollIndex(index)
     scrollGridToIndex(vehicleGridRef.current, index)
@@ -1503,7 +1505,7 @@ function FareAmount({ value }: { value: number | undefined }) {
   )
 }
 
-function FareStep({ back, onSuccess, booking }: { back: () => void; onSuccess: (bookingId: string) => void; booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void }) {
+function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => void; onSuccess: (bookingId: string) => void; onRedirecting?: () => void; booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void }) {
   const { copy, dir } = useBookingDialogCopy()
   const { category, vehicleLabel } = useSelectedFleetLabels(booking)
   const service = booking.service
@@ -1589,6 +1591,7 @@ function FareStep({ back, onSuccess, booking }: { back: () => void; onSuccess: (
       success_url: `${window.location.origin}/booking-confirmed`,
       fail_url: `${window.location.origin}/booking-failed`,
     }
+    if (booking.vehicleId) body.vehicle_id = booking.vehicleId
     if (scheduledDatetime) body.scheduled_datetime = scheduledDatetime
     if (dropoffCoords) { body.dropoff_lat = dropoffCoords.lat; body.dropoff_lng = dropoffCoords.lng }
     if (booking.destination?.address) body.dropoff_address = booking.destination.address
@@ -1607,6 +1610,7 @@ function FareStep({ back, onSuccess, booking }: { back: () => void; onSuccess: (
       if (!res.ok) { setSubmitError(true); setSubmitting(false); return }
       const checkoutUrl: string = json?.data?.payment?.checkout_url ?? json?.payment?.checkout_url ?? ''
       if (checkoutUrl) {
+        onRedirecting?.()
         window.location.href = checkoutUrl
       } else {
         onSuccess(json?.data?.booking_id ?? json?.booking_id ?? '')
@@ -1763,6 +1767,8 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
   const [booking, setBooking] = useState<BookingState>(() => createInitialBookingState(service))
   const [confirmClose, setConfirmClose] = useState(false)
   const [bookingId, setBookingId] = useState<string | null>(null)
+  const [redirecting, setRedirecting] = useState(false)
+  const redirectingRef = useRef(false)
   const overlayRef = useRef<HTMLDivElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
   const updateBooking = useCallback((updates: Partial<BookingState>) => {
@@ -1808,7 +1814,7 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
 
   useEffect(() => {
     if (!open) return
-    const onBeforeUnload = (event: BeforeUnloadEvent) => { event.preventDefault() }
+    const onBeforeUnload = (event: BeforeUnloadEvent) => { if (!redirectingRef.current) event.preventDefault() }
     window.addEventListener('beforeunload', onBeforeUnload)
     return () => window.removeEventListener('beforeunload', onBeforeUnload)
   }, [open])
@@ -1828,7 +1834,7 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
 
   return (
     <div ref={overlayRef} className={styles.overlay} data-lenis-prevent>
-      <div ref={dialogRef} className={styles.dialog} dir={dir} data-lenis-prevent role="dialog" aria-modal="true" aria-labelledby="airport-dialog-title" tabIndex={-1}>
+      <div ref={dialogRef} className={styles.dialog} dir={dir} data-lenis-prevent role="dialog" aria-modal="true" aria-labelledby="airport-dialog-title" tabIndex={-1} style={redirecting ? { overflow: 'hidden' } : undefined}>
         <button type="button" className={styles.closeButton} aria-label={copy.closeLabel} onClick={requestClose}>
           <X size={15} strokeWidth={2} />
         </button>
@@ -1841,12 +1847,51 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
           {step === 0 && service === 'oneWay' && <OneWayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
           {step === 1 && <RideStep booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(2)} />}
           {step === 2 && <ReviewStep booking={booking} back={goBack} next={() => setStep(3)} />}
-          {step === 3 && <FareStep booking={booking} updateBooking={updateBooking} back={goBack} onSuccess={(id) => { setBookingId(id); setStep(4) }} />}
+          {step === 3 && <FareStep booking={booking} updateBooking={updateBooking} back={goBack} onSuccess={(id) => { setBookingId(id); setStep(4) }} onRedirecting={() => { redirectingRef.current = true; setRedirecting(true) }} />}
           {step === 4 && <SuccessStep booking={booking} bookingId={bookingId} back={goBack} onDone={resetAndClose} />}
         </div>
         <AnimatePresence>
           {confirmClose && (
             <CancelConfirmDialog onKeep={() => setConfirmClose(false)} onConfirm={resetAndClose} />
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {redirecting && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              style={{
+                position: 'absolute', inset: 0, zIndex: 60,
+                borderRadius: 'inherit',
+                background: 'rgba(20,20,20,0.92)',
+                backdropFilter: 'blur(8px)',
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                gap: 16, padding: '32px 24px', textAlign: 'center',
+              }}
+            >
+              <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+                <circle cx="22" cy="22" r="18" stroke="rgba(255,255,255,0.12)" strokeWidth="3" />
+                <motion.circle
+                  cx="22" cy="22" r="18"
+                  stroke="#4ecdc4" strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeDasharray="113"
+                  strokeDashoffset="85"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                  style={{ transformOrigin: '22px 22px' }}
+                />
+              </svg>
+              <p style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 16, color: '#fff', margin: 0 }}>
+                {copy.redirectingTitle}
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.55)', margin: 0, maxWidth: 280, lineHeight: 1.6 }}>
+                {copy.redirectingBody}
+              </p>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>

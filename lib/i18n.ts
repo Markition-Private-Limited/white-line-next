@@ -119,14 +119,8 @@ const en = {
     h1: 'Travel In Exceptional',
     h2: 'Comfort.',
     sub: 'A meticulously maintained collection of luxury sedans and executive vehicles, engineered for utmost comfort, privacy, and seamless travel across the Kingdom.',
-    cars: [
-      { title: 'First Class',   desc: 'Flagship luxury sedans such as the Mercedes-Benz S-Class, selected for VIP comfort and privacy.' },
-      { title: 'Business Class', desc: 'Executive vehicles such as the Mercedes-Benz E-Class, ideal for refined business travel.' },
-      { title: 'SUV',            desc: 'Spacious premium SUVs such as the GMC Yukon XL, built for groups, families, and luggage.' },
-      { title: 'Sedan',          desc: 'Comfortable sedans such as the Lexus ES350, made for smooth city and airport journeys.' },
-      { title: 'Van',            desc: 'Practical vans such as the Hyundai Staria, suited to larger parties and flexible transfers.' },
-      { title: 'Coaster & Bus',  desc: 'Group transport options such as the Toyota Coaster, arranged for events and delegations.' },
-    ],
+    desc: 'Spacious, versatile, and elegant',
+    empty: 'No fleet classes are available right now.',
   },
 
   testimonials: {
@@ -218,7 +212,7 @@ const en = {
     columns: {
       company:   { title: 'Company',   links: ['About Us', 'Terms & Conditions', 'Privacy Policy'] },
       services:  { title: 'Services',  links: ['One Way Ride', 'Hourly Chauffeur', 'City Trip', 'Day Service', 'Airport Transfer'] },
-      resources: { title: 'Our Fleet', links: ['First Class', 'Business Class', 'SUV', 'Sedan', 'Van', 'Coaster & Bus'] },
+      resources: { title: 'Our Fleet', links: [] as string[] },
       support:   { title: 'Support',   links: ['Contact Us', 'Customer Support', 'Testimonials'] },
     },
   },
@@ -386,8 +380,9 @@ const en = {
       sub: 'Our meticulously maintained collection of high-end vehicles represents the absolute pinnacle of automotive luxury. Each model in our fleet undergoes rigorous multi-point inspections and pristine detailing.',
       luggages: 'Luggages',
       persons: 'Persons',
-      filters: ['All', 'First Class', 'Business Class', 'SUV', 'Sedan', 'Van', 'Coaster & Bus'],
+      allFilter: 'All',
       desc: 'Spacious, versatile, and elegant',
+      empty: 'No fleet classes are available right now.',
     },
   },
 
@@ -792,6 +787,7 @@ const en = {
       sub: 'At White Line, we deeply value your privacy and are committed to safeguarding the personal and professional information you entrust to us. This Privacy Policy outlines how we collect, use, disclose, and protect your data when you interact with our executive transport platforms, applications, and services.',
     },
     effectiveDate: 'Effective Date: August 17, 2026',
+    copyright: 'White Line. All rights reserved.',
     intro: 'At White Line ("White Line," "we," "us," or "our"), we are committed to protecting your privacy and safeguarding the personal and professional information you entrust to us. This Privacy Policy explains how we collect, use, process, store, disclose, and protect your information when you access or use our website, mobile applications, customer portals, corporate/B2B platforms, and luxury chauffeur and ride-hailing services (collectively, the "Services"). By accessing or using our Services, you acknowledge that you have read and understood this Privacy Policy. If you do not agree with the practices described in this Privacy Policy, please discontinue use of our Services.',
     sections: [
       {
@@ -940,6 +936,7 @@ const en = {
       sub: 'Welcome to White Line. By accessing our platform, booking our executive transport services, or interacting with our digital applications, you agree to comply with and be bound by these Terms & Conditions. Please review them carefully before utilizing our services.',
     },
     effectiveDate: 'Effective Date: August 17, 2026',
+    copyright: 'White Line. All rights reserved.',
     intro: 'These Terms & Conditions ("Terms") constitute a legally binding agreement between you ("User," "you," or "your") and White Line Transportation ("White Line," "we," "us," or "our"). By accessing or using any part of our platform, mobile applications, corporate portals, or requesting any of our chauffeur or transportation services, you acknowledge that you have read, understood, and agree to be bound by these Terms. If you do not agree, please discontinue use immediately.',
     sections: [
       {
@@ -1292,14 +1289,8 @@ const ar: typeof en = {
     h1: 'سافر بأقصى درجات',
     h2: 'الراحة والفخامة.',
     sub: 'مجموعة مختارة بعناية من السيارات الفاخرة والمركبات التنفيذية، مصممة لأقصى درجات الراحة والخصوصية والتنقل السلس في أرجاء المملكة.',
-    cars: [
-      { title: 'الدرجة الأولى', desc: 'سيارات سيدان فاخرة رائدة مثل Mercedes-Benz S-Class، مختارة لراحة كبار الشخصيات وخصوصيتهم.' },
-      { title: 'درجة الأعمال',  desc: 'مركبات تنفيذية مثل Mercedes-Benz E-Class، مثالية لتنقل الأعمال الراقي.' },
-      { title: 'SUV',            desc: 'سيارات SUV فاخرة وفسيحة مثل GMC Yukon XL، مناسبة للمجموعات والعائلات والأمتعة.' },
-      { title: 'سيدان',          desc: 'سيارات سيدان مريحة مثل Lexus ES350، مصممة لرحلات المدينة والمطار بسلاسة.' },
-      { title: 'فان',            desc: 'فانات عملية مثل Hyundai Staria، مناسبة للمجموعات الأكبر والتنقلات المرنة.' },
-      { title: 'كوستر وباص',     desc: 'خيارات نقل جماعي مثل Toyota Coaster، مخصصة للفعاليات والوفود.' },
-    ],
+    desc: 'فسيحة وأنيقة ومتعددة الاستخدامات',
+    empty: 'لا توجد فئات مركبات متاحة حالياً.',
   },
 
   testimonials: {
@@ -1415,7 +1406,7 @@ const ar: typeof en = {
     columns: {
       company:   { title: 'الشركة',   links: ['من نحن', 'الشروط والأحكام', 'سياسة الخصوصية'] },
       services:  { title: 'الخدمات', links: ['رحلة أحادية', 'سائق بالساعة', 'رحلة المدن', 'خدمة اليوم', 'نقل المطار'] },
-      resources: { title: 'أسطولنا', links: ['الدرجة الأولى', 'درجة الأعمال', 'إس يو في', 'سيدان', 'فان', 'كوستر وباص'] },
+      resources: { title: 'أسطولنا', links: [] },
       support:   { title: 'الدعم',   links: ['تواصل معنا', 'خدمة العملاء', 'التقييمات'] },
     },
   },
@@ -1559,8 +1550,9 @@ const ar: typeof en = {
       sub: 'مجموعتنا المُصانة بعناية من المركبات الفاخرة تمثل قمة الرفاهية في عالم السيارات. كل طراز في أسطولنا يخضع لفحوصات دقيقة متعددة النقاط وتجهيز احترافي.',
       luggages: 'حقيبة',
       persons: 'راكب',
-      filters: ['الكل', 'الدرجة الأولى', 'درجة الأعمال', 'إس يو في', 'سيدان', 'فان', 'كوستر وباص'],
+      allFilter: 'الكل',
       desc: 'فسيحة وأنيقة ومتعددة الاستخدامات',
+      empty: 'لا توجد فئات مركبات متاحة حالياً.',
     },
   },
 
@@ -1965,6 +1957,7 @@ const ar: typeof en = {
       sub: 'في وايت لاين، نُولي خصوصيتك أهمية قصوى ونلتزم بحماية معلوماتك الشخصية والمهنية التي تعهد بها إلينا. توضح سياسة الخصوصية هذه كيفية جمعنا لبياناتك واستخدامها والإفصاح عنها وحمايتها عند تعاملك مع منصاتنا وتطبيقاتنا وخدمات النقل الفاخرة.',
     },
     effectiveDate: 'تاريخ السريان: 17 أغسطس 2026',
+    copyright: 'وايت لاين. جميع الحقوق محفوظة.',
     intro: 'في وايت لاين، نلتزم بحماية خصوصيتك وصون المعلومات الشخصية والمهنية التي تعهد بها إلينا. تشرح سياسة الخصوصية هذه كيفية جمعنا لمعلوماتك واستخدامها ومعالجتها وتخزينها والإفصاح عنها وحمايتها عند وصولك إلى خدماتنا أو استخدامها، بما يشمل الموقع الإلكتروني والتطبيقات ومنصات B2B وخدمات التوصيل الفاخرة.',
     sections: [
       {
@@ -2005,6 +1998,7 @@ const ar: typeof en = {
       sub: 'مرحباً بك في وايت لاين. بالوصول إلى منصتنا أو حجز خدمات النقل التنفيذية أو التفاعل مع تطبيقاتنا الرقمية، فإنك توافق على الالتزام بهذه الشروط والأحكام. يُرجى مراجعتها بعناية قبل استخدام خدماتنا.',
     },
     effectiveDate: 'تاريخ السريان: 17 أغسطس 2026',
+    copyright: 'وايت لاين. جميع الحقوق محفوظة.',
     intro: 'تُشكّل هذه الشروط والأحكام ("الشروط") اتفاقية ملزمة قانوناً بينك ("المستخدم") وبين وايت لاين للنقل ("وايت لاين"). باستخدام أي جزء من منصتنا أو تطبيقاتنا أو طلب أي من خدمات النقل لدينا، فإنك تُقرّ بأنك قرأت هذه الشروط وفهمتها وتوافق على الالتزام بها.',
     sections: [
       { title: '1. قبول الشروط', body: 'بإنشاء حساب أو إجراء حجز أو استخدام أي خدمة من خدمات وايت لاين، تُقرّ بأنك تجاوزت سن الثامنة عشرة، وتمتلك الأهلية القانونية لإبرام اتفاقية ملزمة، وتقبل هذه الشروط كاملة.', subsections: [] },

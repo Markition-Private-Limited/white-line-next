@@ -4,6 +4,7 @@ import Link from 'next/link'
 import logoSvg from '../assets/fav_icon_black.svg'
 import { useLanguage } from '../context/LanguageContext'
 import { LANG_META } from '../lib/i18n'
+import { useFleetClasses } from '../lib/useFleetClasses'
 
 // hrefs never change — only labels come from translations
 const ENTITY_TYPE_HREFS = ['/about', '/terms', '/privacy']
@@ -13,14 +14,6 @@ const SERVICE_HREFS      = [
   '/services/city-to-city',
   '/services/day-service',
   '/services/airport-transfer',
-]
-const RESOURCE_HREFS     = [
-  '/fleet?category=First%20Class',
-  '/fleet?category=Business%20Class',
-  '/fleet?category=SUV',
-  '/fleet?category=Sedan',
-  '/fleet?category=Van',
-  '/fleet?category=Coaster%20%26%20Bus',
 ]
 const SUPPORT_HREFS      = ['/contact', '/customer-support', '/testimonials']
 
@@ -86,12 +79,17 @@ export default function Footer() {
   const { footer: f } = trans
   const { company, services, resources, support } = f.columns
   const isRTL = LANG_META[lang].dir === 'rtl'
+  const fleetClasses = useFleetClasses()
+  const fleetLinks = (fleetClasses ?? []).map(item => ({
+    label: item.className,
+    to: `/fleet?category=${encodeURIComponent(item.className)}`,
+  }))
 
   const columns = [
-    { col: company,   hrefs: ENTITY_TYPE_HREFS, arrow: false },
-    { col: services,  hrefs: SERVICE_HREFS,      arrow: true  },
-    { col: resources, hrefs: RESOURCE_HREFS,     arrow: false },
-    { col: support,   hrefs: SUPPORT_HREFS,      arrow: false },
+    { col: company,   links: company.links.map((label, i) => ({ label, to: ENTITY_TYPE_HREFS[i] ?? '#' })), arrow: false },
+    { col: services,  links: services.links.map((label, i) => ({ label, to: SERVICE_HREFS[i] ?? '#' })), arrow: true  },
+    { col: resources, links: fleetLinks, arrow: false },
+    { col: support,   links: support.links.map((label, i) => ({ label, to: SUPPORT_HREFS[i] ?? '#' })), arrow: false },
   ]
 
   return (
@@ -124,11 +122,11 @@ export default function Footer() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-4">
-            {columns.map(({ col, hrefs, arrow }) => (
+            {columns.map(({ col, links, arrow }) => (
               <FooterColumn
                 key={col.title}
                 title={col.title}
-                links={col.links.map((label, i) => ({ label, to: hrefs[i] ?? '#' }))}
+                links={links}
                 showArrow={arrow}
                 isRTL={isRTL}
               />

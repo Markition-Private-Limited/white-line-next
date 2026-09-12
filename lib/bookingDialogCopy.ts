@@ -170,6 +170,8 @@ const en = {
   cancelBody: "All the information you've entered will be lost. Are you sure you want to leave?",
   cancelKeepBooking: 'Continue Booking',
   cancelYes: 'Yes, Cancel',
+  redirectingTitle: 'Redirecting to Payment',
+  redirectingBody: 'You are being securely redirected to the payment page. Please do not close this window.',
 }
 
 const ar: typeof en = {
@@ -342,6 +344,8 @@ const ar: typeof en = {
   cancelBody: 'راح تنحذف كل البيانات اللي دخلتها. متأكد تبي تغادر؟',
   cancelKeepBooking: 'كمّل الحجز',
   cancelYes: 'نعم، إلغاء',
+  redirectingTitle: 'جارٍ التحويل إلى الدفع',
+  redirectingBody: 'جارٍ تحويلك بأمان إلى صفحة الدفع. يرجى عدم إغلاق هذه النافذة.',
 }
 
 export type BookingDialogCopy = typeof en

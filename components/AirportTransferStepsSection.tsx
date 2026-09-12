@@ -2,7 +2,11 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
-import phoneMockup from '../assets/services_1/services/airport_transfer/4.png'
+import airportMockup    from '../assets/services_1/services/airport_transfer/4.png'
+import hourlyMockup     from '../assets/app_images/hourly_booking_app.png'
+import cityMockup       from '../assets/app_images/city_app.png'
+import dayServiceMockup from '../assets/app_images/day_service.png'
+import oneWayMockup     from '../assets/app_images/one_way_booking.png'
 import scheduleIcon from '../assets/services_1/services/airport_transfer/hugeicons_time-schedule.svg'
 import monitorIcon from '../assets/services_1/services/airport_transfer/lineicons_monitor.svg'
 import welcomeIcon from '../assets/services_1/services/airport_transfer/mdi_human-welcome.svg'
@@ -10,6 +14,14 @@ import transitIcon from '../assets/services_1/services/airport_transfer/Vector.s
 import type { ServiceDetailPageKey } from '../lib/serviceDetail'
 
 const icons = [scheduleIcon, monitorIcon, welcomeIcon, transitIcon]
+
+const serviceMockups: Record<ServiceDetailPageKey, typeof airportMockup> = {
+  airportTransferPage: airportMockup,
+  hourlyBookingPage:   hourlyMockup,
+  cityToCityPage:      cityMockup,
+  dayServicePage:      dayServiceMockup,
+  oneWayRidePage:      oneWayMockup,
+}
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null)
@@ -91,6 +103,7 @@ export default function AirportTransferStepsSection({ servicePage = 'airportTran
   const { trans, dir } = useLanguage()
   const isRtl = dir === 'rtl'
   const { steps } = trans[servicePage]
+  const phoneMockup = serviceMockups[servicePage]
   const appAlt = servicePage === 'hourlyBookingPage'
     ? 'Hourly Booking App'
     : servicePage === 'cityToCityPage'

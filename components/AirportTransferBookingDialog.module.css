@@ -253,8 +253,8 @@
 
 .fieldInvalid .control { border-color: rgba(255,190,190,.9); box-shadow: 0 0 0 2px rgba(160,35,35,.1); }
 .fieldInvalid .pickerControl { border-color: rgba(255,190,190,.9) !important; box-shadow: 0 0 0 2px rgba(160,35,35,.1); }
-.fieldError { display: block; margin-block: 5px 0; margin-inline: 4px 0; color: #ffe0e0; font-size: 8px; line-height: 1.25; }
-.selectionError { display: block; margin: 8px 0 4px; color: #ffe0e0; font-family: var(--font-inter), sans-serif; font-size: 9px; text-align: center; }
+.fieldError { display: block; margin-block: 5px 0; margin-inline: 4px 0; color: #ff9a9a; font-size: 11px; line-height: 1.25; }
+.selectionError { display: block; margin: 8px 0 4px; color: #ff9a9a; font-family: var(--font-inter), sans-serif; font-size: 11px; text-align: center; }
 .choiceError { border-color: rgba(255,190,190,.5) !important; }
 
 .pickerField { position: relative; }

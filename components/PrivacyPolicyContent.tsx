@@ -4,7 +4,7 @@ import { useLanguage } from '../context/LanguageContext'
 export default function PrivacyPolicyContent() {
   const { trans, dir } = useLanguage()
   const isRtl = dir === 'rtl'
-  const { effectiveDate, intro, sections } = trans.privacyPage
+  const { effectiveDate, copyright, intro, sections } = trans.privacyPage
 
   return (
     <section className="w-full bg-white">
@@ -120,7 +120,7 @@ export default function PrivacyPolicyContent() {
           className="mt-6 text-center"
           style={{ fontSize: '12px', color: '#999' }}
         >
-          © {new Date().getFullYear()} White Line. All rights reserved.
+          © {new Date().getFullYear()} {copyright}
         </p>
       </div>
     </section>

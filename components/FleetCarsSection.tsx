@@ -1,54 +1,20 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useLanguage } from '../context/LanguageContext'
 
-import img1  from '../assets/fleet/fleet_cars/mercedes-benz-s-class.png'
-import img2  from '../assets/fleet/fleet_cars/bmw-7-series.png'
-import img3  from '../assets/fleet/fleet_cars/mercedes-benz-e-class.png'
-import img4  from '../assets/fleet/fleet_cars/bmw-5-series.png'
-import img5  from '../assets/fleet/fleet_cars/mercedes-benz-v-class.png'
-import img6  from '../assets/fleet/fleet_cars/chevrolet-suburban.png'
-import img7  from '../assets/fleet/fleet_cars/chevrolet-tahoe.png'
-import img8  from '../assets/fleet/fleet_cars/gmc-yukon-xl.png'
-import img9  from '../assets/fleet/fleet_cars/gmc-yukon.png'
-import img10 from '../assets/fleet/fleet_cars/lexus-es350.png'
-import img11 from '../assets/fleet/fleet_cars/hyundai-staria.png'
-import img12 from '../assets/fleet/fleet_cars/toyota-coaster.png'
-import img13 from '../assets/fleet/fleet_cars/bus.png'
-import img14 from '../assets/fleet/fleet_cars/ford-taurus.png'
-import img15 from '../assets/fleet/fleet_cars/toyota-hiace.png'
+type VehicleClass = {
+  id: string
+  className: string
+  description: string
+  passengerCapacity: number
+  luggageCapacity: number
+  exampleModels?: string
+  imageUrl?: string
+}
 
-const _src = (i: unknown): string => (i as any).src ?? (i as string)
-
-type Category = 'All' | 'First Class' | 'Business Class' | 'SUV' | 'Sedan' | 'Van' | 'Coaster & Bus'
-
-const FILTER_KEYS: Category[] = ['All', 'First Class', 'Business Class', 'SUV', 'Sedan', 'Van', 'Coaster & Bus']
-
-const CARS: { name: string; luggages: number; persons: number; category: Exclude<Category, 'All'>; img: string }[] = [
-  // First Class
-  { name: 'Mercedes-Benz S-Class', luggages: 2, persons: 3,  category: 'First Class', img: _src(img1) },
-  { name: 'BMW 7 Series',          luggages: 2, persons: 3,  category: 'First Class', img: _src(img2) },
-  // Business Class
-  { name: 'Mercedes-Benz E-Class', luggages: 2, persons: 3,  category: 'Business Class', img: _src(img3) },
-  { name: 'BMW 5 Series',          luggages: 2, persons: 3,  category: 'Business Class', img: _src(img4) },
-  { name: 'Mercedes-Benz V-Class', luggages: 4, persons: 6,  category: 'Business Class', img: _src(img5) },
-  // SUV
-  { name: 'Chevrolet Suburban', luggages: 4, persons: 6,  category: 'SUV', img: _src(img6) },
-  { name: 'Chevrolet Tahoe',    luggages: 4, persons: 6,  category: 'SUV', img: _src(img7) },
-  { name: 'GMC Yukon XL',       luggages: 4, persons: 6,  category: 'SUV', img: _src(img8) },
-  { name: 'GMC Yukon',          luggages: 4, persons: 6,  category: 'SUV', img: _src(img9) },
-  // Sedan
-  { name: 'Lexus ES350',  luggages: 2, persons: 3,  category: 'Sedan', img: _src(img10) },
-  { name: 'Ford Taurus',  luggages: 2, persons: 3,  category: 'Sedan', img: _src(img14) },
-  // Van
-  { name: 'Hyundai Staria', luggages: 4, persons: 7,  category: 'Van', img: _src(img11) },
-  { name: 'Toyota Hiace',   luggages: 6, persons: 13, category: 'Van', img: _src(img15) },
-  // Coaster & Bus
-  { name: 'Toyota Coaster', luggages: 8,  persons: 23, category: 'Coaster & Bus', img: _src(img12) },
-  { name: 'Bus',             luggages: 20, persons: 40, category: 'Coaster & Bus', img: _src(img13) },
-]
+const ALL_FILTER_ID = 'all'
 
 function LuggageIcon() {
   return (
@@ -67,7 +33,7 @@ function PersonIcon() {
 }
 
 function CarCard({ car, desc, luggages, persons, index }: {
-  car: typeof CARS[0]
+  car: VehicleClass
   desc: string
   luggages: string
   persons: string
@@ -82,40 +48,46 @@ function CarCard({ car, desc, luggages, persons, index }: {
       className="flex flex-col"
       style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(0,0,0,0.07)', background: '#fff' }}
     >
-      <div className="relative" style={{ height: 'clamp(180px, 22vw, 260px)', background: '#0d1117' }}>
-        <img src={car.img} alt={car.name} className="absolute inset-0 w-full h-full object-cover object-center" />
+      <div className="relative" style={{ height: 'clamp(180px, 22vw, 260px)', background: '#f1f4f7', padding: 'clamp(18px, 2.4vw, 28px)' }}>
+        {car.imageUrl ? (
+          <img src={car.imageUrl} alt={car.className} className="absolute inset-0 w-full h-full object-contain object-center" style={{ padding: 'clamp(18px, 2.4vw, 28px)' }} />
+        ) : (
+          <span className="absolute inset-0 flex items-center justify-center" aria-hidden="true" style={{ color: '#005C66', opacity: 0.35 }}>
+            <PersonIcon />
+          </span>
+        )}
         <div
           className="absolute top-3 left-3 z-10 inline-flex items-center"
-          style={{ background: '#FFFFFF20', border: '1px solid #FFFFFF40', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', borderRadius: 4, padding: '4px 8px', height: 20 }}
+          style={{ background: 'rgba(0,92,102,0.72)', border: '1px solid rgba(255,255,255,0.35)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', borderRadius: 4, padding: '4px 8px', height: 20 }}
         >
           <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 600, lineHeight: 1, color: '#fff', textTransform: 'uppercase' }}>
-            {car.category}
+            {car.className}
           </span>
         </div>
         <div
           className="absolute inset-0 z-[1]"
-          style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0) 70%, rgba(255,255,255,0.4) 84%, rgba(255,255,255,0.85) 94%, #FFFFFF 100%)' }}
+          style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0) 70%, rgba(255,255,255,0.45) 84%, rgba(255,255,255,0.88) 94%, #FFFFFF 100%)', pointerEvents: 'none' }}
         />
       </div>
 
       <div className="flex flex-col" style={{ padding: 'clamp(14px, 2vw, 20px) clamp(14px, 2vw, 20px) clamp(16px, 2vw, 22px)' }}>
         <p className="mb-1" style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 'clamp(15px, 1.4vw, 17px)', color: '#111118' }}>
-          {car.name}
+          {car.className}
         </p>
         <p className="mb-4" style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(12px, 1vw, 13px)', color: '#9ca3af' }}>
-          {desc}
+          {car.description || car.exampleModels || desc}
         </p>
         <div className="flex items-center gap-5">
           <div className="flex items-center gap-1.5">
             <LuggageIcon />
             <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#374151', fontWeight: 500 }}>
-              {car.luggages} {luggages}
+              {car.luggageCapacity} {luggages}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
             <PersonIcon />
             <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#374151', fontWeight: 500 }}>
-              {car.persons} {persons}
+              {car.passengerCapacity} {persons}
             </span>
           </div>
         </div>
@@ -129,18 +101,37 @@ export default function FleetCarsSection() {
   const { cars: c } = trans.fleetPage
   const searchParams = useSearchParams()
 
+  const [fleetClasses, setFleetClasses] = useState<VehicleClass[] | null>(null)
   const [activeIdx, setActiveIdx] = useState(0)
   const [filterScrolledPast, setFilterScrolledPast] = useState(false)
   const [sectionVisible, setSectionVisible] = useState(false)
   const filterBarRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
   const sectionRef = useRef<HTMLElement>(null)
+  const filters = useMemo(() => [
+    { id: ALL_FILTER_ID, label: c.allFilter },
+    ...(fleetClasses ?? []).map(item => ({ id: item.id, label: item.className })),
+  ], [c.allFilter, fleetClasses])
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/fleet/vehicle-classes')
+      .then(res => res.ok ? res.json() as Promise<VehicleClass[]> : Promise.resolve([]))
+      .then(data => {
+        if (!cancelled) setFleetClasses(Array.isArray(data) ? data : [])
+      })
+      .catch(() => {
+        if (!cancelled) setFleetClasses([])
+      })
+    return () => { cancelled = true }
+  }, [])
 
   // Re-runs whenever ?category= changes (including same-page navigation on /fleet)
   useEffect(() => {
     const raw = searchParams.get('category')
     if (!raw) return
-    const idx = FILTER_KEYS.findIndex(k => k.toLowerCase() === decodeURIComponent(raw).toLowerCase())
+    const requested = decodeURIComponent(raw).toLowerCase()
+    const idx = filters.findIndex(item => item.label.toLowerCase() === requested)
     if (idx !== -1) setActiveIdx(idx)
 
     let attempts = 0
@@ -155,7 +146,11 @@ export default function FleetCarsSection() {
     }
     const raf = requestAnimationFrame(() => setTimeout(tryScroll, 200))
     return () => cancelAnimationFrame(raf)
-  }, [searchParams])
+  }, [searchParams, filters])
+
+  useEffect(() => {
+    if (activeIdx >= filters.length) setActiveIdx(0)
+  }, [activeIdx, filters.length])
 
   useEffect(() => {
     const filterEl = filterBarRef.current
@@ -188,12 +183,17 @@ export default function FleetCarsSection() {
     }
   }
 
-  const activeKey = FILTER_KEYS[activeIdx]
-  const filtered = activeKey === 'All' ? CARS : CARS.filter(car => car.category === activeKey)
+  const activeFilter = filters[activeIdx] ?? filters[0]
+  const filtered = !fleetClasses
+    ? null
+    : activeFilter?.id === ALL_FILTER_ID
+      ? fleetClasses
+      : fleetClasses.filter(item => item.id === activeFilter?.id)
 
   const FilterButton = ({ idx, fromFloating = false }: { idx: number; fromFloating?: boolean }) => {
     const isActive = activeIdx === idx
-    const label = c.filters[idx]
+    const label = filters[idx]?.label
+    if (!label) return null
     if (isActive) {
       return (
         <button
@@ -283,7 +283,7 @@ export default function FleetCarsSection() {
         </motion.p>
 
         <div ref={filterBarRef} className="flex items-center justify-center flex-wrap gap-2 mb-10">
-          {FILTER_KEYS.map((_, i) => <FilterButton key={i} idx={i} />)}
+          {filters.map((item, i) => <FilterButton key={item.id} idx={i} />)}
         </div>
 
         <div
@@ -291,9 +291,19 @@ export default function FleetCarsSection() {
           className="grid gap-5"
           style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))' }}
         >
-          {filtered.map((car, i) => (
-            <CarCard key={car.name} car={car} desc={c.desc} luggages={c.luggages} persons={c.persons} index={i} />
-          ))}
+          {filtered === null
+            ? [0, 1, 2, 3, 4, 5].map(i => (
+              <div key={i} className="flex flex-col animate-pulse" style={{ minHeight: 335, borderRadius: 14, background: '#f1f4f7' }} />
+            ))
+            : filtered.length > 0
+              ? filtered.map((car, i) => (
+                <CarCard key={car.id} car={car} desc={c.desc} luggages={c.luggages} persons={c.persons} index={i} />
+              ))
+              : (
+                <p className="col-span-full text-center" style={{ fontFamily: 'Inter, sans-serif', color: '#6b7280', fontSize: 14 }}>
+                  {c.empty}
+                </p>
+              )}
         </div>
 
       </div>
@@ -323,7 +333,7 @@ export default function FleetCarsSection() {
                 scrollbarWidth: 'none',
               }}
             >
-              {FILTER_KEYS.map((_, i) => <FilterButton key={i} idx={i} fromFloating />)}
+              {filters.map((item, i) => <FilterButton key={item.id} idx={i} fromFloating />)}
             </div>
           </motion.div>
         )}
