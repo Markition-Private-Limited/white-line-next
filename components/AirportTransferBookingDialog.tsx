@@ -1116,6 +1116,27 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
     }
   }, [activeCategoryId, vehicleCount, vehicleScrollIndexRef, scrollGridToIndex, updateScrollIndex])
 
+  useEffect(() => {
+    const onWheel = (e: WheelEvent) => {
+      const grid = e.currentTarget as HTMLDivElement
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
+      const canScrollLeft = grid.scrollLeft > 0
+      const canScrollRight = grid.scrollLeft < grid.scrollWidth - grid.clientWidth - 1
+      if ((e.deltaY < 0 && canScrollLeft) || (e.deltaY > 0 && canScrollRight)) {
+        e.preventDefault()
+        grid.scrollLeft += e.deltaY
+      }
+    }
+    const categoryGrid = categoryGridRef.current
+    const vehicleGrid = vehicleGridRef.current
+    if (categoryGrid) categoryGrid.addEventListener('wheel', onWheel, { passive: false })
+    if (vehicleGrid) vehicleGrid.addEventListener('wheel', onWheel, { passive: false })
+    return () => {
+      if (categoryGrid) categoryGrid.removeEventListener('wheel', onWheel)
+      if (vehicleGrid) vehicleGrid.removeEventListener('wheel', onWheel)
+    }
+  }, [categories.length, vehicleCards])
+
   return (
     <>
       <p className={styles.eyebrow}>{isHourly ? copy.services.hourly : isCity ? copy.services.city : isDay ? copy.services.day : isOneWay ? copy.services.oneWay : copy.services.airport}</p>
@@ -1135,11 +1156,6 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
       ) : (
         <>
           <div className={styles.carouselWrap}>
-            {categories.length > 1 && (
-              <button type="button" className={`${styles.sliderArrow} ${styles.sliderArrowLeft}`} aria-label="Previous category" disabled={categoryScrollIndex === 0} onClick={() => showCategorySlide(categoryScrollIndex - 1)}>
-                <ChevronLeft size={13} strokeWidth={2.5} />
-              </button>
-            )}
             <div ref={categoryGridRef} className={styles.categoryGrid}>
               {categories.map((item, index) => (
                 <button type="button" key={item.id ?? item.name} className={`${styles.categoryCard} ${categoryIndex === index ? styles.categoryActive : ''}`} onClick={() => selectCategory(index)}>
@@ -1147,19 +1163,9 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
                     <strong>{item.name}</strong>
                     <small>{item.copy}</small>
                   </span>
-                  {item.imageUrl ? (
-                    <img src={item.imageUrl} alt="" aria-hidden="true" className={styles.categoryImg} />
-                  ) : (
-                    <span className={styles.categoryPlaceholder} aria-hidden="true" />
-                  )}
                 </button>
               ))}
             </div>
-            {categories.length > 1 && (
-              <button type="button" className={`${styles.sliderArrow} ${styles.sliderArrowRight}`} aria-label="Next category" disabled={categoryScrollIndex === categories.length - 1} onClick={() => showCategorySlide(categoryScrollIndex + 1)}>
-                <ChevronRight size={13} strokeWidth={2.5} />
-              </button>
-            )}
           </div>
           {categories.length > 1 && (
             <div className={styles.sliderDots}>

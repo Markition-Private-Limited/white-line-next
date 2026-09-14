@@ -716,12 +716,9 @@
 .categoryGrid::-webkit-scrollbar { display: none; }
 .categoryCard {
   position: relative;
-  display: grid;
-  min-height: 226px;
-  grid-template-rows: auto 1fr;
-  align-items: start;
+  display: block;
   overflow: hidden;
-  padding: 14px 14px 126px;
+  padding: 13px 16px;
   border: 1px solid rgba(255,255,255,.6);
   border-radius: 12px;
   color: #4c5961;
@@ -731,7 +728,7 @@
   cursor: pointer;
   transition: color .28s ease, background-color .28s ease, border-color .28s ease, box-shadow .28s ease, transform .28s cubic-bezier(.22, 1, .36, 1);
 }
-.categoryCard::after { content: ''; position: absolute; z-index: 0; left: 50%; bottom: 9px; width: 178px; height: 112px; border-radius: 50%; background: #dfe3e9; pointer-events: none; transform: translateX(-50%); transition: background-color .28s ease, transform .35s cubic-bezier(.22, 1, .36, 1); }
+.categoryCard::after { content: none; }
 .categoryCopy { position: relative; z-index: 2; display: block; min-width: 0; align-self: start; text-align: start; }
 .categoryCopy strong { display: block; font-size: 14px; font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; }
 .categoryCopy small { display: block; margin-top: 8px; color: #7b858c; font-size: 9px; line-height: 1.35; overflow-wrap: anywhere; }
@@ -1060,8 +1057,7 @@
   .continue { padding-inline: 20px; }
 
   .categoryGrid { grid-auto-columns: 100%; gap: 10px; }
-  .categoryCard { min-height: 224px; padding: 13px 13px 126px; }
-  .categoryImg { height: 126px; }
+  .categoryCard { padding: 12px 14px; }
   .categorySkeletonGrid { grid-template-columns: 1fr 1fr; gap: 8px; }
   .categorySkeletonCard { min-height: 86px; }
   .categoryCopy small { margin-top: 7px; }
@@ -1210,8 +1206,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .categoryCard,
-  .categoryCard::after,
-  .categoryPlaceholder,
   .dayDurationOption { transition: none; }
 
   .categorySkeletonCard::after,
@@ -1225,7 +1219,7 @@
   .choice { min-height: 58px; }
   .choice > svg { display: block; }
   .categoryGrid { grid-auto-columns: 100%; }
-  .categoryCard { min-height: 216px; padding-bottom: 120px; }
+  .categoryCard { padding: 11px 13px; }
   .categorySkeletonGrid { grid-template-columns: 1fr; }
   .categorySkeletonCard { min-height: 74px; }
   .categoryCopy small { margin-top: 7px; }
