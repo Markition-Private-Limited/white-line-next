@@ -147,7 +147,7 @@ const createInitialBookingState = (service: BookingService): BookingState => ({
   phone: '',
   bookingFor: null,
   guest: blankGuest(),
-  categoryIndex: null,
+  categoryIndex: 0,
   vehicle: null,
   vehicleId: null,
   otp: Array(6).fill(''),
@@ -998,7 +998,14 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
   useEffect(() => {
     if (!activeCategoryId) return
     let cancelled = false
-    getFleetVehicles(activeCategoryId).then(data => { if (!cancelled) setVehiclesByClass({ classId: activeCategoryId, data }) })
+    getFleetVehicles(activeCategoryId).then(data => {
+      if (!cancelled) {
+        setVehiclesByClass({ classId: activeCategoryId, data })
+        if (booking.vehicle === null && data.length > 0) {
+          updateBooking({ vehicle: 0, vehicleId: data[0].id })
+        }
+      }
+    })
     return () => { cancelled = true }
   }, [activeCategoryId])
 
