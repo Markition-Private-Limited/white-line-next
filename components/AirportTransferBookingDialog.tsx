@@ -59,6 +59,7 @@ type CustomerSession = { accessToken: string; refreshToken?: string }
 type CustomerProfile = { fullName: string; phone: string; email: string; profileComplete: boolean }
 
 const CUSTOMER_SESSION_KEY = 'whiteline.customerSession'
+const CLIENT_AUTH_TIMEOUT_MS = 12000
 
 const hourlyDurations = Array.from({ length: 15 }, (_, index) => index + 2)
 
@@ -187,11 +188,19 @@ function readCustomerSession(): CustomerSession | null {
 }
 
 function storeCustomerSession(session: CustomerSession) {
-  window.localStorage.setItem(CUSTOMER_SESSION_KEY, JSON.stringify(session))
+  try {
+    window.localStorage?.setItem(CUSTOMER_SESSION_KEY, JSON.stringify(session))
+  } catch {
+    // Ignore storage failures; the current booking flow can continue in memory.
+  }
 }
 
 function clearCustomerSession() {
-  window.localStorage.removeItem(CUSTOMER_SESSION_KEY)
+  try {
+    window.localStorage?.removeItem(CUSTOMER_SESSION_KEY)
+  } catch {
+    // Ignore storage failures; the OTP flow will be shown again if needed.
+  }
 }
 
 function getRecord(value: unknown): Record<string, unknown> | null {
@@ -245,10 +254,16 @@ function parseCustomerProfile(value: unknown): CustomerProfile | null {
 }
 
 async function authFetch(path: string, token: string, init: RequestInit = {}) {
+  const controller = new AbortController()
+  const timeoutId = window.setTimeout(() => controller.abort(), CLIENT_AUTH_TIMEOUT_MS)
   const headers = new Headers(init.headers)
   headers.set('Authorization', `Bearer ${token}`)
   if (init.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
-  return fetch(path, { ...init, headers })
+  try {
+    return await fetch(path, { ...init, headers, signal: controller.signal })
+  } finally {
+    window.clearTimeout(timeoutId)
+  }
 }
 
 async function fetchCustomerProfile(token: string): Promise<CustomerProfile | null> {
@@ -258,20 +273,23 @@ async function fetchCustomerProfile(token: string): Promise<CustomerProfile | nu
 }
 
 async function refreshCustomerSession(refreshToken: string): Promise<CustomerSession | null> {
+  const controller = new AbortController()
+  const timeoutId = window.setTimeout(() => controller.abort(), CLIENT_AUTH_TIMEOUT_MS)
   const res = await fetch('/api/auth/refresh', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ refresh_token: refreshToken }),
-  })
+    signal: controller.signal,
+  }).finally(() => window.clearTimeout(timeoutId))
   if (!res.ok) return null
   return parseCustomerSession(await res.json())
 }
 
-function profileToBookingUpdates(profile: CustomerProfile, current: BookingState): Partial<BookingState> {
+function profileToBookingUpdates(profile: CustomerProfile): Partial<BookingState> {
   return {
-    name: profile.fullName || current.name,
-    phone: profile.phone || current.phone,
-    email: profile.email || current.email,
+    name: profile.fullName,
+    phone: profile.phone,
+    email: profile.email,
   }
 }
 
@@ -862,8 +880,7 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
   const [profileDraft, setProfileDraft] = useState({ name: booking.name, email: booking.email })
   const [authStep, setAuthStep] = useState<'phone' | 'otp' | 'profile'>('phone')
   const [initialSession] = useState<CustomerSession | null>(() => readCustomerSession())
-  const restoredSessionCheckedRef = useRef(!initialSession?.accessToken)
-  const [authLoading, setAuthLoading] = useState(Boolean(initialSession?.accessToken))
+  const [authLoading, setAuthLoading] = useState(false)
   const [authError, setAuthError] = useState('')
   const [session, setSession] = useState<CustomerSession | null>(initialSession)
   const [customerProfile, setCustomerProfile] = useState<CustomerProfile | null>(null)
@@ -873,24 +890,40 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
   const authMobile = normalizePhone(authPhone)
   const authPhoneComplete = /^\+966\d{9}$/.test(authMobile)
   const otpComplete = authOtp.every(digit => digit.trim().length === 1)
+  const updateBookingRef = useRef(updateBooking)
+
+  useEffect(() => {
+    updateBookingRef.current = updateBooking
+  }, [updateBooking])
 
   const applyProfile = useCallback((profile: CustomerProfile) => {
     setCustomerProfile(profile)
     setProfileDraft({ name: profile.fullName, email: profile.email })
-    updateBooking(profileToBookingUpdates(profile, booking))
-  }, [booking, updateBooking])
+    updateBookingRef.current(profileToBookingUpdates(profile))
+  }, [])
+
+  const resetCustomerAuth = useCallback(() => {
+    clearCustomerSession()
+    setSession(null)
+    setCustomerProfile(null)
+    setAuthStep('phone')
+    setAuthLoading(false)
+    setAuthError('')
+  }, [])
 
   useEffect(() => {
-    if (restoredSessionCheckedRef.current || !session?.accessToken || customerProfile) return
-    restoredSessionCheckedRef.current = true
+    if (!initialSession?.accessToken) return
+    const savedSession = initialSession
     let cancelled = false
-    fetchCustomerProfile(session.accessToken)
-      .then(async profile => {
+
+    async function restoreCustomerSession() {
+      setAuthLoading(true)
+      try {
+        let activeProfile = await fetchCustomerProfile(savedSession.accessToken)
         if (cancelled) return
-        let activeSession = session
-        let activeProfile = profile
-        if (!activeProfile && session.refreshToken) {
-          const refreshedSession = await refreshCustomerSession(session.refreshToken)
+        let activeSession = savedSession
+        if (!activeProfile && savedSession.refreshToken) {
+          const refreshedSession = await refreshCustomerSession(savedSession.refreshToken)
           if (cancelled) return
           if (refreshedSession) {
             storeCustomerSession(refreshedSession)
@@ -908,10 +941,16 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
         }
         applyProfile(activeProfile)
         setAuthStep(activeProfile.profileComplete ? 'phone' : 'profile')
-      })
-      .finally(() => { if (!cancelled) setAuthLoading(false) })
+      } catch {
+        if (!cancelled) resetCustomerAuth()
+      } finally {
+        if (!cancelled) setAuthLoading(false)
+      }
+    }
+
+    restoreCustomerSession()
     return () => { cancelled = true }
-  }, [applyProfile, customerProfile, session])
+  }, [applyProfile, initialSession, resetCustomerAuth])
 
   const chooseBookingFor = (value: BookingFor) => {
     updateBooking({ bookingFor: value, guest: value === booking.bookingFor ? booking.guest : blankGuest() })
@@ -1017,7 +1056,12 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
   }
   const renderCustomerAuth = () => {
     if (authLoading && !customerProfile && session?.accessToken) {
-      return <div className={styles.authPanel}><p>{copy.loadingProfile}</p></div>
+      return (
+        <div className={styles.authPanel}>
+          <p>{copy.loadingProfile}</p>
+          <button type="button" className={styles.resend} onClick={resetCustomerAuth}>{copy.signInAgain}</button>
+        </div>
+      )
     }
     if (customerReady) return null
     return (
