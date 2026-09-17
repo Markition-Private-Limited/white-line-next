@@ -88,7 +88,10 @@ function ParallaxCard({
         zIndex: active ? 10 : 1,
         transition: 'box-shadow 0.4s ease',
         cursor: (!comingSoon && onBook) ? 'pointer' : undefined,
+        width: 'calc(100% + 3px)',
         height: '100%',
+        minHeight: 'calc(100% + 3px)',
+        padding: 13.5,
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -157,13 +160,18 @@ function ParallaxCard({
       </p>
       {comingSoon ? (
         <span style={{
+          display: 'inline-flex',
+          alignItems: 'center',
           fontFamily: 'Inter, sans-serif',
           fontSize: 12,
+          lineHeight: '20px',
+          minHeight: 20,
           color: 'rgba(255,255,255,0.42)',
           letterSpacing: '0.06em',
           textTransform: 'uppercase',
           fontWeight: 600,
           marginTop: 'auto',
+          alignSelf: 'flex-start',
         }}>
           {comingSoonLabel}
         </span>

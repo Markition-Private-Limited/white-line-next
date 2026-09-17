@@ -19,6 +19,24 @@ export type VehicleClass = {
   exampleModels: string
   baseFare: string
   perKmRate: string
+  perMinuteRate?: string
+  hourlyRate?: string
+  halfDayRate?: string
+  fullDayRate?: string
+  cityToCityRate?: string
+  serviceFee?: string
+  hourlyMinHours?: number
+  halfDayHours?: number
+  fullDay8hrRate?: string
+  fullDay10hrRate?: string
+  fullDay12hrRate?: string
+  fullDayExtraHrRate?: string
+  cityTransferRate?: string
+  cityFreeKm?: number
+  cityExtraKmRate?: string
+  airportTransferRate?: string
+  airportFreeKm?: number
+  airportExtraKmRate?: string
   isActive: boolean
   imageUrl?: string
 }
