@@ -7,15 +7,15 @@ import Navbar from '../layouts/Navbar'
 import { useLanguage } from '../context/LanguageContext'
 import AirportTransferBookingDialog, { type BookingService } from './AirportTransferBookingDialog'
 import heroBanner from '../assets/home/home_banner.webp'
-import heroBannerMobile from '../assets/home/home_banner_mobile.webp'
+import heroBannerMobile from '../assets/home/home_banner_mobile.png'
 import servicesBanner from '../assets/services_1/service_1_banner.webp'
 import contactBanner from '../assets/contact_us/contact_banner.webp'
 
 const HERO_BANNERS = [heroBanner, servicesBanner, contactBanner]
 const HERO_BANNERS_MOBILE = [heroBannerMobile, servicesBanner, contactBanner]
 import card1 from '../assets/home/home_page_banner_Sub_images/1.jpg'
-import card2 from '../assets/home/home_page_banner_Sub_images/2.jpg'
-import card3 from '../assets/home/home_page_banner_Sub_images/3.jpg'
+import card2 from '../assets/home/home_page_banner_Sub_images/2(3).jpg'
+import card3 from '../assets/home/home_page_banner_Sub_images/5(1).jpg'
 import card4 from '../assets/home/home_page_banner_Sub_images/4.jpg'
 import card5 from '../assets/home/home_page_banner_Sub_images/5.jpg'
 

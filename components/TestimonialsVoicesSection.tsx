@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion'
 import { Play } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
-import guy1 from '../assets/testimonials/guy_1.jpg'
-import guy2 from '../assets/testimonials/guy_2.jpg'
-import guy3 from '../assets/testimonials/guy_3.jpg'
+import guy1 from '../assets/testimonials/GUY1 (2).jpg'
+import guy2 from '../assets/testimonials/GUY1 (2).jpg'
+import guy3 from '../assets/testimonials/GUY2 (2).jpg'
 
 const _src = (i: unknown): string => (i as any).src ?? (i as string)
 

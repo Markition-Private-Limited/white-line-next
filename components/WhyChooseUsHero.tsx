@@ -4,7 +4,7 @@ import { ArrowRight, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import Navbar from '../layouts/Navbar'
 import { useLanguage } from '../context/LanguageContext'
-import banner from '../assets/why_chose_us/banner.webp'
+import banner from '../assets/why_chose_us/banner.jpg'
 // assets\why_chose_us\banner (1).webp
 
 function SlideButton({ label, variant = 'filled', icon, href }: { label: string; variant?: 'filled' | 'outline'; icon?: React.ReactNode; href: string }) {
