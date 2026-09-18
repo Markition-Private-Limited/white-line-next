@@ -1,6 +1,6 @@
 import { execFile } from 'child_process'
 
-export const FLEET_API_BASE = process.env.FLEET_API_BASE_URL ?? 'http://34.166.167.2'
+export const FLEET_API_BASE = 'http://34.166.167.2'
 const REQUEST_TIMEOUT_MS = 10000
 
 // Node.js fetch/http can get EACCES on this Windows host for port 80.
