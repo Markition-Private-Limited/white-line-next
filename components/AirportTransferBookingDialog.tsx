@@ -1593,10 +1593,13 @@ function TripDetails({ booking, updateBooking, next, back }: {
         )}
 
         {/* Route preview (shown when flight found) */}
-        <div className={styles.flightRoute} aria-label={copy.flightRoutePreview} dir="ltr">
+        <div className={styles.field} style={{ gridColumn: '1 / -1' }}>
+          <label>{copy.flightRoutePreview}</label>
+        <div className={styles.flightRoute} dir="ltr">
           <span className={styles.routeHalf}>{depIata}<br />{depTime}</span>
           <Image className={styles.plane} src={horizontalPlane} alt="" />
           <span className={styles.routeHalf}>{arrIata}<br />{arrTime}</span>
+        </div>
         </div>
 
         {/* Airport / location fields — appear after flight section */}
