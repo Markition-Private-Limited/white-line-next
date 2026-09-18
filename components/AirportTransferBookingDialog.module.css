@@ -680,8 +680,9 @@
 .authPanel .control,
 .authPanel .phoneControl { min-height: 38px; }
 .authAction {
-  display: inline-flex;
-  min-height: 38px;
+  display: flex;
+  width: 100%;
+  min-height: 44px;
   align-items: center;
   justify-content: center;
   margin-top: 15px;
@@ -1046,10 +1047,30 @@
 .otpPanel h4 { margin: 8px 0 11px; font-size: 11px; }
 .otpPanel p { margin: 0 0 12px; font-size: 9px; }
 .otpIcon { display: grid; width: 25px; height: 25px; place-items: center; border-radius: 50%; color: #00717e; background: #bdebf0; }
-.otpBoxes { display: flex; gap: 4px; margin: 2px 0 15px; }
-.otpBoxes input { width: 26px; height: 30px; border: 1px solid #fff; border-radius: 7px; outline: 0; color: #333; background: rgba(255,255,255,.55); text-align: center; }
+.otpBoxes { display: flex; gap: 10px; margin: 4px 0 18px; }
+.otpBoxes input { width: 52px; height: 60px; border: 1px solid rgba(255,255,255,.6); border-radius: 10px; outline: 0; color: #fff; background: rgba(255,255,255,.12); text-align: center; font-size: 22px; font-weight: 700; letter-spacing: 0; transition: border-color .15s, box-shadow .15s; }
+.otpBoxes input:focus { border-color: #00d4e8; box-shadow: 0 0 0 3px rgba(0,212,232,.18); background: rgba(255,255,255,.18); }
 .otpInvalid input[aria-invalid='true'] { border-color: #ffd0d0; box-shadow: 0 0 0 2px rgba(160,35,35,.12); }
-.resend { border: 0; color: #c9f5fa; background: transparent; font-size: 9px; font-weight: 700; cursor: pointer; }
+.resend { display: block; width: 100%; margin-top: 14px; border: 0; color: #c9f5fa; background: transparent; font-size: 12px; font-weight: 700; text-align: center; cursor: pointer; }
+.resendToast {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 14px;
+  border: 1px solid rgba(0, 212, 232, .35);
+  border-radius: 20px;
+  background: rgba(0, 212, 232, .1);
+  color: #a8f0f8;
+  font-size: 11px;
+  font-weight: 600;
+  animation: toastFadeIn .22s ease;
+}
+.resendToast::before { content: '✓'; color: #00d4e8; font-size: 12px; }
+@keyframes toastFadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 .successBody { min-height: 445px; height: 100%; display: flex; flex-direction: column; }
 .successBody .footerActions { margin-top: auto; padding-top: 23px; }

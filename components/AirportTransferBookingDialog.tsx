@@ -976,6 +976,9 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
   const authPhoneComplete = /^\+966\d{9}$/.test(authMobile)
   const otpComplete = authOtp.every(digit => digit.trim().length === 1)
   const updateBookingRef = useRef(updateBooking)
+  const otpInputRefs = useRef<(HTMLInputElement | null)[]>([])
+  const resendToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [resendToast, setResendToast] = useState<{ visible: boolean; phone: string }>({ visible: false, phone: '' })
 
   useEffect(() => {
     updateBookingRef.current = updateBooking
@@ -1051,6 +1054,7 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
   const submitPhone = async () => {
     setAuthAttempted(true)
     if (!authPhoneComplete || authLoading) return
+    const isResend = authStep === 'otp'
     setAuthLoading(true)
     setAuthError('')
     try {
@@ -1064,6 +1068,11 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
       updateBooking({ phone: authPhone })
       setAuthOtp(Array(4).fill(''))
       setAuthStep('otp')
+      if (isResend) {
+        if (resendToastTimer.current) clearTimeout(resendToastTimer.current)
+        setResendToast({ visible: true, phone: authPhone })
+        resendToastTimer.current = setTimeout(() => setResendToast(t => ({ ...t, visible: false })), 3000)
+      }
     } catch {
       setAuthError(copy.otpSendError)
     } finally {
@@ -1138,6 +1147,23 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
   const handleOtpChange = (index: number, value: string) => {
     const digit = value.replace(/\D/g, '').slice(-1)
     setAuthOtp(current => current.map((currentDigit, currentIndex) => currentIndex === index ? digit : currentDigit))
+    if (digit && index < 3) {
+      otpInputRefs.current[index + 1]?.focus()
+    }
+  }
+  const handleOtpKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Backspace' && !authOtp[index] && index > 0) {
+      otpInputRefs.current[index - 1]?.focus()
+    }
+  }
+  const handleOtpPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasted = event.clipboardData.getData('text').replace(/\D/g, '').slice(0, 4)
+    if (!pasted) return
+    event.preventDefault()
+    const next = Array(4).fill('').map((_, i) => pasted[i] ?? '')
+    setAuthOtp(next)
+    const lastFilled = Math.min(pasted.length, 3)
+    otpInputRefs.current[lastFilled]?.focus()
   }
   const renderCustomerAuth = () => {
     if (authLoading && !customerProfile && session?.accessToken) {
@@ -1167,12 +1193,28 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
             <p>{copy.otpSent}</p>
             <div className={`${styles.otpBoxes} ${authAttempted && !otpComplete ? styles.otpInvalid : ''}`}>
               {authOtp.map((digit, index) => (
-                <input key={index} inputMode="numeric" aria-label={copy.otpDigit(index + 1)} aria-invalid={authAttempted && !otpComplete} maxLength={1} value={digit} onChange={event => handleOtpChange(index, event.target.value)} />
+                <input
+                  key={index}
+                  ref={el => { otpInputRefs.current[index] = el }}
+                  inputMode="numeric"
+                  aria-label={copy.otpDigit(index + 1)}
+                  aria-invalid={authAttempted && !otpComplete}
+                  maxLength={1}
+                  value={digit}
+                  onChange={event => handleOtpChange(index, event.target.value)}
+                  onKeyDown={event => handleOtpKeyDown(index, event)}
+                  onPaste={handleOtpPaste}
+                />
               ))}
             </div>
             {authError && <small className={styles.selectionError}>{authError}</small>}
             <button type="button" className={styles.authAction} onClick={verifyOtp} disabled={authLoading}>{authLoading ? copy.verifyingOtp : copy.verifyOtp}</button>
             <button type="button" className={styles.resend} onClick={submitPhone} disabled={authLoading}>{copy.resendOtp}</button>
+            {resendToast.visible && (
+              <div className={styles.resendToast} dir={dir}>
+                {copy.otpSentToast(resendToast.phone)}
+              </div>
+            )}
           </>
         )}
         {authStep === 'profile' && (
