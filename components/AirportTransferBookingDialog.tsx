@@ -2241,7 +2241,6 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
     if (!pickupCoords || !activeCategoryId || fareLoading || fareError || !fare || submitting) return
     setSubmitting(true)
     setSubmitError(false)
-    setSubmitAuthError(false)
 
     const pad = (n: number) => String(n).padStart(2, '0')
     const scheduledDatetime = (() => {
