@@ -1310,7 +1310,7 @@ function formatDateForApi(date: Date): string {
 async function lookupFlight(flightNumber: string, date: Date): Promise<AviationFlight> {
   let res: Response
   try {
-    res = await fetch('http://34.166.167.2/api/v1/public/airports/flight-lookup', {
+    res = await fetch('/api/flights/lookup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ flight_number: flightNumber, flight_date: formatDateForApi(date) }),
