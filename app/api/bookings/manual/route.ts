@@ -8,6 +8,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(data, { status })
   } catch (err) {
     console.error('[bookings/manual] failed:', err)
-    return NextResponse.json({ error: 'Failed to submit booking' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 })
   }
 }
