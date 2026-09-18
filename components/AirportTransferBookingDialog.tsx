@@ -1290,12 +1290,14 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
 
 // ─── Flight lookup API ────────────────────────────────────────────────────────
 type AviationFlight = {
-  flight_date: string
-  flight_status: string
-  departure: { airport: string; iata: string; scheduled: string; estimated?: string | null; actual?: string | null; terminal?: string | null; gate?: string | null; delay?: number | null }
-  arrival: { airport: string; iata: string; scheduled: string; estimated?: string | null; actual?: string | null; terminal?: string | null; gate?: string | null; delay?: number | null }
-  airline: { name: string; iata: string }
-  flight: { number: string; iata: string }
+  weekday: string
+  flight: { number: string; iata: string; icao: string }
+  airline: { name: string; iata: string; icao: string }
+  departure: { iata: string; icao: string; terminal?: string | null; gate?: string | null; scheduled_time: string }
+  arrival: { iata: string; icao: string; terminal?: string | null; gate?: string | null; scheduled_time: string }
+  aircraft?: { model_code: string; model_text: string } | null
+  codeshare: string | null
+  flight_date?: string
 }
 
 type FlightLookupError = 'not_found' | 'validation_error' | 'unavailable' | 'network_error'
@@ -1325,6 +1327,7 @@ async function lookupFlight(flightNumber: string, date: Date): Promise<AviationF
   const body = await res.json()
   const flight: AviationFlight = body.flights?.[0]
   if (!flight) throw new Error('not_found' satisfies FlightLookupError)
+  if (body.flight_date) flight.flight_date = body.flight_date
   return flight
 }
 
@@ -1397,7 +1400,7 @@ function PickupEstimatorDialog({ flight, onConfirm, onClose }: {
 
   const handleConfirm = () => {
     if (tab === 'minutes' && selectedMinutes !== null) {
-      const { h, m } = addMinutes(flight.arrival.scheduled, selectedMinutes)
+      const { h, m } = addMinutes(flight.arrival.scheduled_time, selectedMinutes)
       onConfirm({ hour: h, minute: m, use24Hour: true })
     } else if (tab === 'time' && selectedSlot) {
       onConfirm({ hour: selectedSlot.h, minute: selectedSlot.m, use24Hour: true })
@@ -1523,8 +1526,8 @@ function TripDetails({ booking, updateBooking, next, back }: {
 
   const depIata = flightData?.departure.iata ?? '--'
   const arrIata = flightData?.arrival.iata ?? '--'
-  const depTime = flightData ? flightTimeLabel(flightData.departure.scheduled) : '--:--'
-  const arrTime = flightData ? flightTimeLabel(flightData.arrival.scheduled) : '--:--'
+  const depTime = flightData ? flightTimeLabel(flightData.departure.scheduled_time) : '--:--'
+  const arrTime = flightData ? flightTimeLabel(flightData.arrival.scheduled_time) : '--:--'
 
   return (
     <>
