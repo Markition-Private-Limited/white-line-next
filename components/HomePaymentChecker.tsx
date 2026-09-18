@@ -14,7 +14,6 @@ function Checker() {
     if (pstatus === 'confirmed' || pstatus === 'failed') {
       setResult(pstatus)
       setBookingId(params.get('bid'))
-      router.replace('/', { scroll: false })
     }
   }, [])
 
@@ -23,7 +22,7 @@ function Checker() {
     <PaymentResultDialog
       type={result}
       bookingId={bookingId}
-      onClose={() => setResult(null)}
+      onClose={() => { setResult(null); router.replace('/', { scroll: false }) }}
     />
   )
 }

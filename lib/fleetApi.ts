@@ -50,6 +50,7 @@ export type ClassVehicle = {
   color: string
   status: string
   vehicle_front_photo_url: string | null
+  base_fare?: number
 }
 
 type FleetEnvelope<T> = { success: boolean; data: T; timestamp?: string; message?: string }
@@ -90,8 +91,9 @@ export async function fetchVehicleClasses(): Promise<VehicleClass[]> {
     : []
 }
 
-export async function fetchVehiclesForClass(id: string): Promise<ClassVehicle[]> {
-  const data = await fleetGetData<ClassVehicle[]>(`/api/v1/public/customers/vehicle-classes/${encodeURIComponent(id)}/vehicles`)
+export async function fetchVehiclesForClass(id: string, serviceType?: string): Promise<ClassVehicle[]> {
+  const qs = serviceType ? `?service_type=${encodeURIComponent(serviceType)}` : ''
+  const data = await fleetGetData<ClassVehicle[]>(`/api/v1/public/customers/vehicle-classes/${encodeURIComponent(id)}/vehicles${qs}`)
   return Array.isArray(data)
     ? data.map(item => ({
       id: item.id,
@@ -102,6 +104,7 @@ export async function fetchVehiclesForClass(id: string): Promise<ClassVehicle[]>
       color: item.color,
       status: item.status,
       vehicle_front_photo_url: proxiedFleetImageUrl(item.vehicle_front_photo_url),
+      base_fare: typeof item.base_fare === 'number' ? item.base_fare : undefined,
     }))
     : []
 }

@@ -186,11 +186,11 @@ export default function FleetSection() {
                     }}
                   >
                     {/* Image with white bottom fade */}
-                    <div className="relative w-full bg-[#f1f4f7]" style={{ aspectRatio: '4 / 3', padding: 'clamp(16px, 2vw, 24px)' }}>
+                    <div className="relative w-full bg-[#f1f4f7]" style={{ aspectRatio: '4 / 3' }}>
                       <img
                         src={car.img}
                         alt={car.title}
-                        className="w-full h-full object-contain object-center"
+                        className="w-full h-full object-cover object-center"
                         draggable={false}
                       />
                       <div

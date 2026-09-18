@@ -139,7 +139,7 @@ function ParallaxCard({
         />
       </div>
       <p
-        className="mb-0.5 text-sm font-semibold leading-tight"
+        className="mb-0.5 text-sm font-semibold leading-tight line-clamp-1"
         style={{
           fontFamily: 'Inter, sans-serif',
           color: active ? '#D4FBFF' : '#ffffff',
@@ -149,7 +149,7 @@ function ParallaxCard({
         {title}
       </p>
       <p
-        className="mb-2.5 text-xs leading-tight"
+        className="mb-2.5 text-xs leading-tight line-clamp-2"
         style={{
           fontFamily: 'Inter, sans-serif',
           color: active ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.50)',
@@ -350,9 +350,9 @@ export default function HomeHero() {
                 {/* ── Sm+: ghost sizes the cell; card expands upward on hover ── */}
                 <div className="hidden sm:block">
                   <div className="rounded-2xl p-3 pointer-events-none select-none" style={{ visibility: 'hidden' }} aria-hidden="true">
-                    <div className="mb-3 w-full" style={{ paddingBottom: '40%' }} />
-                    <p className="mb-0.5 text-sm font-semibold">&nbsp;</p>
-                    <p className="mb-3 text-xs leading-snug">&nbsp;</p>
+                    <div className="mb-2.5 w-full" style={{ paddingBottom: '50%' }} />
+                    <p className="mb-0.5 text-sm font-semibold leading-tight line-clamp-1">&nbsp;</p>
+                    <p className="mb-2.5 text-xs leading-tight line-clamp-2">&nbsp;<br />&nbsp;</p>
                     <span className="text-sm font-medium">&nbsp;</span>
                   </div>
                   <div className="absolute inset-x-0 bottom-0">
