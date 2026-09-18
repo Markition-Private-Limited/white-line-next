@@ -1325,9 +1325,10 @@ async function lookupFlight(flightNumber: string, date: Date): Promise<AviationF
   if (res.status === 503) throw new Error('unavailable' satisfies FlightLookupError)
   if (!res.ok) throw new Error('unavailable' satisfies FlightLookupError)
   const body = await res.json()
-  const flight: AviationFlight = body.flights?.[0]
+  const payload = body.data ?? body
+  const flight: AviationFlight = payload.flights?.[0]
   if (!flight) throw new Error('not_found' satisfies FlightLookupError)
-  if (body.flight_date) flight.flight_date = body.flight_date
+  if (payload.flight_date) flight.flight_date = payload.flight_date
   return flight
 }
 
