@@ -199,6 +199,21 @@ const en = {
   cancelYes: 'Yes, Cancel',
   redirectingTitle: 'Redirecting to Payment',
   redirectingBody: 'You are being securely redirected to the payment page. Please do not close this window.',
+  flightLookupLoading: 'Looking up flight…',
+  flightLookupDateNeeded: 'Enter the flight date to look up your flight.',
+  flightLookupNotFound: (num: string) => `No flight found for ${num} on that date.`,
+  flightLookupUnavailable: 'Flight data is temporarily unavailable. Please try again.',
+  flightLookupValidationError: 'Enter a valid IATA flight number (e.g. SV123, EK505).',
+  flightLookupNetworkError: 'Network error. Check your connection and try again.',
+  flightAutoFillTitle: 'Auto-fill from flight data?',
+  flightAutoFillBody: "We've found your flight. Next, choose your preferred pickup time after arrival.",
+  flightAutoFillConfirm: 'Apply',
+  pickupEstimatorTitle: 'For estimation of pick up, kindly select the time for driver to appear after arrival',
+  pickupEstimatorByMinutes: 'By minutes',
+  pickupEstimatorByTime: 'By time',
+  pickupEstimatorAfterArrival: (min: number) => `${min} minutes after arrival`,
+  pickupEstimatorConfirm: 'Set Pickup Time',
+  pickupEstimatorBack: 'Back',
 }
 
 const ar: typeof en = {
@@ -400,6 +415,21 @@ const ar: typeof en = {
   cancelYes: 'نعم، إلغاء',
   redirectingTitle: 'جارٍ التحويل إلى الدفع',
   redirectingBody: 'جارٍ تحويلك بأمان إلى صفحة الدفع. يرجى عدم إغلاق هذه النافذة.',
+  flightLookupLoading: 'جارٍ البحث عن الرحلة…',
+  flightLookupDateNeeded: 'أدخل تاريخ الرحلة للبحث عنها.',
+  flightLookupNotFound: (num: string) => `لم يُعثر على رحلة ${num} في هذا التاريخ.`,
+  flightLookupUnavailable: 'بيانات الرحلات غير متاحة مؤقتاً. حاول مجدداً.',
+  flightLookupValidationError: 'أدخل رقم رحلة IATA صحيحاً (مثال: SV123 أو EK505).',
+  flightLookupNetworkError: 'خطأ في الشبكة. تحقق من اتصالك وحاول مجدداً.',
+  flightAutoFillTitle: 'تعبئة البيانات من معلومات الرحلة؟',
+  flightAutoFillBody: 'وجدنا رحلتك. اختر الآن وقت الاستقبال المناسب بعد الهبوط.',
+  flightAutoFillConfirm: 'تطبيق',
+  pickupEstimatorTitle: 'لتحديد وقت الاستقبال، اختر متى تريد وصول السائق بعد الهبوط',
+  pickupEstimatorByMinutes: 'بالدقائق',
+  pickupEstimatorByTime: 'بالوقت',
+  pickupEstimatorAfterArrival: (min: number) => `${min} دقيقة بعد الوصول`,
+  pickupEstimatorConfirm: 'تحديد وقت الاستقبال',
+  pickupEstimatorBack: 'رجوع',
 }
 
 export type BookingDialogCopy = typeof en

@@ -1,6 +1,6 @@
 'use client'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowUpRight, ArrowUpLeft, ChevronDown, X } from 'lucide-react'
+import { ArrowUpRight, ArrowUpLeft, CalendarDays, ChevronDown, User, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -15,6 +15,19 @@ const BUTTON_BG = [
   'linear-gradient(238.54deg, rgba(77,77,77,0.45) 4.12%, rgba(218,218,218,0.45) 48.47%, rgba(77,77,77,0.45) 86.31%)',
 ].join(', ')
 
+const CUSTOMER_SESSION_KEY = 'whiteline.customerSession'
+
+function readNavUserName(): string | null {
+  try {
+    const session = JSON.parse(localStorage.getItem(CUSTOMER_SESSION_KEY) ?? 'null')
+    const token = session?.accessToken
+    if (!token) return null
+    const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+    const payload = JSON.parse(atob(b64))
+    return payload.name || payload.fullName || payload.full_name || payload.firstName || payload.first_name || null
+  } catch { return null }
+}
+
 // ── Language dropdown ──────────────────────────────────────────────────────────
 function LangDropdown({ solid }: { solid: boolean }) {
   const { lang, setLang, dir } = useLanguage()
@@ -22,7 +35,6 @@ function LangDropdown({ solid }: { solid: boolean }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
-  // Close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
@@ -63,7 +75,6 @@ function LangDropdown({ solid }: { solid: boolean }) {
             transition={{ duration: 0.18 }}
             className="absolute top-full mt-2 z-50 overflow-hidden rounded-xl"
             style={{
-              // Align to the correct side based on dir
               insetInlineStart: 0,
               minWidth: 148,
               background: 'rgba(12,14,20,0.96)',
@@ -99,6 +110,122 @@ function LangDropdown({ solid }: { solid: boolean }) {
   )
 }
 
+// ── User dropdown ──────────────────────────────────────────────────────────────
+function UserDropdown({ solid, userName }: { solid: boolean; userName: string }) {
+  const { lang } = useLanguage()
+  const isAr = lang === 'ar'
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const initial = userName.charAt(0).toUpperCase()
+  const firstName = userName.split(' ')[0]
+
+  return (
+    <div ref={ref} className="relative hidden sm:block">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="group relative h-10 inline-flex items-center overflow-hidden rounded-full text-sm font-semibold"
+        style={{
+          fontFamily: 'Inter, sans-serif',
+          background: solid ? '#005C66' : BUTTON_BG,
+          border: solid ? 'none' : '1px solid rgba(255,255,255,0.18)',
+          color: '#fff',
+          padding: '0 14px 0 6px',
+          gap: 8,
+          minWidth: 118,
+        }}
+      >
+        {/* Avatar circle */}
+        <span style={{
+          width: 28, height: 28, borderRadius: '50%',
+          background: 'rgba(255,255,255,0.2)',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 12, fontWeight: 700, color: '#fff', flexShrink: 0,
+        }}>
+          {initial}
+        </span>
+        <span style={{ fontFamily: 'Inter, sans-serif' }}>{firstName}</span>
+        <ChevronDown
+          size={13}
+          className="opacity-75 transition-transform duration-200"
+          style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+        />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 6, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.97 }}
+            transition={{ duration: 0.18 }}
+            className="absolute top-full mt-2 z-50 overflow-hidden rounded-xl"
+            style={{
+              insetInlineEnd: 0,
+              minWidth: 188,
+              background: 'rgba(12,14,20,0.96)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              boxShadow: '0 8px 28px rgba(0,0,0,0.35)',
+            }}
+          >
+            {/* User name header */}
+            <div style={{ padding: '14px 18px 10px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+              <p style={{ margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 13, color: '#fff' }}>
+                {userName}
+              </p>
+            </div>
+
+            <Link
+              href="/journeys"
+              onClick={() => setOpen(false)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '12px 18px',
+                fontFamily: 'Inter, sans-serif', fontSize: 13,
+                color: 'rgba(255,255,255,0.82)',
+                borderBottom: '1px solid rgba(255,255,255,0.05)',
+                textDecoration: 'none',
+                transition: 'background 0.15s',
+              }}
+              className="hover:bg-white/8"
+            >
+              <CalendarDays size={15} style={{ color: '#005C66' }} />
+              {isAr ? 'رحلاتي' : 'My Journeys'}
+            </Link>
+
+            <Link
+              href="/account"
+              onClick={() => setOpen(false)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '12px 18px',
+                fontFamily: 'Inter, sans-serif', fontSize: 13,
+                color: 'rgba(255,255,255,0.82)',
+                textDecoration: 'none',
+                transition: 'background 0.15s',
+              }}
+              className="hover:bg-white/8"
+            >
+              <User size={15} style={{ color: '#005C66' }} />
+              {isAr ? 'حسابي' : 'My Account'}
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 // ── Mobile lang switcher (inside drawer) ──────────────────────────────────────
 function MobileLangSwitcher() {
   const { lang, setLang } = useLanguage()
@@ -127,12 +254,18 @@ function MobileLangSwitcher() {
 }
 
 // ── Navbar ────────────────────────────────────────────────────────────────────
-export default function Navbar({ solid = false }: { solid?: boolean }) {
-  const { trans, dir } = useLanguage()
+export default function Navbar({ solid = false, minimal = false }: { solid?: boolean; minimal?: boolean }) {
+  const { trans, dir, lang } = useLanguage()
   const isRtl = dir === 'rtl'
+  const isAr = lang === 'ar'
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [userName, setUserName] = useState<string | null>(null)
   const pathname = usePathname()
+
+  useEffect(() => {
+    setUserName(readNavUserName())
+  }, [])
 
   useEffect(() => {
     if (drawerOpen) {
@@ -150,7 +283,6 @@ export default function Navbar({ solid = false }: { solid?: boolean }) {
 
   useEffect(() => { setDrawerOpen(false) }, [pathname])
 
-  // Listen for download dialog open event dispatched by other components (e.g. AppSection)
   useEffect(() => {
     const handler = () => setDialogOpen(true)
     window.addEventListener('download-dialog:open', handler)
@@ -192,49 +324,81 @@ export default function Navbar({ solid = false }: { solid?: boolean }) {
             </span>
           </Link>
 
-          {/* Desktop nav links */}
-          <ul className="hidden lg:flex items-center gap-7 list-none m-0 p-0">
-            {trans.nav.links.map((item) => (
-              <li key={item.to}>
-                <Link
-                  href={item.to}
-                  className="flex items-center gap-1 transition-colors text-sm font-medium"
-                  style={{
-                    fontFamily: 'Inter, sans-serif',
-                    color: linkColor(item.to),
-                  }}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {/* Desktop nav links — hidden when minimal */}
+          {!minimal && (
+            <ul className="hidden lg:flex items-center gap-7 list-none m-0 p-0">
+              {trans.nav.links.map((item) => (
+                <li key={item.to}>
+                  <Link
+                    href={item.to}
+                    className="flex items-center gap-1 transition-colors text-sm font-medium"
+                    style={{ fontFamily: 'Inter, sans-serif', color: linkColor(item.to) }}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
 
           {/* Right side */}
           <div className="flex items-center gap-3">
             <LangDropdown solid={solid} />
 
-            <button
-              onClick={() => setDialogOpen(true)}
-              className="group hidden sm:inline-flex relative h-10 items-center justify-center overflow-hidden rounded-full text-sm font-semibold"
-              style={{
-                fontFamily: 'Inter, sans-serif',
-                background: solid ? '#005C66' : BUTTON_BG,
-                border: solid ? 'none' : '1px solid rgba(255,255,255,0.18)',
-                color: '#fff',
-                minWidth: 140,
-              }}
-            >
-              <span className="inline-flex items-center px-5 transition duration-500 group-hover:-translate-y-[150%]">
-                {trans.nav.download}
-              </span>
-              <span className="absolute inline-flex h-full w-full translate-y-[100%] items-center justify-center transition duration-500 group-hover:translate-y-0">
-                <span className={`absolute inset-0 translate-y-full skew-y-12 scale-y-0 transition duration-500 group-hover:translate-y-0 group-hover:scale-150 ${solid ? 'bg-[#004d57]' : 'bg-white/20'}`} />
-                <span className="relative z-10 inline-flex items-center gap-1.5">
-                  {trans.nav.download} {isRtl ? <ArrowUpLeft size={13} /> : <ArrowUpRight size={13} />}
+            {/* Download button — only on non-minimal pages when not logged in */}
+            {!minimal && !userName && (
+              <button
+                onClick={() => setDialogOpen(true)}
+                className="group hidden sm:inline-flex relative h-10 items-center justify-center overflow-hidden rounded-full text-sm font-semibold"
+                style={{
+                  fontFamily: 'Inter, sans-serif',
+                  background: solid ? '#005C66' : BUTTON_BG,
+                  border: solid ? 'none' : '1px solid rgba(255,255,255,0.18)',
+                  color: '#fff',
+                  minWidth: 140,
+                }}
+              >
+                <span className="inline-flex items-center px-5 transition duration-500 group-hover:-translate-y-[150%]">
+                  {trans.nav.download}
                 </span>
-              </span>
-            </button>
+                <span className="absolute inline-flex h-full w-full translate-y-[100%] items-center justify-center transition duration-500 group-hover:translate-y-0">
+                  <span className={`absolute inset-0 translate-y-full skew-y-12 scale-y-0 transition duration-500 group-hover:translate-y-0 group-hover:scale-150 ${solid ? 'bg-[#004d57]' : 'bg-white/20'}`} />
+                  <span className="relative z-10 inline-flex items-center gap-1.5">
+                    {trans.nav.download} {isRtl ? <ArrowUpLeft size={13} /> : <ArrowUpRight size={13} />}
+                  </span>
+                </span>
+              </button>
+            )}
+
+            {/* Download Now alongside user pill on non-minimal pages when logged in */}
+            {!minimal && userName && (
+              <button
+                onClick={() => setDialogOpen(true)}
+                className="group hidden sm:inline-flex relative h-10 items-center justify-center overflow-hidden rounded-full text-sm font-semibold"
+                style={{
+                  fontFamily: 'Inter, sans-serif',
+                  background: solid ? 'transparent' : BUTTON_BG,
+                  border: solid ? '1.5px solid #e5e7eb' : '1px solid rgba(255,255,255,0.18)',
+                  color: solid ? '#374151' : '#fff',
+                  minWidth: 140,
+                }}
+              >
+                <span className="inline-flex items-center px-5 transition duration-500 group-hover:-translate-y-[150%]">
+                  {trans.nav.download}
+                </span>
+                <span className="absolute inline-flex h-full w-full translate-y-[100%] items-center justify-center transition duration-500 group-hover:translate-y-0">
+                  <span className={`absolute inset-0 translate-y-full skew-y-12 scale-y-0 transition duration-500 group-hover:translate-y-0 group-hover:scale-150 ${solid ? 'bg-gray-100' : 'bg-white/20'}`} />
+                  <span className="relative z-10 inline-flex items-center gap-1.5">
+                    {trans.nav.download} {isRtl ? <ArrowUpLeft size={13} /> : <ArrowUpRight size={13} />}
+                  </span>
+                </span>
+              </button>
+            )}
+
+            {/* User dropdown — always visible on minimal pages, or when logged in elsewhere */}
+            {(minimal || userName) && (
+              <UserDropdown solid={solid} userName={userName ?? (isAr ? 'حسابي' : 'Account')} />
+            )}
 
             <button
               className="lg:hidden flex items-center justify-center w-10 h-10 rounded-full transition-colors"
@@ -308,12 +472,42 @@ export default function Navbar({ solid = false }: { solid?: boolean }) {
 
               <nav className="flex-1 overflow-y-auto px-7 pt-6" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
                 <ul className="list-none m-0 p-0 flex flex-col">
-                  {trans.nav.links.map((item, i) => (
+                  {/* User links — always on minimal pages, or when logged in */}
+                  {(minimal || userName) && (
+                    <>
+                      {[
+                        { to: '/journeys', label: isAr ? 'رحلاتي' : 'My Journeys' },
+                        { to: '/account',  label: isAr ? 'حسابي' : 'My Account'   },
+                      ].map((item, i) => (
+                        <motion.li key={item.to} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.07 + i * 0.055, duration: 0.38, ease: 'easeOut' }}>
+                          <Link
+                            href={item.to}
+                            onClick={() => setDrawerOpen(false)}
+                            className="flex items-center justify-between py-5 transition-colors"
+                            style={{
+                              fontFamily: 'Montserrat, sans-serif',
+                              fontSize: 'clamp(17px, 4vw, 20px)',
+                              fontWeight: 500,
+                              borderBottom: '1px solid rgba(255,255,255,0.06)',
+                              letterSpacing: '0.02em',
+                              color: isActive(item.to) ? '#ffffff' : 'rgba(255,255,255,0.55)',
+                            }}
+                          >
+                            {item.label}
+                            <span style={{ opacity: 0.2, fontSize: 18 }}>›</span>
+                          </Link>
+                        </motion.li>
+                      ))}
+                    </>
+                  )}
+
+                  {/* Regular nav links (only when not minimal) */}
+                  {!minimal && trans.nav.links.map((item, i) => (
                     <motion.li
                       key={item.to}
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.07 + i * 0.055, duration: 0.38, ease: 'easeOut' }}
+                      transition={{ delay: 0.07 + (userName ? 2 : 0) * 0.055 + i * 0.055, duration: 0.38, ease: 'easeOut' }}
                     >
                       <Link
                         href={item.to}
