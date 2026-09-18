@@ -1334,6 +1334,12 @@ function flightTimeLabel(iso: string): string {
   } catch { return '--:--' }
 }
 
+function addMinutes(iso: string, minutes: number): { h: number; m: number } {
+  const d = new Date(iso)
+  d.setMinutes(d.getMinutes() + minutes)
+  return { h: d.getHours(), m: d.getMinutes() }
+}
+
 
 
 function FlightAutoFillDialog({ flight, onConfirm }: {
