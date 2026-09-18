@@ -67,7 +67,41 @@ const hourlyDurations = Array.from({ length: 15 }, (_, index) => index + 2)
 // Backed by a small proxy in app/api/fleet/**, which caches the upstream
 // fleet API server-side. Mirrored here with a short-lived client cache so
 // reopening the booking dialog doesn't refetch on every open.
-type VehicleClass = { id: string; className: string; description: string; passengerCapacity: number; luggageCapacity: number; isActive: boolean; imageUrl?: string }
+type VehicleClass = {
+  id: string
+  className: string
+  description: string
+  passengerCapacity: number
+  luggageCapacity: number
+  isActive: boolean
+  imageUrl?: string
+  baseFare?: string | number
+  perKmRate?: string | number
+  hourlyRate?: string | number
+  halfDayRate?: string | number
+  fullDayRate?: string | number
+  fullDay8hrRate?: string | number
+  fullDay10hrRate?: string | number
+  fullDay12hrRate?: string | number
+  cityToCityRate?: string | number
+  cityTransferRate?: string | number
+  cityExtraKmRate?: string | number
+  airportTransferRate?: string | number
+  airportExtraKmRate?: string | number
+  base_fare?: string | number
+  per_km_rate?: string | number
+  hourly_rate?: string | number
+  half_day_rate?: string | number
+  full_day_rate?: string | number
+  full_day_8hr_rate?: string | number
+  full_day_10hr_rate?: string | number
+  full_day_12hr_rate?: string | number
+  city_to_city_rate?: string | number
+  city_transfer_rate?: string | number
+  city_extra_km_rate?: string | number
+  airport_transfer_rate?: string | number
+  airport_extra_km_rate?: string | number
+}
 type ClassVehicle = { id: string; make: string; model: string; year: number; plate_number: string; color: string; status: string; vehicle_front_photo_url: string | null }
 
 const FLEET_CACHE_TTL_MS = 5 * 60 * 1000
@@ -113,7 +147,8 @@ function buildCategoryTiles(fleetClasses: VehicleClass[] | null): CategoryTile[]
   }))
 }
 
-type VehicleCard = { key: string; image: string | null; title: string; passengers: number; bags: number }
+type FareMeta = { type: 'perKm' | 'perHour'; amount: number } | { type: 'halfDay' | 'fullDay' }
+type VehicleCard = { key: string; image: string | null; title: string; passengers: number; bags: number; fareAmount: number | null; fareMeta: FareMeta | null }
 
 const TEMP_FLEET_IMAGES: Record<string, string> = {
   'bmw 5 series': '/temp_fleet_cars/BMW 5 Series.png',
@@ -134,9 +169,52 @@ const getTempFleetImage = (title: string): string | null => {
   return partial ? TEMP_FLEET_IMAGES[partial] : null
 }
 
-function buildVehicleCards(activeVehicles: ClassVehicle[], activeClass: VehicleClass | null): VehicleCard[] {
+function parseFleetRate(value: string | number | null | undefined): number | null {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null
+  if (typeof value !== 'string') return null
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
+function firstFleetRate(...values: Array<string | number | null | undefined>): number | null {
+  for (const value of values) {
+    const parsed = parseFleetRate(value)
+    if (parsed !== null) return parsed
+  }
+  return null
+}
+
+function getServiceFare(activeClass: VehicleClass | null, service: BookingService, dayDuration: DayDuration): { amount: number | null; meta: FareMeta | null } {
+  if (!activeClass) return { amount: null, meta: null }
+  if (service === 'airport') {
+    const amount = firstFleetRate(activeClass.airportTransferRate, activeClass.airport_transfer_rate, activeClass.baseFare, activeClass.base_fare)
+    const extraKm = firstFleetRate(activeClass.airportExtraKmRate, activeClass.airport_extra_km_rate, activeClass.perKmRate, activeClass.per_km_rate)
+    return { amount, meta: extraKm !== null ? { type: 'perKm', amount: extraKm } : null }
+  }
+  if (service === 'city') {
+    const amount = firstFleetRate(activeClass.cityToCityRate, activeClass.city_to_city_rate, activeClass.cityTransferRate, activeClass.city_transfer_rate, activeClass.baseFare, activeClass.base_fare)
+    const extraKm = firstFleetRate(activeClass.cityExtraKmRate, activeClass.city_extra_km_rate, activeClass.perKmRate, activeClass.per_km_rate)
+    return { amount, meta: extraKm !== null ? { type: 'perKm', amount: extraKm } : null }
+  }
+  if (service === 'hourly') {
+    const amount = firstFleetRate(activeClass.hourlyRate, activeClass.hourly_rate, activeClass.baseFare, activeClass.base_fare)
+    return { amount, meta: amount !== null ? { type: 'perHour', amount } : null }
+  }
+  if (service === 'day') {
+    const amount = dayDuration === 'full'
+      ? firstFleetRate(activeClass.fullDay10hrRate, activeClass.full_day_10hr_rate, activeClass.fullDayRate, activeClass.full_day_rate, activeClass.baseFare, activeClass.base_fare)
+      : firstFleetRate(activeClass.halfDayRate, activeClass.half_day_rate, activeClass.baseFare, activeClass.base_fare)
+    return { amount, meta: amount !== null ? { type: dayDuration === 'full' ? 'fullDay' : 'halfDay' } : null }
+  }
+  const amount = firstFleetRate(activeClass.baseFare, activeClass.base_fare)
+  const perKm = firstFleetRate(activeClass.perKmRate, activeClass.per_km_rate)
+  return { amount, meta: perKm !== null ? { type: 'perKm', amount: perKm } : null }
+}
+
+function buildVehicleCards(activeVehicles: ClassVehicle[], activeClass: VehicleClass | null, service: BookingService, dayDuration: DayDuration): VehicleCard[] {
   const passengers = activeClass?.passengerCapacity ?? 2
   const bags = activeClass?.luggageCapacity ?? 4
+  const { amount: fareAmount, meta: fareMeta } = getServiceFare(activeClass, service, dayDuration)
   const vehicleTitle = (vehicle: ClassVehicle) => {
     const make = vehicle.make.trim()
     const model = vehicle.model.trim()
@@ -148,8 +226,8 @@ function buildVehicleCards(activeVehicles: ClassVehicle[], activeClass: VehicleC
   }
   return activeVehicles.map(vehicle => {
     const title = vehicleTitle(vehicle)
-    const image = getTempFleetImage(title)
-    return { key: vehicle.id, image, title, passengers, bags }
+    const image = vehicle.vehicle_front_photo_url ?? getTempFleetImage(title)
+    return { key: vehicle.id, image, title, passengers, bags, fareAmount, fareMeta }
   })
 }
 
@@ -1336,6 +1414,7 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
   const [vehiclesByClass, setVehiclesByClass] = useState<{ classId: string; data: ClassVehicle[] } | null>(null)
   const [categoryScrollIndex, setCategoryScrollIndex] = useState(0)
   const [vehicleScrollIndex, setVehicleScrollIndex] = useState(0)
+  const [vehicleVisibleSlots, setVehicleVisibleSlots] = useState(() => typeof window === 'undefined' || window.innerWidth > 640 ? 2 : 1)
   const categoryGridRef = useRef<HTMLDivElement>(null)
   const vehicleGridRef = useRef<HTMLDivElement>(null)
   const categoryScrollIndexRef = useRef(0)
@@ -1366,22 +1445,23 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
     return () => { cancelled = true }
   }, [activeCategoryId])
 
+  const service = booking.service
   const activeVehicles = vehiclesByClass && vehiclesByClass.classId === activeCategoryId ? vehiclesByClass.data : null
   const activeClass = fleetClasses?.find(cls => cls.id === activeCategoryId) ?? null
-  const vehicleCards = activeVehicles ? buildVehicleCards(activeVehicles, activeClass) : null
+  const vehicleCards = activeVehicles ? buildVehicleCards(activeVehicles, activeClass, service, booking.dayDuration) : null
   const vehicleCount = vehicleCards?.length ?? 0
+  const vehicleMaxScrollIndex = Math.max(0, vehicleCount - vehicleVisibleSlots)
   const vehicleIndex = booking.vehicle !== null && vehicleCards?.length ? Math.min(booking.vehicle, vehicleCards.length - 1) : null
   const rideSelectionComplete = Boolean(activeCategoryId && vehicleIndex !== null)
-  const service = booking.service
   const isHourly = service === 'hourly'
   const isCity = service === 'city'
   const isDay = service === 'day'
   const isOneWay = service === 'oneWay'
   const normalizeLoopIndex = (index: number, count: number) => (index % count + count) % count
-  const scrollGridToIndex = useCallback((grid: HTMLDivElement | null, index: number, behavior: ScrollBehavior = 'smooth') => {
+  const scrollGridToIndex = useCallback((grid: HTMLDivElement | null, index: number, behavior: ScrollBehavior = 'smooth', align: 'center' | 'start' = 'center') => {
     const item = grid?.children.item(index)
     if (!(grid && item instanceof HTMLElement)) return
-    const left = item.offsetLeft - (grid.clientWidth - item.offsetWidth) / 2
+    const left = align === 'start' ? item.offsetLeft : item.offsetLeft - (grid.clientWidth - item.offsetWidth) / 2
     grid.scrollTo({ left, behavior })
   }, [])
   const nearestLoopItemIndex = useCallback((grid: HTMLDivElement) => {
@@ -1395,11 +1475,19 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
       return Math.abs(childCenter - viewportCenter) < Math.abs(bestCenter - viewportCenter) ? index : bestIndex
     }, 0)
   }, [])
-  const updateScrollIndex = useCallback((grid: HTMLDivElement, count: number, setIndex: (index: number) => void) => {
+  const nearestStartItemIndex = useCallback((grid: HTMLDivElement) => {
+    const children = Array.from(grid.children).filter((child): child is HTMLElement => child instanceof HTMLElement)
+    if (children.length === 0) return 0
+    return children.reduce((bestIndex, child, index) => {
+      const best = children[bestIndex]
+      return Math.abs(child.offsetLeft - grid.scrollLeft) < Math.abs(best.offsetLeft - grid.scrollLeft) ? index : bestIndex
+    }, 0)
+  }, [])
+  const updateScrollIndex = useCallback((grid: HTMLDivElement, count: number, setIndex: (index: number) => void, maxIndex = count - 1, align: 'center' | 'start' = 'center') => {
     if (count <= 0) return
-    const nearestIndex = nearestLoopItemIndex(grid)
-    setIndex(normalizeLoopIndex(nearestIndex, count))
-  }, [nearestLoopItemIndex])
+    const nearestIndex = align === 'start' ? nearestStartItemIndex(grid) : nearestLoopItemIndex(grid)
+    setIndex(Math.min(normalizeLoopIndex(nearestIndex, count), Math.max(0, maxIndex)))
+  }, [nearestLoopItemIndex, nearestStartItemIndex])
   const selectCategory = (index: number) => {
     updateBooking({ categoryIndex: index, vehicle: null, vehicleId: null })
     categoryScrollIndexRef.current = index
@@ -1410,9 +1498,10 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
   }
   const selectVehicle = (index: number) => {
     updateBooking({ vehicle: index, vehicleId: vehicleCards?.[index]?.key ?? null })
-    vehicleScrollIndexRef.current = index
-    setVehicleScrollIndex(index)
-    scrollGridToIndex(vehicleGridRef.current, index)
+    const scrollIndex = Math.min(index, vehicleMaxScrollIndex)
+    vehicleScrollIndexRef.current = scrollIndex
+    setVehicleScrollIndex(scrollIndex)
+    scrollGridToIndex(vehicleGridRef.current, scrollIndex, 'smooth', 'start')
   }
   const showCategorySlide = (index: number) => {
     categoryScrollIndexRef.current = index
@@ -1420,10 +1509,28 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
     scrollGridToIndex(categoryGridRef.current, index)
   }
   const showVehicleSlide = (index: number) => {
-    vehicleScrollIndexRef.current = index
-    setVehicleScrollIndex(index)
-    scrollGridToIndex(vehicleGridRef.current, index)
+    const scrollIndex = Math.min(Math.max(index, 0), vehicleMaxScrollIndex)
+    vehicleScrollIndexRef.current = scrollIndex
+    setVehicleScrollIndex(scrollIndex)
+    scrollGridToIndex(vehicleGridRef.current, scrollIndex, 'smooth', 'start')
   }
+  const formatFleetRate = (value: number) => value.toLocaleString(lang === 'ar' ? 'ar-SA' : 'en-US', {
+    minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+    maximumFractionDigits: 2,
+  })
+  const formatFareMeta = (meta: FareMeta | null) => {
+    if (!meta) return null
+    if (meta.type === 'perKm') return copy.farePerKm(formatFleetRate(meta.amount))
+    if (meta.type === 'perHour') return copy.farePerHour
+    return meta.type === 'fullDay' ? copy.fareFullDay : copy.fareHalfDay
+  }
+
+  useEffect(() => {
+    const updateVisibleSlots = () => setVehicleVisibleSlots(window.innerWidth <= 640 ? 1 : 2)
+    updateVisibleSlots()
+    window.addEventListener('resize', updateVisibleSlots)
+    return () => window.removeEventListener('resize', updateVisibleSlots)
+  }, [])
 
   useEffect(() => {
     const grid = categoryGridRef.current
@@ -1462,14 +1569,14 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
       frame = requestAnimationFrame(() => updateScrollIndex(grid, vehicleCount, index => {
         vehicleScrollIndexRef.current = index
         setVehicleScrollIndex(index)
-      }))
+      }, vehicleMaxScrollIndex, 'start'))
     }
     frame = requestAnimationFrame(() => {
-      scrollGridToIndex(grid, vehicleScrollIndexRef.current, 'auto')
+      scrollGridToIndex(grid, vehicleScrollIndexRef.current, 'auto', 'start')
       updateScrollIndex(grid, vehicleCount, index => {
         vehicleScrollIndexRef.current = index
         setVehicleScrollIndex(index)
-      })
+      }, vehicleMaxScrollIndex, 'start')
     })
     grid.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll)
@@ -1478,7 +1585,7 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
       grid.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
     }
-  }, [activeCategoryId, vehicleCount, vehicleScrollIndexRef, scrollGridToIndex, updateScrollIndex])
+  }, [activeCategoryId, vehicleCount, vehicleMaxScrollIndex, vehicleScrollIndexRef, scrollGridToIndex, updateScrollIndex])
 
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
@@ -1568,13 +1675,15 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
         ) : (
           <>
             <div className={styles.carouselWrap}>
-              {vehicleCards.length > 1 && (
+              {vehicleMaxScrollIndex > 0 && (
                 <button type="button" className={`${styles.sliderArrow} ${styles.sliderArrowLeft}`} aria-label="Previous vehicle" disabled={vehicleScrollIndex === 0} onClick={() => showVehicleSlide(vehicleScrollIndex - 1)}>
                   <ChevronLeft size={13} strokeWidth={2.5} />
                 </button>
               )}
               <div ref={vehicleGridRef} className={styles.vehicleGrid}>
-                {vehicleCards.map((card, index) => (
+                {vehicleCards.map((card, index) => {
+                  const fareMeta = formatFareMeta(card.fareMeta)
+                  return (
                   <button type="button" key={card.key} className={`${styles.vehicleCard} ${vehicleIndex === index ? styles.vehicleSelected : ''}`} onClick={() => selectVehicle(index)}>
                     {card.image ? (
                       <img src={card.image} alt={card.title} className={styles.vehicleImg} />
@@ -1582,26 +1691,43 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
                       <span className={styles.vehicleNoImage}><CircleInfo size={20} /></span>
                     )}
                     <span className={styles.vehicleCopy}>
-                      <strong>{card.title}</strong>
-                      <small className={styles.vehicleSpecs} aria-label={copy.passengersAndBags}>
-                        <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><UsersRound size={8} /></span><span>{card.passengers}</span></span>
-                        <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><Luggage size={8} /></span><span>{card.bags}</span></span>
-                      </small>
+                      <span className={styles.vehicleDetails}>
+                        <strong>{card.title}</strong>
+                        <small className={styles.vehicleSpecs} aria-label={copy.passengersAndBags}>
+                          <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><UsersRound size={8} /></span><span>{card.passengers}</span></span>
+                          <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><Luggage size={8} /></span><span>{card.bags}</span></span>
+                        </small>
+                      </span>
+                      {card.fareAmount !== null && (
+                        <span className={styles.vehicleFare}>
+                          <span className={styles.vehicleFareLabel}>{copy.fareFrom}</span>
+                          <span className={styles.vehicleFareAmount} dir="ltr">
+                            {formatFleetRate(card.fareAmount)}
+                            <Image src="/riyal_Currency.svg" alt="SAR" width={11} height={11} className={styles.vehicleFareCurrency} />
+                          </span>
+                          {fareMeta && (
+                            <span className={styles.vehicleFareMeta} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+                              {fareMeta}
+                            </span>
+                          )}
+                        </span>
+                      )}
                     </span>
                   </button>
-                ))}
+                  )
+                })}
               </div>
-              {vehicleCards.length > 1 && (
-                <button type="button" className={`${styles.sliderArrow} ${styles.sliderArrowRight}`} aria-label="Next vehicle" disabled={vehicleScrollIndex === vehicleCards.length - 1} onClick={() => showVehicleSlide(vehicleScrollIndex + 1)}>
+              {vehicleMaxScrollIndex > 0 && (
+                <button type="button" className={`${styles.sliderArrow} ${styles.sliderArrowRight}`} aria-label="Next vehicle" disabled={vehicleScrollIndex >= vehicleMaxScrollIndex} onClick={() => showVehicleSlide(vehicleScrollIndex + 1)}>
                   <ChevronRight size={13} strokeWidth={2.5} />
                 </button>
               )}
             </div>
-            {vehicleCards.length > 1 && (
+            {vehicleMaxScrollIndex > 0 && (
               <div className={styles.sliderDots}>
-                {vehicleCards.map((card, index) => (
+                {Array.from({ length: vehicleMaxScrollIndex + 1 }, (_, index) => (
                   <button
-                    key={card.key}
+                    key={index}
                     type="button"
                     className={`${styles.sliderDot} ${vehicleScrollIndex === index ? styles.sliderDotActive : ''}`}
                     aria-label={copy.vehicleDotLabel(index + 1)}
@@ -1678,7 +1804,7 @@ function useSelectedFleetLabels(booking: BookingState) {
 
   const activeVehicles = vehiclesByClass && vehiclesByClass.classId === activeCategoryId ? vehiclesByClass.data : null
   const activeClass = fleetClasses?.find(cls => cls.id === activeCategoryId) ?? null
-  const vehicleCards = activeVehicles ? buildVehicleCards(activeVehicles, activeClass) : null
+  const vehicleCards = activeVehicles ? buildVehicleCards(activeVehicles, activeClass, booking.service, booking.dayDuration) : null
   const vehicleLabel = booking.vehicle !== null && vehicleCards ? (vehicleCards[Math.min(booking.vehicle, vehicleCards.length - 1)]?.title ?? '') : ''
 
   return { category, vehicleLabel }

@@ -7,15 +7,15 @@ import Navbar from '../layouts/Navbar'
 import { useLanguage } from '../context/LanguageContext'
 import AirportTransferBookingDialog, { type BookingService } from './AirportTransferBookingDialog'
 import heroBanner from '../assets/home/home_banner.webp'
-import heroBannerMobile from '../assets/home/home_banner_mobile.webp'
+import heroBannerMobile from '../assets/home/home_banner_mobile.png'
 import servicesBanner from '../assets/services_1/service_1_banner.webp'
 import contactBanner from '../assets/contact_us/contact_banner.webp'
 
 const HERO_BANNERS = [heroBanner, servicesBanner, contactBanner]
 const HERO_BANNERS_MOBILE = [heroBannerMobile, servicesBanner, contactBanner]
 import card1 from '../assets/home/home_page_banner_Sub_images/1.jpg'
-import card2 from '../assets/home/home_page_banner_Sub_images/2.jpg'
-import card3 from '../assets/home/home_page_banner_Sub_images/3.jpg'
+import card2 from '../assets/home/home_page_banner_Sub_images/2(3).jpg'
+import card3 from '../assets/home/home_page_banner_Sub_images/5(1).jpg'
 import card4 from '../assets/home/home_page_banner_Sub_images/4.jpg'
 import card5 from '../assets/home/home_page_banner_Sub_images/5.jpg'
 
@@ -32,7 +32,7 @@ function ParallaxCard({
   bookNow,
   isRtl = false,
   objectPosition = 'center',
-  defaultPb = '40%',
+  defaultPb = '50%',
   onBook,
   comingSoon = false,
   comingSoonLabel = 'Coming Soon',
@@ -88,7 +88,10 @@ function ParallaxCard({
         zIndex: active ? 10 : 1,
         transition: 'box-shadow 0.4s ease',
         cursor: (!comingSoon && onBook) ? 'pointer' : undefined,
+        width: 'calc(100% + 3px)',
         height: '100%',
+        minHeight: 'calc(100% + 3px)',
+        padding: 12,
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -113,7 +116,7 @@ function ParallaxCard({
           {comingSoonLabel}
         </span>
       )}
-      <div className="overflow-hidden rounded-lg mb-3 relative w-full">
+      <div className="overflow-hidden rounded-lg mb-2.5 relative w-full">
         <motion.div
           className="w-full"
           animate={{ paddingBottom: active ? '100%' : defaultPb }}
@@ -127,7 +130,7 @@ function ParallaxCard({
           className="absolute inset-0 w-full h-full object-cover"
           style={{
             objectPosition,
-            transform: `translate(${tilt.imgX}px, ${tilt.imgY}px) scale(1.08)`,
+            transform: `translate(${tilt.imgX}px, ${tilt.imgY}px) scale(1.1)`,
             filter: active ? 'grayscale(0%)' : 'grayscale(100%)',
             transition: active
               ? 'transform 0.08s linear, filter 0.4s ease'
@@ -136,7 +139,7 @@ function ParallaxCard({
         />
       </div>
       <p
-        className="mb-0.5 text-sm font-semibold"
+        className="mb-0.5 text-sm font-semibold leading-tight"
         style={{
           fontFamily: 'Inter, sans-serif',
           color: active ? '#D4FBFF' : '#ffffff',
@@ -146,7 +149,7 @@ function ParallaxCard({
         {title}
       </p>
       <p
-        className="mb-3 text-xs leading-snug"
+        className="mb-2.5 text-xs leading-tight"
         style={{
           fontFamily: 'Inter, sans-serif',
           color: active ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.50)',
@@ -157,13 +160,18 @@ function ParallaxCard({
       </p>
       {comingSoon ? (
         <span style={{
+          display: 'inline-flex',
+          alignItems: 'center',
           fontFamily: 'Inter, sans-serif',
           fontSize: 12,
+          lineHeight: '20px',
+          minHeight: 20,
           color: 'rgba(255,255,255,0.42)',
           letterSpacing: '0.06em',
           textTransform: 'uppercase',
           fontWeight: 600,
           marginTop: 'auto',
+          alignSelf: 'flex-start',
         }}>
           {comingSoonLabel}
         </span>

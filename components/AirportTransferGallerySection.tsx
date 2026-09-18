@@ -5,13 +5,13 @@ import { useLanguage } from '../context/LanguageContext'
 import img1 from '../assets/services_1/services/airport_transfer/1.jpg'
 import img2 from '../assets/services_1/services/airport_transfer/2.jpg'
 import img3 from '../assets/services_1/services/airport_transfer/3.jpg'
-import hourlyImg1 from '../assets/services_1/services/hourly/1.jpg'
+import hourlyImg1 from '../assets/services_1/services/hourly/arabic-man-2.png'
 import hourlyImg2 from '../assets/services_1/services/hourly/2.png'
 import hourlyImg3 from '../assets/services_1/services/hourly/3.png'
 import cityToCityImg1 from '../assets/services_1/services/city_to_city/1.jpg'
 import cityToCityImg2 from '../assets/services_1/services/city_to_city/2.jpg'
 import cityToCityImg3 from '../assets/services_1/services/city_to_city/3.jpg'
-import dayServiceImg1 from '../assets/services_1/services/day_service/1.jpg'
+import dayServiceImg1 from '../assets/services_1/services/day_service/smiling-arabic-girl.jpg'
 import dayServiceImg2 from '../assets/services_1/services/day_service/2.jpg'
 import dayServiceImg3 from '../assets/services_1/services/day_service/3.jpg'
 import oneWayRideImg1 from '../assets/services_1/services/one-way/1.jpg'
@@ -129,12 +129,14 @@ export default function AirportTransferGallerySection({ servicePage = 'airportTr
           src={galleryImg1}
           alt={serviceAlt}
           fill
-          sizes="(max-width: 768px) 50vw, 25vw"
+          sizes="(max-width: 768px) 100vw, 60vw"
+          quality={100}
           style={{
             objectFit: 'cover',
-            objectPosition: 'center',
-            transform: `translateY(${off1}px) scale(1.15)`,
+            objectPosition: servicePage === 'hourlyBookingPage' ? '30% 20%' : 'center',
+            transform: servicePage === 'hourlyBookingPage' ? `translateY(${off1}px)` : `translateY(${off1}px) scale(1.15)`,
             transition: 'transform 0.1s linear',
+            filter: servicePage === 'hourlyBookingPage' ? 'grayscale(1)' : undefined,
           }}
         />
       </div>

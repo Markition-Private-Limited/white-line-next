@@ -8,7 +8,7 @@ import multiStopIcon from '../assets/services_1/services/airport_transfer/multi-
 import eliteIcon from '../assets/services_1/services/airport_transfer/elite.svg'
 import executiveIcon from '../assets/services_1/services/airport_transfer/executive.svg'
 import hourlyFeatureImg from '../assets/services_1/services/hourly/5.jpg'
-import dayServiceFeatureImg from '../assets/services_1/services/day_service/5.jpg'
+import dayServiceFeatureImg from '../assets/services_1/services/day_service/arabic-man-backseat.jpg'
 import type { ServiceDetailPageKey } from '../lib/serviceDetail'
 
 const icons = [continuousIcon, multiStopIcon, eliteIcon, executiveIcon]
@@ -85,10 +85,11 @@ export default function AirportTransferKeyFeaturesSection({ servicePage = 'airpo
         alt={sectionImageAlt}
         fill
         sizes="(max-width: 768px) 100vw, 45vw"
+        quality={100}
         style={{
           objectFit: 'cover',
           objectPosition: 'center',
-          transform: `translateY(${offset}px) scale(1.14)`,
+          transform: servicePage === 'dayServicePage' ? `translateY(${offset}px)` : `translateY(${offset}px) scale(1.14)`,
           transition: 'transform 0.1s linear',
         }}
       />
