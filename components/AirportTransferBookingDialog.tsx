@@ -102,7 +102,7 @@ type VehicleClass = {
   airport_transfer_rate?: string | number
   airport_extra_km_rate?: string | number
 }
-type ClassVehicle = { id: string; make: string; model: string; year: number; plate_number: string; color: string; status: string; vehicle_front_photo_url: string | null }
+type ClassVehicle = { id: string; make: string; model: string; year: number; plate_number: string; color: string; status: string; vehicle_front_photo_url: string | null; base_fare?: number }
 
 const FLEET_CACHE_TTL_MS = 5 * 60 * 1000
 let fleetClassesCache: { data: VehicleClass[]; timestamp: number } | null = null
@@ -121,14 +121,16 @@ async function getFleetClasses(): Promise<VehicleClass[]> {
   }
 }
 
-async function getFleetVehicles(classId: string): Promise<ClassVehicle[]> {
-  const cached = fleetVehiclesCache.get(classId)
+async function getFleetVehicles(classId: string, serviceType?: string): Promise<ClassVehicle[]> {
+  const cacheKey = serviceType ? `${classId}:${serviceType}` : classId
+  const cached = fleetVehiclesCache.get(cacheKey)
   if (cached && Date.now() - cached.timestamp < FLEET_CACHE_TTL_MS) return cached.data
   try {
-    const res = await fetch(`/api/fleet/vehicle-classes/${encodeURIComponent(classId)}/vehicles`)
+    const qs = serviceType ? `?service_type=${encodeURIComponent(serviceType)}` : ''
+    const res = await fetch(`/api/fleet/vehicle-classes/${encodeURIComponent(classId)}/vehicles${qs}`)
     const data = res.ok ? await res.json() : []
     const list: ClassVehicle[] = Array.isArray(data) ? data : []
-    fleetVehiclesCache.set(classId, { data: list, timestamp: Date.now() })
+    fleetVehiclesCache.set(cacheKey, { data: list, timestamp: Date.now() })
     return list
   } catch {
     return cached?.data ?? []
@@ -214,7 +216,7 @@ function getServiceFare(activeClass: VehicleClass | null, service: BookingServic
 function buildVehicleCards(activeVehicles: ClassVehicle[], activeClass: VehicleClass | null, service: BookingService, dayDuration: DayDuration): VehicleCard[] {
   const passengers = activeClass?.passengerCapacity ?? 2
   const bags = activeClass?.luggageCapacity ?? 4
-  const { amount: fareAmount, meta: fareMeta } = getServiceFare(activeClass, service, dayDuration)
+  const classFare = getServiceFare(activeClass, service, dayDuration)
   const vehicleTitle = (vehicle: ClassVehicle) => {
     const make = vehicle.make.trim()
     const model = vehicle.model.trim()
@@ -227,6 +229,8 @@ function buildVehicleCards(activeVehicles: ClassVehicle[], activeClass: VehicleC
   return activeVehicles.map(vehicle => {
     const title = vehicleTitle(vehicle)
     const image = vehicle.vehicle_front_photo_url ?? getTempFleetImage(title)
+    const fareAmount = typeof vehicle.base_fare === 'number' ? vehicle.base_fare : classFare.amount
+    const fareMeta = typeof vehicle.base_fare === 'number' ? null : classFare.meta
     return { key: vehicle.id, image, title, passengers, bags, fareAmount, fareMeta }
   })
 }
@@ -410,6 +414,7 @@ async function resolveCoords(place: PlaceValue): Promise<LatLng | null> {
         if (status === 'OK' && result?.geometry?.location) {
           resolve({ lat: result.geometry.location.lat(), lng: result.geometry.location.lng() })
         } else {
+          console.error('[resolveCoords] PlacesService.getDetails failed:', status, place.placeId)
           resolve(null)
         }
       })
@@ -424,6 +429,7 @@ async function resolveCoords(place: PlaceValue): Promise<LatLng | null> {
       if (status === 'OK' && first?.geometry?.location) {
         resolve({ lat: first.geometry.location.lat(), lng: first.geometry.location.lng() })
       } else {
+        console.error('[resolveCoords] Geocoder failed:', status, place.address)
         resolve(null)
       }
     })
@@ -918,12 +924,13 @@ function TimePickerField({ label, value, onChange, attempted }: { label: string;
 
 const tripIsComplete = (booking: BookingState) => Boolean(booking.pickup && booking.destination && booking.date && booking.time)
 
-function LocationScheduleFields({ booking, updateBooking, pickupLabel, pickupPlaceholder, destinationLabel, destinationPlaceholder, attempted }: { booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void; pickupLabel?: string; pickupPlaceholder?: string; destinationLabel?: string; destinationPlaceholder?: string; attempted: boolean }) {
+function LocationScheduleFields({ booking, updateBooking, pickupLabel, pickupPlaceholder, destinationLabel, destinationPlaceholder, attempted, citiesOnly }: { booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void; pickupLabel?: string; pickupPlaceholder?: string; destinationLabel?: string; destinationPlaceholder?: string; attempted: boolean; citiesOnly?: boolean }) {
   const { copy } = useBookingDialogCopy()
+  const cityTypes = citiesOnly ? ['(cities)'] : undefined
   return (
     <div className={styles.fieldGrid}>
-      <PlacesAutocompleteField label={pickupLabel ?? copy.pickupLocation} placeholder={pickupPlaceholder ?? copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} />
-      <PlacesAutocompleteField label={destinationLabel ?? copy.destination} placeholder={destinationPlaceholder ?? copy.selectDropOff} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} />
+      <PlacesAutocompleteField label={pickupLabel ?? copy.pickupLocation} placeholder={pickupPlaceholder ?? copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} types={cityTypes} />
+      <PlacesAutocompleteField label={destinationLabel ?? copy.destination} placeholder={destinationPlaceholder ?? copy.selectDropOff} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} types={cityTypes} />
       <DatePickerField label={copy.pickupDate} value={booking.date} attempted={attempted} onChange={date => updateBooking({ date })} />
       <TimePickerField label={copy.pickupTime} value={booking.time} attempted={attempted} onChange={time => updateBooking({ time })} />
     </div>
@@ -1343,7 +1350,7 @@ function CityTripDetails({ booking, updateBooking, next, back }: {
       <h2 className={styles.title}>{copy.tripDetails}</h2>
       <p className={styles.subtitle}>{copy.tripSubtitle}</p>
 
-      <LocationScheduleFields booking={booking} updateBooking={updateBooking} attempted={attempted} />
+      <LocationScheduleFields booking={booking} updateBooking={updateBooking} attempted={attempted} citiesOnly />
 
       <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripIsComplete(booking)} onAttempt={() => setAttempted(true)} />
     </>
@@ -1434,7 +1441,7 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
   useEffect(() => {
     if (!activeCategoryId) return
     let cancelled = false
-    getFleetVehicles(activeCategoryId).then(data => {
+    getFleetVehicles(activeCategoryId, toApiServiceType(booking.service, booking.dayDuration)).then(data => {
       if (!cancelled) {
         setVehiclesByClass({ classId: activeCategoryId, data })
         if (booking.vehicle === null && data.length > 0) {
@@ -1443,7 +1450,7 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
       }
     })
     return () => { cancelled = true }
-  }, [activeCategoryId])
+  }, [activeCategoryId, booking.service, booking.dayDuration])
 
   const service = booking.service
   const activeVehicles = vehiclesByClass && vehiclesByClass.classId === activeCategoryId ? vehiclesByClass.data : null
@@ -1694,8 +1701,8 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
                       <span className={styles.vehicleDetails}>
                         <strong>{card.title}</strong>
                         <small className={styles.vehicleSpecs} aria-label={copy.passengersAndBags}>
-                          <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><UsersRound size={8} /></span><span>{card.passengers}</span></span>
-                          <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><Luggage size={8} /></span><span>{card.bags}</span></span>
+                          <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><UsersRound size={10} /></span><span>{card.passengers}</span></span>
+                          <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><Luggage size={10} /></span><span>{card.bags}</span></span>
                         </small>
                       </span>
                       {card.fareAmount !== null && (
@@ -1798,9 +1805,9 @@ function useSelectedFleetLabels(booking: BookingState) {
   useEffect(() => {
     if (!activeCategoryId) return
     let cancelled = false
-    getFleetVehicles(activeCategoryId).then(data => { if (!cancelled) setVehiclesByClass({ classId: activeCategoryId, data }) })
+    getFleetVehicles(activeCategoryId, toApiServiceType(booking.service, booking.dayDuration)).then(data => { if (!cancelled) setVehiclesByClass({ classId: activeCategoryId, data }) })
     return () => { cancelled = true }
-  }, [activeCategoryId])
+  }, [activeCategoryId, booking.service, booking.dayDuration])
 
   const activeVehicles = vehiclesByClass && vehiclesByClass.classId === activeCategoryId ? vehiclesByClass.data : null
   const activeClass = fleetClasses?.find(cls => cls.id === activeCategoryId) ?? null
@@ -1851,10 +1858,12 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
   const [fare, setFare] = useState<FareData | null>(null)
   const [fareLoading, setFareLoading] = useState(true)
   const [fareError, setFareError] = useState(false)
+  const [fareApiErrorMessage, setFareApiErrorMessage] = useState<string | null>(null)
   const [pickupCoords, setPickupCoords] = useState<LatLng | null>(null)
   const [dropoffCoords, setDropoffCoords] = useState<LatLng | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState(false)
+  const [submitAuthError, setSubmitAuthError] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -1871,6 +1880,7 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
     let cancelled = false
     setFareLoading(true)
     setFareError(false)
+    setFareApiErrorMessage(null)
     Promise.all([
       booking.pickup ? resolveCoords(booking.pickup) : Promise.resolve(null),
       booking.destination ? resolveCoords(booking.destination) : Promise.resolve(null),
@@ -1888,9 +1898,24 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
       if (dCoords) { body.dropoff_lat = dCoords.lat; body.dropoff_lng = dCoords.lng }
       if (isHourly) body.duration_hours = booking.duration
       try {
-        const res = await fetch('/api/fare/calculate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        const fareSession = readCustomerSession()
+        const fareHeaders: Record<string, string> = { 'Content-Type': 'application/json' }
+        if (fareSession?.accessToken) fareHeaders['Authorization'] = `Bearer ${fareSession.accessToken}`
+        const res = await fetch('/api/fare/calculate', { method: 'POST', headers: fareHeaders, body: JSON.stringify(body) })
         if (cancelled) return
-        if (!res.ok) { setFareError(true); setFareLoading(false); return }
+        if (!res.ok) {
+          try {
+            const errJson = await res.json()
+            const msg: string = errJson?.message ?? ''
+            const fareApiErrors = copy.fareApiErrors ?? {}
+            let matched: string | null = null
+            if (msg.toLowerCase().includes('city_to_city') || msg.toLowerCase().includes('riyadh')) {
+              matched = fareApiErrors['city_to_city_riyadh'] ?? null
+            }
+            if (matched) setFareApiErrorMessage(matched)
+          } catch { /* ignore */ }
+          setFareError(true); setFareLoading(false); return
+        }
         const json = await res.json()
         const fareData: FareData = json?.data ?? json
         if (!cancelled) { setFare(fareData); setFareLoading(false) }
@@ -1905,6 +1930,7 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
     if (!pickupCoords || !activeCategoryId || fareLoading || fareError || !fare || submitting) return
     setSubmitting(true)
     setSubmitError(false)
+    setSubmitAuthError(false)
 
     const scheduledDatetime = (() => {
       if (!booking.date || !booking.time) return undefined
@@ -1917,6 +1943,71 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
       const min = pad(booking.time.minute)
       return `${yyyy}-${mm}-${dd}T${hh}:${min}:00.000Z`
     })()
+
+    const session = readCustomerSession()
+
+    if (session?.accessToken) {
+      const authBody: Record<string, unknown> = {
+        vehicle_class_id: activeCategoryId,
+        service_type: toApiServiceType(service, booking.dayDuration),
+        scheduled_datetime: scheduledDatetime,
+        pickup_lat: pickupCoords.lat,
+        pickup_lng: pickupCoords.lng,
+        pickup_address: booking.pickup?.address ?? '',
+      }
+      if (dropoffCoords) { authBody.dropoff_lat = dropoffCoords.lat; authBody.dropoff_lng = dropoffCoords.lng }
+      if (booking.destination?.address) authBody.dropoff_address = booking.destination.address
+      if (isHourly) authBody.duration_hours = booking.duration
+      if (service === 'airport' && booking.flightNumber.trim()) authBody.flight_number = booking.flightNumber.trim()
+      if (booking.bookingFor === 'guest') {
+        authBody.is_guest_booking = true
+        authBody.guest_passenger = {
+          name: booking.guest.name,
+          email: booking.guest.email,
+          phone: booking.guest.phone.replace(/\s/g, ''),
+        }
+      }
+      try {
+        const bookingRes = await authFetch('/api/bookings', session.accessToken, {
+          method: 'POST',
+          body: JSON.stringify(authBody),
+        })
+        const bookingJson = await bookingRes.json()
+        if (!bookingRes.ok) {
+          if (bookingRes.status === 401) { clearCustomerSession(); setSubmitAuthError(true) } else { setSubmitError(true) }
+          setSubmitting(false)
+          return
+        }
+
+        const createdBookingId: string = bookingJson?.id ?? bookingJson?.data?.id ?? ''
+        const bookingNumber: string = bookingJson?.booking_number ?? bookingJson?.data?.booking_number ?? createdBookingId
+        const serverTotalFare: number = bookingJson?.fare?.total_fare ?? bookingJson?.data?.fare?.total_fare ?? fare.total_fare ?? 0
+
+        const paymentRes = await authFetch(
+          `/api/bookings/payment/initiate?booking_id=${encodeURIComponent(createdBookingId)}&amount=${encodeURIComponent(serverTotalFare)}`,
+          session.accessToken,
+        )
+        const paymentJson = await paymentRes.json()
+        if (!paymentRes.ok) {
+          if (paymentRes.status === 401) { clearCustomerSession(); setSubmitAuthError(true) } else { setSubmitError(true) }
+          setSubmitting(false)
+          return
+        }
+
+        const checkoutUrl: string = paymentJson?.data?.checkout_url ?? paymentJson?.checkout_url ?? ''
+        if (checkoutUrl) {
+          if (bookingNumber) { try { localStorage.setItem('whiteline.pendingBookingRef', bookingNumber) } catch {} }
+          onRedirecting?.()
+          window.location.href = checkoutUrl
+        } else {
+          onSuccess(bookingNumber)
+        }
+      } catch {
+        setSubmitError(true)
+        setSubmitting(false)
+      }
+      return
+    }
 
     const body: Record<string, unknown> = {
       vehicle_class_id: activeCategoryId,
@@ -1984,7 +2075,7 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
 
       {!fareLoading && fareError && (
         <div className={styles.fareCard}>
-          <div className={`${styles.fareRow} ${styles.fareErrorRow}`}><span>{copy.fareError}</span></div>
+          <div className={`${styles.fareRow} ${styles.fareErrorRow}`}><span>{fareApiErrorMessage ?? copy.fareError}</span></div>
         </div>
       )}
 
@@ -2002,6 +2093,14 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
           <div className={`${styles.fareRow} ${styles.fareErrorRow}`}><span>{copy.bookingSubmitError}</span></div>
         </div>
       )}
+      {submitAuthError && (
+        <div className={styles.fareCard} style={{ marginTop: 10 }}>
+          <div className={`${styles.fareRow} ${styles.fareErrorRow}`}>
+            <span>{copy.bookingAuthError}</span>
+            <button type="button" className={styles.back} style={{ marginTop: 4, fontSize: 13 }} onClick={back}>{copy.bookingAuthErrorAction}</button>
+          </div>
+        </div>
+      )}
 
       <div className={styles.footerActions}>
         <button type="button" className={styles.back} onClick={back}><BackIcon size={20} /> {copy.back}</button>
@@ -2009,7 +2108,7 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
           type="button"
           className={styles.continue}
           onClick={handleSubmit}
-          disabled={submitting || fareLoading || fareError}
+          disabled={submitting || fareLoading || fareError || submitAuthError}
         >
           {submitting ? copy.submitting : copy.confirmBooking} {!submitting && <NextIcon size={16} />}
         </button>

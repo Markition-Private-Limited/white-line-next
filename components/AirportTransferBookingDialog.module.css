@@ -867,9 +867,9 @@
 .vehicleCard strong { display: block; overflow: visible; font-size: 13px; line-height: 1.25; overflow-wrap: anywhere; white-space: normal; }
 .vehicleCard small { display: block; margin: 4px 0 2px; font-size: 9px; }
 .vehicleDetails { min-width: 0; }
-.vehicleSpecs { display: flex !important; align-items: center; gap: 8px; margin-top: 7px !important; }
-.vehicleSpec { display: inline-flex; align-items: center; gap: 3px; padding: 0; background: transparent; white-space: nowrap; }
-.vehicleSpecIcon { display: grid; width: 13px; height: 13px; place-items: center; border-radius: 50%; color: #687177; background: rgba(255,255,255,.72); }
+.vehicleSpecs { display: flex !important; align-items: center; gap: 10px; margin-top: 7px !important; }
+.vehicleSpec { display: inline-flex; align-items: center; gap: 4px; padding: 0; background: transparent; white-space: nowrap; }
+.vehicleSpecIcon { display: grid; width: 16px; height: 16px; place-items: center; border-radius: 50%; color: #687177; background: rgba(255,255,255,.72); }
 .vehicleSelected .vehicleSpecIcon { color: #017b87; background: #fff; }
 .vehicleFare {
   display: grid;
@@ -1207,8 +1207,8 @@
     margin-top: 8px !important;
   }
   .vehicleSpecIcon {
-    width: 14px;
-    height: 14px;
+    width: 17px;
+    height: 17px;
   }
   .vehicleFare {
     min-width: 61px;

@@ -6,13 +6,23 @@ export default function BookingConfirmedContent() {
   const params = useSearchParams()
 
   useEffect(() => {
-    const bookingId =
-      params.get('booking_id') ??
+    const fromUrl =
       params.get('booking_number') ??
+      params.get('booking_id') ??
       params.get('merchant_order_id') ??
-      ''
-    const url = bookingId
-      ? `/?pstatus=confirmed&bid=${encodeURIComponent(bookingId)}`
+      null
+    const fromStorage = (() => {
+      try {
+        const val = localStorage.getItem('whiteline.pendingBookingRef')
+        if (val) localStorage.removeItem('whiteline.pendingBookingRef')
+        return val
+      } catch { return null }
+    })()
+    const bookingRef = fromUrl ?? fromStorage ?? ''
+    const isUrlLike = bookingRef.startsWith('http') || bookingRef.startsWith('/')
+    const safeRef = isUrlLike ? '' : bookingRef
+    const url = safeRef
+      ? `/?pstatus=confirmed&bid=${encodeURIComponent(safeRef)}`
       : '/?pstatus=confirmed'
     window.location.replace(url)
   }, [])

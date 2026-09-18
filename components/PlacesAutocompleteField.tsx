@@ -14,6 +14,7 @@ interface Props {
   onSelect?: (place: PlaceValue) => void
   onChange?: (place: PlaceValue | null) => void
   attempted?: boolean
+  types?: string[]
 }
 
 type Prediction = {
@@ -44,7 +45,7 @@ declare global {
         places: {
           AutocompleteService: new () => {
             getPlacePredictions: (
-              request: { input: string; componentRestrictions?: { country: string } },
+              request: { input: string; componentRestrictions?: { country: string }; types?: string[] },
               callback: (results: Prediction[] | null, status: string) => void
             ) => void
           }
@@ -55,7 +56,7 @@ declare global {
   }
 }
 
-export default function PlacesAutocompleteField({ label, placeholder, value: selectedPlace, onSelect, onChange, attempted }: Props) {
+export default function PlacesAutocompleteField({ label, placeholder, value: selectedPlace, onSelect, onChange, attempted, types }: Props) {
   const { lang } = useLanguage()
   const copy = bookingDialogCopy[lang]
   const fieldRef = useRef<HTMLDivElement>(null)
@@ -79,7 +80,7 @@ export default function PlacesAutocompleteField({ label, placeholder, value: sel
       return
     }
     serviceRef.current.getPlacePredictions(
-      { input, componentRestrictions: { country: 'sa' } },
+      { input, componentRestrictions: { country: 'sa' }, ...(types ? { types } : {}) },
       (results, status) => {
         if (status === 'OK' && results) {
           setPredictions(results)
@@ -105,21 +106,50 @@ export default function PlacesAutocompleteField({ label, placeholder, value: sel
     onSelect?.(place)
     setPredictions([])
     setOpen(false)
-    // Resolve coordinates eagerly so FareStep doesn't need a second PlacesService call
+    // Resolve coordinates eagerly so FareStep doesn't need a second PlacesService call.
+    // Falls back from PlacesService → Geocoder so at least one method can set lat/lng.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const g = (window as any).google
+    const applyCoords = (lat: number, lng: number) => {
+      const resolved = { ...place, lat, lng }
+      onChange?.(resolved)
+      onSelect?.(resolved)
+    }
+    const tryGeocoder = () => {
+      try {
+        if (!g?.maps?.Geocoder) return
+        new g.maps.Geocoder().geocode(
+          { address: prediction.description, componentRestrictions: { country: 'SA' } },
+          (results: any, status: string) => {
+            if (status === 'OK' && results?.[0]?.geometry?.location) {
+              applyCoords(results[0].geometry.location.lat(), results[0].geometry.location.lng())
+            } else {
+              console.error('[PlacesAutocomplete] Geocoder fallback failed:', status)
+            }
+          }
+        )
+      } catch (err) {
+        console.error('[PlacesAutocomplete] Geocoder error:', err)
+      }
+    }
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const g = (window as any).google
       if (g?.maps?.places?.PlacesService) {
         const svc = new g.maps.places.PlacesService(document.createElement('div'))
         svc.getDetails({ placeId: prediction.place_id, fields: ['geometry'] }, (result: any, status: string) => {
           if (status === 'OK' && result?.geometry?.location) {
-            const resolved = { ...place, lat: result.geometry.location.lat(), lng: result.geometry.location.lng() }
-            onChange?.(resolved)
-            onSelect?.(resolved)
+            applyCoords(result.geometry.location.lat(), result.geometry.location.lng())
+          } else {
+            console.error('[PlacesAutocomplete] PlacesService.getDetails failed:', status, '— trying Geocoder')
+            tryGeocoder()
           }
         })
+      } else {
+        tryGeocoder()
       }
-    } catch { /* non-critical */ }
+    } catch (err) {
+      console.error('[PlacesAutocomplete] eager resolve error:', err)
+      tryGeocoder()
+    }
   }
 
   useEffect(() => {
