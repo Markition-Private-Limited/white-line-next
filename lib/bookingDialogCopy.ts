@@ -74,6 +74,7 @@ const en = {
     cardName: 'Enter at least 2 characters.',
     expiry: 'Use MM/YY format.',
     cvv: 'Enter 3 or 4 digits.',
+    sameLocation: 'Pick-up and drop-off locations cannot be the same.',
   },
   calendar: {
     locale: 'en-GB',
@@ -290,6 +291,7 @@ const ar: typeof en = {
     cardName: 'دخل حرفين على الأقل.',
     expiry: 'استخدم الصيغة MM/YY.',
     cvv: 'دخل ٣ أو ٤ أرقام.',
+    sameLocation: 'لا يمكن أن يكون موقع الانطلاق والوجهة نفس الموقع.',
   },
   calendar: {
     locale: 'ar-SA-u-ca-gregory',

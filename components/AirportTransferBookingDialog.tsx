@@ -927,15 +927,23 @@ function TimePickerField({ label, value, onChange, attempted }: { label: string;
   )
 }
 
-const tripIsComplete = (booking: BookingState) => Boolean(booking.pickup && booking.destination && booking.date && booking.time)
+function placesEqual(a: PlaceValue | null, b: PlaceValue | null): boolean {
+  if (!a || !b) return false
+  if (a.placeId && b.placeId) return a.placeId === b.placeId
+  return a.address.trim().toLowerCase() === b.address.trim().toLowerCase()
+}
+
+const tripIsComplete = (booking: BookingState) => Boolean(booking.pickup && booking.destination && booking.date && booking.time && !placesEqual(booking.pickup, booking.destination))
 
 function LocationScheduleFields({ booking, updateBooking, pickupLabel, pickupPlaceholder, destinationLabel, destinationPlaceholder, attempted, citiesOnly }: { booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void; pickupLabel?: string; pickupPlaceholder?: string; destinationLabel?: string; destinationPlaceholder?: string; attempted: boolean; citiesOnly?: boolean }) {
   const { copy } = useBookingDialogCopy()
   const cityTypes = citiesOnly ? ['(cities)'] : undefined
+  const sameLocation = placesEqual(booking.pickup, booking.destination)
   return (
     <div className={styles.fieldGrid}>
       <PlacesAutocompleteField label={pickupLabel ?? copy.pickupLocation} placeholder={pickupPlaceholder ?? copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} types={cityTypes} />
       <PlacesAutocompleteField label={destinationLabel ?? copy.destination} placeholder={destinationPlaceholder ?? copy.selectDropOff} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} types={cityTypes} />
+      {sameLocation && <small className={styles.fieldError} style={{ gridColumn: '1 / -1' }}>{copy.validation.sameLocation}</small>}
       <DatePickerField label={copy.pickupDate} value={booking.date} attempted={attempted} onChange={date => updateBooking({ date })} />
       <TimePickerField label={copy.pickupTime} value={booking.time} attempted={attempted} onChange={time => updateBooking({ time })} />
     </div>
@@ -1053,7 +1061,11 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
     setAttempted(true)
     onAttempt()
     const detailsComplete = booking.bookingFor === 'self' ? contactComplete : (contactComplete && guestFieldsComplete)
-    if (!booking.bookingFor || !tripComplete || !customerReady || !detailsComplete) return
+    if (!tripComplete) {
+      document.querySelector('[role="dialog"]')?.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+    if (!booking.bookingFor || !customerReady || !detailsComplete) return
     next()
   }
   const submitPhone = async () => {
@@ -1613,6 +1625,9 @@ function TripDetails({ booking, updateBooking, next, back }: {
             <DropdownField key="arrival-airport" label={copy.pickupAirport} placeholder={copy.selectAirport} value={booking.pickup} options={copy.airports} attempted={attempted} onChange={value => updateBooking({ pickup: value })} />
             <PlacesAutocompleteField key="arrival-destination" label={copy.dropOff} placeholder={copy.enterDestination} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} />
           </>
+        )}
+        {placesEqual(booking.pickup, booking.destination) && (
+          <small className={styles.fieldError} style={{ gridColumn: '1 / -1' }}>{copy.validation.sameLocation}</small>
         )}
       </div>
 
@@ -2221,6 +2236,7 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
       }
       if (dCoords) { body.dropoff_lat = dCoords.lat; body.dropoff_lng = dCoords.lng }
       if (isHourly) body.duration_hours = booking.duration
+      if (booking.vehicleId) body.vehicle_id = booking.vehicleId
       try {
         const fareSession = readCustomerSession()
         const fareHeaders: Record<string, string> = { 'Content-Type': 'application/json' }
@@ -2248,7 +2264,7 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
       }
     })
     return () => { cancelled = true }
-  }, [activeCategoryId, service, booking.pickup, booking.destination, booking.dayDuration, booking.duration, isHourly])
+  }, [activeCategoryId, service, booking.pickup, booking.destination, booking.dayDuration, booking.duration, booking.vehicleId, isHourly])
 
   const handleSubmit = async () => {
     if (!pickupCoords || !activeCategoryId || fareLoading || fareError || !fare || submitting) return
