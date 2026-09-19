@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { Send } from 'lucide-react'
+import { Send, CalendarDays } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 import { phoneCountryCodes } from '../lib/phoneCountryCodes'
 import PhoneNumberField from './PhoneNumberField'
@@ -308,9 +308,13 @@ export default function ContactFormSection() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <Field label={f.dateLabel} error={touched.preferredDate ? errors.preferredDate : undefined}>
-                    <input type="date" value={form.preferredDate} onChange={set('preferredDate')} onBlur={blur('preferredDate')}
-                      min={new Date().toISOString().split('T')[0]}
-                      style={{ ...inputBase, color: form.preferredDate ? '#111118' : '#9ca3af', ...(touched.preferredDate && errors.preferredDate ? inputError : {}) }} />
+                    <div style={{ position: 'relative' }}>
+                      <input type="date" value={form.preferredDate} onChange={set('preferredDate')} onBlur={blur('preferredDate')}
+                        min={new Date().toISOString().split('T')[0]}
+                        className="hide-date-icon"
+                        style={{ ...inputBase, color: form.preferredDate ? '#111118' : '#9ca3af', paddingRight: 40, ...(touched.preferredDate && errors.preferredDate ? inputError : {}) }} />
+                      <CalendarDays size={16} color="#9ca3af" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+                    </div>
                   </Field>
                   <Field label={f.passengersLabel}>
                     <select value={form.passengers} onChange={set('passengers')}
