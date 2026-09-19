@@ -244,7 +244,7 @@ export default function ServicesSection() {
 
   return (
     <section className="w-full bg-white">
-      <div className="px-4 sm:px-8 pt-20 pb-12 text-center">
+      <div className="px-4 sm:px-8 pt-12 sm:pt-20 pb-10 sm:pb-12 text-center">
         <div className="flex items-center justify-center gap-3 mb-5">
           <span className="block h-px w-8" style={{ background: '#005C66' }} />
           <span

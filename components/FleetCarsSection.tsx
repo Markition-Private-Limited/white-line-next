@@ -225,7 +225,7 @@ export default function FleetCarsSection() {
   }
 
   return (
-    <section ref={sectionRef} className="w-full bg-white" style={{ padding: 'clamp(64px, 8vw, 112px) 0', scrollMarginTop: 80 }}>
+    <section ref={sectionRef} className="w-full bg-white" style={{ padding: 'clamp(40px, 8vw, 112px) 0', scrollMarginTop: 80 }}>
       <div className="px-6 sm:px-10 lg:px-16">
 
         <div className="flex items-center justify-center gap-3 mb-5">

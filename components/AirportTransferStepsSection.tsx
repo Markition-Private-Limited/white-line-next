@@ -130,7 +130,7 @@ export default function AirportTransferStepsSection({ servicePage = 'airportTran
         className="bg-white"
         style={{
           borderRadius: 'clamp(14px, 1.5vw, 20px)',
-          padding: 'clamp(48px, 7vw, 100px) clamp(24px, 5vw, 80px)',
+          padding: 'clamp(32px, 7vw, 100px) clamp(24px, 5vw, 80px)',
         }}
       >
         {/* Header */}

@@ -106,7 +106,7 @@ export default function FleetSection() {
     <section
       ref={sectionRef}
       className="w-full bg-white"
-      style={{ paddingTop: 'clamp(60px, 8vw, 96px)', paddingBottom: 'clamp(48px, 6vw, 72px)' }}
+      style={{ paddingTop: 'clamp(40px, 8vw, 96px)', paddingBottom: 'clamp(32px, 6vw, 72px)' }}
     >
       {/* Header */}
       <div className="text-center mb-12 px-6">

@@ -104,13 +104,13 @@ export default function AboutMasterySection() {
     <section
       ref={sectionRef as React.RefObject<HTMLElement>}
       className="w-full bg-white"
-      style={{ paddingBottom: '96px' }}
+      style={{ paddingBottom: 'clamp(48px, 6vw, 96px)' }}
     >
       {/* Heading */}
       <div
         ref={headingAreaRef}
         className="text-center px-6"
-        style={{ paddingTop: '96px', paddingBottom: '56px' }}
+        style={{ paddingTop: 'clamp(48px, 6vw, 96px)', paddingBottom: 'clamp(28px, 4vw, 56px)' }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >

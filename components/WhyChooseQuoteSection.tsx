@@ -35,8 +35,7 @@ export default function WhyChooseQuoteSection() {
       className="w-full flex items-center justify-center"
       style={{
         background: '#0d3535',
-        minHeight: '100vh',
-        padding: 'clamp(80px, 10vw, 140px) clamp(24px, 8vw, 120px)',
+        padding: 'clamp(56px, 8vw, 140px) clamp(24px, 8vw, 120px)',
       }}
     >
       <motion.p

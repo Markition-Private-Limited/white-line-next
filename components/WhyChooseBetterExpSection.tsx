@@ -136,7 +136,7 @@ export default function WhyChooseBetterExpSection() {
   )
 
   return (
-    <section className="w-full bg-white" style={{ padding: 'clamp(64px, 7vw, 100px) 0' }}>
+    <section className="w-full bg-white" style={{ padding: 'clamp(40px, 7vw, 100px) 0' }}>
       <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
           {isRtl ? (

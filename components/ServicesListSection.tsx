@@ -241,7 +241,7 @@ export default function ServicesListSection() {
   }, [])
 
   return (
-    <section id="services-list" className="w-full bg-white" style={{ padding: 'clamp(72px, 9vw, 120px) 0 clamp(48px, 6vw, 80px)' }}>
+    <section id="services-list" className="w-full bg-white" style={{ padding: 'clamp(40px, 9vw, 120px) 0 clamp(32px, 6vw, 80px)' }}>
       <div className="px-4 sm:px-6 lg:px-6 mx-auto" style={{ maxWidth: 1400 }}>
 
         <motion.div

@@ -9,7 +9,7 @@ export default function TermsContent() {
   return (
     <section className="w-full bg-white">
       <div
-        className="w-full px-4 py-16 sm:px-8 lg:px-16"
+        className="w-full px-4 py-10 sm:py-16 sm:px-8 lg:px-16"
         dir={isRtl ? 'rtl' : 'ltr'}
         style={{ fontFamily: 'Montserrat, sans-serif' }}
       >

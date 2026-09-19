@@ -24,7 +24,7 @@ export default function TestimonialsCustomerStoriesSection() {
   })
 
   return (
-    <section className="w-full bg-white" style={{ padding: 'clamp(72px, 8vw, 112px) 0' }}>
+    <section className="w-full bg-white" style={{ padding: 'clamp(40px, 8vw, 112px) 0' }}>
       <div className="px-6 sm:px-10 lg:px-16">
 
         <motion.div {...fadeUp(0)} className="flex items-center gap-3 mb-5">

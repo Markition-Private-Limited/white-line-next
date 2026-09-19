@@ -37,8 +37,8 @@ export default function WhyChooseDetailSection() {
   const { detail } = trans.whyChooseUsPage
 
   return (
-    <section className="w-full bg-white" style={{ paddingTop: 96, paddingBottom: 96 }}>
-      <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16 flex flex-col gap-24">
+    <section className="w-full bg-white" style={{ paddingTop: 'clamp(48px, 6vw, 96px)', paddingBottom: 'clamp(48px, 6vw, 96px)' }}>
+      <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16 flex flex-col gap-10 lg:gap-24">
 
         {/* ── Row 1: text left, image right (flipped for RTL) ── */}
         <motion.div

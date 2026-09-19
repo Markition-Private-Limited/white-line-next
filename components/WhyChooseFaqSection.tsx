@@ -101,7 +101,7 @@ export default function WhyChooseFaqSection() {
   const toggle = (i: number) => setOpenIndex(prev => (prev === i ? null : i))
 
   return (
-    <section className="w-full bg-white" style={{ padding: 'clamp(64px, 7vw, 100px) 0' }}>
+    <section className="w-full bg-white" style={{ padding: 'clamp(40px, 7vw, 100px) 0' }}>
       <div className="mx-auto max-w-4xl px-6 sm:px-10 lg:px-16">
 
         <motion.div

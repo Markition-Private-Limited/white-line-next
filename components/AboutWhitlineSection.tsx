@@ -145,7 +145,7 @@ export default function AboutWhitlineSection() {
     <section
       ref={ref as React.RefObject<HTMLElement>}
       className="w-full bg-white"
-      style={{ paddingTop: '96px', paddingBottom: '80px' }}
+      style={{ paddingTop: 'clamp(48px, 6vw, 96px)', paddingBottom: 'clamp(40px, 5vw, 80px)' }}
     >
       <div className="px-6 sm:px-12 lg:px-20 flex flex-col lg:flex-row gap-12 lg:gap-20 items-center mb-20">
         {/* Text */}

@@ -12,16 +12,20 @@ interface FormData {
   firstName: string; lastName: string; email: string; phone: string
   helpTopic: string; preferredDate: string; passengers: string; message: string
 }
-type FormErrors = Partial<Record<keyof FormData, string>>
+type FormField = keyof FormData
+type FormErrors = Partial<Record<FormField, string>>
 
 type ErrMsgs = {
-  errFirstName: string; errFirstNameShort: string
-  errLastName: string; errLastNameShort: string
-  errEmail: string; errEmailInvalid: string
+  errFirstName: string; errFirstNameShort: string; errFirstNameInvalid: string; errFirstNameLong: string
+  errLastName: string; errLastNameShort: string; errLastNameInvalid: string; errLastNameLong: string
+  errEmail: string; errEmailInvalid: string; errEmailLong: string
   errPhoneInvalid: string
   errHelpTopic: string
-  errMessage: string; errMessageShort: string
+  errMessage: string; errMessageShort: string; errMessageLong: string
+  errDatePast: string
 }
+
+const NAME_RE = /^[\p{L}\s'\-]+$/u
 
 function useInView(threshold = 0.08) {
   const ref = useRef<HTMLElement>(null)
@@ -38,21 +42,44 @@ function useInView(threshold = 0.08) {
 
 function validate(data: FormData, err: ErrMsgs): FormErrors {
   const errors: FormErrors = {}
-  if (!data.firstName.trim())            errors.firstName = err.errFirstName
-  else if (data.firstName.trim().length < 2) errors.firstName = err.errFirstNameShort
-  if (!data.lastName.trim())             errors.lastName  = err.errLastName
-  else if (data.lastName.trim().length < 2) errors.lastName = err.errLastNameShort
-  if (!data.email.trim())      errors.email     = err.errEmail
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) errors.email = err.errEmailInvalid
+
+  const fn = data.firstName.trim()
+  if (!fn)                        errors.firstName = err.errFirstName
+  else if (fn.length < 2)        errors.firstName = err.errFirstNameShort
+  else if (fn.length > 50)       errors.firstName = err.errFirstNameLong
+  else if (!NAME_RE.test(fn))    errors.firstName = err.errFirstNameInvalid
+
+  const ln = data.lastName.trim()
+  if (!ln)                        errors.lastName = err.errLastName
+  else if (ln.length < 2)        errors.lastName = err.errLastNameShort
+  else if (ln.length > 50)       errors.lastName = err.errLastNameLong
+  else if (!NAME_RE.test(ln))    errors.lastName = err.errLastNameInvalid
+
+  const em = data.email.trim()
+  if (!em)                                          errors.email = err.errEmail
+  else if (em.length > 254)                         errors.email = err.errEmailLong
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) errors.email = err.errEmailInvalid
+
   if (data.phone.trim()) {
     const [dial, digits = ''] = data.phone.trim().split(' ')
     const matched = phoneCountryCodes.find(c => c.dial === dial)
     const minLen = matched ? matched.len : 8
-    if (digits.length < minLen) errors.phone = err.errPhoneInvalid
+    if (!/^\d*$/.test(digits) || digits.length < minLen) errors.phone = err.errPhoneInvalid
   }
-  if (!data.helpTopic)         errors.helpTopic = err.errHelpTopic
-  if (!data.message.trim())    errors.message   = err.errMessage
-  else if (data.message.trim().length < 10) errors.message = err.errMessageShort
+
+  if (!data.helpTopic) errors.helpTopic = err.errHelpTopic
+
+  if (data.preferredDate) {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    if (new Date(data.preferredDate) < today) errors.preferredDate = err.errDatePast
+  }
+
+  const msg = data.message.trim()
+  if (!msg)                   errors.message = err.errMessage
+  else if (msg.length < 10)  errors.message = err.errMessageShort
+  else if (msg.length > 2000) errors.message = err.errMessageLong
+
   return errors
 }
 
@@ -124,11 +151,14 @@ export default function ContactFormSection() {
 
   const errMsgs: ErrMsgs = {
     errFirstName: f.errFirstName, errFirstNameShort: f.errFirstNameShort,
+    errFirstNameInvalid: f.errFirstNameInvalid, errFirstNameLong: f.errFirstNameLong,
     errLastName: f.errLastName, errLastNameShort: f.errLastNameShort,
-    errEmail: f.errEmail, errEmailInvalid: f.errEmailInvalid,
+    errLastNameInvalid: f.errLastNameInvalid, errLastNameLong: f.errLastNameLong,
+    errEmail: f.errEmail, errEmailInvalid: f.errEmailInvalid, errEmailLong: f.errEmailLong,
     errPhoneInvalid: f.errPhoneInvalid,
     errHelpTopic: f.errHelpTopic,
-    errMessage: f.errMessage, errMessageShort: f.errMessageShort,
+    errMessage: f.errMessage, errMessageShort: f.errMessageShort, errMessageLong: f.errMessageLong,
+    errDatePast: f.errDatePast,
   }
 
   const set = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -152,7 +182,7 @@ export default function ContactFormSection() {
     e.preventDefault()
     const errs = validate(form, errMsgs)
     setErrors(errs)
-    setTouched({ firstName: true, lastName: true, email: true, phone: true, helpTopic: true, message: true })
+    setTouched({ firstName: true, lastName: true, email: true, phone: true, helpTopic: true, preferredDate: true, message: true })
     if (Object.keys(errs).length > 0) return
 
     setLoading(true)
@@ -198,7 +228,7 @@ export default function ContactFormSection() {
   ]
 
   return (
-    <section ref={ref as React.RefObject<HTMLElement>} className="w-full bg-white" style={{ paddingTop: '96px', paddingBottom: '96px' }}>
+    <section ref={ref as React.RefObject<HTMLElement>} className="w-full bg-white" style={{ paddingTop: 'clamp(48px, 6vw, 96px)', paddingBottom: 'clamp(48px, 6vw, 96px)' }}>
       <div className="mx-auto px-4 sm:px-6 lg:px-10 flex flex-col lg:flex-row gap-10 lg:gap-16 items-start" style={{ maxWidth: '1200px' }}>
 
         {/* Left: info */}
@@ -239,18 +269,18 @@ export default function ContactFormSection() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <Field label={f.firstName} required error={touched.firstName ? errors.firstName : undefined}>
                     <input type="text" placeholder={f.firstNamePh} value={form.firstName} onChange={set('firstName')} onBlur={blur('firstName')}
-                      style={{ ...inputBase, ...(touched.firstName && errors.firstName ? inputError : {}) }} />
+                      maxLength={50} style={{ ...inputBase, ...(touched.firstName && errors.firstName ? inputError : {}) }} />
                   </Field>
                   <Field label={f.lastName} required error={touched.lastName ? errors.lastName : undefined}>
                     <input type="text" placeholder={f.lastNamePh} value={form.lastName} onChange={set('lastName')} onBlur={blur('lastName')}
-                      style={{ ...inputBase, ...(touched.lastName && errors.lastName ? inputError : {}) }} />
+                      maxLength={50} style={{ ...inputBase, ...(touched.lastName && errors.lastName ? inputError : {}) }} />
                   </Field>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <Field label={f.email} required error={touched.email ? errors.email : undefined}>
                     <input type="email" placeholder={f.emailPh} value={form.email} onChange={set('email')} onBlur={blur('email')}
-                      style={{ ...inputBase, ...(touched.email && errors.email ? inputError : {}) }} />
+                      maxLength={254} style={{ ...inputBase, ...(touched.email && errors.email ? inputError : {}) }} />
                   </Field>
                   <Field label={f.phone} error={touched.phone ? errors.phone : undefined}>
                     <PhoneNumberField
@@ -277,9 +307,10 @@ export default function ContactFormSection() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                  <Field label={f.dateLabel}>
-                    <input type="date" value={form.preferredDate} onChange={set('preferredDate')}
-                      style={{ ...inputBase, color: form.preferredDate ? '#111118' : '#9ca3af' }} />
+                  <Field label={f.dateLabel} error={touched.preferredDate ? errors.preferredDate : undefined}>
+                    <input type="date" value={form.preferredDate} onChange={set('preferredDate')} onBlur={blur('preferredDate')}
+                      min={new Date().toISOString().split('T')[0]}
+                      style={{ ...inputBase, color: form.preferredDate ? '#111118' : '#9ca3af', ...(touched.preferredDate && errors.preferredDate ? inputError : {}) }} />
                   </Field>
                   <Field label={f.passengersLabel}>
                     <select value={form.passengers} onChange={set('passengers')}
@@ -294,7 +325,7 @@ export default function ContactFormSection() {
                 <div className="mb-5">
                   <Field label={f.messageLabel} required error={touched.message ? errors.message : undefined}>
                     <textarea placeholder={f.messagePh} value={form.message} onChange={set('message')} onBlur={blur('message')} rows={5}
-                      style={{ ...inputBase, resize: 'vertical', minHeight: 120, ...(touched.message && errors.message ? inputError : {}) }} />
+                      maxLength={2000} style={{ ...inputBase, resize: 'vertical', minHeight: 120, ...(touched.message && errors.message ? inputError : {}) }} />
                   </Field>
                 </div>
 

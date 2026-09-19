@@ -90,7 +90,7 @@ export default function AboutAdvantageSection() {
     <section
       ref={sectionRef as React.RefObject<HTMLElement>}
       className="w-full bg-white"
-      style={{ paddingTop: '96px', paddingBottom: '96px' }}
+      style={{ paddingTop: 'clamp(48px, 6vw, 96px)', paddingBottom: 'clamp(48px, 6vw, 96px)' }}
     >
       <div className="text-center px-6 mb-12">
         <div className="flex items-center justify-center gap-3 mb-6" style={fadeUp(0)}>

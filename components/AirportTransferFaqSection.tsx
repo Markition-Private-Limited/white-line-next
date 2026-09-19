@@ -133,7 +133,7 @@ export default function AirportTransferFaqSection({ servicePage = 'airportTransf
         className="bg-white"
         style={{
           borderRadius: 'clamp(14px, 1.5vw, 20px)',
-          padding: 'clamp(48px, 7vw, 100px) clamp(24px, 5vw, 80px)',
+          padding: 'clamp(32px, 7vw, 100px) clamp(24px, 5vw, 80px)',
         }}
       >
         <div className="grid gap-12 lg:grid-cols-[2fr_3fr] lg:gap-20 lg:items-start">
