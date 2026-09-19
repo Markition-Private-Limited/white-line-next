@@ -105,7 +105,14 @@ html, body {
   display: none;
 }
 
-/* Hide native date input calendar/dropdown icon so we show a custom one */
+/* Hide ALL native date input icons (calendar, chevron, spinner) so only the custom CalendarDays icon shows */
+.hide-date-icon {
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: none;
+  position: relative;
+  clip-path: none;
+}
 .hide-date-icon::-webkit-calendar-picker-indicator {
   opacity: 0;
   position: absolute;
@@ -113,9 +120,15 @@ html, body {
   width: 100%;
   height: 100%;
   cursor: pointer;
+  z-index: 1;
 }
-.hide-date-icon::-webkit-inner-spin-button {
+.hide-date-icon::-webkit-inner-spin-button,
+.hide-date-icon::-webkit-clear-button {
   display: none;
+  -webkit-appearance: none;
+}
+.hide-date-icon::-webkit-date-and-time-value {
+  text-align: left;
 }
 
 /* RTL — switch all text elements to Cairo (overrides inline fontFamily styles) */
