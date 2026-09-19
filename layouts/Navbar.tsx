@@ -17,14 +17,18 @@ const BUTTON_BG = [
 
 const CUSTOMER_SESSION_KEY = 'whiteline.customerSession'
 
-function readNavUserName(): string | null {
+function readNavToken(): string | null {
   try {
     const session = JSON.parse(localStorage.getItem(CUSTOMER_SESSION_KEY) ?? 'null')
-    const token = session?.accessToken
-    if (!token) return null
+    return session?.accessToken ?? null
+  } catch { return null }
+}
+
+function nameFromJwt(token: string): string | null {
+  try {
     const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
-    const payload = JSON.parse(atob(b64))
-    return payload.name || payload.fullName || payload.full_name || payload.firstName || payload.first_name || null
+    const p = JSON.parse(atob(b64))
+    return p.full_name || p.name || p.fullName || p.firstName || p.first_name || null
   } catch { return null }
 }
 
@@ -59,11 +63,7 @@ function LangDropdown({ solid }: { solid: boolean }) {
       >
         <span className={`fi fi-${current.flagCode}`} style={{ fontSize: 18, borderRadius: 3 }} />
         <span>{current.nativeLabel}</span>
-        <ChevronDown
-          size={14}
-          className="opacity-70 transition-transform duration-200"
-          style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
-        />
+        <ChevronDown size={14} className="opacity-70 transition-transform duration-200" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
       </button>
 
       <AnimatePresence>
@@ -75,11 +75,9 @@ function LangDropdown({ solid }: { solid: boolean }) {
             transition={{ duration: 0.18 }}
             className="absolute top-full mt-2 z-50 overflow-hidden rounded-xl"
             style={{
-              insetInlineStart: 0,
-              minWidth: 148,
+              insetInlineStart: 0, minWidth: 148,
               background: 'rgba(12,14,20,0.96)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
+              backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
               border: '1px solid rgba(255,255,255,0.1)',
               boxShadow: '0 8px 28px rgba(0,0,0,0.35)',
             }}
@@ -98,9 +96,7 @@ function LangDropdown({ solid }: { solid: boolean }) {
               >
                 <span className={`fi fi-${meta.flagCode}`} style={{ fontSize: 18, borderRadius: 3 }} />
                 <span>{meta.nativeLabel}</span>
-                {lang === code && (
-                  <span className="ms-auto" style={{ color: '#005C66', fontSize: 10 }}>✓</span>
-                )}
+                {lang === code && <span className="ms-auto" style={{ color: '#005C66', fontSize: 10 }}>✓</span>}
               </button>
             ))}
           </motion.div>
@@ -110,10 +106,11 @@ function LangDropdown({ solid }: { solid: boolean }) {
   )
 }
 
-// ── User dropdown ──────────────────────────────────────────────────────────────
+// ── User dropdown (translucent pill, only when authenticated) ──────────────────
 function UserDropdown({ solid, userName }: { solid: boolean; userName: string }) {
   const { lang } = useLanguage()
   const isAr = lang === 'ar'
+  const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -125,39 +122,42 @@ function UserDropdown({ solid, userName }: { solid: boolean; userName: string })
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
+  // Label reflects the current page
+  const label =
+    pathname === '/journeys' ? (isAr ? 'رحلاتي'  : 'My Journeys') :
+    pathname === '/account'  ? (isAr ? 'حسابي'   : 'My Account')  :
+    userName.split(' ')[0]
+
   const initial = userName.charAt(0).toUpperCase()
-  const firstName = userName.split(' ')[0]
 
   return (
     <div ref={ref} className="relative hidden sm:block">
       <button
         onClick={() => setOpen(o => !o)}
-        className="group relative h-10 inline-flex items-center overflow-hidden rounded-full text-sm font-semibold"
+        className="h-10 inline-flex items-center rounded-full text-sm font-semibold transition-colors"
         style={{
           fontFamily: 'Inter, sans-serif',
-          background: solid ? '#005C66' : BUTTON_BG,
-          border: solid ? 'none' : '1px solid rgba(255,255,255,0.18)',
-          color: '#fff',
-          padding: '0 14px 0 6px',
           gap: 8,
-          minWidth: 118,
+          padding: '0 14px 0 6px',
+          // Translucent background
+          background: solid ? 'rgba(0,92,102,0.08)' : 'rgba(255,255,255,0.14)',
+          border: solid ? '1px solid rgba(0,92,102,0.18)' : '1px solid rgba(255,255,255,0.22)',
+          color: solid ? '#005C66' : '#fff',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
         }}
       >
-        {/* Avatar circle */}
         <span style={{
-          width: 28, height: 28, borderRadius: '50%',
-          background: 'rgba(255,255,255,0.2)',
+          width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+          background: solid ? 'rgba(0,92,102,0.12)' : 'rgba(255,255,255,0.2)',
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 12, fontWeight: 700, color: '#fff', flexShrink: 0,
+          fontSize: 12, fontWeight: 700,
+          color: solid ? '#005C66' : '#fff',
         }}>
           {initial}
         </span>
-        <span style={{ fontFamily: 'Inter, sans-serif' }}>{firstName}</span>
-        <ChevronDown
-          size={13}
-          className="opacity-75 transition-transform duration-200"
-          style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
-        />
+        <span>{label}</span>
+        <ChevronDown size={13} className="opacity-70 transition-transform duration-200" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
       </button>
 
       <AnimatePresence>
@@ -169,18 +169,16 @@ function UserDropdown({ solid, userName }: { solid: boolean; userName: string })
             transition={{ duration: 0.18 }}
             className="absolute top-full mt-2 z-50 overflow-hidden rounded-xl"
             style={{
-              insetInlineEnd: 0,
-              minWidth: 188,
+              insetInlineEnd: 0, minWidth: 192,
               background: 'rgba(12,14,20,0.96)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
+              backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
               border: '1px solid rgba(255,255,255,0.1)',
               boxShadow: '0 8px 28px rgba(0,0,0,0.35)',
             }}
           >
-            {/* User name header */}
+            {/* Name header */}
             <div style={{ padding: '14px 18px 10px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-              <p style={{ margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 13, color: '#fff' }}>
+              <p style={{ margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 13, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {userName}
               </p>
             </div>
@@ -188,16 +186,16 @@ function UserDropdown({ solid, userName }: { solid: boolean; userName: string })
             <Link
               href="/journeys"
               onClick={() => setOpen(false)}
+              className="hover:bg-white/8"
               style={{
                 display: 'flex', alignItems: 'center', gap: 10,
                 padding: '12px 18px',
                 fontFamily: 'Inter, sans-serif', fontSize: 13,
-                color: 'rgba(255,255,255,0.82)',
+                color: pathname === '/journeys' ? '#fff' : 'rgba(255,255,255,0.75)',
+                background: pathname === '/journeys' ? 'rgba(255,255,255,0.06)' : 'transparent',
                 borderBottom: '1px solid rgba(255,255,255,0.05)',
                 textDecoration: 'none',
-                transition: 'background 0.15s',
               }}
-              className="hover:bg-white/8"
             >
               <CalendarDays size={15} style={{ color: '#005C66' }} />
               {isAr ? 'رحلاتي' : 'My Journeys'}
@@ -206,15 +204,15 @@ function UserDropdown({ solid, userName }: { solid: boolean; userName: string })
             <Link
               href="/account"
               onClick={() => setOpen(false)}
+              className="hover:bg-white/8"
               style={{
                 display: 'flex', alignItems: 'center', gap: 10,
                 padding: '12px 18px',
                 fontFamily: 'Inter, sans-serif', fontSize: 13,
-                color: 'rgba(255,255,255,0.82)',
+                color: pathname === '/account' ? '#fff' : 'rgba(255,255,255,0.75)',
+                background: pathname === '/account' ? 'rgba(255,255,255,0.06)' : 'transparent',
                 textDecoration: 'none',
-                transition: 'background 0.15s',
               }}
-              className="hover:bg-white/8"
             >
               <User size={15} style={{ color: '#005C66' }} />
               {isAr ? 'حسابي' : 'My Account'}
@@ -226,11 +224,10 @@ function UserDropdown({ solid, userName }: { solid: boolean; userName: string })
   )
 }
 
-// ── Mobile lang switcher (inside drawer) ──────────────────────────────────────
+// ── Mobile lang switcher ───────────────────────────────────────────────────────
 function MobileLangSwitcher() {
   const { lang, setLang } = useLanguage()
   const available = Object.entries(LANG_META) as [LangCode, typeof LANG_META[LangCode]][]
-
   return (
     <div className="flex gap-2">
       {available.map(([code, meta]) => (
@@ -264,7 +261,26 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
   const pathname = usePathname()
 
   useEffect(() => {
-    setUserName(readNavUserName())
+    const token = readNavToken()
+    if (!token) { setUserName(null); return }
+    const jwtName = nameFromJwt(token)
+    setUserName(jwtName ?? 'Account')
+    if (!jwtName) {
+      fetch('/api/customers/profile', { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => r.ok ? r.json() : null)
+        .then(json => {
+          const profile = json?.data ?? json
+          const name = profile?.fullName || profile?.full_name || profile?.name
+          if (name) { setUserName(name); return }
+          // Derive display name from email as last resort
+          const email: string | undefined = profile?.email ?? profile?.user?.email
+          if (email) {
+            const prefix = email.split('@')[0]
+            setUserName(prefix.charAt(0).toUpperCase() + prefix.slice(1))
+          }
+        })
+        .catch(() => {})
+    }
   }, [])
 
   useEffect(() => {
@@ -275,10 +291,7 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
       document.body.style.overflow = ''
       window.dispatchEvent(new CustomEvent('lenis:start'))
     }
-    return () => {
-      document.body.style.overflow = ''
-      window.dispatchEvent(new CustomEvent('lenis:start'))
-    }
+    return () => { document.body.style.overflow = ''; window.dispatchEvent(new CustomEvent('lenis:start')) }
   }, [drawerOpen])
 
   useEffect(() => { setDrawerOpen(false) }, [pathname])
@@ -290,7 +303,6 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
   }, [])
 
   const isActive = (to: string) => to === '/' ? pathname === '/' : pathname.startsWith(to)
-
   const linkColor = solid
     ? (to: string) => isActive(to) ? '#005C66' : '#374151'
     : (to: string) => isActive(to) ? '#ffffff' : 'rgba(255,255,255,0.75)'
@@ -311,29 +323,18 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
         >
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5">
-            <img
-              src={logoSvg.src ?? logoSvg}
-              alt="White Line logo"
-              style={{ width: 28, height: 30, filter: solid ? 'none' : 'brightness(0) invert(1)' }}
-            />
-            <span
-              className="font-semibold tracking-[0.18em] text-sm uppercase"
-              style={{ fontFamily: 'Montserrat, sans-serif', color: solid ? '#111118' : '#fff' }}
-            >
+            <img src={logoSvg.src ?? logoSvg} alt="White Line logo" style={{ width: 28, height: 30, filter: solid ? 'none' : 'brightness(0) invert(1)' }} />
+            <span className="font-semibold tracking-[0.18em] text-sm uppercase" style={{ fontFamily: 'Montserrat, sans-serif', color: solid ? '#111118' : '#fff' }}>
               White Line
             </span>
           </Link>
 
-          {/* Desktop nav links — hidden when minimal */}
+          {/* Desktop nav links — hidden on minimal pages */}
           {!minimal && (
             <ul className="hidden lg:flex items-center gap-7 list-none m-0 p-0">
-              {trans.nav.links.map((item) => (
+              {trans.nav.links.map(item => (
                 <li key={item.to}>
-                  <Link
-                    href={item.to}
-                    className="flex items-center gap-1 transition-colors text-sm font-medium"
-                    style={{ fontFamily: 'Inter, sans-serif', color: linkColor(item.to) }}
-                  >
+                  <Link href={item.to} className="flex items-center gap-1 transition-colors text-sm font-medium" style={{ fontFamily: 'Inter, sans-serif', color: linkColor(item.to) }}>
                     {item.label}
                   </Link>
                 </li>
@@ -345,72 +346,40 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
           <div className="flex items-center gap-3">
             <LangDropdown solid={solid} />
 
-            {/* Download button — only on non-minimal pages when not logged in */}
-            {!minimal && !userName && (
-              <button
-                onClick={() => setDialogOpen(true)}
-                className="group hidden sm:inline-flex relative h-10 items-center justify-center overflow-hidden rounded-full text-sm font-semibold"
-                style={{
-                  fontFamily: 'Inter, sans-serif',
-                  background: solid ? '#005C66' : BUTTON_BG,
-                  border: solid ? 'none' : '1px solid rgba(255,255,255,0.18)',
-                  color: '#fff',
-                  minWidth: 140,
-                }}
-              >
-                <span className="inline-flex items-center px-5 transition duration-500 group-hover:-translate-y-[150%]">
-                  {trans.nav.download}
+            {/* Download Now — always visible */}
+            <button
+              onClick={() => setDialogOpen(true)}
+              className="group hidden sm:inline-flex relative h-10 items-center justify-center overflow-hidden rounded-full text-sm font-semibold"
+              style={{
+                fontFamily: 'Inter, sans-serif',
+                background: solid ? '#005C66' : BUTTON_BG,
+                border: solid ? 'none' : '1px solid rgba(255,255,255,0.18)',
+                color: '#fff',
+                minWidth: 140,
+              }}
+            >
+              <span className="inline-flex items-center px-5 transition duration-500 group-hover:-translate-y-[150%]">
+                {trans.nav.download}
+              </span>
+              <span className="absolute inline-flex h-full w-full translate-y-[100%] items-center justify-center transition duration-500 group-hover:translate-y-0">
+                <span className={`absolute inset-0 translate-y-full skew-y-12 scale-y-0 transition duration-500 group-hover:translate-y-0 group-hover:scale-150 ${solid ? 'bg-[#004d57]' : 'bg-white/20'}`} />
+                <span className="relative z-10 inline-flex items-center gap-1.5">
+                  {trans.nav.download} {isRtl ? <ArrowUpLeft size={13} /> : <ArrowUpRight size={13} />}
                 </span>
-                <span className="absolute inline-flex h-full w-full translate-y-[100%] items-center justify-center transition duration-500 group-hover:translate-y-0">
-                  <span className={`absolute inset-0 translate-y-full skew-y-12 scale-y-0 transition duration-500 group-hover:translate-y-0 group-hover:scale-150 ${solid ? 'bg-[#004d57]' : 'bg-white/20'}`} />
-                  <span className="relative z-10 inline-flex items-center gap-1.5">
-                    {trans.nav.download} {isRtl ? <ArrowUpLeft size={13} /> : <ArrowUpRight size={13} />}
-                  </span>
-                </span>
-              </button>
-            )}
+              </span>
+            </button>
 
-            {/* Download Now alongside user pill on non-minimal pages when logged in */}
-            {!minimal && userName && (
-              <button
-                onClick={() => setDialogOpen(true)}
-                className="group hidden sm:inline-flex relative h-10 items-center justify-center overflow-hidden rounded-full text-sm font-semibold"
-                style={{
-                  fontFamily: 'Inter, sans-serif',
-                  background: solid ? 'transparent' : BUTTON_BG,
-                  border: solid ? '1.5px solid #e5e7eb' : '1px solid rgba(255,255,255,0.18)',
-                  color: solid ? '#374151' : '#fff',
-                  minWidth: 140,
-                }}
-              >
-                <span className="inline-flex items-center px-5 transition duration-500 group-hover:-translate-y-[150%]">
-                  {trans.nav.download}
-                </span>
-                <span className="absolute inline-flex h-full w-full translate-y-[100%] items-center justify-center transition duration-500 group-hover:translate-y-0">
-                  <span className={`absolute inset-0 translate-y-full skew-y-12 scale-y-0 transition duration-500 group-hover:translate-y-0 group-hover:scale-150 ${solid ? 'bg-gray-100' : 'bg-white/20'}`} />
-                  <span className="relative z-10 inline-flex items-center gap-1.5">
-                    {trans.nav.download} {isRtl ? <ArrowUpLeft size={13} /> : <ArrowUpRight size={13} />}
-                  </span>
-                </span>
-              </button>
-            )}
+            {/* Translucent user pill — only when authenticated */}
+            {userName && <UserDropdown solid={solid} userName={userName} />}
 
-            {/* User dropdown — always visible on minimal pages, or when logged in elsewhere */}
-            {(minimal || userName) && (
-              <UserDropdown solid={solid} userName={userName ?? (isAr ? 'حسابي' : 'Account')} />
-            )}
-
+            {/* Hamburger */}
             <button
               className="lg:hidden flex items-center justify-center w-10 h-10 rounded-full transition-colors"
               style={{ border: solid ? '1px solid #e5e7eb' : '1px solid rgba(255,255,255,0.15)' }}
               onClick={() => setDrawerOpen(true)}
               aria-label="Open menu"
             >
-              <img
-                src={hamburgerSvg.src ?? hamburgerSvg}
-                alt=""
-                style={{ width: 18, height: 18, filter: solid ? 'brightness(0)' : 'none' }}
-              />
+              <img src={hamburgerSvg.src ?? hamburgerSvg} alt="" style={{ width: 18, height: 18, filter: solid ? 'brightness(0)' : 'none' }} />
             </button>
           </div>
         </div>
@@ -425,38 +394,23 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
             <motion.div
               key="backdrop"
               className="fixed inset-0 z-40"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               transition={{ duration: 0.28 }}
               style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)' }}
               onClick={() => setDrawerOpen(false)}
             />
-
             <motion.aside
               key="drawer"
               className="fixed top-0 bottom-0 z-50 flex flex-col"
-              style={{
-                insetInlineEnd: 0,
-                width: 'min(340px, 88vw)',
-                background: 'rgba(6,8,12,0.97)',
-                backdropFilter: 'blur(40px)',
-                WebkitBackdropFilter: 'blur(40px)',
-                borderInlineStart: '1px solid rgba(255,255,255,0.07)',
-              }}
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
+              style={{ insetInlineEnd: 0, width: 'min(340px, 88vw)', background: 'rgba(6,8,12,0.97)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', borderInlineStart: '1px solid rgba(255,255,255,0.07)' }}
+              initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 280 }}
             >
               <div className="flex items-center justify-between px-7 pt-8 pb-8">
                 <Link href="/" onClick={() => setDrawerOpen(false)} className="flex items-center gap-2.5">
                   <img src={logoSvg.src ?? logoSvg} alt="White Line logo" style={{ width: 24, height: 26, filter: 'brightness(0) invert(1)' }} />
-                  <span className="text-white font-semibold tracking-[0.18em] text-xs uppercase" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-                    White Line
-                  </span>
+                  <span className="text-white font-semibold tracking-[0.18em] text-xs uppercase" style={{ fontFamily: 'Montserrat, sans-serif' }}>White Line</span>
                 </Link>
-
                 <motion.button
                   onClick={() => setDrawerOpen(false)}
                   className="w-9 h-9 rounded-full flex items-center justify-center transition-colors hover:bg-white/10"
@@ -472,56 +426,23 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
 
               <nav className="flex-1 overflow-y-auto px-7 pt-6" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
                 <ul className="list-none m-0 p-0 flex flex-col">
-                  {/* User links — always on minimal pages, or when logged in */}
-                  {(minimal || userName) && (
-                    <>
-                      {[
-                        { to: '/journeys', label: isAr ? 'رحلاتي' : 'My Journeys' },
-                        { to: '/account',  label: isAr ? 'حسابي' : 'My Account'   },
-                      ].map((item, i) => (
-                        <motion.li key={item.to} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.07 + i * 0.055, duration: 0.38, ease: 'easeOut' }}>
-                          <Link
-                            href={item.to}
-                            onClick={() => setDrawerOpen(false)}
-                            className="flex items-center justify-between py-5 transition-colors"
-                            style={{
-                              fontFamily: 'Montserrat, sans-serif',
-                              fontSize: 'clamp(17px, 4vw, 20px)',
-                              fontWeight: 500,
-                              borderBottom: '1px solid rgba(255,255,255,0.06)',
-                              letterSpacing: '0.02em',
-                              color: isActive(item.to) ? '#ffffff' : 'rgba(255,255,255,0.55)',
-                            }}
-                          >
-                            {item.label}
-                            <span style={{ opacity: 0.2, fontSize: 18 }}>›</span>
-                          </Link>
-                        </motion.li>
-                      ))}
-                    </>
-                  )}
+                  {/* Authenticated user links */}
+                  {userName && [
+                    { to: '/journeys', label: isAr ? 'رحلاتي' : 'My Journeys' },
+                    { to: '/account',  label: isAr ? 'حسابي'  : 'My Account'  },
+                  ].map((item, i) => (
+                    <motion.li key={item.to} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.07 + i * 0.055 }}>
+                      <Link href={item.to} onClick={() => setDrawerOpen(false)} className="flex items-center justify-between py-5 transition-colors" style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(17px, 4vw, 20px)', fontWeight: 500, borderBottom: '1px solid rgba(255,255,255,0.06)', letterSpacing: '0.02em', color: isActive(item.to) ? '#fff' : 'rgba(255,255,255,0.55)' }}>
+                        {item.label}
+                        <span style={{ opacity: 0.2, fontSize: 18 }}>›</span>
+                      </Link>
+                    </motion.li>
+                  ))}
 
-                  {/* Regular nav links (only when not minimal) */}
+                  {/* Regular nav links — hidden on minimal pages */}
                   {!minimal && trans.nav.links.map((item, i) => (
-                    <motion.li
-                      key={item.to}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.07 + (userName ? 2 : 0) * 0.055 + i * 0.055, duration: 0.38, ease: 'easeOut' }}
-                    >
-                      <Link
-                        href={item.to}
-                        onClick={() => setDrawerOpen(false)}
-                        className="flex items-center justify-between py-5 transition-colors"
-                        style={{
-                          fontFamily: 'Montserrat, sans-serif',
-                          fontSize: 'clamp(17px, 4vw, 20px)',
-                          fontWeight: 500,
-                          borderBottom: '1px solid rgba(255,255,255,0.06)',
-                          letterSpacing: '0.02em',
-                          color: isActive(item.to) ? '#ffffff' : 'rgba(255,255,255,0.55)',
-                        }}
-                      >
+                    <motion.li key={item.to} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.07 + (userName ? 2 : 0) * 0.055 + i * 0.055 }}>
+                      <Link href={item.to} onClick={() => setDrawerOpen(false)} className="flex items-center justify-between py-5 transition-colors" style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(17px, 4vw, 20px)', fontWeight: 500, borderBottom: '1px solid rgba(255,255,255,0.06)', letterSpacing: '0.02em', color: isActive(item.to) ? '#fff' : 'rgba(255,255,255,0.55)' }}>
                         {item.label}
                         <span style={{ opacity: 0.2, fontSize: 18 }}>›</span>
                       </Link>
@@ -530,12 +451,7 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
                 </ul>
               </nav>
 
-              <motion.div
-                className="px-7 pb-10 pt-6 flex flex-col gap-4"
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.48, duration: 0.42, ease: 'easeOut' }}
-              >
+              <motion.div className="px-7 pb-10 pt-6 flex flex-col gap-4" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.48 }}>
                 <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', marginBottom: 4 }} />
                 <MobileLangSwitcher />
                 <button
@@ -543,14 +459,10 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
                   className="group relative w-full h-12 overflow-hidden rounded-full text-white font-semibold text-sm"
                   style={{ fontFamily: 'Inter, sans-serif', background: BUTTON_BG, border: '1px solid rgba(255,255,255,0.16)' }}
                 >
-                  <span className="inline-flex h-full w-full items-center justify-center transition duration-500 group-hover:-translate-y-[150%]">
-                    {trans.nav.download}
-                  </span>
+                  <span className="inline-flex h-full w-full items-center justify-center transition duration-500 group-hover:-translate-y-[150%]">{trans.nav.download}</span>
                   <span className="absolute inset-0 inline-flex items-center justify-center translate-y-[100%] transition duration-500 group-hover:translate-y-0">
                     <span className="absolute inset-0 translate-y-full skew-y-12 scale-y-0 bg-white/20 transition duration-500 group-hover:translate-y-0 group-hover:scale-150" />
-                    <span className="relative z-10 inline-flex items-center gap-1.5">
-                      {trans.nav.download} {isRtl ? <ArrowUpLeft size={13} /> : <ArrowUpRight size={13} />}
-                    </span>
+                    <span className="relative z-10 inline-flex items-center gap-1.5">{trans.nav.download} {isRtl ? <ArrowUpLeft size={13} /> : <ArrowUpRight size={13} />}</span>
                   </span>
                 </button>
               </motion.div>

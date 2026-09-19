@@ -19,7 +19,7 @@ function parseCurlJson<T>(stdout: string): FleetHttpResult<T> {
   }
 }
 
-async function fetchRequest<T>(method: 'GET' | 'POST', path: string, body?: unknown, options: FleetRequestOptions = {}): Promise<FleetHttpResult<T>> {
+async function fetchRequest<T>(method: 'GET' | 'POST' | 'PUT' | 'PATCH', path: string, body?: unknown, options: FleetRequestOptions = {}): Promise<FleetHttpResult<T>> {
   const res = await fetch(`${FLEET_API_BASE}${path}`, {
     method,
     headers: { 'Content-Type': 'application/json', ...options.headers },
@@ -29,7 +29,7 @@ async function fetchRequest<T>(method: 'GET' | 'POST', path: string, body?: unkn
   return { status: res.status, data: await res.json() as T }
 }
 
-function curlRequest<T>(method: 'GET' | 'POST', path: string, body?: unknown, options: FleetRequestOptions = {}): Promise<FleetHttpResult<T>> {
+function curlRequest<T>(method: 'GET' | 'POST' | 'PUT' | 'PATCH', path: string, body?: unknown, options: FleetRequestOptions = {}): Promise<FleetHttpResult<T>> {
   return new Promise((resolve, reject) => {
     const url = `${FLEET_API_BASE}${path}`
     const args = [
@@ -52,7 +52,7 @@ function curlRequest<T>(method: 'GET' | 'POST', path: string, body?: unknown, op
   })
 }
 
-async function fleetRequest<T>(method: 'GET' | 'POST', path: string, body?: unknown, options: FleetRequestOptions = {}): Promise<FleetHttpResult<T>> {
+async function fleetRequest<T>(method: 'GET' | 'POST' | 'PUT' | 'PATCH', path: string, body?: unknown, options: FleetRequestOptions = {}): Promise<FleetHttpResult<T>> {
   try {
     return await fetchRequest<T>(method, path, body, options)
   } catch (error) {
@@ -67,4 +67,8 @@ export function fleetGet<T>(path: string, options?: FleetRequestOptions): Promis
 
 export function fleetPost(path: string, body: unknown, options?: FleetRequestOptions): Promise<FleetHttpResult> {
   return fleetRequest('POST', path, body, options)
+}
+
+export function fleetPut(path: string, body: unknown, options?: FleetRequestOptions): Promise<FleetHttpResult> {
+  return fleetRequest('PUT', path, body, options)
 }
