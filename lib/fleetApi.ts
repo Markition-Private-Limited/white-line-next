@@ -82,8 +82,9 @@ async function fleetGetData<T>(path: string): Promise<T> {
   return envelope.data
 }
 
-export async function fetchVehicleClasses(): Promise<VehicleClass[]> {
-  const data = await fleetGetData<VehicleClass[]>('/api/v1/public/customers/vehicle-classes')
+export async function fetchVehicleClasses(serviceType?: string): Promise<VehicleClass[]> {
+  const qs = serviceType ? `?service_type=${encodeURIComponent(serviceType)}` : ''
+  const data = await fleetGetData<VehicleClass[]>(`/api/v1/public/customers/vehicle-classes${qs}`)
   return Array.isArray(data)
     ? data
       .filter(item => item.isActive !== false)

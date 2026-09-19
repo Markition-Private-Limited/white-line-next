@@ -105,19 +105,22 @@ type VehicleClass = {
 type ClassVehicle = { id: string; make: string; model: string; year: number; plate_number: string; color: string; status: string; vehicle_front_photo_url: string | null; base_fare?: number }
 
 const FLEET_CACHE_TTL_MS = 5 * 60 * 1000
-let fleetClassesCache: { data: VehicleClass[]; timestamp: number } | null = null
+const fleetClassesCache = new Map<string, { data: VehicleClass[]; timestamp: number }>()
 const fleetVehiclesCache = new Map<string, { data: ClassVehicle[]; timestamp: number }>()
 
-async function getFleetClasses(): Promise<VehicleClass[]> {
-  if (fleetClassesCache && Date.now() - fleetClassesCache.timestamp < FLEET_CACHE_TTL_MS) return fleetClassesCache.data
+async function getFleetClasses(serviceType?: string): Promise<VehicleClass[]> {
+  const cacheKey = serviceType ?? ''
+  const cached = fleetClassesCache.get(cacheKey)
+  if (cached && Date.now() - cached.timestamp < FLEET_CACHE_TTL_MS) return cached.data
   try {
-    const res = await fetch('/api/fleet/vehicle-classes')
+    const qs = serviceType ? `?service_type=${encodeURIComponent(serviceType)}` : ''
+    const res = await fetch(`/api/fleet/vehicle-classes${qs}`)
     const data = res.ok ? await res.json() : []
     const classes: VehicleClass[] = Array.isArray(data) ? data : []
-    fleetClassesCache = { data: classes, timestamp: Date.now() }
+    fleetClassesCache.set(cacheKey, { data: classes, timestamp: Date.now() })
     return classes
   } catch {
-    return fleetClassesCache?.data ?? []
+    return cached?.data ?? []
   }
 }
 
@@ -1769,9 +1772,9 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
 
   useEffect(() => {
     let cancelled = false
-    getFleetClasses().then(data => { if (!cancelled) setFleetClasses(data) })
+    getFleetClasses(toApiServiceType(booking.service, booking.dayDuration)).then(data => { if (!cancelled) setFleetClasses(data) })
     return () => { cancelled = true }
-  }, [])
+  }, [booking.service, booking.dayDuration])
 
   const categories = buildCategoryTiles(fleetClasses)
   const categoryIndex = booking.categoryIndex !== null && categories.length > 0 ? Math.min(booking.categoryIndex, categories.length - 1) : null
@@ -2133,9 +2136,9 @@ function useSelectedFleetLabels(booking: BookingState) {
 
   useEffect(() => {
     let cancelled = false
-    getFleetClasses().then(data => { if (!cancelled) setFleetClasses(data) })
+    getFleetClasses(toApiServiceType(booking.service, booking.dayDuration)).then(data => { if (!cancelled) setFleetClasses(data) })
     return () => { cancelled = true }
-  }, [])
+  }, [booking.service, booking.dayDuration])
 
   const categories = buildCategoryTiles(fleetClasses)
   const categoryIndex = booking.categoryIndex !== null && categories.length > 0 ? Math.min(booking.categoryIndex, categories.length - 1) : null
@@ -2206,9 +2209,9 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
 
   useEffect(() => {
     let cancelled = false
-    getFleetClasses().then(data => { if (!cancelled) setFleetClasses(data) })
+    getFleetClasses(toApiServiceType(booking.service, booking.dayDuration)).then(data => { if (!cancelled) setFleetClasses(data) })
     return () => { cancelled = true }
-  }, [])
+  }, [booking.service, booking.dayDuration])
 
   const categories = buildCategoryTiles(fleetClasses)
   const categoryIndex = booking.categoryIndex !== null && categories.length > 0 ? Math.min(booking.categoryIndex, categories.length - 1) : null
