@@ -2042,7 +2042,7 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
     if (booking.destination?.address) body.dropoff_address = booking.destination.address
     if (isHourly) body.duration_hours = booking.duration
     if (service === 'day' && booking.dayDuration === 'full') body.full_day_hours = 10
-    if (service === 'airport' && booking.flightNumber.trim()) body.flight_number = booking.flightNumber.trim()
+
     if (booking.bookingFor === 'guest') {
       body.guest = {
         name: booking.guest.name,
