@@ -360,8 +360,8 @@ export default function PageLoader() {
             >
               <motion.div
                 initial={{ x: '-96%' }}
-                animate={prefersReducedMotion ? { x: 0 } : { x: '96%' }}
-                transition={{ duration: 1.45, ease: [0.76, 0, 0.24, 1], repeat: Infinity, repeatDelay: 0.16 }}
+                animate={prefersReducedMotion ? { x: 0 } : { x: ['-96%', '96%', '-96%'] }}
+                transition={{ duration: 2.7, ease: [0.76, 0, 0.24, 1], repeat: Infinity }}
                 style={{
                   width: '72%',
                   height: '100%',
