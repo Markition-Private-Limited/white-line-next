@@ -20,7 +20,6 @@ import {
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import appPhones from '../assets/global_app/app.png'
-import horizontalPlane from '../assets/dialog/horizontal plane.svg'
 import flightNumberSvg from '../assets/dialog/flight_number.svg'
 import { useLanguage } from '../context/LanguageContext'
 import { bookingDialogCopy } from '../lib/bookingDialogCopy'
@@ -470,14 +469,15 @@ function useBookingDialogCopy() {
   return { copy: bookingDialogCopy[lang], lang, dir }
 }
 
-function TextField({ label, placeholder, value, icon, startIcon, minLength = 2, inputType = 'text', onChange, attempted }: { label: string; placeholder: string; value: string; icon?: React.ReactNode; startIcon?: React.ReactNode; minLength?: number; inputType?: 'text' | 'email'; onChange: (value: string) => void; attempted?: boolean }) {
+function TextField({ label, placeholder, value, icon, startIcon, minLength = 2, inputType = 'text', validate, onChange, attempted }: { label: string; placeholder: string; value: string; icon?: React.ReactNode; startIcon?: React.ReactNode; minLength?: number; inputType?: 'text' | 'email'; validate?: (v: string) => string | null; onChange: (value: string) => void; attempted?: boolean }) {
   const { copy } = useBookingDialogCopy()
   const trimmed = value.trim()
   const isEmpty = attempted && trimmed.length === 0
   const emailInvalid = inputType === 'email' && trimmed.length > 0 && !/^\S+@\S+\.\S+$/.test(trimmed)
   const lengthInvalid = inputType === 'text' && trimmed.length > 0 && trimmed.length < minLength
-  const invalid = isEmpty || emailInvalid || lengthInvalid
-  const validationMessage = isEmpty ? copy.validation.required : emailInvalid ? copy.validation.email : lengthInvalid ? copy.validation.characters(minLength) : ''
+  const customError = !isEmpty && !emailInvalid && !lengthInvalid && attempted && trimmed.length > 0 ? (validate?.(trimmed) ?? null) : null
+  const invalid = isEmpty || emailInvalid || lengthInvalid || customError !== null
+  const validationMessage = isEmpty ? copy.validation.required : emailInvalid ? copy.validation.email : lengthInvalid ? copy.validation.characters(minLength) : (customError ?? '')
 
   return (
     <div className={`${styles.field} ${invalid ? styles.fieldInvalid : ''}`}>
@@ -735,7 +735,7 @@ function TimePickerField({ label, value, onChange, attempted }: { label: string;
   const modeRef = useRef(mode)
   useEffect(() => { modeRef.current = mode }, [mode])
 
-  // Sync draft when value is set externally (e.g. from PickupEstimatorDialog)
+  // Sync draft when value is set externally
   useEffect(() => { if (value) setDraft(value) }, [value])
 
   const openMenu = () => {
@@ -1303,175 +1303,10 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
   )
 }
 
-// ─── Flight lookup API ────────────────────────────────────────────────────────
-type AviationFlight = {
-  weekday: string
-  flight: { number: string; iata: string; icao: string }
-  airline: { name: string; iata: string; icao: string }
-  departure: { iata: string; icao: string; terminal?: string | null; gate?: string | null; scheduled_time: string }
-  arrival: { iata: string; icao: string; terminal?: string | null; gate?: string | null; scheduled_time: string }
-  aircraft?: { model_code: string; model_text: string } | null
-  codeshare: string | null
-  flight_date?: string
-}
-
-type FlightLookupError = 'not_found' | 'validation_error' | 'unavailable' | 'network_error'
-
-function formatDateForApi(date: Date): string {
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
-}
-
-async function lookupFlight(flightNumber: string, date: Date): Promise<AviationFlight> {
-  let res: Response
-  try {
-    res = await fetch('/api/flights/lookup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ flight_number: flightNumber, flight_date: formatDateForApi(date) }),
-    })
-  } catch {
-    throw new Error('network_error' satisfies FlightLookupError)
-  }
-  if (res.status === 400) throw new Error('validation_error' satisfies FlightLookupError)
-  if (res.status === 404) throw new Error('not_found' satisfies FlightLookupError)
-  if (res.status === 503) throw new Error('unavailable' satisfies FlightLookupError)
-  if (!res.ok) throw new Error('unavailable' satisfies FlightLookupError)
-  const body = await res.json()
-  const payload = body.data ?? body
-  const flight: AviationFlight = payload.flights?.[0]
-  if (!flight) throw new Error('not_found' satisfies FlightLookupError)
-  if (payload.flight_date) flight.flight_date = payload.flight_date
-  return flight
-}
-
-function flightTimeLabel(iso: string): string {
-  try {
-    return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })
-  } catch { return '--:--' }
-}
-
-function addMinutes(iso: string, minutes: number): { h: number; m: number } {
-  const d = new Date(iso)
-  d.setMinutes(d.getMinutes() + minutes)
-  return { h: d.getHours(), m: d.getMinutes() }
-}
-
-
-
-function FlightAutoFillDialog({ flight, onConfirm }: {
-  flight: AviationFlight
-  onConfirm: () => void
-}) {
-  const { copy, dir } = useBookingDialogCopy()
-  return (
-    <div className={styles.cancelOverlay} role="dialog" aria-modal="true" aria-labelledby="flight-autofill-title">
-      <motion.div
-        className={styles.cancelCard}
-        dir={dir}
-        initial={{ opacity: 0, scale: 0.94, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.94, y: 10 }}
-        transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <div className={styles.cancelStripe} />
-        <div className={styles.cancelCardBody}>
-          <h3 id="flight-autofill-title" className={styles.cancelTitle}>{copy.flightAutoFillTitle}</h3>
-          <p className={styles.cancelBody}>{copy.flightAutoFillBody}</p>
-          <div style={{ background: '#f8f9fb', borderRadius: 10, padding: '10px 14px', marginBottom: 18, fontSize: 12, color: '#374151', lineHeight: 1.7 }}>
-            <div><strong>{flight.airline.name}</strong> · {flight.flight.iata}</div>
-            <div>{flight.departure.iata} → {flight.arrival.iata}</div>
-            <div style={{ color: '#00717e', fontWeight: 600 }}>
-              {copy.flightDate}: {flight.flight_date}
-            </div>
-          </div>
-          <div className={styles.cancelActions}>
-            <button type="button" className={styles.cancelKeep} style={{ flex: 'none', width: '100%' }} onClick={onConfirm}>{copy.flightAutoFillConfirm}</button>
-          </div>
-        </div>
-      </motion.div>
-    </div>
-  )
-}
-
-const MINUTE_OPTIONS = [5, 10, 15, 20, 30, 45, 60, 90, 120]
-const TIME_SLOTS: { h: number; m: number; label: string }[] = Array.from({ length: 49 }, (_, i) => {
-  if (i === 48) return { h: 0, m: 0, label: '24:00' }
-  return { h: Math.floor(i / 2), m: (i % 2) * 30, label: `${Math.floor(i / 2)}:${((i % 2) * 30).toString().padStart(2, '0')}` }
-})
-
-function PickupEstimatorDialog({ flight, onConfirm, onClose }: {
-  flight: AviationFlight
-  onConfirm: (time: TimeValue) => void
-  onClose: () => void
-}) {
-  const { copy, dir } = useBookingDialogCopy()
-  const [tab, setTab] = useState<'minutes' | 'time'>('minutes')
-  const [selectedMinutes, setSelectedMinutes] = useState<number | null>(null)
-  const [selectedSlot, setSelectedSlot] = useState<{ h: number; m: number } | null>(null)
-
-  const canConfirm = tab === 'minutes' ? selectedMinutes !== null : selectedSlot !== null
-
-  const handleConfirm = () => {
-    if (tab === 'minutes' && selectedMinutes !== null) {
-      const { h, m } = addMinutes(flight.arrival.scheduled_time, selectedMinutes)
-      onConfirm({ hour: h, minute: m, use24Hour: true })
-    } else if (tab === 'time' && selectedSlot) {
-      onConfirm({ hour: selectedSlot.h, minute: selectedSlot.m, use24Hour: true })
-    }
-  }
-
-  return (
-    <div className={styles.cancelOverlay} role="dialog" aria-modal="true" aria-labelledby="pickup-estimator-title">
-      <motion.div
-        className={styles.estimatorCard}
-        dir={dir}
-        initial={{ opacity: 0, scale: 0.94, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.94, y: 10 }}
-        transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <div className={styles.cancelStripe} />
-        <div className={styles.estimatorBody}>
-          <h3 id="pickup-estimator-title" className={styles.estimatorTitle}>{copy.pickupEstimatorTitle}</h3>
-          <div className={styles.estimatorTabs}>
-            <button type="button" className={tab === 'minutes' ? styles.estimatorTabActive : styles.estimatorTab} onClick={() => setTab('minutes')}>{copy.pickupEstimatorByMinutes}</button>
-            <button type="button" className={tab === 'time' ? styles.estimatorTabActive : styles.estimatorTab} onClick={() => setTab('time')}>{copy.pickupEstimatorByTime}</button>
-          </div>
-          {tab === 'minutes' && (
-            <div className={styles.minutePills}>
-              {MINUTE_OPTIONS.map(min => (
-                <button key={min} type="button" className={selectedMinutes === min ? styles.minutePillActive : styles.minutePill} onClick={() => setSelectedMinutes(min)}>
-                  {copy.pickupEstimatorAfterArrival(min)}
-                </button>
-              ))}
-            </div>
-          )}
-          {tab === 'time' && (
-            <div className={styles.timeSlotScroll}>
-              <div className={styles.timeSlotGrid}>
-                {TIME_SLOTS.map(slot => {
-                  const active = selectedSlot?.h === slot.h && selectedSlot?.m === slot.m && slot.label !== '24:00'
-                    || (slot.label === '24:00' && selectedSlot?.h === 0 && selectedSlot?.m === 0 && selectedSlot !== null)
-                  return (
-                    <button key={slot.label} type="button" className={active ? styles.timeSlotActive : styles.timeSlot} onClick={() => setSelectedSlot({ h: slot.h, m: slot.m })}>
-                      {slot.label}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-          <div className={styles.estimatorActions}>
-            <button type="button" className={styles.cancelKeep} disabled={!canConfirm} onClick={handleConfirm}>{copy.pickupEstimatorConfirm}</button>
-            <button type="button" className={styles.cancelYes} onClick={onClose}>{copy.pickupEstimatorBack}</button>
-          </div>
-        </div>
-      </motion.div>
-    </div>
-  )
+// IATA flight number: 2-letter airline code + 1–4 digits + optional suffix letter (e.g. EK512, PK753, BA2490)
+const FLIGHT_NUMBER_RE = /^[A-Z]{2}\d{1,4}[A-Z]?$/i
+function validateFlightNumber(v: string): string | null {
+  return FLIGHT_NUMBER_RE.test(v.replace(/[\s-]/g, '')) ? null : 'Enter a valid flight number (e.g. EK512)'
 }
 
 function TripDetails({ booking, updateBooking, next, back }: {
@@ -1480,91 +1315,21 @@ function TripDetails({ booking, updateBooking, next, back }: {
   next: () => void
   back: () => void
 }) {
-  const { copy, lang } = useBookingDialogCopy()
+  const { copy } = useBookingDialogCopy()
   const [attempted, setAttempted] = useState(false)
-  const [flightStatus, setFlightStatus] = useState<'idle' | 'loading' | 'success' | 'not_found' | 'unavailable' | 'validation_error' | 'network_error'>('idle')
-  const [flightData, setFlightData] = useState<AviationFlight | null>(null)
-  const [showAutoFill, setShowAutoFill] = useState(false)
-  const [showPickupEstimator, setShowPickupEstimator] = useState(false)
 
-  const tripComplete = Boolean(tripIsComplete(booking) && booking.flightNumber.trim().length >= 5)
+  const tripComplete = Boolean(
+    tripIsComplete(booking) &&
+    FLIGHT_NUMBER_RE.test(booking.flightNumber.trim().replace(/[\s-]/g, ''))
+  )
 
   const changeDirection = (departure: boolean) => {
     if (departure === booking.isDeparture) return
     updateBooking({ isDeparture: departure, pickup: null, destination: null })
   }
 
-  // Debounced flight lookup — requires both flight number (≥5 chars) and date
-  useEffect(() => {
-    const num = booking.flightNumber.trim().replace(/[\s-]/g, '')
-    if (num.length < 5 || !booking.date) {
-      setFlightStatus('idle')
-      setFlightData(null)
-      setShowAutoFill(false)
-      return
-    }
-    setFlightStatus('loading')
-    setFlightData(null)
-    setShowAutoFill(false)
-    const t = setTimeout(() => {
-      lookupFlight(num, booking.date!)
-        .then(data => {
-          setFlightData(data)
-          setFlightStatus('success')
-          setShowAutoFill(true)
-        })
-        .catch((err: Error) => {
-          const code = err.message as FlightLookupError
-          setFlightStatus(code === 'not_found' ? 'not_found' : code === 'validation_error' ? 'validation_error' : code === 'network_error' ? 'network_error' : 'unavailable')
-        })
-    }, 700)
-    return () => clearTimeout(t)
-  }, [booking.flightNumber, booking.date])
-
-  const handleAutoFillConfirm = () => {
-    if (!flightData) return
-    const iata = booking.isDeparture ? flightData.departure.iata : flightData.arrival.iata
-    const matched = copy.airports.find(a => a.includes(`(${iata})`))
-    const updates: Partial<BookingState> = {}
-    if (matched) {
-      if (booking.isDeparture) updates.destination = airportPlace(matched)
-      else updates.pickup = airportPlace(matched)
-    }
-    updateBooking(updates)
-    setShowAutoFill(false)
-    if (!booking.isDeparture) setShowPickupEstimator(true)
-  }
-
-  const handleEstimatorConfirm = (time: TimeValue) => {
-    updateBooking({ time })
-    setShowPickupEstimator(false)
-  }
-
-  const depIata = flightData?.departure.iata ?? '--'
-  const arrIata = flightData?.arrival.iata ?? '--'
-  const depTime = flightData ? flightTimeLabel(flightData.departure.scheduled_time) : '--:--'
-  const arrTime = flightData ? flightTimeLabel(flightData.arrival.scheduled_time) : '--:--'
-
   return (
     <>
-      {showAutoFill && flightData && (
-        <AnimatePresence>
-          <FlightAutoFillDialog
-            flight={flightData}
-            onConfirm={handleAutoFillConfirm}
-          />
-        </AnimatePresence>
-      )}
-      {showPickupEstimator && flightData && (
-        <AnimatePresence>
-          <PickupEstimatorDialog
-            flight={flightData}
-            onConfirm={handleEstimatorConfirm}
-            onClose={() => setShowPickupEstimator(false)}
-          />
-        </AnimatePresence>
-      )}
-
       <p className={styles.eyebrow}>{copy.services.airport}</p>
       <h2 className={styles.title}>{copy.tripDetails}</h2>
       <p className={styles.subtitle}>{copy.tripSubtitle}</p>
@@ -1579,45 +1344,6 @@ function TripDetails({ booking, updateBooking, next, back }: {
       </div>
 
       <div className={styles.fieldGrid}>
-        {/* Flight number first — it's mandatory and drives the rest */}
-        <div style={{ gridColumn: '1 / -1' }}>
-          <TextField label={copy.flightNumber} placeholder={copy.flightExample} value={booking.flightNumber} minLength={5} attempted={attempted} onChange={flightNumber => updateBooking({ flightNumber })} startIcon={<Image src={flightNumberSvg} alt="" width={20} height={18} />} />
-        </div>
-
-        <DatePickerField label={copy.flightDate} value={booking.date} attempted={attempted} onChange={date => updateBooking({ date })} />
-        <TimePickerField label={copy.pickupTime} value={booking.time} attempted={attempted} onChange={time => updateBooking({ time })} />
-
-        {/* Flight status feedback */}
-        {booking.flightNumber.trim().replace(/[\s-]/g, '').length >= 5 && !booking.date && flightStatus === 'idle' && (
-          <small className={styles.flightStatusHint} style={{ gridColumn: '1 / -1' }}>{copy.flightLookupDateNeeded}</small>
-        )}
-        {flightStatus === 'loading' && (
-          <small className={styles.flightStatusHint} style={{ gridColumn: '1 / -1' }}>{copy.flightLookupLoading}</small>
-        )}
-        {flightStatus === 'not_found' && (
-          <small className={styles.flightStatusError} style={{ gridColumn: '1 / -1' }}>{copy.flightLookupNotFound(booking.flightNumber.trim())}</small>
-        )}
-        {flightStatus === 'validation_error' && (
-          <small className={styles.flightStatusError} style={{ gridColumn: '1 / -1' }}>{copy.flightLookupValidationError}</small>
-        )}
-        {flightStatus === 'unavailable' && (
-          <small className={styles.flightStatusError} style={{ gridColumn: '1 / -1' }}>{copy.flightLookupUnavailable}</small>
-        )}
-        {flightStatus === 'network_error' && (
-          <small className={styles.flightStatusError} style={{ gridColumn: '1 / -1' }}>{copy.flightLookupNetworkError}</small>
-        )}
-
-        {/* Route preview (shown when flight found) */}
-        <div className={styles.field}>
-          <label>{copy.flightRoutePreview}</label>
-          <div className={styles.flightRoute} dir="ltr">
-            <span className={styles.routeHalf}>{depIata}<br />{depTime}</span>
-            <Image className={styles.plane} src={horizontalPlane} alt="" />
-            <span className={styles.routeHalf}>{arrIata}<br />{arrTime}</span>
-          </div>
-        </div>
-
-        {/* Airport / location fields — appear after flight section */}
         {booking.isDeparture ? (
           <>
             <PlacesAutocompleteField key="departure-pickup" label={copy.pickupLocation} placeholder={copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} />
@@ -1629,6 +1355,23 @@ function TripDetails({ booking, updateBooking, next, back }: {
             <PlacesAutocompleteField key="arrival-destination" label={copy.dropOff} placeholder={copy.enterDestination} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} />
           </>
         )}
+
+        <DatePickerField label={copy.flightDate} value={booking.date} attempted={attempted} onChange={date => updateBooking({ date })} />
+        <TimePickerField label={copy.pickupTime} value={booking.time} attempted={attempted} onChange={time => updateBooking({ time })} />
+
+        <div style={{ gridColumn: '1 / -1' }}>
+          <TextField
+            label={copy.flightNumber}
+            placeholder={copy.flightExample}
+            value={booking.flightNumber}
+            minLength={2}
+            attempted={attempted}
+            validate={validateFlightNumber}
+            onChange={flightNumber => updateBooking({ flightNumber })}
+            startIcon={<Image src={flightNumberSvg} alt="" width={20} height={18} />}
+          />
+        </div>
+
         {placesEqual(booking.pickup, booking.destination) && (
           <small className={styles.fieldError} style={{ gridColumn: '1 / -1' }}>{copy.validation.sameLocation}</small>
         )}
