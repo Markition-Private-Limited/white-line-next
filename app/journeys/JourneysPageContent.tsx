@@ -207,7 +207,7 @@ const TAB_STATUS: Record<'upcoming' | 'past' | 'canceled', string> = {
 const TABS: { key: 'upcoming' | 'past' | 'canceled'; en: string; ar: string }[] = [
   { key: 'upcoming', en: 'Upcoming', ar: 'القادمة' },
   { key: 'past',     en: 'Past',     ar: 'السابقة' },
-  { key: 'canceled', en: 'Canceled', ar: 'الملغاة'  },
+  { key: 'canceled', en: 'Cancelled', ar: 'الملغاة'  },
 ]
 
 type Tab = 'upcoming' | 'past' | 'canceled'
