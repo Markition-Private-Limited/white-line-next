@@ -1,5 +1,6 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Lock, Mail, ArrowRight, ArrowLeft } from 'lucide-react'
 import Navbar from '../layouts/Navbar'
 import { useLanguage } from '../context/LanguageContext'
@@ -10,15 +11,19 @@ const bannerSrc = (b2bBanner as any).src ?? b2bBanner
 const logoSrc = (logoSvg as any).src ?? logoSvg
 
 export default function B2BLoginPage() {
+  const router = useRouter()
   const { trans, dir } = useLanguage()
+
+  useEffect(() => {
+    window.open('https://white-line-b2b.vercel.app/', '_blank')
+    router.replace('/')
+  }, [])
   const isRtl = dir === 'rtl'
   const t = trans.b2bLogin
 
   const [tab, setTab] = useState<'login' | 'signup'>('login')
   const [showPass, setShowPass] = useState(false)
   const [remember, setRemember] = useState(false)
-
-  const openPortal = () => window.open('https://white-line-b2b.vercel.app/', '_blank')
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -84,7 +89,7 @@ export default function B2BLoginPage() {
               {(['login', 'signup'] as const).map((tabKey) => (
                 <button
                   key={tabKey}
-                  onClick={openPortal}
+                  onClick={() => setTab(tabKey)}
                   style={{
                     flex: 1,
                     paddingBottom: 14,
@@ -115,9 +120,7 @@ export default function B2BLoginPage() {
                 <input
                   type="email"
                   placeholder={t.emailPlaceholder}
-                  onFocus={openPortal}
-                  readOnly
-                  style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#111118', cursor: 'pointer' }}
+                  style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#111118' }}
                 />
               </div>
             </div>
@@ -137,9 +140,7 @@ export default function B2BLoginPage() {
                 <input
                   type={showPass ? 'text' : 'password'}
                   placeholder={t.passwordPlaceholder}
-                  onFocus={openPortal}
-                  readOnly
-                  style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#111118', cursor: 'pointer' }}
+                  style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#111118' }}
                 />
                 <button onClick={() => setShowPass(v => !v)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
                   {showPass ? <EyeOff size={16} color="#9ca3af" /> : <Eye size={16} color="#9ca3af" />}
@@ -161,7 +162,6 @@ export default function B2BLoginPage() {
 
             {/* Submit */}
             <button
-              onClick={openPortal}
               className="group relative w-full overflow-hidden flex items-center justify-center gap-2"
               style={{ height: 52, borderRadius: 999, background: '#005C66', border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 600, color: '#fff' }}
             >
