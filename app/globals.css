@@ -40,6 +40,15 @@ html, body {
   color: var(--text);
 }
 
+/* ── Service cards: b&w-on-hover is a desktop-only effect ─────────
+   Full color on touch devices (phone/tablet, incl. iPhone Safari)
+   and on narrow/mobile-width viewports, even from a desktop browser. */
+@media (max-width: 1023px), (hover: none), (pointer: coarse) {
+  .service-card-img {
+    filter: grayscale(0%) !important;
+  }
+}
+
 /* ── Google Places autocomplete dropdown ────────────────────────── */
 .pac-container {
   z-index: 99999 !important;
