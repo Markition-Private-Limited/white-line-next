@@ -5,6 +5,7 @@ import { LanguageProvider } from '@/context/LanguageContext'
 import Footer from '@/layouts/Footer'
 import ScrollReset from '@/components/ScrollReset'
 import CookieConsent from '@/components/CookieConsent'
+import PageLoader from '@/components/PageLoader'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body suppressHydrationWarning>
         <LanguageProvider>
           <LenisProvider>
+            <PageLoader />
             <ScrollReset />
             {children}
             <Footer />

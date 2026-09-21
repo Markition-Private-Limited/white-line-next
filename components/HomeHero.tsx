@@ -51,10 +51,6 @@ function ParallaxCard({
   const cardRef = useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = useState<Tilt>({ rotX: 0, rotY: 0, imgX: 0, imgY: 0 })
   const [active, setActive] = useState(false)
-  const [isTouch, setIsTouch] = useState(false)
-  useEffect(() => {
-    setIsTouch(window.matchMedia('(hover: none)').matches)
-  }, [])
 
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = cardRef.current
@@ -131,11 +127,11 @@ function ParallaxCard({
           alt={title}
           fill
           sizes="(max-width: 640px) 50vw, 20vw"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover service-card-img"
           style={{
             objectPosition,
             transform: `translate(${tilt.imgX}px, ${tilt.imgY}px) scale(1.1)`,
-            filter: (active || isTouch) ? 'grayscale(0%)' : 'grayscale(100%)',
+            filter: active ? 'grayscale(0%)' : 'grayscale(100%)',
             transition: active
               ? 'transform 0.08s linear, filter 0.4s ease'
               : 'transform 0.5s ease, filter 0.6s ease',

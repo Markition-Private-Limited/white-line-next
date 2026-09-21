@@ -22,7 +22,7 @@ type ErrMsgs = {
   errPhoneInvalid: string
   errHelpTopic: string
   errMessage: string; errMessageShort: string; errMessageLong: string
-  errDatePast: string
+  errDateRequired: string; errDatePast: string
 }
 
 const NAME_RE = /^[\p{L}\s'\-]+$/u
@@ -69,7 +69,9 @@ function validate(data: FormData, err: ErrMsgs): FormErrors {
 
   if (!data.helpTopic) errors.helpTopic = err.errHelpTopic
 
-  if (data.preferredDate) {
+  if (!data.preferredDate) {
+    errors.preferredDate = err.errDateRequired
+  } else {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     if (new Date(data.preferredDate) < today) errors.preferredDate = err.errDatePast
@@ -158,7 +160,7 @@ export default function ContactFormSection() {
     errPhoneInvalid: f.errPhoneInvalid,
     errHelpTopic: f.errHelpTopic,
     errMessage: f.errMessage, errMessageShort: f.errMessageShort, errMessageLong: f.errMessageLong,
-    errDatePast: f.errDatePast,
+    errDateRequired: f.errDateRequired, errDatePast: f.errDatePast,
   }
 
   const set = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
