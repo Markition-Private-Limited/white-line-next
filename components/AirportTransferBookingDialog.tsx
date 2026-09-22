@@ -989,7 +989,7 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
   const contactComplete = booking.name.trim().length >= 2 && /^\S+@\S+\.\S+$/.test(booking.email.trim()) && booking.phone.replace(/\D/g, '').length >= 8
   const guestFieldsComplete = booking.guest.name.trim().length >= 2 && booking.guest.phone.replace(/\D/g, '').length >= 8 && /^\S+@\S+\.\S+$/.test(booking.guest.email.trim())
   const authMobile = normalizePhone(authPhone)
-  const authPhoneComplete = /^\+966\d{9}$/.test(authMobile)
+  const authPhoneComplete = /^\+\d{8,15}$/.test(authMobile)
   const otpComplete = authOtp.every(digit => digit.trim().length === 1)
   const updateBookingRef = useRef(updateBooking)
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([])
@@ -1202,7 +1202,7 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
             <h3>{copy.customerLoginTitle}</h3>
             <p>{copy.customerLoginBody}</p>
             <PhoneField label={copy.phoneNumber} value={authPhone} attempted={authAttempted} onChange={setAuthPhone} />
-            {authAttempted && !authPhoneComplete && <small className={styles.selectionError}>{copy.ksaPhoneRequired}</small>}
+            {/* {authAttempted && !authPhoneComplete && <small className={styles.selectionError}>{copy.ksaPhoneRequired}</small>} */}
             {authError && <small className={styles.selectionError}>{authError}</small>}
             <button type="button" className={styles.authAction} onClick={submitPhone} disabled={authLoading}>{authLoading ? copy.sendingOtp : copy.sendOtp}</button>
           </>
