@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import { useLanguage } from '../context/LanguageContext'
-import masteryImg from '../assets/about_us/about_us_mastery.jpg'
+import masteryImg from '../assets/services_1/services/day_service/3.png'
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLElement>(null)
@@ -70,9 +70,9 @@ export default function AboutMasterySection() {
     transition: `opacity 0.85s ease ${delay}s, transform 0.85s ease ${delay}s`,
   })
 
-  const imgSrc = (masteryImg as any).src ?? masteryImg
+  const imgSrc = masteryImg.src
 
-  const CardList = ({ withFade = true }: { withFade?: boolean }) =>
+  const renderCardList = (withFade = true) =>
     mastery.cards.map((card, i) => (
       <div
         key={i}
@@ -166,7 +166,7 @@ export default function AboutMasterySection() {
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(10,12,20,0.95) 100%)' }} />
             </div>
             <div style={{ background: '#0a0c14', padding: '28px 20px 32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <CardList withFade={false} />
+              {renderCardList(false)}
             </div>
           </div>
         )}
@@ -197,7 +197,7 @@ export default function AboutMasterySection() {
               className="absolute inset-y-0 flex flex-col justify-center gap-4"
               style={{ padding: 'clamp(24px, 3vw, 48px)', maxWidth: '52%', [isRtl ? 'right' : 'left']: 0 }}
             >
-              <CardList />
+              {renderCardList()}
             </div>
           </div>
         )}

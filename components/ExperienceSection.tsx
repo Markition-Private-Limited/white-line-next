@@ -1,6 +1,5 @@
 ﻿'use client'
 import { useEffect, useRef, useState } from 'react'
-import Image from 'next/image'
 import type { StaticImageData } from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
 
@@ -8,9 +7,9 @@ import carouselImg1 from '../assets/home_carousel/carousel-image-1.jpg'
 import carouselImg2 from '../assets/home_carousel/carousel-image-2.jpg'
 import carouselImg3 from '../assets/home_carousel/carousel-image-3.png'
 import carouselImg4 from '../assets/home_carousel/carousel-image-4.png'
-import carouselImg5 from '../assets/home_carousel/carousel-image.jpg'
+import carouselImg5 from '../assets/home_carousel/carousel-image-diff-format.png'
 
-const IMAGES = [carouselImg1, carouselImg2, carouselImg3, carouselImg4, carouselImg5].map(i => (i as any).src ?? i) as string[]
+const IMAGES = [carouselImg1, carouselImg2, carouselImg3, carouselImg4, carouselImg5].map((image: StaticImageData) => image.src)
 
 // Numeric values stay constant; labels come from translations
 const STAT_NUMS = [50, 500, 99, null]
@@ -179,7 +178,6 @@ export default function ExperienceSection() {
   useEffect(() => {
     startTimer()
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const selectCard = (i: number) => {

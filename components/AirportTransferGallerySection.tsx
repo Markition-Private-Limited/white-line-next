@@ -3,17 +3,15 @@ import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
 import img1 from '../assets/services_1/services/airport_transfer/1.jpg'
-import img2 from '../assets/services_1/services/airport_transfer/2.jpg'
+import img2 from '../assets/services_1/services/airport_transfer/carousel-image-diff-format.png'
 import img3 from '../assets/services_1/services/airport_transfer/3.jpg'
 import hourlyImg1 from '../assets/services_1/services/hourly/arabic-man-2.png'
 import hourlyImg2 from '../assets/services_1/services/hourly/2.png'
-import hourlyImg3 from '../assets/services_1/services/hourly/3.png'
-import cityToCityImg1 from '../assets/services_1/services/city_to_city/1.jpg'
+import cityToCityImg1 from '../assets/home_carousel/carousel-image-3.png'
 import cityToCityImg2 from '../assets/services_1/services/city_to_city/2.jpg'
-import cityToCityImg3 from '../assets/services_1/services/city_to_city/3.jpg'
 import dayServiceImg1 from '../assets/services_1/services/day_service/smiling-arabic-girl.jpg'
-import dayServiceImg2 from '../assets/services_1/services/day_service/2.jpg'
-import dayServiceImg3 from '../assets/services_1/services/day_service/3.jpg'
+import dayServiceImg2 from '../assets/services_1/services/day_service/2.png'
+import dayServiceImg3 from '../assets/services_1/services/day_service/3.png'
 import oneWayRideImg1 from '../assets/services_1/services/one-way/1.jpg'
 import oneWayRideImg2 from '../assets/services_1/services/one-way/2.png'
 import oneWayRideImg3 from '../assets/services_1/services/one-way/3.jpg'
@@ -58,9 +56,9 @@ export default function AirportTransferGallerySection({ servicePage = 'airportTr
   const isRtl = dir === 'rtl'
   const { overview } = trans[servicePage]
   const [galleryImg1, galleryImg2, galleryImg3] = servicePage === 'hourlyBookingPage'
-    ? [hourlyImg1, hourlyImg2, hourlyImg3]
+    ? [hourlyImg1, hourlyImg2, dayServiceImg3]
     : servicePage === 'cityToCityPage'
-      ? [cityToCityImg1, cityToCityImg2, cityToCityImg3]
+      ? [cityToCityImg1, cityToCityImg2, dayServiceImg3]
       : servicePage === 'dayServicePage'
         ? [dayServiceImg1, dayServiceImg2, dayServiceImg3]
         : servicePage === 'oneWayRidePage'

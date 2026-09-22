@@ -13,7 +13,7 @@ import contactBanner from '../assets/contact_us/contact_banner.webp'
 
 const HERO_BANNERS = [heroBanner, servicesBanner, contactBanner]
 const HERO_BANNERS_MOBILE = [heroBannerMobile, servicesBanner, contactBanner]
-import card1 from '../assets/home/home_page_banner_Sub_images/1.jpg'
+import card1 from '../assets/home/home_page_banner_Sub_images/1.png'
 import card2 from '../assets/home/home_page_banner_Sub_images/2(3).jpg'
 import card3 from '../assets/home/home_page_banner_Sub_images/5(1).jpg'
 import card4 from '../assets/home/home_page_banner_Sub_images/4.jpg'

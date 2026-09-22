@@ -3,7 +3,7 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+import type { StaticImageData } from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
 
 function useIsMobile() {
@@ -17,9 +17,11 @@ function useIsMobile() {
   return mobile
 }
 
-import img1 from '../assets/home_why_choose/1.jpg'
-import img2 from '../assets/home_why_choose/2.jpg'
-import img3 from '../assets/home_why_choose/3.jpg'
+import img1 from '../assets/home_carousel/carousel-image-3.png'
+import img2 from '../assets/home_carousel/carousel-image-diff-format.png'
+import img3 from '../assets/services_1/services/day_service/3.png'
+
+const imageSrc = (image: StaticImageData) => image.src
 
 function SlideButton({ label, icon, onClick }: { label: string; icon?: React.ReactNode; onClick?: () => void }) {
   return (
@@ -134,7 +136,7 @@ export default function WhyChooseSection() {
             {/* Large image — spans both rows */}
             <div className="overflow-hidden rounded-2xl" style={{ gridRow: '1 / 3' }}>
               <motion.img
-                src={(img1 as any).src ?? img1}
+                src={imageSrc(img1)}
                 alt="Luxury car on city street"
                 className="w-full h-full object-cover object-center"
                 style={{ y: y1, scale: 1.18 }}
@@ -146,7 +148,7 @@ export default function WhyChooseSection() {
             {/* Top-right — fills exactly the first row */}
             <div className="overflow-hidden rounded-2xl">
               <motion.img
-                src={(img2 as any).src ?? img2}
+                src={imageSrc(img2)}
                 alt="Chauffeur opening car door"
                 className="w-full h-full object-cover object-center"
                 style={{ y: isMobile ? 0 : y2, scale: 1.18 }}
@@ -158,7 +160,7 @@ export default function WhyChooseSection() {
             {/* Bottom-right — fills exactly the second row */}
             <div className="overflow-hidden rounded-2xl">
               <motion.img
-                src={(img3 as any).src ?? img3}
+                src={imageSrc(img3)}
                 alt="Chauffeur assisting passenger"
                 className="w-full h-full object-cover object-center"
                 style={{ y: isMobile ? 0 : y3, scale: 1.18 }}
