@@ -15,6 +15,8 @@ interface Props {
   onChange?: (place: PlaceValue | null) => void
   attempted?: boolean
   types?: string[]
+  locationRestriction?: { lat: number; lng: number; radius: number }
+  filterPrediction?: (p: Prediction) => boolean
 }
 
 type Prediction = {
@@ -45,7 +47,7 @@ declare global {
         places: {
           AutocompleteService: new () => {
             getPlacePredictions: (
-              request: { input: string; componentRestrictions?: { country: string }; types?: string[] },
+              request: { input: string; componentRestrictions?: { country: string }; types?: string[]; location?: { lat: () => number; lng: () => number }; radius?: number; strictBounds?: boolean },
               callback: (results: Prediction[] | null, status: string) => void
             ) => void
           }
@@ -56,7 +58,7 @@ declare global {
   }
 }
 
-export default function PlacesAutocompleteField({ label, placeholder, value: selectedPlace, onSelect, onChange, attempted, types }: Props) {
+export default function PlacesAutocompleteField({ label, placeholder, value: selectedPlace, onSelect, onChange, attempted, types, locationRestriction, filterPrediction }: Props) {
   const { lang } = useLanguage()
   const copy = bookingDialogCopy[lang]
   const fieldRef = useRef<HTMLDivElement>(null)
@@ -73,18 +75,29 @@ export default function PlacesAutocompleteField({ label, placeholder, value: sel
     serviceRef.current = new window.google.maps.places.AutocompleteService()
   }, [mapsReady])
 
+  const locationRestrictionRef = useRef(locationRestriction)
+  locationRestrictionRef.current = locationRestriction
+  const filterPredictionRef = useRef(filterPrediction)
+  filterPredictionRef.current = filterPrediction
+
   const fetchPredictions = useCallback((input: string) => {
     if (!serviceRef.current || input.length < 2) {
       setPredictions([])
       setOpen(false)
       return
     }
+    const lr = locationRestrictionRef.current
+    const locationFields = lr
+      ? { location: { lat: () => lr.lat, lng: () => lr.lng }, radius: lr.radius, strictBounds: true }
+      : {}
     serviceRef.current.getPlacePredictions(
-      { input, componentRestrictions: { country: 'sa' }, ...(types ? { types } : {}) },
+      { input, componentRestrictions: { country: 'sa' }, ...(types ? { types } : {}), ...locationFields },
       (results, status) => {
         if (status === 'OK' && results) {
-          setPredictions(results)
-          setOpen(true)
+          const fn = filterPredictionRef.current
+          const filtered = fn ? results.filter(fn) : results
+          setPredictions(filtered)
+          setOpen(filtered.length > 0)
         } else {
           setPredictions([])
           setOpen(false)

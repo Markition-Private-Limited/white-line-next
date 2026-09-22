@@ -938,14 +938,20 @@ function placesEqual(a: PlaceValue | null, b: PlaceValue | null): boolean {
 
 const tripIsComplete = (booking: BookingState) => Boolean(booking.pickup && booking.destination && booking.date && booking.time && !placesEqual(booking.pickup, booking.destination))
 
-function LocationScheduleFields({ booking, updateBooking, pickupLabel, pickupPlaceholder, destinationLabel, destinationPlaceholder, attempted, citiesOnly }: { booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void; pickupLabel?: string; pickupPlaceholder?: string; destinationLabel?: string; destinationPlaceholder?: string; attempted: boolean; citiesOnly?: boolean }) {
+const RIYADH_RESTRICTION = { lat: 24.7136, lng: 46.6753, radius: 30000 }
+
+function LocationScheduleFields({ booking, updateBooking, pickupLabel, pickupPlaceholder, destinationLabel, destinationPlaceholder, attempted, citiesOnly, riyadhOnly }: { booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void; pickupLabel?: string; pickupPlaceholder?: string; destinationLabel?: string; destinationPlaceholder?: string; attempted: boolean; citiesOnly?: boolean; riyadhOnly?: boolean }) {
   const { copy } = useBookingDialogCopy()
   const cityTypes = citiesOnly ? ['(cities)'] : undefined
+  const locationRestriction = riyadhOnly ? RIYADH_RESTRICTION : undefined
+  const riyadhFilter = riyadhOnly
+    ? (p: { description: string }) => /riyadh/i.test(p.description)
+    : undefined
   const sameLocation = placesEqual(booking.pickup, booking.destination)
   return (
     <div className={styles.fieldGrid}>
-      <PlacesAutocompleteField label={pickupLabel ?? copy.pickupLocation} placeholder={pickupPlaceholder ?? copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} types={cityTypes} />
-      <PlacesAutocompleteField label={destinationLabel ?? copy.destination} placeholder={destinationPlaceholder ?? copy.selectDropOff} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} types={cityTypes} />
+      <PlacesAutocompleteField label={pickupLabel ?? copy.pickupLocation} placeholder={pickupPlaceholder ?? copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} types={cityTypes} locationRestriction={locationRestriction} filterPrediction={riyadhFilter} />
+      <PlacesAutocompleteField label={destinationLabel ?? copy.destination} placeholder={destinationPlaceholder ?? copy.selectDropOff} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} types={cityTypes} locationRestriction={locationRestriction} filterPrediction={riyadhFilter} />
       {sameLocation && <small className={styles.fieldError} style={{ gridColumn: '1 / -1' }}>{copy.validation.sameLocation}</small>}
       <DatePickerField label={copy.pickupDate} value={booking.date} attempted={attempted} onChange={date => updateBooking({ date })} />
       <TimePickerField label={copy.pickupTime} value={booking.time} attempted={attempted} onChange={time => updateBooking({ time })} />
@@ -1436,7 +1442,7 @@ function CityTripDetails({ booking, updateBooking, next, back }: {
       <h2 className={styles.title}>{copy.tripDetails}</h2>
       <p className={styles.subtitle}>{copy.tripSubtitle}</p>
 
-      <LocationScheduleFields booking={booking} updateBooking={updateBooking} attempted={attempted} citiesOnly />
+      <LocationScheduleFields booking={booking} updateBooking={updateBooking} attempted={attempted} riyadhOnly />
 
       <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripIsComplete(booking)} onAttempt={() => setAttempted(true)} />
     </>
@@ -1457,7 +1463,7 @@ function OneWayTripDetails({ booking, updateBooking, next, back }: {
       <h2 className={styles.title}>{copy.tripDetails}</h2>
       <p className={styles.subtitle}>{copy.tripSubtitle}</p>
 
-      <LocationScheduleFields booking={booking} updateBooking={updateBooking} destinationLabel={copy.dropOff} attempted={attempted} />
+      <LocationScheduleFields booking={booking} updateBooking={updateBooking} destinationLabel={copy.dropOff} attempted={attempted} citiesOnly />
 
       <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripIsComplete(booking)} onAttempt={() => setAttempted(true)} />
     </>

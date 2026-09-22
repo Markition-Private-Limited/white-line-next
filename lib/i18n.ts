@@ -59,10 +59,10 @@ const en = {
     ],
     services: [
       { title: 'Airport Transfer',  desc: 'Airport pickups and drop-offs.' },
-      { title: 'City Trip',           desc: 'Comfortable intercity travel.' },
+      { title: 'City Trip',           desc: 'Point-to-point travel within Riyadh.' },
       { title: 'Day Service',       desc: 'Full-day vehicle block.' },
       { title: 'Hourly Chauffeur',  desc: 'Keep your chauffeur by the hour.' },
-      { title: 'One Way Ride',      desc: 'Simple point-to-point travel.' },
+      { title: 'City to City',      desc: 'Intercity travel between major cities.' },
     ],
     bookNow: 'Book Now',
   },
@@ -217,9 +217,9 @@ const en = {
     tagline: 'Premium chauffeur services built on comfort, reliability, and discretion.',
     columns: {
       company:   { title: 'Company',   links: ['About Us', 'Terms & Conditions', 'Privacy Policy'] },
-      services:  { title: 'Services',  links: ['One Way Ride', 'Hourly Chauffeur', 'City Trip', 'Day Service', 'Airport Transfer'] },
+      services:  { title: 'Services',  links: ['City to City', 'Hourly Chauffeur', 'City Trip', 'Day Service', 'Airport Transfer'] },
       resources: { title: 'Our Fleet', links: ['First Class', 'Business Premium', 'SUV', 'Business Sedan', 'Economy Sedan', 'Van'] },
-      support:   { title: 'Support',   links: ['Contact Us', 'Testimonials'] },
+      support:   { title: 'Support',   links: ['Contact Us'] },
     },
   },
 
@@ -1244,10 +1244,10 @@ const ar: typeof en = {
     ],
     services: [
       { title: 'نقل المطار',    desc: 'استقبال وتوصيل من وإلى المطار.' },
-      { title: 'رحلة المدن',    desc: 'رحلات مريحة بين المدن.' },
-      { title: 'خدمة اليوم',   desc: 'حجز السيارة ليوم كامل.' },
-      { title: 'سائق بالساعة', desc: 'احتفظ بسائقك الخاص بالساعة.' },
-      { title: 'رحلة أحادية',   desc: 'تنقل مباشر من نقطة لأخرى.' },
+      { title: 'رحلة المدن',       desc: 'تنقل من نقطة لأخرى داخل الرياض.' },
+      { title: 'خدمة اليوم',      desc: 'حجز السيارة ليوم كامل.' },
+      { title: 'سائق بالساعة',   desc: 'احتفظ بسائقك الخاص بالساعة.' },
+      { title: 'من مدينة إلى مدينة', desc: 'سفر بين كبرى المدن السعودية.' },
     ],
     bookNow: 'احجز الآن',
   },
@@ -1426,9 +1426,9 @@ const ar: typeof en = {
     tagline: 'خدمات سائق راقية مبنية على الراحة والموثوقية والخصوصية.',
     columns: {
       company:   { title: 'الشركة',   links: ['من نحن', 'الشروط والأحكام', 'سياسة الخصوصية'] },
-      services:  { title: 'الخدمات', links: ['رحلة أحادية', 'سائق بالساعة', 'رحلة المدن', 'خدمة اليوم', 'نقل المطار'] },
+      services:  { title: 'الخدمات', links: ['من مدينة إلى مدينة', 'سائق بالساعة', 'رحلة المدن', 'خدمة اليوم', 'نقل المطار'] },
       resources: { title: 'أسطولنا', links: ['الدرجة الأولى', 'درجة الأعمال الممتازة', 'SUV', 'سيدان الأعمال', 'سيدان اقتصادية', 'فان'] },
-      support:   { title: 'الدعم',   links: ['تواصل معنا', 'التقييمات'] },
+      support:   { title: 'الدعم',   links: ['تواصل معنا'] },
     },
   },
 

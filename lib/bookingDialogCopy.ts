@@ -6,7 +6,7 @@ const en = {
     hourly: 'Hourly Chauffeur',
     city: 'City Trip',
     day: 'Day Service',
-    oneWay: 'One Way Ride',
+    oneWay: 'City to City',
   },
   dialogLabel: 'booking',
   tripDetails: 'Trip Details',
@@ -117,7 +117,7 @@ const en = {
     flight: 'Flight', flightDate: 'Flight Date', pickupDate: 'Pickup Date', pickupTime: 'Pickup Time',
     duration: 'Duration', journey: 'Journey', category: 'Category', vehicle: 'Vehicle',
   },
-  summaryValues: { city: 'City Trip', oneWay: 'One Way' },
+  summaryValues: { city: 'City Trip', oneWay: 'City to City' },
   addresses: {
     kingFahd: 'King Fahd Road, Riyadh', riyadhFront: 'Riyadh Front, Riyadh',
     riyadh: 'Riyadh, Saudi Arabia', jeddah: 'Jeddah, Saudi Arabia', airport: 'Riyadh International Airport, RUH',
@@ -125,10 +125,10 @@ const en = {
   fareSummary: 'Fare Summary',
   fareSubtitle: {
     airport: 'Your fare for this airport transfer.', hourly: 'Your fare for this hourly booking.',
-    city: 'Your fare for this City Trip.', day: 'Your fare for this day service.', oneWay: 'Your fare for this one-way ride.',
+    city: 'Your fare for this City Trip.', day: 'Your fare for this day service.', oneWay: 'Your fare for this city-to-city trip.',
   },
   fareLabels: {
-    airport: 'Transfer Fare', hourly: 'Hourly Fare', city: 'Journey Fare', day: 'Day Service Fare', oneWay: 'Ride Fare',
+    airport: 'Transfer Fare', hourly: 'Hourly Fare', city: 'Journey Fare', day: 'Day Service Fare', oneWay: 'City to City Fare',
   },
   serviceFee: 'Service Fee',
   distanceFare: 'Distance Fare',
@@ -223,7 +223,7 @@ const ar: typeof en = {
     hourly: 'سائق بالساعة',
     city: 'رحلة المدن',
     day: 'خدمة يومية',
-    oneWay: 'مشوار باتجاه واحد',
+    oneWay: 'من مدينة إلى مدينة',
   },
   dialogLabel: 'حجز',
   tripDetails: 'تفاصيل المشوار',
@@ -334,7 +334,7 @@ const ar: typeof en = {
     flight: 'الرحلة', flightDate: 'تاريخ الرحلة', pickupDate: 'تاريخ المشوار', pickupTime: 'وقت الانطلاق',
     duration: 'المدة', journey: 'نوع المشوار', category: 'الفئة', vehicle: 'السيارة',
   },
-  summaryValues: { city: 'رحلة المدن', oneWay: 'اتجاه واحد' },
+  summaryValues: { city: 'رحلة المدن', oneWay: 'من مدينة إلى مدينة' },
   addresses: {
     kingFahd: 'طريق الملك فهد، الرياض', riyadhFront: 'واجهة الرياض، الرياض',
     riyadh: 'الرياض، السعودية', jeddah: 'جدة، السعودية', airport: 'مطار الملك خالد الدولي، RUH',
@@ -342,10 +342,10 @@ const ar: typeof en = {
   fareSummary: 'ملخص السعر',
   fareSubtitle: {
     airport: 'هذا سعر توصيلة المطار.', hourly: 'هذا سعر حجز السائق بالساعة.',
-    city: 'هذا سعر رحلة المدن.', day: 'هذا سعر الخدمة اليومية.', oneWay: 'هذا سعر المشوار باتجاه واحد.',
+    city: 'هذا سعر رحلة المدن.', day: 'هذا سعر الخدمة اليومية.', oneWay: 'هذا سعر رحلتك بين المدن.',
   },
   fareLabels: {
-    airport: 'سعر التوصيلة', hourly: 'سعر الحجز بالساعة', city: 'سعر الرحلة', day: 'سعر الخدمة اليومية', oneWay: 'سعر المشوار',
+    airport: 'سعر التوصيلة', hourly: 'سعر الحجز بالساعة', city: 'سعر الرحلة', day: 'سعر الخدمة اليومية', oneWay: 'سعر رحلة المدن',
   },
   serviceFee: 'رسوم الخدمة',
   distanceFare: 'سعر المسافة',
