@@ -2064,6 +2064,12 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
       const checkoutUrl: string = json?.payment?.checkout_url ?? json?.data?.payment?.checkout_url ?? ''
       if (checkoutUrl) {
         if (bookingNumber) { try { localStorage.setItem('whiteline.pendingBookingRef', bookingNumber) } catch {} }
+        // Store booking_id + auth_token so BookingConfirmedContent can call PayTabs confirm-payment
+        // even if the gateway strips query params from the redirect URL.
+        const pendingBookingId: string = json?.booking_id ?? json?.data?.booking_id ?? ''
+        const pendingAuthToken: string = json?.auth_token ?? json?.data?.auth_token ?? ''
+        if (pendingBookingId) { try { localStorage.setItem('whiteline.pendingBookingId', pendingBookingId) } catch {} }
+        if (pendingAuthToken) { try { localStorage.setItem('whiteline.pendingBookingToken', pendingAuthToken) } catch {} }
         onRedirecting?.()
         window.location.href = checkoutUrl
       } else {

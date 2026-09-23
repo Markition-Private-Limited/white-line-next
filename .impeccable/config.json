@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "layout-transition",
+        "value": "*",
+        "files": [
+          "components/AirportTransferBookingDialog.module.css"
+        ],
+        "createdAt": "2026-09-23T08:44:54.302Z",
+        "reason": "Intentional slider dot pill expansion (7px->19px); width animates to shift adjacent dots apart — transform:scaleX would freeze layout footprint and break indicator spacing"
+      }
+    ]
+  }
+}

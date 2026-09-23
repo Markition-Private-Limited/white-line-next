@@ -4,7 +4,7 @@ import { ArrowRight, ArrowLeft } from 'lucide-react'
 import Navbar from '../layouts/Navbar'
 import Image from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
-import fleetBanner from '../assets/fleet/fleet_banner.jpg'
+import fleetBanner from '../assets/fleet/fleet_banner.png'
 
 function SlideButton({ label, icon, onClick }: { label: string; icon?: React.ReactNode; onClick?: () => void }) {
   return (
