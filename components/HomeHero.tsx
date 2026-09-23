@@ -343,8 +343,6 @@ export default function HomeHero() {
                     defaultPb="70%"
                     objectPosition={i === 2 ? '50% 15%' : 'center'}
                     onBook={bookingForCard(i)}
-                    comingSoon={i === 4}
-                    comingSoonLabel={dir === 'rtl' ? 'قريباً' : 'Coming Soon'}
                   />
                 </div>
                 {/* ── Sm+: ghost sizes the cell; card expands upward on hover ── */}
@@ -364,8 +362,6 @@ export default function HomeHero() {
                       isRtl={isRtl}
                       objectPosition={i === 2 ? '50% 15%' : 'center'}
                       onBook={bookingForCard(i)}
-                      comingSoon={i === 4}
-                      comingSoonLabel={dir === 'rtl' ? 'قريباً' : 'Coming Soon'}
                     />
                   </div>
                 </div>

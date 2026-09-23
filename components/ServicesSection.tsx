@@ -295,8 +295,7 @@ export default function ServicesSection() {
             total={cards.length}
             scrollYProgress={scrollYProgress}
             isRtl={isRtl}
-            comingSoon={card.link === '/services/one-way-ride'}
-            comingSoonLabel={isRtl ? 'قريباً' : 'Coming Soon'}
+            comingSoon={false}
           />
         ))}
       </div>

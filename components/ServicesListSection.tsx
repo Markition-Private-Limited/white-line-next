@@ -307,8 +307,7 @@ export default function ServicesListSection() {
             slug={SLUGS[i]}
             pageUrl={SERVICE_PAGE_URLS[i]}
             isRtl={isRtl}
-            comingSoon={SLUGS[i] === 'one-way-ride'}
-            comingSoonLabel={isRtl ? 'قريباً' : 'Coming Soon'}
+            comingSoon={false}
           />
         ))}
 
