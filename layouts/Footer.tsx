@@ -8,7 +8,7 @@ import { LANG_META } from '../lib/i18n'
 // hrefs never change — only labels come from translations
 const ENTITY_TYPE_HREFS = ['/about', '/terms', '/privacy']
 const SERVICE_HREFS      = [
-  '/services/one-way-ride',
+  '/services/city-to-city',
   '/services/hourly-booking',
   '/services/city-to-city',
   '/services/day-service',
@@ -113,7 +113,7 @@ export default function Footer() {
   const comingSoonLabel = isRTL ? 'قريباً' : 'Soon'
   const columns = [
     { col: company,   links: company.links.map((label, i) => ({ label, to: ENTITY_TYPE_HREFS[i] ?? '#' })), arrow: false },
-    { col: services,  links: services.links.map((label, i) => ({ label, to: SERVICE_HREFS[i] ?? '#', comingSoon: SERVICE_HREFS[i] === '/services/one-way-ride' })), arrow: true  },
+    { col: services,  links: services.links.map((label, i) => ({ label, to: SERVICE_HREFS[i] ?? '#' })), arrow: true  },
     { col: resources, links: resources.links.map((label, i) => ({ label, to: RESOURCE_HREFS[i] ?? '#' })), arrow: false },
     { col: support,   links: support.links.map((label, i) => ({ label, to: SUPPORT_HREFS[i] ?? '#' })), arrow: false },
   ]

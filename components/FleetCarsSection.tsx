@@ -25,7 +25,6 @@ const FILTER_KEYS: Category[] = ['All', 'First Class', 'Business Premium', 'SUV'
 const CARS: { name: string; luggages: number; persons: number; category: Exclude<Category, 'All'>; img: string }[] = [
   { name: 'Mercedes-Benz S-Class', luggages: 2, persons: 3, category: 'First Class', img: _src(img1) },
   { name: 'BMW 7 Series', luggages: 2, persons: 3, category: 'First Class', img: _src(img2) },
-  { name: 'BMW 7 Series', luggages: 2, persons: 3, category: 'Business Premium', img: _src(img3) },
   { name: 'BMW 5 Series', luggages: 2, persons: 3, category: 'Business Premium', img: _src(img4) },
   { name: 'Chevrolet Suburban', luggages: 4, persons: 6, category: 'SUV', img: _src(img5) },
   { name: 'Chevrolet Tahoe', luggages: 4, persons: 6, category: 'SUV', img: _src(img6) },
