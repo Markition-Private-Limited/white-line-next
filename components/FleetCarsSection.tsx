@@ -23,16 +23,16 @@ type Category = 'All' | 'First Class' | 'Business Premium' | 'SUV' | 'Business S
 const FILTER_KEYS: Category[] = ['All', 'First Class', 'Business Premium', 'SUV', 'Business Sedan', 'Economy Sedan', 'Van']
 
 const CARS: { name: string; luggages: number; persons: number; category: Exclude<Category, 'All'>; img: string }[] = [
-  { name: 'Mercedes-Benz S-Class', luggages: 2, persons: 3, category: 'First Class', img: _src(img1) },
-  { name: 'BMW 7 Series', luggages: 2, persons: 3, category: 'First Class', img: _src(img2) },
-  { name: 'BMW 5 Series', luggages: 2, persons: 3, category: 'Business Premium', img: _src(img4) },
-  { name: 'Chevrolet Suburban', luggages: 4, persons: 6, category: 'SUV', img: _src(img5) },
-  { name: 'Chevrolet Tahoe', luggages: 4, persons: 6, category: 'SUV', img: _src(img6) },
-  { name: 'GMC Yukon XL', luggages: 4, persons: 6, category: 'SUV', img: _src(img7) },
-  { name: 'GMC Yukon', luggages: 4, persons: 6, category: 'SUV', img: _src(img8) },
-  { name: 'Lexus ES350', luggages: 2, persons: 3, category: 'Business Sedan', img: _src(img9) },
-  { name: 'Ford Taurus', luggages: 2, persons: 3, category: 'Economy Sedan', img: _src(img10) },
-  { name: 'Hyundai Staria', luggages: 4, persons: 7, category: 'Van', img: _src(img11) },
+  { name: 'Mercedes-Benz S-Class', luggages: 3, persons: 3, category: 'First Class', img: _src(img1) },
+  { name: 'BMW 7 Series', luggages: 3, persons: 3, category: 'First Class', img: _src(img2) },
+  { name: 'BMW 5 Series', luggages: 3, persons: 3, category: 'Business Premium', img: _src(img4) },
+  { name: 'Chevrolet Suburban', luggages: 6, persons: 6, category: 'SUV', img: _src(img5) },
+  { name: 'Chevrolet Tahoe', luggages: 6, persons: 6, category: 'SUV', img: _src(img6) },
+  { name: 'GMC Yukon XL', luggages: 6, persons: 6, category: 'SUV', img: _src(img7) },
+  { name: 'GMC Yukon', luggages: 6, persons: 6, category: 'SUV', img: _src(img8) },
+  { name: 'Lexus ES350', luggages: 3, persons: 3, category: 'Business Sedan', img: _src(img9) },
+  { name: 'Ford Taurus', luggages: 3, persons: 3, category: 'Economy Sedan', img: _src(img10) },
+  { name: 'Hyundai Staria', luggages: 7, persons: 7, category: 'Van', img: _src(img11) },
 ]
 
 function LuggageIcon() {
