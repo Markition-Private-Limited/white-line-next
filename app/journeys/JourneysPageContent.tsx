@@ -25,6 +25,8 @@ type Booking = {
   bookingNumber: string | null
   serviceType: string | null
   status: string
+  paymentStatus: string | null
+  paymentMethod: string | null
   pickupAddress: string | null
   dropoffAddress: string | null
   scheduledDatetime: string | null
@@ -36,14 +38,21 @@ type Booking = {
 // ── Label maps ─────────────────────────────────────────────────────────────────
 
 const STATUS: Record<string, { en: string; ar: string; color: string; bg: string }> = {
-  pending:   { en: 'Pending',     ar: 'في الانتظار',  color: '#b45309', bg: '#fef3c7' },
-  assigned:  { en: 'Assigned',    ar: 'تم التعيين',   color: '#1e40af', bg: '#dbeafe' },
-  accepted:  { en: 'Confirmed',   ar: 'مؤكد',         color: '#065f46', bg: '#d1fae5' },
-  en_route:  { en: 'En Route',    ar: 'في الطريق',    color: '#4338ca', bg: '#e0e7ff' },
-  arrived:   { en: 'Arrived',     ar: 'وصل السائق',   color: '#7c3aed', bg: '#ede9fe' },
-  started:   { en: 'In Progress', ar: 'جارٍ المشوار', color: '#0369a1', bg: '#e0f2fe' },
-  completed: { en: 'Completed',   ar: 'مكتمل',        color: '#166534', bg: '#dcfce7' },
-  cancelled: { en: 'Cancelled',   ar: 'ملغي',         color: '#991b1b', bg: '#fee2e2' },
+  pending:   { en: 'Awaiting Driver', ar: 'بانتظار السائق', color: '#b45309', bg: '#fef3c7' },
+  assigned:  { en: 'Driver Assigned', ar: 'تم تعيين السائق', color: '#1e40af', bg: '#dbeafe' },
+  accepted:  { en: 'Confirmed',       ar: 'مؤكد',            color: '#065f46', bg: '#d1fae5' },
+  en_route:  { en: 'En Route',        ar: 'في الطريق',       color: '#4338ca', bg: '#e0e7ff' },
+  arrived:   { en: 'Driver Arrived',  ar: 'وصل السائق',      color: '#7c3aed', bg: '#ede9fe' },
+  started:   { en: 'In Progress',     ar: 'جارٍ المشوار',    color: '#0369a1', bg: '#e0f2fe' },
+  completed: { en: 'Completed',       ar: 'مكتمل',           color: '#166534', bg: '#dcfce7' },
+  cancelled: { en: 'Cancelled',       ar: 'ملغي',            color: '#991b1b', bg: '#fee2e2' },
+}
+
+const PAYMENT_STATUS: Record<string, { en: string; ar: string; color: string; bg: string; dot: string }> = {
+  paid:    { en: 'Paid',            ar: 'مدفوع',           color: '#166534', bg: '#dcfce7', dot: '#22c55e' },
+  pending: { en: 'Payment Pending', ar: 'في انتظار الدفع', color: '#92400e', bg: '#fef3c7', dot: '#f59e0b' },
+  failed:  { en: 'Payment Failed',  ar: 'فشل الدفع',       color: '#991b1b', bg: '#fee2e2', dot: '#ef4444' },
+  refunded:{ en: 'Refunded',        ar: 'مُسترد',          color: '#1e40af', bg: '#dbeafe', dot: '#3b82f6' },
 }
 
 const SERVICE: Record<string, { en: string; ar: string }> = {
@@ -93,6 +102,7 @@ function fmtFare(fare: string | null | undefined) {
 function JourneyCard({ b, lang }: { b: Booking; lang: string }) {
   const isAr = lang === 'ar'
   const status = STATUS[b.status] ?? { en: b.status, ar: b.status, color: '#374151', bg: '#f3f4f6' }
+  const payStatus = b.paymentStatus ? PAYMENT_STATUS[b.paymentStatus] ?? null : null
   const service = b.serviceType ? SERVICE[b.serviceType] : null
   const date = fmtDate(b.scheduledDatetime, lang)
   const time = fmtTime(b.scheduledDatetime)
@@ -185,12 +195,23 @@ function JourneyCard({ b, lang }: { b: Booking; lang: string }) {
           </div>
         )}
 
-        {/* Fare */}
-        {fare && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 4, borderTop: '1px solid #f3f4f6' }}>
-            <span style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 14, color: '#1a1a2e' }}>
-              {fare}
-            </span>
+        {/* Fare + payment status */}
+        {(fare || payStatus) && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6', gap: 8 }}>
+            {payStatus ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: payStatus.color, background: payStatus.bg, borderRadius: 8, padding: '3px 9px', fontFamily: 'Inter, sans-serif', flexShrink: 0 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: payStatus.dot, display: 'inline-block', flexShrink: 0 }} />
+                {isAr ? payStatus.ar : payStatus.en}
+                {b.paymentMethod && (
+                  <span style={{ fontWeight: 400, opacity: 0.7 }}>· {b.paymentMethod}</span>
+                )}
+              </span>
+            ) : <span />}
+            {fare && (
+              <span style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 14, color: '#1a1a2e' }}>
+                {fare}
+              </span>
+            )}
           </div>
         )}
       </div>
@@ -229,6 +250,8 @@ function parseItems(json: unknown): { items: Booking[]; total: number; page: num
     bookingNumber: (b.bookingNumber as string) ?? null,
     serviceType: (b.serviceType as string) ?? null,
     status: (b.status as string) ?? 'pending',
+    paymentStatus: (b.paymentStatus as string) ?? null,
+    paymentMethod: (b.paymentMethod as string) ?? null,
     pickupAddress: (b.pickupAddress as string) ?? null,
     dropoffAddress: (b.dropoffAddress as string) ?? null,
     scheduledDatetime: (b.scheduledDatetime as string) ?? null,

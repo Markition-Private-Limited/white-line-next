@@ -393,6 +393,18 @@ const AIRPORT_COORDS: Record<string, { lat: number; lng: number }> = {
   'مطار الأمير محمد بن عبدالعزيز الدولي (MED)': { lat: 24.5534, lng: 39.7051 },
 }
 
+// City restriction per airport — applied to the non-airport location field
+const AIRPORT_CITY_RESTRICTIONS: Record<string, { lat: number; lng: number; radius: number; filter: RegExp }> = {
+  'King Khalid International Airport (RUH)':                    { lat: 24.7136, lng: 46.6753, radius: 40000, filter: /riyadh|الرياض/i },
+  'King Abdulaziz International Airport (JED)':                 { lat: 21.5433, lng: 39.1728, radius: 45000, filter: /jeddah|jidda|jedda|جدة/i },
+  'King Fahd International Airport (DMM)':                      { lat: 26.3927, lng: 49.9777, radius: 55000, filter: /dammam|khobar|dhahran|qatif|دمام|الخبر|الظهران|القطيف/i },
+  'Prince Mohammad bin Abdulaziz International Airport (MED)':  { lat: 24.4735, lng: 39.6112, radius: 40000, filter: /madinah|medina|المدينة/i },
+  'مطار الملك خالد الدولي (RUH)':                              { lat: 24.7136, lng: 46.6753, radius: 40000, filter: /riyadh|الرياض/i },
+  'مطار الملك عبدالعزيز الدولي (JED)':                         { lat: 21.5433, lng: 39.1728, radius: 45000, filter: /jeddah|jidda|jedda|جدة/i },
+  'مطار الملك فهد الدولي (DMM)':                               { lat: 26.3927, lng: 49.9777, radius: 55000, filter: /dammam|khobar|dhahran|qatif|دمام|الخبر|الظهران|القطيف/i },
+  'مطار الأمير محمد بن عبدالعزيز الدولي (MED)':                { lat: 24.4735, lng: 39.6112, radius: 40000, filter: /madinah|medina|المدينة/i },
+}
+
 function toApiServiceType(service: BookingService, dayDuration: DayDuration): string {
   if (service === 'airport') return 'airport'
   if (service === 'hourly') return 'hourly'
@@ -1414,6 +1426,12 @@ function TripDetails({ booking, updateBooking, next, back }: {
     updateBooking({ isDeparture: departure, pickup: null, destination: null })
   }
 
+  // Restrict the free-text location field to the city served by the selected airport
+  const selectedAirportName = booking.isDeparture ? booking.destination?.address : booking.pickup?.address
+  const cityRestriction = selectedAirportName ? (AIRPORT_CITY_RESTRICTIONS[selectedAirportName] ?? null) : null
+  const locationRestriction = cityRestriction ? { lat: cityRestriction.lat, lng: cityRestriction.lng, radius: cityRestriction.radius } : undefined
+  const filterPrediction = cityRestriction ? (p: { description: string }) => cityRestriction.filter.test(p.description) : undefined
+
   return (
     <>
       <p className={styles.eyebrow}>{copy.services.airport}</p>
@@ -1432,13 +1450,13 @@ function TripDetails({ booking, updateBooking, next, back }: {
       <div className={styles.fieldGrid}>
         {booking.isDeparture ? (
           <>
-            <PlacesAutocompleteField key="departure-pickup" label={copy.pickupLocation} placeholder={copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} />
-            <DropdownField key="departure-airport" label={copy.dropOffAirport} placeholder={copy.selectAirport} value={booking.destination} options={copy.airports} attempted={attempted} onChange={value => updateBooking({ destination: value })} />
+            <PlacesAutocompleteField key="departure-pickup" label={copy.pickupLocation} placeholder={copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} locationRestriction={locationRestriction} filterPrediction={filterPrediction} />
+            <DropdownField key="departure-airport" label={copy.dropOffAirport} placeholder={copy.selectAirport} value={booking.destination} options={copy.airports} attempted={attempted} onChange={value => updateBooking({ destination: value, pickup: null })} />
           </>
         ) : (
           <>
-            <DropdownField key="arrival-airport" label={copy.pickupAirport} placeholder={copy.selectAirport} value={booking.pickup} options={copy.airports} attempted={attempted} onChange={value => updateBooking({ pickup: value })} />
-            <PlacesAutocompleteField key="arrival-destination" label={copy.dropOff} placeholder={copy.enterDestination} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} />
+            <DropdownField key="arrival-airport" label={copy.pickupAirport} placeholder={copy.selectAirport} value={booking.pickup} options={copy.airports} attempted={attempted} onChange={value => updateBooking({ pickup: value, destination: null })} />
+            <PlacesAutocompleteField key="arrival-destination" label={copy.dropOff} placeholder={copy.enterDestination} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} locationRestriction={locationRestriction} filterPrediction={filterPrediction} />
           </>
         )}
 
