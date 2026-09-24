@@ -10,7 +10,7 @@ const ENTITY_TYPE_HREFS = ['/about', '/terms', '/privacy']
 const SERVICE_HREFS      = [
   '/services/city-to-city',
   '/services/hourly-booking',
-  '/services/city-to-city',
+  '/services/city-trip',
   '/services/day-service',
   '/services/airport-transfer',
 ]

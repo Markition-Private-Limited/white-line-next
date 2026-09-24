@@ -10,20 +10,20 @@ import _cityToCityImg from '../assets/home_service/banners/city_to_city.webp'
 import _dayServiceImg from '../assets/home_service/banners/day_service.webp'
 import _hourlyImg from '../assets/home_service/banners/hourly_chauffer.webp'
 
-// Order: Airport Transfer, One-Way Ride, City Trip, Day Service, Hourly Chauffeur
+// Order: Airport Transfer, City to City, City Trip (one-way), Day Service, Hourly Chauffeur
 const STATIC = [
   { img: (_airportTransferImg as any).src, imgRight: true  }, // Airport Transfer
-  { img: (_oneWayRideImg as any).src,      imgRight: false }, // One-Way Ride
-  { img: (_cityToCityImg as any).src,      imgRight: true  }, // City Trip
+  { img: (_cityToCityImg as any).src,      imgRight: false }, // City to City
+  { img: (_oneWayRideImg as any).src,      imgRight: true  }, // City Trip (one-way)
   { img: (_dayServiceImg as any).src,      imgRight: false }, // Day Service
   { img: (_hourlyImg as any).src,          imgRight: true  }, // Hourly Chauffeur
 ]
 
-const SLUGS = ['airport-transfer', 'one-way-ride', 'city-to-city', 'day-service', 'hourly-chauffeur']
+const SLUGS = ['airport-transfer', 'city-to-city', 'city-trip', 'day-service', 'hourly-chauffeur']
 const SERVICE_PAGE_URLS = [
   '/services/airport-transfer',
-  '/services/one-way-ride',
   '/services/city-to-city',
+  '/services/city-trip',
   '/services/day-service',
   '/services/hourly-booking',
 ]

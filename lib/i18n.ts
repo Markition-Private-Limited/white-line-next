@@ -89,7 +89,7 @@ const en = {
     cards: [
       { title: 'Airport Transfer',   desc: 'Premier airport transfers with real-time flight tracking, proactive delay adjustments, and professional luggage assistance.' },
       { title: 'City to City',        desc: 'Premium intercity travel between Riyadh and major Saudi cities — Makkah, Madinah, and beyond — in absolute comfort and privacy.' },
-      { title: 'City Trip',           desc: 'Private executive travel between major cities in absolute comfort — relax or conduct business uninterrupted across regions.' },
+      { title: 'City Trip',           desc: 'Private point-to-point travel within Riyadh — relax or conduct business uninterrupted on a direct, single-city journey.' },
       { title: 'Day Service',        desc: 'Full-day dedicated transport for back-to-back meetings, VIP hosting, and multi-location itineraries with continuous vehicle availability.' },
       { title: 'Hourly Chauffeur',   desc: 'A dedicated private chauffeur at your disposal for dynamic itineraries, multiple stops, and complete scheduling flexibility.' },
     ],
@@ -240,7 +240,7 @@ const en = {
       items: [
         { label: 'Airport Transfer',   h1a: 'Seamless ', h1b: 'Airport Transfers', h1c: '',     h2a: '& Flight Tracking',     h2b: '',                      body: 'Start or conclude your international journey with absolute peace of mind through our premier airport transfer service. Featuring real-time flight tracking, proactive schedule adjustments for delayed flights, and professional luggage assistance, our chauffeurs ensure a smooth, effortless transition between the terminal and your final destination.' },
         { label: 'City to City',       h1a: 'Seamless ', h1b: 'Intercity Travel', h1c: '',        h2a: 'Between Major Cities',   h2b: '',                      body: 'Bridge the distance between Riyadh and Saudi Arabia\'s major cities in absolute comfort. Our city-to-city service provides a private, uninterrupted journey in a luxury vehicle — perfect for Riyadh to Makkah, Riyadh to Madinah, and beyond. Relax, prepare for your next engagement, or conduct business confidentially across every mile.' },
-        { label: 'City Trip',           h1a: '',          h1b: 'Long-Distance',  h1c: ' Intercity', h2a: 'Executive Travel',      h2b: '',                      body: 'Bridge the distance between major metropolitan hubs in absolute comfort and tranquility. Our intercity travel service provides a smooth, private environment within an elite luxury vehicle, allowing you to relax, prepare for upcoming engagements, or conduct confidential business uninterrupted while traveling seamlessly across regions.' },
+        { label: 'City Trip',           h1a: '',          h1b: 'Point-To-Point', h1c: ' Travel', h2a: 'Within Riyadh',      h2b: '',                      body: 'Move seamlessly across Riyadh in absolute comfort and tranquility. Our City Trip service provides a smooth, private, single-destination journey within an elite luxury vehicle, allowing you to relax, prepare for an upcoming meeting, or conduct confidential business on a direct route across the city.' },
         { label: 'Day Service',        h1a: 'Dedicated Full-Day', h1b: '',      h1c: '',         h2a: '',                       h2b: 'Professional Transport',  body: "Secure a dedicated professional transportation partner for your entire day's schedule. Perfect for back-to-back corporate meetings, VIP hosting, and complex multi-location event itineraries, this comprehensive service guarantees continuous vehicle availability, flawless coordination, and uncompromised discretion from your first morning departure until late into the evening." },
         { label: 'Hourly Chauffeur',   h1a: 'On-Demand Hourly', h1b: '',        h1c: '',         h2a: '',                       h2b: 'Chauffeur Service',       body: 'Enjoy the ultimate convenience of dedicated mobility with a private chauffeur entirely at your disposal throughout the day. Designed for dynamic, ever-changing itineraries and multiple consecutive stops, this bespoke service offers unmatched flexibility, allowing you to move through your schedule at your own pace while your vehicle and driver remain ready and waiting nearby.' },
       ],
@@ -676,17 +676,17 @@ const en = {
   oneWayRidePage: {
     hero: {
       h1a: 'Direct Point-To-Point',
-      h1b: 'Urban Transportation',
-      sub: 'Experience seamless, point-to-point urban transportation meticulously designed for efficiency and elegance. Whether you are heading to a high-stakes corporate briefing, a private appointment, or an evening engagement, your journey remains direct, private, and perfectly timed.',
-      btn1: 'Book One Way Ride',
+      h1b: 'Travel Within Riyadh',
+      sub: 'Experience seamless, point-to-point transportation within Riyadh, meticulously designed for efficiency and elegance. Whether you are heading to a high-stakes corporate briefing, a private appointment, or an evening engagement, your journey remains direct, private, and perfectly timed — entirely within the city.',
+      btn1: 'Book City Trip',
       btn2: 'Explore Service',
     },
     overview: {
       label: 'Service Overview',
-      h1a: 'Elevating Direct Transit Through',
+      h1a: 'Elevating Travel Across Riyadh Through',
       h1b: 'Uncompromised Punctuality',
       h2: '',
-      body: 'Navigating urban environments for a single destination should never be complicated by traffic stress or navigation hurdles. Our one-way ride service is engineered to provide direct, point-to-point executive transit that gets you where you need to be with absolute efficiency. By removing the friction of driving and parking, we offer a tranquil, climate-controlled cabin where you can relax, review your notes, or prepare mentally for your upcoming engagement, arriving completely composed and on time.',
+      body: 'Getting across Riyadh for a single destination should never be complicated by traffic stress or navigation hurdles. Our City Trip service is engineered to provide direct, point-to-point executive transit within the city that gets you where you need to be with absolute efficiency. By removing the friction of driving and parking, we offer a tranquil, climate-controlled cabin where you can relax, review your notes, or prepare mentally for your upcoming engagement, arriving completely composed and on time.',
     },
     steps: {
       label: 'Precision Logistics',
@@ -695,10 +695,10 @@ const en = {
       h2: 'Designed For Peace Of Mind',
       sub: 'Every journey is different. What remains consistent is the experience our passengers receive — professional chauffeurs, dependable service, premium vehicles and the comfort of knowing everything is taken care of.',
       items: [
-        { num: '01', title: 'Effortless Booking', desc: 'Secure your vehicle seamlessly through our intuitive platform or digital app by simply entering your flight number, schedule, and destination details to initiate your reservation instantly.' },
-        { num: '02', title: 'Proactive Monitoring', desc: "Our dispatch system continuously monitors your flight's live status, automatically adjusting your chauffeur's arrival time to accommodate early landings or unexpected delays without any hassle." },
-        { num: '03', title: 'Terminal Welcome', desc: 'Step off the plane and into expert care as your vetted, professional chauffeur greets you inside the terminal arrival hall, holding a clear identifier and assisting you with your luggage.' },
-        { num: '04', title: 'Tranquil Transit', desc: 'Relax or catch up on work within a private, climate-controlled luxury sanctuary as your chauffeur navigates the optimal route directly to your hotel, office, or residence.' },
+        { num: '01', title: 'Effortless Booking', desc: 'Secure your vehicle seamlessly through our intuitive platform or digital app by simply entering your pickup point, schedule, and destination details within Riyadh to confirm your reservation instantly.' },
+        { num: '02', title: 'Proactive Dispatch', desc: 'Our dispatch system continuously tracks your chauffeur in real time, ensuring a punctual arrival at your exact pickup point across Riyadh, with live status updates sent straight to your phone.' },
+        { num: '03', title: 'Doorstep Welcome', desc: 'Step outside and into expert care as your vetted, professional chauffeur greets you at your exact pickup point, ready to assist with any bags or belongings.' },
+        { num: '04', title: 'Tranquil Transit', desc: 'Relax or catch up on work within a private, climate-controlled luxury sanctuary as your chauffeur navigates the optimal route directly across the city to your destination.' },
       ],
     },
     features: {
@@ -709,8 +709,8 @@ const en = {
       h2: 'From Pickup To Destination',
       sub: 'From booking your direct ride to your final drop-off, our streamlined workflow ensures absolute transparency, smooth dispatch, and complete peace of mind.',
       items: [
-        { title: 'Non-Stop Urban Transit', desc: 'Travel directly from your exact origin to your destination without any unnecessary detours or intermediate stops.' },
-        { title: 'Timely Schedule Execution', desc: 'Arrive at your corporate meetings or private appointments strictly on time, supported by advanced route planning.' },
+        { title: 'Non-Stop City Transit', desc: 'Travel directly from your exact origin to your destination within Riyadh without any unnecessary detours or intermediate stops.' },
+        { title: 'Timely Schedule Execution', desc: 'Arrive at your corporate meetings or private appointments strictly on time, supported by advanced route planning across the city.' },
         { title: 'Undisturbed Environment', desc: 'Utilize your transit time to make confidential phone calls, handle emails, or simply relax in complete privacy.' },
         { title: 'Premium Fleet Selection', desc: 'Choose from our immaculate range of luxury sedans and executive vehicles designed for refined urban travel.' },
       ],
@@ -730,12 +730,12 @@ const en = {
           a: 'Yes. Simply inform your chauffeur or contact our support team during the journey. Changes are accommodated without friction — any fare adjustment is communicated transparently before it is applied.',
         },
         {
-          q: 'What if my incoming flight is significantly delayed?',
-          a: 'Our dispatch system monitors your flight in real time. Your chauffeur\'s arrival is automatically adjusted to align with your updated landing time at no additional charge — no calls or messages required from your side.',
+          q: 'Can I book a City Trip on short notice?',
+          a: 'Yes, subject to chauffeur availability. Most City Trip bookings within Riyadh can be confirmed within minutes through the app or website — no advance notice required.',
         },
         {
-          q: 'How are toll prices and parking fees calculated?',
-          a: 'All applicable tolls and airport parking fees are included in your quoted fare upfront. There are no surprise charges at the end of your journey — what you see at booking is what you pay.',
+          q: 'How is my City Trip fare calculated?',
+          a: 'Your fare is calculated based on the distance and estimated time between your pickup and drop-off points within Riyadh, plus any applicable tolls. The full fare is shown upfront before you confirm your booking — no surprise charges.',
         },
       ],
     },
@@ -1274,7 +1274,7 @@ const ar: typeof en = {
     cards: [
       { title: 'نقل المطار',    desc: 'نقل مطار احترافي مع تتبع الرحلات فورياً وتعديل المواعيد تلقائياً ومساعدة متخصصة في الأمتعة.' },
       { title: 'من مدينة إلى مدينة', desc: 'سفر فاخر بين الرياض وكبرى مدن المملكة — مكة والمدينة وغيرها — بكل راحة وخصوصية.' },
-      { title: 'رحلة المدن',    desc: 'سفر تنفيذي خاص بين كبرى المدن في راحة تامة — استرخِ أو أنجز أعمالك دون انقطاع أثناء التنقل.' },
+      { title: 'رحلة المدن',    desc: 'رحلة خاصة من نقطة إلى نقطة داخل الرياض — استرخِ أو أنجز أعمالك دون انقطاع في رحلة مباشرة داخل المدينة.' },
       { title: 'خدمة اليوم',   desc: 'نقل مخصص ليوم كامل للاجتماعات المتلاحقة واستضافة كبار الشخصيات والفعاليات متعددة المواقع.' },
       { title: 'سائق بالساعة', desc: 'سائق خاص مخصص بالكامل لك طوال اليوم، مع مرونة تامة للتنقل بين مواعيد متعددة وتغييرات فورية في الجدول.' },
     ],
@@ -1415,7 +1415,7 @@ const ar: typeof en = {
       items: [
         { label: 'نقل المطار',     h1a: 'نقل ',           h1b: 'سلس من المطار',   h1c: '',          h2a: 'وتتبع الرحلات',         h2b: '',                     body: 'ابدأ رحلتك الدولية أو اختتمها بتمام الطمأنينة عبر خدمة نقل المطار المتميزة لدينا. مع تتبع الرحلات لحظياً وتعديلات استباقية عند التأخير ومساعدة احترافية بالأمتعة، يضمن سائقونا انتقالاً سلساً بين الصالة ووجهتك النهائية.' },
         { label: 'من مدينة إلى مدينة', h1a: 'سفر ',       h1b: 'سلس بين المدن',   h1c: '',          h2a: 'بين كبرى المدن السعودية', h2b: '',                  body: 'قطع المسافة بين الرياض وكبرى مدن المملكة في راحة تامة. توفر لك خدمتنا بين المدن رحلة خاصة ومريحة على متن مركبة فاخرة — مثالية للتنقل بين الرياض ومكة أو المدينة وغيرها. استرخِ وأنجز أعمالك أو استعد لمواعيدك دون أي انقطاع.' },
-        { label: 'رحلة المدن',     h1a: '',               h1b: 'سفر بعيد المدى',  h1c: ' بين المدن', h2a: 'تنفيذي فاخر',          h2b: '',                     body: 'اقطع المسافات بين المدن الكبرى في راحة وهدوء تامَّين. توفر خدمة السفر بين المدن لدينا بيئة خاصة سلسة داخل مركبة فاخرة، تتيح لك الاسترخاء والتحضير للقاءاتك القادمة أو إجراء أعمالك السرية دون انقطاع.' },
+        { label: 'رحلة المدن',     h1a: '',               h1b: 'رحلة مباشرة',    h1c: ' داخل الرياض', h2a: 'من نقطة إلى نقطة',    h2b: '',                     body: 'تنقّل بسلاسة داخل الرياض في راحة وهدوء تامَّين. توفر خدمة رحلة المدن لدينا بيئة خاصة سلسة إلى وجهة واحدة داخل مركبة فاخرة، تتيح لك الاسترخاء والتحضير لاجتماعك القادم أو إجراء أعمالك السرية في رحلة مباشرة عبر المدينة.' },
         { label: 'خدمة يوم كامل', h1a: 'نقل احترافي',    h1b: '',                 h1c: '',          h2a: '',                      h2b: 'طوال اليوم',           body: 'احجز شريكاً متخصصاً في النقل لجدولك اليومي الكامل. مثالي للاجتماعات المؤسسية المتلاحقة واستضافة كبار الشخصيات والفعاليات متعددة المواقع، يضمن توافر المركبة باستمرار والتنسيق السلس والخصوصية التامة من أول تحرك صباحاً حتى آخر الليل.' },
         { label: 'سائق بالساعة',   h1a: 'سائق خاص',       h1b: '',                 h1c: '',          h2a: '',                      h2b: 'عند الطلب بالساعة',    body: 'استمتع بأقصى درجات المرونة مع سائق خاص تحت تصرفك طوال اليوم. مثالية للمواعيد المتغيرة وعدة محطات متتالية، توفر لك هذه الخدمة حرية التنقل بالوتيرة التي تناسبك بينما تظل مركبتك وسائقك في انتظارك.' },
       ],
@@ -1861,17 +1861,17 @@ const ar: typeof en = {
   oneWayRidePage: {
     hero: {
       h1a: 'نقل مباشر من نقطة إلى نقطة',
-      h1b: 'داخل المدينة',
-      sub: 'استمتع بتنقل حضري سلس من نقطة إلى نقطة، مصمم بعناية للكفاءة والأناقة. سواء كنت متجهاً إلى اجتماع مؤسسي مهم أو موعد خاص أو مناسبة مسائية، تبقى رحلتك مباشرة وخاصة ومنضبطة التوقيت.',
-      btn1: 'احجز رحلة باتجاه واحد',
+      h1b: 'داخل الرياض',
+      sub: 'استمتع بتنقل سلس من نقطة إلى نقطة داخل الرياض، مصمم بعناية للكفاءة والأناقة. سواء كنت متجهاً إلى اجتماع مؤسسي مهم أو موعد خاص أو مناسبة مسائية، تبقى رحلتك مباشرة وخاصة ومنضبطة التوقيت — داخل حدود المدينة بالكامل.',
+      btn1: 'احجز رحلة المدن',
       btn2: 'استكشف الخدمة',
     },
     overview: {
       label: 'نظرة عامة على الخدمة',
-      h1a: 'الارتقاء بالنقل المباشر عبر',
+      h1a: 'الارتقاء بالتنقل داخل الرياض عبر',
       h1b: 'التزام كامل بالمواعيد',
       h2: '',
-      body: 'لا ينبغي أن يصبح التنقل داخل المدينة إلى وجهة واحدة معقداً بسبب ضغط المرور أو تحديات الملاحة. صُممت خدمة الرحلة باتجاه واحد لتوفير نقل تنفيذي مباشر من نقطة إلى نقطة يوصلك إلى وجهتك بكفاءة مطلقة. ومن خلال إزالة عناء القيادة والبحث عن مواقف، نوفر لك مقصورة هادئة ومكيّفة يمكنك فيها الاسترخاء أو مراجعة ملاحظاتك أو الاستعداد ذهنياً لموعدك القادم، لتصل بكامل هدوئك وفي الوقت المحدد.',
+      body: 'لا ينبغي أن يصبح التنقل داخل الرياض إلى وجهة واحدة معقداً بسبب ضغط المرور أو تحديات الملاحة. صُممت خدمة رحلة المدن لتوفير نقل تنفيذي مباشر من نقطة إلى نقطة داخل المدينة يوصلك إلى وجهتك بكفاءة مطلقة. ومن خلال إزالة عناء القيادة والبحث عن مواقف، نوفر لك مقصورة هادئة ومكيّفة يمكنك فيها الاسترخاء أو مراجعة ملاحظاتك أو الاستعداد ذهنياً لموعدك القادم، لتصل بكامل هدوئك وفي الوقت المحدد.',
     },
     steps: {
       label: 'دقة لوجستية',
@@ -1880,10 +1880,10 @@ const ar: typeof en = {
       h2: 'مصممة لراحة البال',
       sub: 'كل رحلة مختلفة. ما يبقى ثابتاً هو التجربة التي يحصل عليها ركابنا — سائقون محترفون وخدمة موثوقة ومركبات فاخرة وراحة البال بأن كل شيء في أيدٍ أمينة.',
       items: [
-        { num: '٠١', title: 'حجز سلس', desc: 'احجز مركبتك بسهولة عبر منصتنا الذكية أو تطبيقنا الرقمي بمجرد إدخال رقم رحلتك وجدولك الزمني وتفاصيل الوجهة لتأكيد حجزك فوراً.' },
-        { num: '٠٢', title: 'متابعة استباقية', desc: 'يتابع نظام الإرسال لدينا حالة رحلتك مباشرة، ويضبط تلقائياً وقت وصول سائقك ليستوعب الهبوط المبكر أو التأخيرات غير المتوقعة دون أي إزعاج.' },
-        { num: '٠٣', title: 'استقبال في الصالة', desc: 'انزل من الطائرة لتجد سائقاً محترفاً ومدرباً يستقبلك داخل صالة الوصول حاملاً لافتة باسمك ومستعداً لمساعدتك بأمتعتك.' },
-        { num: '٠٤', title: 'رحلة هادئة', desc: 'استرخِ أو تابع عملك في مقصورة فاخرة خاصة ومُكيَّفة بينما يسلك سائقك المسار الأمثل مباشرةً إلى فندقك أو مكتبك أو مقر إقامتك.' },
+        { num: '٠١', title: 'حجز سلس', desc: 'احجز مركبتك بسهولة عبر منصتنا الذكية أو تطبيقنا الرقمي بمجرد إدخال نقطة الانطلاق والجدول الزمني وتفاصيل الوجهة داخل الرياض لتأكيد حجزك فوراً.' },
+        { num: '٠٢', title: 'متابعة استباقية', desc: 'يتابع نظام الإرسال لدينا موقع سائقك لحظياً، ويضمن وصوله في الوقت المحدد إلى نقطة الانطلاق الدقيقة في أي مكان داخل الرياض، مع تحديثات فورية تصلك على هاتفك.' },
+        { num: '٠٣', title: 'استقبال عند الباب', desc: 'اخرج لتجد سائقاً محترفاً ومدرباً بانتظارك عند نقطة الانطلاق الدقيقة، وجاهزاً لمساعدتك بأمتعتك أو مقتنياتك.' },
+        { num: '٠٤', title: 'رحلة هادئة', desc: 'استرخِ أو تابع عملك في مقصورة فاخرة خاصة ومُكيَّفة بينما يسلك سائقك المسار الأمثل مباشرةً عبر المدينة إلى وجهتك.' },
       ],
     },
     features: {
@@ -1894,8 +1894,8 @@ const ar: typeof en = {
       h2: 'من الاستقبال حتى الوجهة',
       sub: 'من حجز رحلتك المباشرة حتى الإنزال في وجهتك النهائية، يضمن مسارنا المبسط شفافية كاملة وإرسالاً سلساً وراحة بال تامة.',
       items: [
-        { title: 'نقل حضري دون توقف', desc: 'انتقل مباشرة من نقطة انطلاقك الدقيقة إلى وجهتك دون أي التفافات غير ضرورية أو محطات وسيطة.' },
-        { title: 'تنفيذ دقيق للمواعيد', desc: 'صل إلى اجتماعاتك المؤسسية أو مواعيدك الخاصة في الوقت المحدد، بدعم من تخطيط متقدم للمسارات.' },
+        { title: 'تنقل داخل المدينة دون توقف', desc: 'انتقل مباشرة من نقطة انطلاقك الدقيقة إلى وجهتك داخل الرياض دون أي التفافات غير ضرورية أو محطات وسيطة.' },
+        { title: 'تنفيذ دقيق للمواعيد', desc: 'صل إلى اجتماعاتك المؤسسية أو مواعيدك الخاصة في الوقت المحدد، بدعم من تخطيط متقدم للمسارات داخل المدينة.' },
         { title: 'بيئة هادئة دون إزعاج', desc: 'استفد من وقت الرحلة لإجراء مكالمات سرية أو متابعة البريد الإلكتروني أو الاسترخاء بخصوصية تامة.' },
         { title: 'اختيار من أسطول فاخر', desc: 'اختر من مجموعتنا المتقنة من سيارات السيدان الفاخرة والمركبات التنفيذية المصممة للتنقل الحضري الراقي.' },
       ],
@@ -1915,12 +1915,12 @@ const ar: typeof en = {
           a: 'نعم. فقط أخبر سائقك أو تواصل مع فريق الدعم خلال الرحلة. يتم استيعاب التغييرات بسلاسة — وأي تعديل على الأجرة يُبلَّغ به بشفافية قبل التطبيق.',
         },
         {
-          q: 'ماذا لو تأخرت رحلتي كثيراً؟',
-          a: 'نظامنا يتابع رحلتك لحظياً. يُعدَّل وقت وصول سائقك تلقائياً ليتوافق مع موعد هبوطك الجديد دون أي رسوم إضافية — ودون الحاجة لأي اتصال من طرفك.',
+          q: 'هل يمكنني حجز رحلة المدن بإشعار قصير؟',
+          a: 'نعم، وفقاً لتوفر السائقين. يمكن تأكيد معظم حجوزات رحلة المدن داخل الرياض خلال دقائق عبر التطبيق أو الموقع — دون الحاجة لإشعار مسبق.',
         },
         {
-          q: 'كيف تُحتسب رسوم العبور ومواقف السيارات؟',
-          a: 'جميع رسوم العبور ومواقف المطار مشمولة في السعر المعروض مسبقاً. لا توجد رسوم مفاجئة عند الوصول — ما تراه عند الحجز هو ما تدفعه فعلاً.',
+          q: 'كيف تُحتسب أجرة رحلة المدن؟',
+          a: 'تُحتسب الأجرة بناءً على المسافة والوقت التقديري بين نقطتي الانطلاق والوصول داخل الرياض، بالإضافة إلى أي رسوم عبور مطبّقة. تظهر الأجرة كاملة قبل تأكيد حجزك — دون أي رسوم مفاجئة.',
         },
       ],
     },
