@@ -343,6 +343,13 @@
   gap: 22px 11px;
 }
 
+.citySelectorGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 13px 10px;
+  margin-bottom: 18px;
+}
+
 .field label,
 .sectionLabel {
   display: block;
