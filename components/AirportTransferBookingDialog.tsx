@@ -394,10 +394,10 @@ const AIRPORT_COORDS: Record<string, { lat: number; lng: number }> = {
 function toApiServiceType(service: BookingService, dayDuration: DayDuration): string {
   if (service === 'airport') return 'airport'
   if (service === 'hourly') return 'hourly'
-  if (service === 'city') return 'one_way'
+  if (service === 'city') return 'city_trip'
   if (service === 'day') return dayDuration === 'half' ? 'half_day' : 'full_day'
   if (service === 'oneWay') return 'city_to_city'
-  return 'one_way'
+  return 'city_trip'
 }
 
 type LatLng = { lat: number; lng: number }

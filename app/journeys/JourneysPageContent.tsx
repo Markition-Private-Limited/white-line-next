@@ -53,6 +53,7 @@ const SERVICE: Record<string, { en: string; ar: string }> = {
   half_day:     { en: 'Half Day',         ar: 'نصف يوم'           },
   full_day:     { en: 'Full Day',         ar: 'يوم كامل'          },
   one_way:      { en: 'One-Way Ride',     ar: 'مشوار باتجاه واحد' },
+  city_trip:    { en: 'City Trip',        ar: 'رحلة المدن' },
   day_service:  { en: 'Day Service',      ar: 'خدمة يومية'        },
 }
 
