@@ -1549,7 +1549,7 @@ function OneWayTripDetails({ booking, updateBooking, next, back }: {
       <p className={styles.subtitle}>{copy.tripSubtitle}</p>
 
       <div className={styles.citySelectorGrid}>
-        <CitySelectField label={copy.pickupCity} value="Riyadh" options={['Riyadh']} disabled />
+        <CitySelectField label={copy.pickupCity} value="Riyadh" options={['Riyadh']} />
         <CitySelectField
           label={copy.dropOffCity}
           value={destinationCity}

@@ -68,6 +68,7 @@ function FooterColumn({ title, links, showArrow = false, isRTL = false, comingSo
           <li key={link.label}>
             <Link
               href={link.to}
+              prefetch={false}
               onClick={hash ? (e) => {
                 if (window.location.pathname === '/services') {
                   e.preventDefault()
