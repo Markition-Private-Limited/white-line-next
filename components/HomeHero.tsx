@@ -154,6 +154,7 @@ function ParallaxCard({
           fontFamily: 'Inter, sans-serif',
           color: active ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.50)',
           transition: 'color 0.4s ease',
+          minHeight: '2.5em',
         }}
       >
         {desc}
