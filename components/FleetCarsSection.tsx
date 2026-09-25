@@ -69,10 +69,6 @@ function CarCard({ car, desc, luggages, persons, index }: {
     >
       <div className="relative" style={{ height: 'clamp(180px, 22vw, 260px)', background: '#0d1117' }}>
         <img src={car.img} alt={car.name} className="absolute inset-0 w-full h-full object-cover object-center" />
-        <div
-          className="absolute inset-0 z-[1]"
-          style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0) 70%, rgba(255,255,255,0.45) 84%, rgba(255,255,255,0.88) 94%, #FFFFFF 100%)', pointerEvents: 'none' }}
-        />
       </div>
 
       <div className="flex flex-col" style={{ padding: 'clamp(14px, 2vw, 20px) clamp(14px, 2vw, 20px) clamp(16px, 2vw, 22px)' }}>
