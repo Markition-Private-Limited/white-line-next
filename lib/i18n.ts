@@ -542,7 +542,7 @@ const en = {
       h1a: 'Seamless Long-Distance',
       h1b: 'Intercity Travel',
       sub: 'Bridge the distance between major metropolitan hubs without the friction of traditional travel. Our premium City Trip service provides an elite, private environment within a luxury vehicle, allowing you to relax, prepare for upcoming engagements, or conduct confidential business uninterrupted across every mile.',
-      btn1: 'Book City Trip',
+      btn1: 'Book City to City',
       btn2: 'Explore Service',
     },
     overview: {
@@ -1730,7 +1730,7 @@ const ar: typeof en = {
       h1a: 'رحلات سلسة لمسافات طويلة',
       h1b: 'رحلة المدن',
       sub: 'اختصر المسافة بين المدن الكبرى بعيداً عن تعقيدات السفر التقليدي. توفر خدمتنا الفاخرة بين المدن بيئة راقية وخاصة داخل مركبة فخمة، لتتمكن من الاسترخاء أو الاستعداد لمواعيدك القادمة أو إدارة أعمالك السرية دون انقطاع طوال الرحلة.',
-      btn1: 'احجز رحلة المدن',
+      btn1: 'احجز من مدينة إلى مدينة',
       btn2: 'استكشف الخدمة',
     },
     overview: {
