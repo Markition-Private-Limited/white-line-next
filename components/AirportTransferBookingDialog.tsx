@@ -1923,7 +1923,7 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
                           <span className={styles.vehicleSpec}><span className={styles.vehicleSpecIcon}><Luggage size={10} /></span><span>{card.bags}</span></span>
                         </small>
                       </span>
-                      {card.fareAmount !== null && service !== 'city' && (
+                      {card.fareAmount !== null && service !== 'oneWay' && (
                         <span className={styles.vehicleFare}>
                           <span className={styles.vehicleFareLabel}>{copy.fareFrom}</span>
                           <span className={styles.vehicleFareAmount} dir="ltr">
