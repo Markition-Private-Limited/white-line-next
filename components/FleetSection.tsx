@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLanguage } from '../context/LanguageContext'
 
 import fleetFirstClass from '../assets/fleet/fleet_cars/mercedes-benz-s-class.png'
-import fleetBusinessPremium from '../assets/fleet/fleet_cars/mercedes-benz-e-class.png'
+import fleetBusinessPremium from '../assets/fleet/fleet_cars/bmw-7-series-business-premium.png'
 import fleetSuv from '../assets/fleet/fleet_cars/gmc-yukon-xl.png'
 import fleetBusinessSedan from '../assets/fleet/fleet_cars/lexus-es350.png'
 import fleetEconomySedan from '../assets/fleet/fleet_cars/ford-taurus.png'
@@ -193,17 +193,10 @@ export default function FleetSection() {
                         className="w-full h-full object-cover object-center"
                         draggable={false}
                       />
-                      <div
-                        className="absolute inset-0"
-                        style={{
-                          background:
-                            'linear-gradient(to bottom, rgba(255,255,255,0) 40%, rgba(255,255,255,1) 100%)',
-                        }}
-                      />
                     </div>
 
                     {/* Text */}
-                    <div className="px-6 pb-8 -mt-6 relative">
+                    <div className="px-6 pb-8 pt-5 relative">
                       <h3
                         className="text-[#111118] mb-2"
                         style={{
