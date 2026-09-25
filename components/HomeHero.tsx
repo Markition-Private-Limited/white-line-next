@@ -17,7 +17,7 @@ import card1 from '../assets/home/home_page_banner_Sub_images/1.png'
 import card2 from '../assets/home/home_page_banner_Sub_images/2(3).jpg'
 import card3 from '../assets/home/home_page_banner_Sub_images/5(1).jpg'
 import card4 from '../assets/home/home_page_banner_Sub_images/4.jpg'
-import card5 from '../assets/home/home_page_banner_Sub_images/day-service.png'
+import card5 from '../assets/home/home_page_banner_Sub_images/day-service-card.jpg'
 
 // Images mapped in the same order as translations.hero.services
 // Order: Airport Transfer, City-to-City, Day Service, Hourly Chauffeur, One-Way Ride
@@ -342,7 +342,7 @@ export default function HomeHero() {
                     bookNow={hero.bookNow}
                     isRtl={isRtl}
                     defaultPb="70%"
-                    objectPosition={i === 2 ? '50% 15%' : 'center'}
+                    objectPosition="center"
                     onBook={bookingForCard(i)}
                   />
                 </div>
@@ -361,7 +361,7 @@ export default function HomeHero() {
                       desc={s.desc}
                       bookNow={hero.bookNow}
                       isRtl={isRtl}
-                      objectPosition={i === 2 ? '50% 15%' : 'center'}
+                      objectPosition="center"
                       onBook={bookingForCard(i)}
                     />
                   </div>
