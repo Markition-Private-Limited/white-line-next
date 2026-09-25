@@ -9,7 +9,7 @@ import AirportTransferBookingDialog, { type BookingService } from './AirportTran
 import heroBanner from '../assets/home/home_banner.webp'
 import heroBannerMobile from '../assets/home/home_banner_mobile.png'
 import servicesBanner from '../assets/services_1/service_1_banner.webp'
-import contactBanner from '../assets/contact_us/contact_banner.webp'
+import contactBanner from '../assets/contact_us/contact_banner.png'
 
 const HERO_BANNERS = [heroBanner, servicesBanner, contactBanner]
 const HERO_BANNERS_MOBILE = [heroBannerMobile, servicesBanner, contactBanner]
@@ -17,7 +17,7 @@ import card1 from '../assets/home/home_page_banner_Sub_images/1.png'
 import card2 from '../assets/home/home_page_banner_Sub_images/2(3).jpg'
 import card3 from '../assets/home/home_page_banner_Sub_images/5(1).jpg'
 import card4 from '../assets/home/home_page_banner_Sub_images/4.jpg'
-import card5 from '../assets/home/home_page_banner_Sub_images/5.jpg'
+import card5 from '../assets/home/home_page_banner_Sub_images/day-service.png'
 
 // Images mapped in the same order as translations.hero.services
 // Order: Airport Transfer, City-to-City, Day Service, Hourly Chauffeur, One-Way Ride

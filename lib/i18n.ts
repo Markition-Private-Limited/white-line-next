@@ -1197,6 +1197,9 @@ const en = {
     tryAgain: 'Try Again',
     contactSupport: 'Contact Support',
   },
+  loader: {
+    label: 'LOADING YOUR EXPERIENCE',
+  },
 }
 
 // ─── Arabic translations (Riyadh / Saudi dialect in formal written form) ──────
@@ -2153,6 +2156,9 @@ const ar: typeof en = {
     body: 'يرجى المحاولة مجدداً أو التواصل مع فريق الدعم إذا استمرت المشكلة.',
     tryAgain: 'حاول مجدداً',
     contactSupport: 'تواصل مع الدعم',
+  },
+  loader: {
+    label: 'جارٍ تحميل تجربتك',
   },
 }
 
