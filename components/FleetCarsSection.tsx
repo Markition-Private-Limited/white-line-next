@@ -236,10 +236,9 @@ export default function FleetCarsSection() {
 
           <div
             ref={filterBarRef}
-            className="flex items-center flex-nowrap gap-2 no-scrollbar"
+            className="flex items-center justify-center sm:justify-start flex-wrap sm:flex-nowrap gap-2 no-scrollbar overflow-visible sm:overflow-x-auto"
             style={{
               maxWidth: '100%',
-              overflowX: 'auto',
               scrollbarWidth: 'none',
               WebkitOverflowScrolling: 'touch',
             }}
