@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "flag-icons/css/flag-icons.min.css";
 
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Project design tokens */
 :root {
   --text: #6b6375;

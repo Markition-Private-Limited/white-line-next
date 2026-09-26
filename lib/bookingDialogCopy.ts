@@ -78,6 +78,8 @@ const en = {
     expiry: 'Use MM/YY format.',
     cvv: 'Enter 3 or 4 digits.',
     sameLocation: 'Pick-up and drop-off locations cannot be the same.',
+    selectFromList: 'Please select a location from the suggestions.',
+    minLeadTime: 'Pickup time must be at least 2 hours from now.',
   },
   calendar: {
     locale: 'en-GB',
@@ -298,6 +300,8 @@ const ar: typeof en = {
     expiry: 'استخدم الصيغة MM/YY.',
     cvv: 'دخل ٣ أو ٤ أرقام.',
     sameLocation: 'لا يمكن أن يكون موقع الانطلاق والوجهة نفس الموقع.',
+    selectFromList: 'الرجاء اختيار موقع من قائمة الاقتراحات.',
+    minLeadTime: 'يجب أن يكون موعد الاستلام بعد ساعتين على الأقل من الآن.',
   },
   calendar: {
     locale: 'ar-SA-u-ca-gregory',

@@ -952,7 +952,24 @@ function placesEqual(a: PlaceValue | null, b: PlaceValue | null): boolean {
   return a.address.trim().toLowerCase() === b.address.trim().toLowerCase()
 }
 
-const tripIsComplete = (booking: BookingState) => Boolean(booking.pickup && booking.destination && booking.date && booking.time && !placesEqual(booking.pickup, booking.destination))
+const isSelectedPlace = (p: PlaceValue | null): boolean => Boolean(p && p.source !== 'manual' && p.address.trim().length > 0)
+
+const MIN_LEAD_HOURS = 2
+
+function getBookingDateTime(date: Date | null, time: TimeValue | null): Date | null {
+  if (!date || !time) return null
+  const combined = new Date(date)
+  combined.setHours(time.hour, time.minute, 0, 0)
+  return combined
+}
+
+function hasMinLeadTime(date: Date | null, time: TimeValue | null): boolean {
+  const combined = getBookingDateTime(date, time)
+  if (!combined) return true
+  return combined.getTime() - Date.now() >= MIN_LEAD_HOURS * 60 * 60 * 1000
+}
+
+const tripIsComplete = (booking: BookingState) => Boolean(isSelectedPlace(booking.pickup) && isSelectedPlace(booking.destination) && booking.date && booking.time && !placesEqual(booking.pickup, booking.destination) && hasMinLeadTime(booking.date, booking.time))
 
 const RIYADH_RESTRICTION = { lat: 24.7136, lng: 46.6753, radius: 30000 }
 
@@ -1041,6 +1058,7 @@ function LocationScheduleFields({ booking, updateBooking, pickupLabel, pickupPla
       ? (p: { description: string }) => CITY_TO_CITY_REGEX.test(p.description)
       : riyadhFilter
   const sameLocation = placesEqual(booking.pickup, booking.destination)
+  const leadTimeInvalid = attempted && Boolean(booking.date && booking.time) && !hasMinLeadTime(booking.date, booking.time)
   return (
     <div className={styles.fieldGrid}>
       <PlacesAutocompleteField label={pickupLabel ?? copy.pickupLocation} placeholder={pickupPlaceholder ?? copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} types={pickupRiyadhOnly ? undefined : cityTypes} locationRestriction={pickupLocationRestriction} filterPrediction={pickupFilter} />
@@ -1048,6 +1066,7 @@ function LocationScheduleFields({ booking, updateBooking, pickupLabel, pickupPla
       {sameLocation && <small className={styles.fieldError} style={{ gridColumn: '1 / -1' }}>{copy.validation.sameLocation}</small>}
       <DatePickerField label={copy.pickupDate} value={booking.date} attempted={attempted} onChange={date => updateBooking({ date })} />
       <TimePickerField label={copy.pickupTime} value={booking.time} attempted={attempted} onChange={time => updateBooking({ time })} />
+      {leadTimeInvalid && <small className={styles.fieldError} style={{ gridColumn: '1 / -1' }}>{copy.validation.minLeadTime}</small>}
     </div>
   )
 }
@@ -1294,6 +1313,9 @@ function TripDetails({ booking, updateBooking, next, back, onLoginRequest }: {
 
         {placesEqual(booking.pickup, booking.destination) && (
           <small className={styles.fieldError} style={{ gridColumn: '1 / -1' }}>{copy.validation.sameLocation}</small>
+        )}
+        {attempted && Boolean(booking.date && booking.time) && !hasMinLeadTime(booking.date, booking.time) && (
+          <small className={styles.fieldError} style={{ gridColumn: '1 / -1' }}>{copy.validation.minLeadTime}</small>
         )}
       </div>
 
@@ -1707,11 +1729,13 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
         ) : vehicleCards === null ? (
           <div className={styles.vehicleGrid} aria-hidden="true">
             {[0, 1, 2].map(i => (
-              <div key={i} className={styles.vehicleSkeletonCard}>
-                <div className={`${styles.vehicleSkeletonMedia} ${styles.skeletonShimmer}`} />
+              <div key={i} className={styles.vehicleSkeletonCard} style={{ animationDelay: `${i * 0.2}s` }}>
+                <div className={styles.vehicleSkeletonMedia}>
+                  <div className={styles.fleetSpinner} style={{ animationDelay: `${i * 0.28}s` }} />
+                </div>
                 <div className={styles.vehicleSkeletonCopy}>
-                  <div className={`${styles.vehicleSkeletonLine} ${styles.skeletonShimmer}`} style={{ width: '70%', height: 10 }} />
-                  <div className={`${styles.vehicleSkeletonLine} ${styles.skeletonShimmer}`} style={{ width: '50%', height: 8 }} />
+                  <div className={styles.vehicleSkeletonLine} style={{ width: '68%', height: 9 }} />
+                  <div className={styles.vehicleSkeletonLine} style={{ width: '44%', height: 7, opacity: 0.6 }} />
                 </div>
               </div>
             ))}
@@ -1734,7 +1758,9 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
                     {card.image && imageStatus[card.key] !== 'error' ? (
                       <span className={styles.vehicleImgWrap}>
                         {imageStatus[card.key] !== 'loaded' && (
-                          <span className={`${styles.vehicleImgLoader} ${styles.skeletonShimmer}`} aria-hidden="true" />
+                          <span className={styles.vehicleImgLoader} aria-hidden="true">
+                            <span className={styles.fleetSpinnerSm} />
+                          </span>
                         )}
                         <img
                           src={card.image}

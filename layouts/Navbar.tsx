@@ -507,7 +507,7 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
 
               <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', marginInline: 28 }} />
 
-              <nav className="flex-1 overflow-y-auto px-7 pt-6" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
+              <nav data-lenis-prevent className="flex-1 overflow-y-auto px-7 pt-6" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
                 <ul className="list-none m-0 p-0 flex flex-col">
                   {/* Authenticated user links */}
                   {userName && [

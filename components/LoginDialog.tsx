@@ -8,6 +8,8 @@ import logoSvg from '../assets/fav_icon_black.svg'
 
 const TEAL = '#00717e'
 const CUSTOMER_SESSION_KEY = 'whiteline.customerSession'
+const NAME_RE = /^[A-Za-z؀-ۿ]+(?:[\s'-]+[A-Za-z؀-ۿ]+)*$/
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
 type Session = { accessToken: string; refreshToken?: string }
 type Profile = { fullName: string; phone: string; email: string; profileComplete: boolean }
@@ -311,6 +313,7 @@ export default function LoginDialog({ open, onClose, onSuccess }: Props) {
   const [error, setError]     = useState('')
   const [session, setSession] = useState<Session | null>(null)
   const [attempted, setAttempted] = useState(false)
+  const [otpInvalid, setOtpInvalid] = useState(false)
   const otpRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const normalizedPhone = phone.replace(/\s/g, '')
@@ -326,7 +329,7 @@ export default function LoginDialog({ open, onClose, onSuccess }: Props) {
       window.dispatchEvent(new CustomEvent('lenis:start'))
       setTab('login'); setStep('phone'); setPhone('')
       setOtp(Array(4).fill('')); setProfile({ name: '', email: '' })
-      setLoading(false); setError(''); setAttempted(false); setSession(null)
+      setLoading(false); setError(''); setAttempted(false); setSession(null); setOtpInvalid(false)
     }
     return () => {
       document.body.style.overflow = ''
@@ -356,7 +359,7 @@ export default function LoginDialog({ open, onClose, onSuccess }: Props) {
   const verifyOtp = useCallback(async () => {
     setAttempted(true)
     if (!otpComplete || loading) return
-    setLoading(true); setError('')
+    setLoading(true); setError(''); setOtpInvalid(false)
     try {
       const res = await fetch('/api/auth/otp/verify', {
         method: 'POST',
@@ -392,6 +395,7 @@ export default function LoginDialog({ open, onClose, onSuccess }: Props) {
       }
     } catch {
       setError(isAr ? 'رمز التحقق غير صحيح. حاول مجدداً.' : 'Incorrect code. Please try again.')
+      setOtpInvalid(true)
     } finally {
       setLoading(false)
     }
@@ -399,8 +403,8 @@ export default function LoginDialog({ open, onClose, onSuccess }: Props) {
 
   const completeProfile = useCallback(async () => {
     setAttempted(true)
-    const nameOk  = profile.name.trim().length >= 2
-    const emailOk = /^\S+@\S+\.\S+$/.test(profile.email.trim())
+    const nameOk  = profile.name.trim().length >= 2 && NAME_RE.test(profile.name.trim())
+    const emailOk = EMAIL_RE.test(profile.email.trim())
     if (!nameOk || !emailOk || !session || loading) return
     setLoading(true); setError('')
     try {
@@ -426,6 +430,7 @@ export default function LoginDialog({ open, onClose, onSuccess }: Props) {
   const handleOtpChange = (i: number, v: string) => {
     const d = v.replace(/\D/g, '').slice(-1)
     setOtp(curr => curr.map((c, idx) => idx === i ? d : c))
+    setOtpInvalid(false)
     if (d && i < 3) otpRefs.current[i + 1]?.focus()
   }
   const handleOtpKey = (i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -437,6 +442,7 @@ export default function LoginDialog({ open, onClose, onSuccess }: Props) {
     if (!p) return
     e.preventDefault()
     setOtp(Array(4).fill('').map((_, i) => p[i] ?? ''))
+    setOtpInvalid(false)
     otpRefs.current[Math.min(p.length, 3)]?.focus()
   }
 
@@ -678,24 +684,35 @@ export default function LoginDialog({ open, onClose, onSuccess }: Props) {
                           onChange={e => handleOtpChange(i, e.target.value)}
                           onKeyDown={e => handleOtpKey(i, e)}
                           onPaste={handleOtpPaste}
+                          aria-invalid={otpInvalid}
                           style={{
                             width: 56, height: 60,
                             textAlign: 'center',
                             fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 24,
                             color: '#0f172a',
-                            border: `2px solid ${digit ? TEAL : '#e5e7eb'}`,
+                            border: `2px solid ${otpInvalid ? '#ef4444' : digit ? TEAL : '#e5e7eb'}`,
                             borderRadius: 12,
-                            background: digit ? 'rgba(0,113,126,0.04)' : '#fff',
+                            background: otpInvalid ? 'rgba(239,68,68,0.05)' : digit ? 'rgba(0,113,126,0.04)' : '#fff',
                             outline: 'none',
                             transition: 'border-color .15s ease',
                           }}
-                          onFocus={e => (e.target as HTMLInputElement).style.borderColor = TEAL}
-                          onBlur={e => (e.target as HTMLInputElement).style.borderColor = otp[i] ? TEAL : '#e5e7eb'}
+                          onFocus={e => (e.target as HTMLInputElement).style.borderColor = otpInvalid ? '#ef4444' : TEAL}
+                          onBlur={e => (e.target as HTMLInputElement).style.borderColor = otpInvalid ? '#ef4444' : otp[i] ? TEAL : '#e5e7eb'}
                         />
                       ))}
                     </div>
                     {error && <p style={{ margin: '0 0 12px', textAlign: 'center', fontFamily: 'Inter, sans-serif', fontSize: 12.5, color: '#ef4444' }}>{error}</p>}
-                    <button type="button" onClick={verifyOtp} disabled={loading} style={{ ...BTN, marginBottom: 10 }}>
+                    <button
+                      type="button"
+                      onClick={verifyOtp}
+                      disabled={loading || !otpComplete}
+                      style={{
+                        ...BTN,
+                        marginBottom: 10,
+                        background: loading ? '#94a3b8' : !otpComplete ? '#cbd5e1' : TEAL,
+                        cursor: loading || !otpComplete ? 'not-allowed' : 'pointer',
+                      }}
+                    >
                       {loading && <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />}
                       {loading ? (isAr ? 'جارٍ التحقق…' : 'Verifying…') : (isAr ? 'تحقق من الرمز' : 'Verify Code')}
                     </button>
@@ -719,8 +736,18 @@ export default function LoginDialog({ open, onClose, onSuccess }: Props) {
                     </p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 16 }}>
                       {([
-                        { key: 'name',  label: isAr ? 'الاسم الكامل' : 'Full Name',      type: 'text',  placeholder: isAr ? 'أدخل اسمك الكامل' : 'Your full name', invalid: attempted && profile.name.trim().length < 2 },
-                        { key: 'email', label: isAr ? 'البريد الإلكتروني' : 'Email',     type: 'email', placeholder: isAr ? 'بريدك الإلكتروني' : 'your@email.com',  invalid: attempted && !/^\S+@\S+\.\S+$/.test(profile.email.trim()) },
+                        {
+                          key: 'name', label: isAr ? 'الاسم الكامل' : 'Full Name', type: 'text',
+                          placeholder: isAr ? 'أدخل اسمك الكامل' : 'Your full name',
+                          invalid: attempted && !(profile.name.trim().length >= 2 && NAME_RE.test(profile.name.trim())),
+                          error: isAr ? 'أدخل اسمًا صحيحًا (حروف فقط، بدون أرقام).' : 'Enter a valid name (letters only, no numbers).',
+                        },
+                        {
+                          key: 'email', label: isAr ? 'البريد الإلكتروني' : 'Email', type: 'email',
+                          placeholder: isAr ? 'بريدك الإلكتروني' : 'your@email.com',
+                          invalid: attempted && !EMAIL_RE.test(profile.email.trim()),
+                          error: isAr ? 'أدخل بريدًا إلكترونيًا صحيحًا.' : 'Enter a valid email address.',
+                        },
                       ] as const).map(f => (
                         <div key={f.key}>
                           <label style={{ display: 'block', fontFamily: 'Inter, sans-serif', fontSize: 11.5, fontWeight: 700, color: '#374151', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
@@ -735,6 +762,11 @@ export default function LoginDialog({ open, onClose, onSuccess }: Props) {
                             onFocus={e => (e.target as HTMLInputElement).style.borderColor = TEAL}
                             onBlur={e => (e.target as HTMLInputElement).style.borderColor = f.invalid ? '#ef4444' : '#e5e7eb'}
                           />
+                          {f.invalid && (
+                            <p style={{ margin: '6px 0 0', fontFamily: 'Inter, sans-serif', fontSize: 11.5, color: '#ef4444' }}>
+                              {f.error}
+                            </p>
+                          )}
                         </div>
                       ))}
                     </div>

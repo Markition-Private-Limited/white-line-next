@@ -175,9 +175,11 @@ export default function PlacesAutocompleteField({ label, placeholder, value: sel
   }, [open])
 
   const isEmpty = attempted && !value.trim()
+  const isUnselected = attempted && !isEmpty && selectedPlace?.source === 'manual'
+  const invalid = isEmpty || isUnselected
 
   return (
-    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField} ${isEmpty ? styles.fieldInvalid : ''}`}>
+    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField} ${invalid ? styles.fieldInvalid : ''}`}>
       <label>{label}</label>
       <div className={styles.control}>
         <input
@@ -186,7 +188,7 @@ export default function PlacesAutocompleteField({ label, placeholder, value: sel
           onChange={handleChange}
           placeholder={placeholder}
           aria-label={label}
-          aria-invalid={isEmpty}
+          aria-invalid={invalid}
           autoComplete="off"
         />
         <span className={styles.controlIcon}>
@@ -194,9 +196,9 @@ export default function PlacesAutocompleteField({ label, placeholder, value: sel
         </span>
       </div>
       <AnimatePresence initial={false}>
-        {isEmpty && (
+        {invalid && (
           <motion.small className={styles.fieldError} initial={{ opacity: 0, y: -3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }}>
-            {copy.validation.required}
+            {isEmpty ? copy.validation.required : copy.validation.selectFromList}
           </motion.small>
         )}
       </AnimatePresence>

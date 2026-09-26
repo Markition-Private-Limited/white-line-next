@@ -183,7 +183,7 @@ export default function FleetCarsSection() {
             color: '#fff',
             cursor: 'pointer',
             whiteSpace: 'nowrap',
-            flexShrink: fromFloating ? 0 : undefined,
+            flexShrink: 0,
           }}
         >
           {label}
@@ -205,7 +205,7 @@ export default function FleetCarsSection() {
           color: '#6b7280',
           cursor: 'pointer',
           whiteSpace: 'nowrap',
-          flexShrink: fromFloating ? 0 : undefined,
+          flexShrink: 0,
           minHeight: fromFloating ? 34 : 36,
         }}
       >
@@ -224,10 +224,7 @@ export default function FleetCarsSection() {
     <section ref={sectionRef} className="w-full bg-white" style={{ padding: 'clamp(40px, 8vw, 112px) 0', scrollMarginTop: 80 }}>
       <div className="px-6 sm:px-10 lg:px-16">
 
-        <div
-          className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-10"
-          style={{ flexDirection: dir === 'rtl' ? undefined : undefined }}
-        >
+        <div className="flex flex-wrap items-center justify-between gap-5 mb-10">
           <div style={{ textAlign: dir === 'rtl' ? 'right' : 'left' }}>
             <h2 style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 'clamp(20px, 2.5vw, 28px)', color: '#111118', marginBottom: 6 }}>
               {c.title}
@@ -237,7 +234,16 @@ export default function FleetCarsSection() {
             </p>
           </div>
 
-          <div ref={filterBarRef} className="flex items-center flex-wrap gap-2" style={{ justifyContent: dir === 'rtl' ? 'flex-start' : 'flex-end' }}>
+          <div
+            ref={filterBarRef}
+            className="flex items-center flex-nowrap gap-2 no-scrollbar"
+            style={{
+              maxWidth: '100%',
+              overflowX: 'auto',
+              scrollbarWidth: 'none',
+              WebkitOverflowScrolling: 'touch',
+            }}
+          >
             {FILTER_KEYS.map((_, i) => <FilterButton key={FILTER_KEYS[i]} idx={i} />)}
           </div>
         </div>

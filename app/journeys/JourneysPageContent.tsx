@@ -416,7 +416,7 @@ export default function JourneysPageContent() {
 
         {!loading && !error && shown != null && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {shown.length === 0 ? (
+            {shown.filter(b => b.paymentStatus === 'paid').length === 0 ? (
               <div style={{ textAlign: 'center', padding: '48px 24px', color: '#9ca3af' }}>
                 <CalendarDays size={40} style={{ margin: '0 auto 12px', color: '#d1d5db', display: 'block' }} />
                 <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, margin: 0 }}>
@@ -425,7 +425,7 @@ export default function JourneysPageContent() {
               </div>
             ) : (
               <>
-                {shown.map(b => <JourneyCard key={b.id} b={b} lang={lang} />)}
+                {shown.filter(b => b.paymentStatus === 'paid').map(b => <JourneyCard key={b.id} b={b} lang={lang} />)}
                 {hasMore && (
                   <button
                     type="button"

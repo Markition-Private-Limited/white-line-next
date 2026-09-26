@@ -1018,7 +1018,10 @@
   position: absolute;
   inset: 0;
   border-radius: 9px;
-  background: rgba(255,255,255,.12);
+  background: rgba(0,0,0,.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .vehicleNoImage {
   grid-area: media;
@@ -1512,6 +1515,38 @@
   background: rgba(255,255,255,.09);
 }
 
+/* Fleet spinner */
+@keyframes fleetSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fleetPulse {
+  0%, 100% { opacity: 0.45; }
+  50%       { opacity: 0.75; }
+}
+
+.fleetSpinner {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(0, 113, 126, 0.8);
+  border-right-color: rgba(0, 113, 126, 0.35);
+  animation: fleetSpin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.fleetSpinnerSm {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(0, 113, 126, 0.18);
+  border-top-color: #00717e;
+  border-right-color: rgba(0, 113, 126, 0.55);
+  animation: fleetSpin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
 /* Vehicle skeleton */
 .vehicleSkeletonCard {
   display: grid;
@@ -1519,15 +1554,19 @@
   overflow: hidden;
   min-height: 210px;
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.05);
+  animation: fleetPulse 1.8s ease-in-out infinite;
 }
 
 .vehicleSkeletonMedia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 160px;
   min-height: 160px;
-  background: rgba(255,255,255,.1);
+  background: rgba(255,255,255,.08);
 }
 
 .vehicleSkeletonCopy {
@@ -1539,7 +1578,7 @@
 
 .vehicleSkeletonLine {
   border-radius: 4px;
-  background: rgba(255,255,255,.14);
+  background: rgba(255,255,255,.12);
 }
 
 /* Fare skeleton */
@@ -1577,6 +1616,10 @@
 
   .categorySkeletonCard::after,
   .skeletonShimmer { animation: none; }
+
+  .fleetSpinner,
+  .fleetSpinnerSm,
+  .vehicleSkeletonCard { animation: none; }
 }
 
 @media (max-width: 350px) {
