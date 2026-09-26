@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import Navbar from '../layouts/Navbar'
 import Image from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
-import banner from '../assets/terms/banner.webp'
+import banner from '../assets/terms/banner.png'
 
 export default function TermsHero() {
   const { trans, dir } = useLanguage()

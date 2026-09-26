@@ -21,15 +21,16 @@ const _src = (i: unknown): string => (i as { src?: string }).src ?? (i as string
 type Category = 'All' | 'First Class' | 'Business Premium' | 'SUV' | 'Business Sedan' | 'Economy Sedan' | 'Van'
 
 const FILTER_KEYS: Category[] = ['All', 'First Class', 'Business Premium', 'SUV', 'Business Sedan', 'Economy Sedan', 'Van']
+const CATEGORIES_ORDER = FILTER_KEYS.slice(1) as Exclude<Category, 'All'>[]
 
 const CARS: { name: string; luggages: number; persons: number; category: Exclude<Category, 'All'>; img: string }[] = [
   { name: 'Mercedes-Benz S-Class', luggages: 3, persons: 3, category: 'First Class', img: _src(img1) },
   { name: 'BMW 7 Series', luggages: 3, persons: 3, category: 'First Class', img: _src(img2) },
   { name: 'BMW 5 Series', luggages: 3, persons: 3, category: 'Business Premium', img: _src(img4) },
-  { name: 'Chevrolet Suburban', luggages: 6, persons: 6, category: 'SUV', img: _src(img5) },
-  { name: 'Chevrolet Tahoe', luggages: 6, persons: 6, category: 'SUV', img: _src(img6) },
-  { name: 'GMC Yukon XL', luggages: 6, persons: 6, category: 'SUV', img: _src(img7) },
-  { name: 'GMC Yukon', luggages: 6, persons: 6, category: 'SUV', img: _src(img8) },
+  { name: 'Chevrolet Suburban', luggages: 6, persons: 7, category: 'SUV', img: _src(img5) },
+  { name: 'Chevrolet Tahoe', luggages: 6, persons: 7, category: 'SUV', img: _src(img6) },
+  { name: 'GMC Yukon XL', luggages: 6, persons: 7, category: 'SUV', img: _src(img7) },
+  { name: 'GMC Yukon', luggages: 6, persons: 7, category: 'SUV', img: _src(img8) },
   { name: 'Lexus ES350', luggages: 3, persons: 3, category: 'Business Sedan', img: _src(img9) },
   { name: 'Ford Taurus', luggages: 3, persons: 3, category: 'Economy Sedan', img: _src(img10) },
   { name: 'Hyundai Staria', luggages: 7, persons: 7, category: 'Van', img: _src(img11) },
@@ -98,7 +99,7 @@ function CarCard({ car, desc, luggages, persons, index }: {
 }
 
 export default function FleetCarsSection() {
-  const { trans } = useLanguage()
+  const { trans, dir } = useLanguage()
   const { cars: c } = trans.fleetPage
   const searchParams = useSearchParams()
 
@@ -223,50 +224,63 @@ export default function FleetCarsSection() {
     <section ref={sectionRef} className="w-full bg-white" style={{ padding: 'clamp(40px, 8vw, 112px) 0', scrollMarginTop: 80 }}>
       <div className="px-6 sm:px-10 lg:px-16">
 
-        <div className="flex items-center justify-center gap-3 mb-5">
-          <span className="block h-px w-8" style={{ background: '#005C66' }} />
-          <span className="text-xs tracking-[0.22em] uppercase font-medium" style={{ fontFamily: 'Inter, sans-serif', color: '#005C66' }}>
-            {c.label}
-          </span>
-        </div>
-
-        <motion.h2
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="text-center text-[#111118] leading-tight mb-5"
-          style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(26px, 4vw, 48px)' }}
-        >
-          <span style={{ fontWeight: 300 }}>{c.h1}</span>
-          <br />
-          <span style={{ fontWeight: 300 }}>{c.h2a}</span>
-          <span style={{ fontWeight: 800, fontStyle: 'italic' }}>{c.h2b}</span>
-        </motion.h2>
-
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="text-center leading-relaxed mb-10 mx-auto"
-          style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(13px, 1.2vw, 15px)', color: '#9ca3af', maxWidth: 620 }}
-        >
-          {c.sub}
-        </motion.p>
-
-        <div ref={filterBarRef} className="flex items-center justify-center flex-wrap gap-2 mb-10">
-          {FILTER_KEYS.map((_, i) => <FilterButton key={FILTER_KEYS[i]} idx={i} />)}
-        </div>
-
         <div
-          ref={gridRef}
-          className="grid gap-5"
-          style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))' }}
+          className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-10"
+          style={{ flexDirection: dir === 'rtl' ? undefined : undefined }}
         >
-          {filtered.map((car, i) => (
-            <CarCard key={`${car.name}-${car.category}`} car={car} desc={c.desc} luggages={c.luggages} persons={c.persons} index={i} />
-          ))}
+          <div style={{ textAlign: dir === 'rtl' ? 'right' : 'left' }}>
+            <h2 style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 'clamp(20px, 2.5vw, 28px)', color: '#111118', marginBottom: 6 }}>
+              {c.title}
+            </h2>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(12px, 1vw, 13px)', color: '#9ca3af', maxWidth: 480 }}>
+              {c.headerDesc}
+            </p>
+          </div>
+
+          <div ref={filterBarRef} className="flex items-center flex-wrap gap-2" style={{ justifyContent: dir === 'rtl' ? 'flex-start' : 'flex-end' }}>
+            {FILTER_KEYS.map((_, i) => <FilterButton key={FILTER_KEYS[i]} idx={i} />)}
+          </div>
+        </div>
+
+        <div ref={gridRef}>
+          {activeKey === 'All' ? (
+            <div className="flex flex-col" style={{ gap: 'clamp(48px, 6vw, 80px)' }}>
+              {CATEGORIES_ORDER.map((cat, catIdx) => {
+                const catCars = CARS.filter(car => car.category === cat)
+                if (catCars.length === 0) return null
+                const meta = c.categoryMeta[catIdx]
+                return (
+                  <div key={cat}>
+                    <div className="mb-6" style={{ textAlign: dir === 'rtl' ? 'right' : 'left' }}>
+                      <h3 style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 'clamp(18px, 2vw, 22px)', color: '#111118', marginBottom: 4 }}>
+                        {meta.title}
+                      </h3>
+                      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(12px, 1vw, 13px)', color: '#9ca3af' }}>
+                        {meta.desc}
+                      </p>
+                    </div>
+                    <div
+                      className="grid gap-5"
+                      style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))' }}
+                    >
+                      {catCars.map((car, i) => (
+                        <CarCard key={car.name} car={car} desc={c.desc} luggages={c.luggages} persons={c.persons} index={i} />
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <div
+              className="grid gap-5"
+              style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))' }}
+            >
+              {filtered.map((car, i) => (
+                <CarCard key={`${car.name}-${car.category}`} car={car} desc={c.desc} luggages={c.luggages} persons={c.persons} index={i} />
+              ))}
+            </div>
+          )}
         </div>
 
       </div>

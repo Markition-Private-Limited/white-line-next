@@ -1,8 +1,9 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { CalendarDays, MapPin, AlertCircle, LogIn, Plane } from 'lucide-react'
+import { CalendarDays, MapPin, AlertCircle, LogIn, LogOut, Plane } from 'lucide-react'
 import Navbar from '../../layouts/Navbar'
+import LogoutConfirmDialog from '../../components/LogoutConfirmDialog'
 import { useLanguage } from '../../context/LanguageContext'
 
 const CUSTOMER_SESSION_KEY = 'whiteline.customerSession'
@@ -12,6 +13,15 @@ function readToken(): string | null {
     const parsed = JSON.parse(window.localStorage.getItem(CUSTOMER_SESSION_KEY) ?? 'null')
     return parsed?.accessToken ?? null
   } catch { return null }
+}
+
+async function doLogout(token: string | null, router: ReturnType<typeof import('next/navigation').useRouter>) {
+  try {
+    if (token) await fetch('/api/auth/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+  } catch { /* best-effort */ }
+  try { localStorage.removeItem(CUSTOMER_SESSION_KEY) } catch { /* ignore */ }
+  window.dispatchEvent(new CustomEvent('whiteline:logout'))
+  router.push('/')
 }
 
 // Actual API shape: GET /api/v1/customers/bookings returns { success, data: { items, total, page, limit } }
@@ -276,6 +286,7 @@ export default function JourneysPageContent() {
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<'auth' | 'network' | null>(null)
+  const [logoutOpen, setLogoutOpen] = useState(false)
 
   const current = cache[tab]
   const shown = current?.items
@@ -436,6 +447,29 @@ export default function JourneysPageContent() {
             )}
           </div>
         )}
+
+        {/* Sign Out */}
+        <div style={{ display: 'flex', justifyContent: isAr ? 'flex-start' : 'flex-end', marginTop: 32 }}>
+          <button
+            type="button"
+            onClick={() => setLogoutOpen(true)}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
+              color: '#dc2626', background: 'transparent',
+              border: '1px solid #fca5a5', borderRadius: 10,
+              padding: '10px 20px', cursor: 'pointer',
+            }}
+          >
+            <LogOut size={15} />
+            {isAr ? 'تسجيل الخروج' : 'Sign Out'}
+          </button>
+        </div>
+        <LogoutConfirmDialog
+          open={logoutOpen}
+          onKeep={() => setLogoutOpen(false)}
+          onConfirm={() => { setLogoutOpen(false); doLogout(readToken(), router) }}
+        />
       </main>
     </div>
   )

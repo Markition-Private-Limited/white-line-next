@@ -1,8 +1,9 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { User, Mail, CheckCircle2, LogIn, AlertCircle, Pencil, X, Check } from 'lucide-react'
+import { User, Mail, CheckCircle2, LogIn, LogOut, AlertCircle, Pencil, X, Check, Trash2 } from 'lucide-react'
 import Navbar from '../../layouts/Navbar'
+import LogoutConfirmDialog from '../../components/LogoutConfirmDialog'
 import { useLanguage } from '../../context/LanguageContext'
 
 const CUSTOMER_SESSION_KEY = 'whiteline.customerSession'
@@ -12,6 +13,15 @@ function readToken(): string | null {
     const parsed = JSON.parse(window.localStorage.getItem(CUSTOMER_SESSION_KEY) ?? 'null')
     return parsed?.accessToken ?? null
   } catch { return null }
+}
+
+async function doLogout(token: string | null, router: ReturnType<typeof import('next/navigation').useRouter>) {
+  try {
+    if (token) await fetch('/api/auth/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+  } catch { /* best-effort */ }
+  try { localStorage.removeItem(CUSTOMER_SESSION_KEY) } catch { /* ignore */ }
+  window.dispatchEvent(new CustomEvent('whiteline:logout'))
+  router.push('/')
 }
 
 // Actual API shape: GET /api/v1/customers/profile returns { success, data: Profile }
@@ -149,6 +159,10 @@ export default function AccountPageContent() {
   const [token, setToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<'auth' | 'network' | null>(null)
+  const [logoutOpen, setLogoutOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   useEffect(() => {
     const t = readToken()
@@ -174,6 +188,25 @@ export default function AccountPageContent() {
       .catch(() => setError('network'))
       .finally(() => setLoading(false))
   }, [])
+
+  async function handleDeleteAccount() {
+    if (!token) return
+    setDeleteLoading(true)
+    setDeleteError(null)
+    try {
+      const res = await fetch('/api/customers/account', {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (!res.ok) throw new Error('failed')
+      try { localStorage.removeItem(CUSTOMER_SESSION_KEY) } catch {}
+      window.dispatchEvent(new CustomEvent('whiteline:logout'))
+      router.push('/')
+    } catch {
+      setDeleteError(isAr ? 'فشل حذف الحساب. حاول مجدداً.' : 'Failed to delete account. Please try again.')
+      setDeleteLoading(false)
+    }
+  }
 
   if (!loading && error === 'auth') {
     return (
@@ -297,6 +330,108 @@ export default function AccountPageContent() {
               </div>
             )}
           </div>
+
+          {/* Sign Out */}
+          <div style={{ display: 'flex', justifyContent: isAr ? 'flex-start' : 'flex-end', marginTop: 8 }}>
+            <button
+              type="button"
+              onClick={() => setLogoutOpen(true)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
+                color: '#dc2626', background: 'transparent',
+                border: '1px solid #fca5a5', borderRadius: 10,
+                padding: '10px 20px', cursor: 'pointer',
+              }}
+            >
+              <LogOut size={15} />
+              {isAr ? 'تسجيل الخروج' : 'Sign Out'}
+            </button>
+          </div>
+          <LogoutConfirmDialog
+            open={logoutOpen}
+            onKeep={() => setLogoutOpen(false)}
+            onConfirm={() => { setLogoutOpen(false); doLogout(token, router) }}
+          />
+
+          {/* Danger zone — Delete account */}
+          <div style={{ ...CARD, border: '1px solid #fee2e2', marginTop: 8 }}>
+            <p style={{ ...SECTION_TITLE, color: '#dc2626' }}>
+              <Trash2 size={16} style={{ color: '#dc2626' }} />
+              {isAr ? 'منطقة الخطر' : 'Danger Zone'}
+            </p>
+            <HR />
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+              <div>
+                <p style={{ ...VALUE, fontWeight: 600, marginBottom: 4 }}>
+                  {isAr ? 'حذف الحساب' : 'Delete Account'}
+                </p>
+                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6b7280', margin: 0, maxWidth: 420, lineHeight: 1.5 }}>
+                  {isAr
+                    ? 'سيؤدي هذا إلى حذف حسابك وجميع بياناتك بشكل دائم ولا يمكن التراجع عنه.'
+                    : 'This will permanently delete your account and all associated data. This action cannot be undone.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => { setDeleteOpen(true); setDeleteError(null) }}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8, flexShrink: 0,
+                  fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
+                  color: '#dc2626', background: '#fff5f5',
+                  border: '1px solid #fca5a5', borderRadius: 10,
+                  padding: '10px 20px', cursor: 'pointer',
+                }}
+              >
+                <Trash2 size={14} />
+                {isAr ? 'حذف الحساب' : 'Delete Account'}
+              </button>
+            </div>
+          </div>
+
+          {/* Delete account confirmation overlay */}
+          {deleteOpen && (
+            <div style={{ position: 'fixed', inset: 0, zIndex: 1300, display: 'grid', placeItems: 'center', padding: 20, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}>
+              <div style={{ background: '#fff', borderRadius: 18, padding: '32px 28px', maxWidth: 420, width: '100%', boxShadow: '0 24px 60px rgba(0,0,0,0.25)' }}>
+                <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#fee2e2', display: 'grid', placeItems: 'center', margin: '0 auto 16px' }}>
+                  <Trash2 size={22} color="#dc2626" />
+                </div>
+                <h2 style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 800, fontSize: 20, color: '#0f172a', margin: '0 0 8px', textAlign: 'center' }}>
+                  {isAr ? 'هل أنت متأكد؟' : 'Are you sure?'}
+                </h2>
+                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#6b7280', margin: '0 0 24px', textAlign: 'center', lineHeight: 1.6 }}>
+                  {isAr
+                    ? 'سيتم حذف حسابك وجميع بياناتك بشكل دائم. لا يمكن التراجع عن هذا الإجراء.'
+                    : 'Your account and all data will be permanently deleted. This cannot be undone.'}
+                </p>
+                {deleteError && (
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#dc2626', margin: '0 0 16px', textAlign: 'center' }}>
+                    {deleteError}
+                  </p>
+                )}
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteOpen(false)}
+                    disabled={deleteLoading}
+                    style={{ flex: 1, padding: '12px 0', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: '#374151', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 12, cursor: 'pointer' }}
+                  >
+                    {isAr ? 'إلغاء' : 'Cancel'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDeleteAccount}
+                    disabled={deleteLoading}
+                    style={{ flex: 1, padding: '12px 0', fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 14, color: '#fff', background: deleteLoading ? '#f87171' : '#dc2626', border: 'none', borderRadius: 12, cursor: deleteLoading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                  >
+                    {deleteLoading && <span style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />}
+                    {deleteLoading ? (isAr ? 'جارٍ الحذف…' : 'Deleting…') : (isAr ? 'نعم، احذف حسابي' : 'Yes, delete my account')}
+                  </button>
+                </div>
+              </div>
+              <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+            </div>
+          )}
         </div>
       </main>
     </div>

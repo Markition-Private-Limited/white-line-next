@@ -1,14 +1,16 @@
 'use client'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowUpRight, ArrowUpLeft, CalendarDays, ChevronDown, User, X } from 'lucide-react'
+import { ArrowUpRight, ArrowUpLeft, CalendarDays, ChevronDown, LogOut, User, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import hamburgerSvg from '../assets/home/hamburger.svg'
 import logoSvg from '../assets/fav_icon_black.svg'
 import { useLanguage } from '../context/LanguageContext'
 import { LANG_META, type LangCode, translations } from '../lib/i18n'
 import DownloadDialog from '../components/DownloadDialog'
+import LogoutConfirmDialog from '../components/LogoutConfirmDialog'
+import LoginDialog from '../components/LoginDialog'
 
 const BUTTON_BG = [
   'linear-gradient(0deg, rgba(0,92,102,0.55), rgba(0,92,102,0.55))',
@@ -106,8 +108,26 @@ function LangDropdown({ solid }: { solid: boolean }) {
   )
 }
 
+const CUSTOMER_SESSION_KEY_LOGOUT = 'whiteline.customerSession'
+
+async function performLogout(router: ReturnType<typeof useRouter>) {
+  try {
+    const session = JSON.parse(localStorage.getItem(CUSTOMER_SESSION_KEY_LOGOUT) ?? 'null')
+    const token: string | undefined = session?.accessToken
+    if (token) {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+    }
+  } catch { /* best-effort — always clear locally */ }
+  try { localStorage.removeItem(CUSTOMER_SESSION_KEY_LOGOUT) } catch { /* ignore */ }
+  window.dispatchEvent(new CustomEvent('whiteline:logout'))
+  router.push('/')
+}
+
 // ── User dropdown (translucent pill, only when authenticated) ──────────────────
-function UserDropdown({ solid, userName }: { solid: boolean; userName: string }) {
+function UserDropdown({ solid, userName, onLogout }: { solid: boolean; userName: string; onLogout: () => void }) {
   const { lang } = useLanguage()
   const isAr = lang === 'ar'
   const pathname = usePathname()
@@ -211,12 +231,30 @@ function UserDropdown({ solid, userName }: { solid: boolean; userName: string })
                 fontFamily: 'Inter, sans-serif', fontSize: 13,
                 color: pathname === '/account' ? '#fff' : 'rgba(255,255,255,0.75)',
                 background: pathname === '/account' ? 'rgba(255,255,255,0.06)' : 'transparent',
+                borderBottom: '1px solid rgba(255,255,255,0.05)',
                 textDecoration: 'none',
               }}
             >
               <User size={15} style={{ color: '#005C66' }} />
               {isAr ? 'حسابي' : 'My Account'}
             </Link>
+
+            <button
+              type="button"
+              onClick={() => { setOpen(false); onLogout() }}
+              className="hover:bg-white/8"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                width: '100%', padding: '12px 18px',
+                fontFamily: 'Inter, sans-serif', fontSize: 13,
+                color: '#f87171',
+                background: 'transparent',
+                border: 'none', cursor: 'pointer', textAlign: 'start',
+              }}
+            >
+              <LogOut size={15} style={{ color: '#f87171' }} />
+              {isAr ? 'تسجيل الخروج' : 'Sign Out'}
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -257,10 +295,13 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
   const isAr = lang === 'ar'
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [logoutOpen, setLogoutOpen] = useState(false)
+  const [loginOpen, setLoginOpen] = useState(false)
   const [userName, setUserName] = useState<string | null>(null)
   const pathname = usePathname()
+  const router = useRouter()
 
-  useEffect(() => {
+  function refreshUserName() {
     const token = readNavToken()
     if (!token) { setUserName(null); return }
     const jwtName = nameFromJwt(token)
@@ -272,7 +313,6 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
           const profile = json?.data ?? json
           const name = profile?.fullName || profile?.full_name || profile?.name
           if (name) { setUserName(name); return }
-          // Derive display name from email as last resort
           const email: string | undefined = profile?.email ?? profile?.user?.email
           if (email) {
             const prefix = email.split('@')[0]
@@ -281,6 +321,14 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
         })
         .catch(() => {})
     }
+  }
+
+  useEffect(() => { refreshUserName() }, [])
+
+  useEffect(() => {
+    const handler = () => refreshUserName()
+    window.addEventListener('whiteline:login', handler)
+    return () => window.removeEventListener('whiteline:login', handler)
   }, [])
 
   useEffect(() => {
@@ -301,6 +349,14 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
     window.addEventListener('download-dialog:open', handler)
     return () => window.removeEventListener('download-dialog:open', handler)
   }, [])
+
+  useEffect(() => {
+    const handler = () => setUserName(null)
+    window.addEventListener('whiteline:logout', handler)
+    return () => window.removeEventListener('whiteline:logout', handler)
+  }, [])
+
+  const handleLogout = () => setLogoutOpen(true)
 
   const isActive = (to: string) => to === '/' ? pathname === '/' : pathname.startsWith(to)
   const linkColor = solid
@@ -369,8 +425,29 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
               </span>
             </button>
 
-            {/* Translucent user pill — only when authenticated */}
-            {userName && <UserDropdown solid={solid} userName={userName} />}
+            {/* Auth: user pill when logged in, Sign In button when logged out */}
+            {userName
+              ? <UserDropdown solid={solid} userName={userName} onLogout={handleLogout} />
+              : (
+                <button
+                  type="button"
+                  onClick={() => setLoginOpen(true)}
+                  className="hidden sm:inline-flex h-10 items-center rounded-full text-sm font-semibold transition-colors"
+                  style={{
+                    fontFamily: 'Inter, sans-serif',
+                    padding: '0 20px',
+                    background: solid ? 'rgba(0,92,102,0.08)' : 'rgba(255,255,255,0.14)',
+                    border: solid ? '1px solid rgba(0,92,102,0.22)' : '1px solid rgba(255,255,255,0.28)',
+                    color: solid ? '#005C66' : '#fff',
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {trans.nav.signIn}
+                </button>
+              )
+            }
 
             {/* Hamburger */}
             <button
@@ -386,6 +463,12 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
       </nav>
 
       <DownloadDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
+      <LogoutConfirmDialog
+        open={logoutOpen}
+        onKeep={() => setLogoutOpen(false)}
+        onConfirm={() => { setLogoutOpen(false); performLogout(router) }}
+      />
+      <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} onSuccess={() => setLoginOpen(false)} />
 
       {/* Mobile drawer */}
       <AnimatePresence>
@@ -438,6 +521,34 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
                       </Link>
                     </motion.li>
                   ))}
+                  {userName && (
+                    <motion.li initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.07 + 2 * 0.055 }}>
+                      <button
+                        type="button"
+                        onClick={() => { setDrawerOpen(false); handleLogout() }}
+                        className="flex items-center justify-between w-full py-5 transition-colors"
+                        style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(17px, 4vw, 20px)', fontWeight: 500, letterSpacing: '0.02em', color: '#f87171', background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', padding: '20px 0', width: '100%', textAlign: 'start' }}
+                      >
+                        {isAr ? 'تسجيل الخروج' : 'Sign Out'}
+                        <LogOut size={16} style={{ opacity: 0.7 }} />
+                      </button>
+                    </motion.li>
+                  )}
+
+                  {/* Login option for unauthenticated users in drawer */}
+                  {!userName && (
+                    <motion.li initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.07 }}>
+                      <button
+                        type="button"
+                        onClick={() => { setDrawerOpen(false); setLoginOpen(true) }}
+                        className="flex items-center justify-between w-full py-5 transition-colors"
+                        style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(17px, 4vw, 20px)', fontWeight: 500, letterSpacing: '0.02em', color: '#fff', background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', padding: '20px 0', width: '100%', textAlign: 'start' }}
+                      >
+                        {isAr ? 'تسجيل الدخول' : 'Sign In'}
+                        <User size={16} style={{ opacity: 0.7 }} />
+                      </button>
+                    </motion.li>
+                  )}
 
                   {/* Regular nav links — hidden on minimal pages */}
                   {!minimal && trans.nav.links.map((item, i) => (

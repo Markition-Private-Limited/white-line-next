@@ -6,6 +6,7 @@ import Image from 'next/image'
 import Navbar from '../layouts/Navbar'
 import { useLanguage } from '../context/LanguageContext'
 import AirportTransferBookingDialog, { type BookingService } from './AirportTransferBookingDialog'
+import LoginDialog from './LoginDialog'
 import heroBanner from '../assets/home/home_banner.webp'
 import heroBannerMobile from '../assets/home/home_banner_mobile.png'
 import servicesBanner from '../assets/services_1/service_1_banner.webp'
@@ -209,6 +210,7 @@ export default function HomeHero() {
   const { hero } = trans
   const [bannerIndex, setBannerIndex] = useState(0)
   const heroSlide = hero.slides[bannerIndex] ?? hero.slides[0]
+  const [loginOpen, setLoginOpen] = useState(false)
 
   useEffect(() => {
     const timer = setInterval(() => setBannerIndex(i => (i + 1) % 3), 5000)
@@ -373,6 +375,7 @@ export default function HomeHero() {
         </div>
       </section>
       <AirportTransferBookingDialog key={bookingType ?? 'closed'} open={bookingType !== null} service={bookingType ?? 'airport'} onClose={() => setBookingType(null)} />
+      <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} onSuccess={() => setLoginOpen(false)} />
     </div>
   )
 }

@@ -27,6 +27,7 @@ import { phoneCountryCodes, type CountryCode } from '../lib/phoneCountryCodes'
 import { RadarGraphic, StoreButton } from './AppSection'
 import PlacesAutocompleteField, { type PlaceValue } from './PlacesAutocompleteField'
 import styles from './AirportTransferBookingDialog.module.css'
+import LoginDialog from './LoginDialog'
 
 type BookingFor = 'self' | 'guest' | null
 export type BookingService = 'airport' | 'hourly' | 'city' | 'day' | 'oneWay'
@@ -1063,96 +1064,70 @@ function FooterActions({ back, next, nextLabel = 'Continue', showNext = true }: 
   )
 }
 
-function BookingForSection({ booking, updateBooking, next, back, tripComplete, onAttempt }: {
+function BookingForSection({ booking, updateBooking, next, back, tripComplete, onAttempt, onLoginRequest }: {
   booking: BookingState
   updateBooking: (updates: Partial<BookingState>) => void
   next: () => void
   back: () => void
   tripComplete: boolean
   onAttempt: () => void
+  onLoginRequest: () => void
 }) {
   const { copy, dir } = useBookingDialogCopy()
+  const isAr = dir === 'rtl'
   const [attempted, setAttempted] = useState(false)
-  const [authAttempted, setAuthAttempted] = useState(false)
-  const [authPhone, setAuthPhone] = useState(booking.phone)
-  const [authOtp, setAuthOtp] = useState<string[]>(() => Array(4).fill(''))
-  const [profileDraft, setProfileDraft] = useState({ name: booking.name, email: booking.email })
-  const [authStep, setAuthStep] = useState<'phone' | 'otp' | 'profile'>('phone')
   const [initialSession] = useState<CustomerSession | null>(() => readCustomerSession())
-  const [authLoading, setAuthLoading] = useState(false)
-  const [authError, setAuthError] = useState('')
-  const [session, setSession] = useState<CustomerSession | null>(initialSession)
   const [customerProfile, setCustomerProfile] = useState<CustomerProfile | null>(null)
+  const [profileLoading, setProfileLoading] = useState(false)
   const ChoiceIcon = dir === 'rtl' ? ChevronLeft : ChevronRight
   const contactComplete = booking.name.trim().length >= 2 && /^\S+@\S+\.\S+$/.test(booking.email.trim()) && booking.phone.replace(/\D/g, '').length >= 8
   const guestFieldsComplete = booking.guest.name.trim().length >= 2 && booking.guest.phone.replace(/\D/g, '').length >= 8 && /^\S+@\S+\.\S+$/.test(booking.guest.email.trim())
-  const authMobile = normalizePhone(authPhone)
-  const authPhoneComplete = /^\+\d{8,15}$/.test(authMobile)
-  const otpComplete = authOtp.every(digit => digit.trim().length === 1)
   const updateBookingRef = useRef(updateBooking)
-  const otpInputRefs = useRef<(HTMLInputElement | null)[]>([])
-  const resendToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [resendToast, setResendToast] = useState<{ visible: boolean; phone: string }>({ visible: false, phone: '' })
 
-  useEffect(() => {
-    updateBookingRef.current = updateBooking
-  }, [updateBooking])
+  useEffect(() => { updateBookingRef.current = updateBooking }, [updateBooking])
 
   const applyProfile = useCallback((profile: CustomerProfile) => {
     setCustomerProfile(profile)
-    setProfileDraft({ name: profile.fullName, email: profile.email })
     updateBookingRef.current(profileToBookingUpdates(profile))
   }, [])
 
-  const resetCustomerAuth = useCallback(() => {
-    clearCustomerSession()
-    setSession(null)
-    setCustomerProfile(null)
-    setAuthStep('phone')
-    setAuthLoading(false)
-    setAuthError('')
-  }, [])
-
+  // Restore existing session on mount
   useEffect(() => {
     if (!initialSession?.accessToken) return
-    const savedSession = initialSession
     let cancelled = false
-
-    async function restoreCustomerSession() {
-      setAuthLoading(true)
+    setProfileLoading(true)
+    ;(async () => {
       try {
-        let activeProfile = await fetchCustomerProfile(savedSession.accessToken)
+        let profile = await fetchCustomerProfile(initialSession.accessToken)
         if (cancelled) return
-        let activeSession = savedSession
-        if (!activeProfile && savedSession.refreshToken) {
-          const refreshedSession = await refreshCustomerSession(savedSession.refreshToken)
+        if (!profile && initialSession.refreshToken) {
+          const refreshed = await refreshCustomerSession(initialSession.refreshToken)
           if (cancelled) return
-          if (refreshedSession) {
-            storeCustomerSession(refreshedSession)
-            setSession(refreshedSession)
-            activeSession = refreshedSession
-            activeProfile = await fetchCustomerProfile(activeSession.accessToken)
+          if (refreshed) {
+            storeCustomerSession(refreshed)
+            profile = await fetchCustomerProfile(refreshed.accessToken)
             if (cancelled) return
           }
         }
-        if (!activeProfile) {
-          clearCustomerSession()
-          setSession(null)
-          setAuthStep('phone')
-          return
-        }
-        applyProfile(activeProfile)
-        setAuthStep(activeProfile.profileComplete ? 'phone' : 'profile')
-      } catch {
-        if (!cancelled) resetCustomerAuth()
-      } finally {
-        if (!cancelled) setAuthLoading(false)
-      }
-    }
-
-    restoreCustomerSession()
+        if (profile?.profileComplete) applyProfile(profile)
+        else clearCustomerSession()
+      } catch { clearCustomerSession() }
+      finally { if (!cancelled) setProfileLoading(false) }
+    })()
     return () => { cancelled = true }
-  }, [applyProfile, initialSession, resetCustomerAuth])
+  }, [applyProfile, initialSession])
+
+  // Re-check profile whenever user logs in via the LoginDialog
+  useEffect(() => {
+    const handler = async () => {
+      const session = readCustomerSession()
+      if (!session?.accessToken) return
+      const profile = await fetchCustomerProfile(session.accessToken)
+      if (profile?.profileComplete) applyProfile(profile)
+    }
+    window.addEventListener('whiteline:login', handler)
+    return () => window.removeEventListener('whiteline:login', handler)
+  }, [applyProfile])
 
   const chooseBookingFor = (value: BookingFor) => {
     updateBooking({ bookingFor: value, guest: value === booking.bookingFor ? booking.guest : blankGuest() })
@@ -1169,185 +1144,18 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
     if (!booking.bookingFor || !customerReady || !detailsComplete) return
     next()
   }
-  const submitPhone = async () => {
-    setAuthAttempted(true)
-    if (!authPhoneComplete || authLoading) return
-    const isResend = authStep === 'otp'
-    setAuthLoading(true)
-    setAuthError('')
-    try {
-      const phone = authMobile
-      const res = await fetch('/api/auth/customer/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile: phone }),
-      })
-      if (!res.ok) throw new Error('send failed')
-      updateBooking({ phone: authPhone })
-      setAuthOtp(Array(4).fill(''))
-      setAuthStep('otp')
-      if (isResend) {
-        if (resendToastTimer.current) clearTimeout(resendToastTimer.current)
-        setResendToast({ visible: true, phone: authPhone })
-        resendToastTimer.current = setTimeout(() => setResendToast(t => ({ ...t, visible: false })), 3000)
-      }
-    } catch {
-      setAuthError(copy.otpSendError)
-    } finally {
-      setAuthLoading(false)
-    }
-  }
-  const verifyOtp = async () => {
-    setAuthAttempted(true)
-    if (!otpComplete || authLoading) return
-    setAuthLoading(true)
-    setAuthError('')
-    try {
-      const phone = authMobile
-      const otp = authOtp.join('')
-      const res = await fetch('/api/auth/otp/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile: phone, otp_code: otp, purpose: 'customer_auth' }),
-      })
-      const json = await res.json()
-      if (!res.ok) throw new Error('verify failed')
-      const nextSession = parseCustomerSession(json)
-      if (!nextSession) throw new Error('missing token')
-      storeCustomerSession(nextSession)
-      setSession(nextSession)
-      const verifiedProfile = parseCustomerProfile(json)
-      if (verifiedProfile?.profileComplete && verifiedProfile.fullName && verifiedProfile.phone && verifiedProfile.email) {
-        applyProfile(verifiedProfile)
-      } else {
-        const fetchedProfile = await fetchCustomerProfile(nextSession.accessToken)
-        if (fetchedProfile?.profileComplete) applyProfile(fetchedProfile)
-        else {
-          const incompleteProfile = fetchedProfile ?? verifiedProfile ?? { fullName: '', phone: authPhone, email: '', profileComplete: false }
-          setCustomerProfile(incompleteProfile)
-          setProfileDraft({ name: incompleteProfile.fullName || booking.name, email: incompleteProfile.email || booking.email })
-          updateBooking({ phone: incompleteProfile.phone || authPhone })
-          setAuthStep('profile')
-        }
-      }
-    } catch {
-      clearCustomerSession()
-      setSession(null)
-      setAuthError(copy.otpVerifyError)
-    } finally {
-      setAuthLoading(false)
-    }
-  }
-  const completeProfile = async () => {
-    setAuthAttempted(true)
-    const nameValid = profileDraft.name.trim().length >= 2
-    const emailValid = /^\S+@\S+\.\S+$/.test(profileDraft.email.trim())
-    if (!session?.accessToken || !nameValid || !emailValid || authLoading) return
-    setAuthLoading(true)
-    setAuthError('')
-    try {
-      const body = { full_name: profileDraft.name.trim(), email: profileDraft.email.trim() }
-      const res = await authFetch('/api/customers/profile/complete', session.accessToken, {
-        method: 'POST',
-        body: JSON.stringify(body),
-      })
-      if (!res.ok) throw new Error('complete failed')
-      const profile = await fetchCustomerProfile(session.accessToken)
-      if (!profile) throw new Error('profile failed')
-      applyProfile({ ...profile, profileComplete: true })
-      setAuthStep('phone')
-    } catch {
-      setAuthError(copy.profileCompleteError)
-    } finally {
-      setAuthLoading(false)
-    }
-  }
-  const handleOtpChange = (index: number, value: string) => {
-    const digit = value.replace(/\D/g, '').slice(-1)
-    setAuthOtp(current => current.map((currentDigit, currentIndex) => currentIndex === index ? digit : currentDigit))
-    if (digit && index < 3) {
-      otpInputRefs.current[index + 1]?.focus()
-    }
-  }
-  const handleOtpKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Backspace' && !authOtp[index] && index > 0) {
-      otpInputRefs.current[index - 1]?.focus()
-    }
-  }
-  const handleOtpPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
-    const pasted = event.clipboardData.getData('text').replace(/\D/g, '').slice(0, 4)
-    if (!pasted) return
-    event.preventDefault()
-    const next = Array(4).fill('').map((_, i) => pasted[i] ?? '')
-    setAuthOtp(next)
-    const lastFilled = Math.min(pasted.length, 3)
-    otpInputRefs.current[lastFilled]?.focus()
-  }
-  const renderCustomerAuth = () => {
-    if (authLoading && !customerProfile && session?.accessToken) {
-      return (
-        <div className={styles.authPanel}>
-          <p>{copy.loadingProfile}</p>
-          <button type="button" className={styles.resend} onClick={resetCustomerAuth}>{copy.signInAgain}</button>
-        </div>
-      )
-    }
-    if (customerReady) return null
-    return (
-      <div className={styles.authPanel}>
-        {authStep === 'phone' && (
-          <>
-            <h3>{copy.customerLoginTitle}</h3>
-            <p>{copy.customerLoginBody}</p>
-            <PhoneField label={copy.phoneNumber} value={authPhone} attempted={authAttempted} onChange={setAuthPhone} />
-            {/* {authAttempted && !authPhoneComplete && <small className={styles.selectionError}>{copy.ksaPhoneRequired}</small>} */}
-            {authError && <small className={styles.selectionError}>{authError}</small>}
-            <button type="button" className={styles.authAction} onClick={submitPhone} disabled={authLoading}>{authLoading ? copy.sendingOtp : copy.sendOtp}</button>
-          </>
-        )}
-        {authStep === 'otp' && (
-          <>
-            <h3>{copy.otpTitle}</h3>
-            <p>{copy.otpSent}</p>
-            <div className={`${styles.otpBoxes} ${authAttempted && !otpComplete ? styles.otpInvalid : ''}`}>
-              {authOtp.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={el => { otpInputRefs.current[index] = el }}
-                  inputMode="numeric"
-                  aria-label={copy.otpDigit(index + 1)}
-                  aria-invalid={authAttempted && !otpComplete}
-                  maxLength={1}
-                  value={digit}
-                  onChange={event => handleOtpChange(index, event.target.value)}
-                  onKeyDown={event => handleOtpKeyDown(index, event)}
-                  onPaste={handleOtpPaste}
-                />
-              ))}
-            </div>
-            {authError && <small className={styles.selectionError}>{authError}</small>}
-            <button type="button" className={styles.authAction} onClick={verifyOtp} disabled={authLoading}>{authLoading ? copy.verifyingOtp : copy.verifyOtp}</button>
-            <button type="button" className={styles.resend} onClick={submitPhone} disabled={authLoading}>{copy.resendOtp}</button>
-            {resendToast.visible && (
-              <div className={styles.resendToast} dir={dir}>
-                {copy.otpSentToast(resendToast.phone)}
-              </div>
-            )}
-          </>
-        )}
-        {authStep === 'profile' && (
-          <>
-            <h3>{copy.completeProfileTitle}</h3>
-            <p>{copy.completeProfileBody}</p>
-            <TextField label={copy.fullName} placeholder={copy.namePlaceholder} value={profileDraft.name} minLength={2} attempted={authAttempted} onChange={value => setProfileDraft(current => ({ ...current, name: value }))} />
-            <TextField label={copy.emailAddress} placeholder="you@example.com" value={profileDraft.email} inputType="email" attempted={authAttempted} onChange={value => setProfileDraft(current => ({ ...current, email: value }))} />
-            {authError && <small className={styles.selectionError}>{authError}</small>}
-            <button type="button" className={styles.authAction} onClick={completeProfile} disabled={authLoading}>{authLoading ? copy.savingProfile : copy.completeProfile}</button>
-          </>
-        )}
-      </div>
-    )
-  }
+
+  const renderLoginPrompt = () => (
+    <div className={styles.authPanel} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 4 }}>
+      <h3 style={{ margin: '0 0 6px' }}>{isAr ? 'تسجيل الدخول مطلوب' : 'Sign in to continue'}</h3>
+      <p style={{ margin: '0 0 16px' }}>
+        {isAr ? 'سجّل دخولك لإتمام الحجز بشكل أسرع وأكثر أماناً.' : 'Log in to complete your booking faster and securely.'}
+      </p>
+      <button type="button" className={styles.authAction} onClick={onLoginRequest}>
+        {isAr ? 'تسجيل الدخول' : 'Sign In'}
+      </button>
+    </div>
+  )
   const renderYourDetails = () => (
     <div className={styles.guestPanel}>
       <h3>{copy.yourDetails}</h3>
@@ -1357,6 +1165,14 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
       <TextField label={copy.emailAddress} placeholder="you@example.com" value={booking.email} inputType="email" attempted={attempted} onChange={value => updateBooking({ email: value })} />
     </div>
   )
+
+  if (profileLoading) {
+    return (
+      <div className={styles.authPanel} style={{ textAlign: 'center' }}>
+        <p style={{ margin: 0, opacity: 0.7 }}>{copy.loadingProfile}</p>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -1376,7 +1192,7 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
       {attempted && !booking.bookingFor && <small className={styles.selectionError}>{copy.validation.required}</small>}
 
       {booking.bookingFor === 'self' && (
-        customerReady ? renderYourDetails() : renderCustomerAuth()
+        customerReady ? renderYourDetails() : renderLoginPrompt()
       )}
 
       {booking.bookingFor === 'guest' && (
@@ -1392,7 +1208,7 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
                 <TextField label={copy.emailAddress} placeholder="guest@gmail.com" value={booking.guest.email} inputType="email" attempted={attempted} onChange={value => updateBooking({ guest: { ...booking.guest, email: value } })} />
               </div>
             </>
-          ) : renderCustomerAuth()}
+          ) : renderLoginPrompt()}
         </>
       )}
 
@@ -1407,11 +1223,12 @@ function validateFlightNumber(v: string): string | null {
   return FLIGHT_NUMBER_RE.test(v.replace(/[\s-]/g, '')) ? null : 'Enter a valid flight number (e.g. EK512)'
 }
 
-function TripDetails({ booking, updateBooking, next, back }: {
+function TripDetails({ booking, updateBooking, next, back, onLoginRequest }: {
   booking: BookingState
   updateBooking: (updates: Partial<BookingState>) => void
   next: () => void
   back: () => void
+  onLoginRequest: () => void
 }) {
   const { copy } = useBookingDialogCopy()
   const [attempted, setAttempted] = useState(false)
@@ -1481,16 +1298,17 @@ function TripDetails({ booking, updateBooking, next, back }: {
         )}
       </div>
 
-      <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripComplete} onAttempt={() => setAttempted(true)} />
+      <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripComplete} onAttempt={() => setAttempted(true)} onLoginRequest={onLoginRequest} />
     </>
   )
 }
 
-function HourlyTripDetails({ booking, updateBooking, next, back }: {
+function HourlyTripDetails({ booking, updateBooking, next, back, onLoginRequest }: {
   booking: BookingState
   updateBooking: (updates: Partial<BookingState>) => void
   next: () => void
   back: () => void
+  onLoginRequest: () => void
 }) {
   const { copy } = useBookingDialogCopy()
   const [attempted, setAttempted] = useState(false)
@@ -1521,16 +1339,17 @@ function HourlyTripDetails({ booking, updateBooking, next, back }: {
         <span><strong>{copy.needMore}</strong><small>{copy.chooseDayOption}</small></span>
       </div>
 
-      <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripIsComplete(booking)} onAttempt={() => setAttempted(true)} />
+      <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripIsComplete(booking)} onAttempt={() => setAttempted(true)} onLoginRequest={onLoginRequest} />
     </>
   )
 }
 
-function CityTripDetails({ booking, updateBooking, next, back }: {
+function CityTripDetails({ booking, updateBooking, next, back, onLoginRequest }: {
   booking: BookingState
   updateBooking: (updates: Partial<BookingState>) => void
   next: () => void
   back: () => void
+  onLoginRequest: () => void
 }) {
   const { copy } = useBookingDialogCopy()
   const [attempted, setAttempted] = useState(false)
@@ -1542,16 +1361,17 @@ function CityTripDetails({ booking, updateBooking, next, back }: {
 
       <LocationScheduleFields booking={booking} updateBooking={updateBooking} attempted={attempted} riyadhOnly />
 
-      <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripIsComplete(booking)} onAttempt={() => setAttempted(true)} />
+      <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripIsComplete(booking)} onAttempt={() => setAttempted(true)} onLoginRequest={onLoginRequest} />
     </>
   )
 }
 
-function OneWayTripDetails({ booking, updateBooking, next, back }: {
+function OneWayTripDetails({ booking, updateBooking, next, back, onLoginRequest }: {
   booking: BookingState
   updateBooking: (updates: Partial<BookingState>) => void
   next: () => void
   back: () => void
+  onLoginRequest: () => void
 }) {
   const { copy } = useBookingDialogCopy()
   const [attempted, setAttempted] = useState(false)
@@ -1592,15 +1412,16 @@ function OneWayTripDetails({ booking, updateBooking, next, back }: {
       {attempted && booking.pickup && !pickupMatchesRiyadh && <small className={styles.fieldError}>Pick up location must be in Riyadh.</small>}
       {attempted && booking.destination && destinationCity && !destinationMatchesCity && <small className={styles.fieldError}>Drop off location must be in {destinationCity}.</small>}
 
-      <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripComplete} onAttempt={() => setAttempted(true)} />
+      <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripComplete} onAttempt={() => setAttempted(true)} onLoginRequest={onLoginRequest} />
     </>
   )
 }
-function DayTripDetails({ booking, updateBooking, next, back }: {
+function DayTripDetails({ booking, updateBooking, next, back, onLoginRequest }: {
   booking: BookingState
   updateBooking: (updates: Partial<BookingState>) => void
   next: () => void
   back: () => void
+  onLoginRequest: () => void
 }) {
   const { copy } = useBookingDialogCopy()
   const [attempted, setAttempted] = useState(false)
@@ -1628,7 +1449,7 @@ function DayTripDetails({ booking, updateBooking, next, back }: {
 
       <LocationScheduleFields booking={booking} updateBooking={updateBooking} attempted={attempted} />
 
-      <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripIsComplete(booking)} onAttempt={() => setAttempted(true)} />
+      <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripIsComplete(booking)} onAttempt={() => setAttempted(true)} onLoginRequest={onLoginRequest} />
     </>
   )
 }
@@ -1637,6 +1458,7 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
   const { copy, lang } = useBookingDialogCopy()
   const [fleetClasses, setFleetClasses] = useState<VehicleClass[] | null>(null)
   const [vehiclesByClass, setVehiclesByClass] = useState<{ classId: string; data: ClassVehicle[] } | null>(null)
+  const [imageStatus, setImageStatus] = useState<Record<string, 'loaded' | 'error'>>({})
   const [categoryScrollIndex, setCategoryScrollIndex] = useState(0)
   const [vehicleScrollIndex, setVehicleScrollIndex] = useState(0)
   const [vehicleVisibleSlots, setVehicleVisibleSlots] = useState(() => typeof window === 'undefined' || window.innerWidth > 640 ? 2 : 1)
@@ -1910,8 +1732,19 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
                   const fareMeta = formatFareMeta(card.fareMeta)
                   return (
                   <button type="button" key={card.key} className={`${styles.vehicleCard} ${vehicleIndex === index ? styles.vehicleSelected : ''}`} onClick={() => selectVehicle(index)}>
-                    {card.image ? (
-                      <img src={card.image} alt={card.title} className={styles.vehicleImg} />
+                    {card.image && imageStatus[card.key] !== 'error' ? (
+                      <span className={styles.vehicleImgWrap}>
+                        {imageStatus[card.key] !== 'loaded' && (
+                          <span className={`${styles.vehicleImgLoader} ${styles.skeletonShimmer}`} aria-hidden="true" />
+                        )}
+                        <img
+                          src={card.image}
+                          alt={card.title}
+                          className={`${styles.vehicleImg} ${imageStatus[card.key] === 'loaded' ? styles.vehicleImgLoaded : ''}`}
+                          onLoad={() => setImageStatus(prev => ({ ...prev, [card.key]: 'loaded' }))}
+                          onError={() => setImageStatus(prev => ({ ...prev, [card.key]: 'error' }))}
+                        />
+                      </span>
                     ) : (
                       <span className={styles.vehicleNoImage}><CircleInfo size={20} /></span>
                     )}
@@ -2352,6 +2185,7 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
   const [booking, setBooking] = useState<BookingState>(() => createInitialBookingState(service))
   const [confirmClose, setConfirmClose] = useState(false)
   const [bookingId, setBookingId] = useState<string | null>(null)
+  const [loginOpen, setLoginOpen] = useState(false)
   const [redirecting, setRedirecting] = useState(false)
   const redirectingRef = useRef(false)
   const overlayRef = useRef<HTMLDivElement>(null)
@@ -2425,11 +2259,11 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
         </button>
         <div className={styles.content}>
           <span id="airport-dialog-title" className="sr-only">{copy.services[booking.service]} {copy.dialogLabel}</span>
-          {step === 0 && booking.service === 'airport' && <TripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
-          {step === 0 && booking.service === 'hourly' && <HourlyTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
-          {step === 0 && booking.service === 'city' && <CityTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
-          {step === 0 && booking.service === 'day' && <DayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
-          {step === 0 && booking.service === 'oneWay' && <OneWayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} />}
+          {step === 0 && booking.service === 'airport' && <TripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} onLoginRequest={() => setLoginOpen(true)} />}
+          {step === 0 && booking.service === 'hourly' && <HourlyTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} onLoginRequest={() => setLoginOpen(true)} />}
+          {step === 0 && booking.service === 'city' && <CityTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} onLoginRequest={() => setLoginOpen(true)} />}
+          {step === 0 && booking.service === 'day' && <DayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} onLoginRequest={() => setLoginOpen(true)} />}
+          {step === 0 && booking.service === 'oneWay' && <OneWayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} onLoginRequest={() => setLoginOpen(true)} />}
           {step === 1 && <RideStep booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(2)} />}
           {step === 2 && <ReviewStep booking={booking} back={goBack} next={() => setStep(3)} />}
           {step === 3 && <FareStep booking={booking} updateBooking={updateBooking} back={goBack} onSuccess={(id) => { setBookingId(id); setStep(4) }} onRedirecting={() => { redirectingRef.current = true; setRedirecting(true) }} />}
@@ -2440,6 +2274,7 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
             <CancelConfirmDialog onKeep={() => setConfirmClose(false)} onConfirm={resetAndClose} />
           )}
         </AnimatePresence>
+        <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} onSuccess={() => setLoginOpen(false)} />
         <AnimatePresence>
           {redirecting && (
             <motion.div
