@@ -485,22 +485,22 @@ function useBookingDialogCopy() {
   return { copy: bookingDialogCopy[lang], lang, dir }
 }
 
-function TextField({ label, placeholder, value, icon, startIcon, minLength = 2, inputType = 'text', validate, onChange, attempted }: { label: string; placeholder: string; value: string; icon?: React.ReactNode; startIcon?: React.ReactNode; minLength?: number; inputType?: 'text' | 'email'; validate?: (v: string) => string | null; onChange: (value: string) => void; attempted?: boolean }) {
+function TextField({ label, placeholder, value, icon, startIcon, minLength = 2, inputType = 'text', validate, onChange, attempted, readOnly }: { label: string; placeholder: string; value: string; icon?: React.ReactNode; startIcon?: React.ReactNode; minLength?: number; inputType?: 'text' | 'email'; validate?: (v: string) => string | null; onChange: (value: string) => void; attempted?: boolean; readOnly?: boolean }) {
   const { copy } = useBookingDialogCopy()
   const trimmed = value.trim()
-  const isEmpty = attempted && trimmed.length === 0
-  const emailInvalid = inputType === 'email' && trimmed.length > 0 && !/^\S+@\S+\.\S+$/.test(trimmed)
-  const lengthInvalid = inputType === 'text' && trimmed.length > 0 && trimmed.length < minLength
-  const customError = !isEmpty && !emailInvalid && !lengthInvalid && attempted && trimmed.length > 0 ? (validate?.(trimmed) ?? null) : null
+  const isEmpty = !readOnly && attempted && trimmed.length === 0
+  const emailInvalid = !readOnly && inputType === 'email' && trimmed.length > 0 && !/^\S+@\S+\.\S+$/.test(trimmed)
+  const lengthInvalid = !readOnly && inputType === 'text' && trimmed.length > 0 && trimmed.length < minLength
+  const customError = !readOnly && !isEmpty && !emailInvalid && !lengthInvalid && attempted && trimmed.length > 0 ? (validate?.(trimmed) ?? null) : null
   const invalid = isEmpty || emailInvalid || lengthInvalid || customError !== null
   const validationMessage = isEmpty ? copy.validation.required : emailInvalid ? copy.validation.email : lengthInvalid ? copy.validation.characters(minLength) : (customError ?? '')
 
   return (
-    <div className={`${styles.field} ${invalid ? styles.fieldInvalid : ''}`}>
+    <div className={`${styles.field} ${invalid ? styles.fieldInvalid : ''} ${readOnly ? styles.fieldReadOnly : ''}`}>
       <label>{label}</label>
       <div className={styles.control}>
         {startIcon && <span className={styles.controlStartIcon}>{startIcon}</span>}
-        <input aria-label={label} aria-invalid={invalid} type={inputType} value={value} onChange={event => onChange(event.target.value)} placeholder={placeholder} className={startIcon ? styles.inputWithStartIcon : undefined} />
+        <input aria-label={label} aria-invalid={invalid} type={inputType} value={value} onChange={event => onChange(event.target.value)} placeholder={placeholder} className={startIcon ? styles.inputWithStartIcon : undefined} readOnly={readOnly} />
         {icon && <span className={styles.controlIcon}>{icon}</span>}
       </div>
       <AnimatePresence initial={false}>
@@ -510,7 +510,7 @@ function TextField({ label, placeholder, value, icon, startIcon, minLength = 2, 
   )
 }
 
-function PhoneField({ label, value, onChange, attempted }: { label: string; value: string; onChange: (value: string) => void; attempted?: boolean }) {
+function PhoneField({ label, value, onChange, attempted, readOnly }: { label: string; value: string; onChange: (value: string) => void; attempted?: boolean; readOnly?: boolean }) {
   const { copy, lang } = useBookingDialogCopy()
 
   const [selectedIso, setSelectedIso] = useState<string>(() => {
@@ -552,8 +552,8 @@ function PhoneField({ label, value, onChange, attempted }: { label: string; valu
   }, [open])
 
   const trimmed = value.trim()
-  const isEmpty = attempted && trimmed.length === 0
-  const phoneInvalid = trimmed.length > 0 && value.replace(/\D/g, '').length < 8
+  const isEmpty = !readOnly && attempted && trimmed.length === 0
+  const phoneInvalid = !readOnly && trimmed.length > 0 && value.replace(/\D/g, '').length < 8
   const invalid = isEmpty || phoneInvalid
   const validationMessage = isEmpty ? copy.validation.required : phoneInvalid ? copy.validation.phone : ''
 
@@ -570,15 +570,15 @@ function PhoneField({ label, value, onChange, attempted }: { label: string; valu
   }
 
   return (
-    <div className={`${styles.field} ${invalid ? styles.fieldInvalid : ''}`} ref={wrapRef}>
+    <div className={`${styles.field} ${invalid ? styles.fieldInvalid : ''} ${readOnly ? styles.fieldReadOnly : ''}`} ref={wrapRef}>
       <label>{label}</label>
       <div className={styles.phoneControl}>
-        <button type="button" className={styles.phoneCodeBtn} onClick={() => setOpen(o => !o)} aria-haspopup="listbox" aria-expanded={open}>
+        <button type="button" className={styles.phoneCodeBtn} onClick={readOnly ? undefined : () => setOpen(o => !o)} aria-haspopup="listbox" aria-expanded={open} disabled={readOnly}>
           <span className={`fi fi-${active.iso.toLowerCase()} ${styles.phoneCodeBtnFlag}`} aria-hidden="true" />
           <span>{active.dial}</span>
-          <ChevronDown size={12} className={open ? styles.phoneCodeOpen : undefined} />
+          {!readOnly && <ChevronDown size={12} className={open ? styles.phoneCodeOpen : undefined} />}
         </button>
-        <input aria-label={label} aria-invalid={invalid} type="tel" inputMode="tel" value={localNumber} onChange={event => handleNumberChange(event.target.value)} placeholder={active.iso === 'SA' ? '501234567' : ''} className={styles.phoneNumberInput} />
+        <input aria-label={label} aria-invalid={invalid} type="tel" inputMode="tel" value={localNumber} onChange={event => handleNumberChange(event.target.value)} placeholder={active.iso === 'SA' ? '501234567' : ''} className={styles.phoneNumberInput} readOnly={readOnly} />
         <AnimatePresence>
           {open && (
             <motion.div className={styles.phoneCodeMenu} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.16 }}>
@@ -1160,9 +1160,9 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
     <div className={styles.guestPanel}>
       <h3>{copy.yourDetails}</h3>
       <p>{copy.enterYourDetails}</p>
-      <TextField label={copy.fullName} placeholder={copy.namePlaceholder} value={booking.name} minLength={2} attempted={attempted} onChange={value => updateBooking({ name: value })} />
-      <PhoneField label={copy.phoneNumber} value={booking.phone} attempted={attempted} onChange={value => updateBooking({ phone: value })} />
-      <TextField label={copy.emailAddress} placeholder="you@example.com" value={booking.email} inputType="email" attempted={attempted} onChange={value => updateBooking({ email: value })} />
+      <TextField label={copy.fullName} placeholder={copy.namePlaceholder} value={booking.name} minLength={2} attempted={attempted} onChange={value => updateBooking({ name: value })} readOnly={customerReady} />
+      <PhoneField label={copy.phoneNumber} value={booking.phone} attempted={attempted} onChange={value => updateBooking({ phone: value })} readOnly={customerReady} />
+      <TextField label={copy.emailAddress} placeholder="you@example.com" value={booking.email} inputType="email" attempted={attempted} onChange={value => updateBooking({ email: value })} readOnly={customerReady} />
     </div>
   )
 
@@ -1199,7 +1199,6 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
         <>
           {customerReady ? (
             <>
-              {renderYourDetails()}
               <div className={styles.guestPanel}>
                 <h3>{copy.guestDetails}</h3>
                 <p>{copy.enterGuestDetails}</p>

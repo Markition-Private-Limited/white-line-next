@@ -330,7 +330,7 @@
 }
 
 .subtitle {
-  margin: 7px 0 22px;
+  margin: 7px 0 16px;
   font-size: 14px;
   line-height: 1.45;
 }
@@ -340,7 +340,7 @@
 .paymentGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 22px 11px;
+  gap: 12px 11px;
 }
 
 .citySelectorGrid {
@@ -426,6 +426,12 @@
 .phoneCodeFlag { display: inline-block; flex-shrink: 0; width: 18px; height: 13px; border-radius: 2px; overflow: hidden; vertical-align: middle; background-size: cover; }
 .phoneCodeDial { margin-inline-start: auto; padding-inline-start: 8px; color: #8b939a; font-size: 10px; flex-shrink: 0; }
 .phoneCodeEmpty { padding: 14px; font-size: 11px; color: #9fa8b0; text-align: center; }
+
+.fieldReadOnly .control,
+.fieldReadOnly .phoneControl { opacity: 0.62; cursor: default; }
+.fieldReadOnly .control input,
+.fieldReadOnly .phoneControl input,
+.fieldReadOnly .phoneCodeBtn { cursor: default; pointer-events: none; }
 
 .fieldInvalid .control { border-color: rgba(255,190,190,.9); box-shadow: 0 0 0 2px rgba(160,35,35,.1); }
 .fieldInvalid .pickerControl { border-color: rgba(255,190,190,.9) !important; box-shadow: 0 0 0 2px rgba(160,35,35,.1); }
@@ -777,7 +783,7 @@
 .dayDurationCheck { position: absolute; top: 8px; inset-inline-end: 9px; padding: 1px; border-radius: 50%; color: #82d5df; background: #fff; }
 
 .bookingQuestion {
-  margin: 23px 0 20px;
+  margin: 16px 0 11px;
   font-size: 14px;
 }
 
@@ -819,7 +825,7 @@
 .authPanel,
 .vehiclePanel,
 .otpPanel {
-  margin-top: 22px;
+  margin-top: 14px;
   border: 1px solid #00717e;
   border-radius: 19px;
   background: rgba(0, 92, 102, .18);
@@ -830,7 +836,7 @@
 .guestPanel h3,
 .authPanel h3 { margin: 0 0 8px; font-family: var(--font-inter), sans-serif; font-size: 18px; }
 .guestPanel p,
-.authPanel p { margin: 0 0 12px; font-size: 11px; }
+.authPanel p { margin: 0; font-size: 11px; }
 .guestPanel .field + .field { margin-top: 17px; }
 .authPanel .field + .field { margin-top: 17px; }
 .guestPanel .field label,
@@ -844,14 +850,14 @@
   min-height: 44px;
   align-items: center;
   justify-content: center;
-  margin-top: 15px;
+  margin-top: 2px;
   padding: 0 18px;
   border: 0;
   border-radius: 10px;
   color: #fff;
   background: #00717e;
   font: inherit;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   transition: background-color 0.18s ease, opacity 0.18s ease;
@@ -864,7 +870,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 23px;
+  margin-top: 16px;
 }
 
 .back,
