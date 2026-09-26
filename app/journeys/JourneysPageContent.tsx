@@ -376,9 +376,9 @@ export default function JourneysPageContent() {
                 }}
               >
                 {isAr ? t.ar : t.en}
-                {cache[t.key] != null && cache[t.key]!.total > 0 && (
+                {cache[t.key] != null && cache[t.key]!.items.filter(b => b.paymentStatus === 'paid').length > 0 && (
                   <span style={{ marginInlineStart: 6, fontSize: 11, borderRadius: 999, padding: '1px 6px', background: active ? '#1a1a2e' : '#d1d5db', color: active ? '#fff' : '#6b7280' }}>
-                    {cache[t.key]!.total}
+                    {cache[t.key]!.items.filter(b => b.paymentStatus === 'paid').length}
                   </span>
                 )}
               </button>
