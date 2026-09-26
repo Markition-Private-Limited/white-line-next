@@ -55,7 +55,10 @@ export type ClassVehicle = {
 
 type FleetEnvelope<T> = { success: boolean; data: T; timestamp?: string; message?: string }
 
-const FLEET_API_BASE = process.env.FLEET_API_BASE_URL ?? 'http://34.166.167.2'
+if (!process.env.FLEET_API_BASE_URL) {
+  throw new Error('FLEET_API_BASE_URL is not set. Add it to .env.local (e.g. FLEET_API_BASE_URL=http://34.166.167.2)')
+}
+const FLEET_API_BASE = process.env.FLEET_API_BASE_URL
 
 function proxiedFleetImageUrl(url: string | null | undefined): string | null {
   if (!url) return null

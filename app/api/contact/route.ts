@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const CONTACT_API = 'http://34.166.167.2/api/v1/public/support/contact-message'
+if (!process.env.FLEET_API_BASE_URL) {
+  throw new Error('FLEET_API_BASE_URL is not set. Add it to .env.local (e.g. FLEET_API_BASE_URL=http://34.166.167.2)')
+}
+const CONTACT_API = `${process.env.FLEET_API_BASE_URL}/api/v1/public/support/contact-message`
 
 export async function POST(req: NextRequest) {
   try {

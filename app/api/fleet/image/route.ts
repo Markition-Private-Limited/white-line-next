@@ -1,4 +1,7 @@
-const FLEET_API_BASE = process.env.FLEET_API_BASE_URL ?? 'http://34.166.167.2'
+if (!process.env.FLEET_API_BASE_URL) {
+  throw new Error('FLEET_API_BASE_URL is not set. Add it to .env.local (e.g. FLEET_API_BASE_URL=http://34.166.167.2)')
+}
+const FLEET_API_BASE = process.env.FLEET_API_BASE_URL
 
 function isAllowedFleetImage(url: URL): boolean {
   const apiBaseUrl = new URL(FLEET_API_BASE)

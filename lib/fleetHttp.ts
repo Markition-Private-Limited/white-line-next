@@ -1,6 +1,9 @@
 import { execFile } from 'child_process'
 
-export const FLEET_API_BASE = 'http://34.166.167.2'
+if (!process.env.FLEET_API_BASE_URL) {
+  throw new Error('FLEET_API_BASE_URL is not set. Add it to .env.local (e.g. FLEET_API_BASE_URL=http://34.166.167.2)')
+}
+export const FLEET_API_BASE = process.env.FLEET_API_BASE_URL
 const REQUEST_TIMEOUT_MS = 10000
 
 // Node.js fetch/http can get EACCES on this Windows host for port 80.
