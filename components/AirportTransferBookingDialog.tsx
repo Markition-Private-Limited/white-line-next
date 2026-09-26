@@ -23,7 +23,7 @@ import appPhones from '../assets/global_app/app.png'
 import flightNumberSvg from '../assets/dialog/flight_number.svg'
 import { useLanguage } from '../context/LanguageContext'
 import { bookingDialogCopy } from '../lib/bookingDialogCopy'
-import { phoneCountryCodes, type CountryCode } from '../lib/phoneCountryCodes'
+import { phoneCountryCodes, isValidPhoneNumber, type CountryCode } from '../lib/phoneCountryCodes'
 import { RadarGraphic, StoreButton } from './AppSection'
 import PlacesAutocompleteField, { type PlaceValue } from './PlacesAutocompleteField'
 import styles from './AirportTransferBookingDialog.module.css'
@@ -553,7 +553,7 @@ function PhoneField({ label, value, onChange, attempted, readOnly }: { label: st
 
   const trimmed = value.trim()
   const isEmpty = !readOnly && attempted && trimmed.length === 0
-  const phoneInvalid = !readOnly && trimmed.length > 0 && value.replace(/\D/g, '').length < 8
+  const phoneInvalid = !readOnly && trimmed.length > 0 && !isValidPhoneNumber(value)
   const invalid = isEmpty || phoneInvalid
   const validationMessage = isEmpty ? copy.validation.required : phoneInvalid ? copy.validation.phone : ''
 
@@ -1099,8 +1099,8 @@ function BookingForSection({ booking, updateBooking, next, back, tripComplete, o
   const [customerProfile, setCustomerProfile] = useState<CustomerProfile | null>(null)
   const [profileLoading, setProfileLoading] = useState(false)
   const ChoiceIcon = dir === 'rtl' ? ChevronLeft : ChevronRight
-  const contactComplete = booking.name.trim().length >= 2 && /^\S+@\S+\.\S+$/.test(booking.email.trim()) && booking.phone.replace(/\D/g, '').length >= 8
-  const guestFieldsComplete = booking.guest.name.trim().length >= 2 && booking.guest.phone.replace(/\D/g, '').length >= 8 && /^\S+@\S+\.\S+$/.test(booking.guest.email.trim())
+  const contactComplete = booking.name.trim().length >= 2 && /^\S+@\S+\.\S+$/.test(booking.email.trim()) && isValidPhoneNumber(booking.phone)
+  const guestFieldsComplete = booking.guest.name.trim().length >= 2 && isValidPhoneNumber(booking.guest.phone) && /^\S+@\S+\.\S+$/.test(booking.guest.email.trim())
   const updateBookingRef = useRef(updateBooking)
 
   useEffect(() => { updateBookingRef.current = updateBooking }, [updateBooking])

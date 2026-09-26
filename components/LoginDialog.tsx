@@ -3,7 +3,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { X, Check, Loader2, ChevronDown } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
-import { phoneCountryCodes, type CountryCode } from '../lib/phoneCountryCodes'
+import { phoneCountryCodes, isValidPhoneNumber, type CountryCode } from '../lib/phoneCountryCodes'
 import logoSvg from '../assets/fav_icon_black.svg'
 
 const TEAL = '#00717e'
@@ -148,8 +148,7 @@ function PhoneField({
     onChange(digits.length ? `${active.dial} ${digits}` : '')
   }
 
-  const phoneDigits = value.replace(/\D/g, '').length
-  const invalid = attempted && phoneDigits < 8
+  const invalid = attempted && !isValidPhoneNumber(value)
 
   return (
     <div ref={wrapRef} style={{ position: 'relative' }}>
@@ -317,7 +316,7 @@ export default function LoginDialog({ open, onClose, onSuccess }: Props) {
   const otpRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const normalizedPhone = phone.replace(/\s/g, '')
-  const phoneValid  = /^\+\d{8,15}$/.test(normalizedPhone)
+  const phoneValid  = isValidPhoneNumber(normalizedPhone)
   const otpComplete = otp.every(d => d.trim().length === 1)
 
   useEffect(() => {

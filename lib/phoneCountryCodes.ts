@@ -197,3 +197,19 @@ export const phoneCountryCodes: CountryCode[] = [
   { iso: 'ZM', dial: '+260', name: 'Zambia',                                               len: 9  },
   { iso: 'ZW', dial: '+263', name: 'Zimbabwe',                                             len: 9  },
 ]
+
+// Matches the dial code a full phone value starts with, preferring the longest prefix
+// so codes like +1268 aren't mistaken for the shorter +1.
+export function matchPhoneCountry(value: string): CountryCode | null {
+  const sorted = [...phoneCountryCodes].sort((a, b) => b.dial.length - a.dial.length)
+  return sorted.find(c => value.startsWith(c.dial)) ?? null
+}
+
+// A phone value is valid only when its local digits (excluding the dial code)
+// match that country's exact required length — not just "at least 8 digits total".
+export function isValidPhoneNumber(value: string): boolean {
+  const country = matchPhoneCountry(value)
+  if (!country) return false
+  const localDigits = value.slice(country.dial.length).replace(/\D/g, '')
+  return localDigits.length === country.len
+}
