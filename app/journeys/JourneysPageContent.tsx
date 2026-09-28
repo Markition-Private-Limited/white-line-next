@@ -458,7 +458,10 @@ function BookingDetailDialog({ id, lang, dir, onClose }: {
 
                   {/* Fleet details */}
                   {(detail.vehicleClass?.className || detail.vehicleMake) && (() => {
-                    const exactName = [detail.vehicleMake, detail.vehicleModel, detail.vehicleYear].filter(Boolean).join(' ')
+                    const makeStr = detail.vehicleMake ?? ''
+                    const modelStr = detail.vehicleModel ?? ''
+                    const modelPart = modelStr && !makeStr.toLowerCase().includes(modelStr.toLowerCase()) ? modelStr : ''
+                    const exactName = [makeStr || null, modelPart || null, detail.vehicleYear].filter(Boolean).join(' ')
                     return (
                     <div style={{ background: '#f9fafb', border: '1px solid #f3f4f6', borderRadius: 12, padding: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
