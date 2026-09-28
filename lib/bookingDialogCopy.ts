@@ -121,6 +121,7 @@ const en = {
   summaryLabels: {
     flight: 'Flight', flightDate: 'Flight Date', pickupDate: 'Pickup Date', pickupTime: 'Pickup Time',
     duration: 'Duration', journey: 'Journey', category: 'Category', vehicle: 'Vehicle',
+    passenger: 'Passenger', phone: 'Phone',
   },
   summaryValues: { city: 'City Trip', oneWay: 'City to City' },
   addresses: {
@@ -343,6 +344,7 @@ const ar: typeof en = {
   summaryLabels: {
     flight: 'الرحلة', flightDate: 'تاريخ الرحلة', pickupDate: 'تاريخ المشوار', pickupTime: 'وقت الانطلاق',
     duration: 'المدة', journey: 'نوع المشوار', category: 'الفئة', vehicle: 'السيارة',
+    passenger: 'الراكب', phone: 'الجوال',
   },
   summaryValues: { city: 'رحلة المدن', oneWay: 'من مدينة إلى مدينة' },
   addresses: {

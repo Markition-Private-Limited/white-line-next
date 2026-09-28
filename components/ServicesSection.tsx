@@ -5,10 +5,10 @@ import { useRef, useEffect, useState } from 'react'
 import type { StaticImageData } from 'next/image'
 import { useLanguage } from '../context/LanguageContext'
 
-import airportImg from '../assets/home_service/banners/airport_transfer.webp'
+import airportImg from '../assets/home_service/banners/airport_transfer.jpg'
 import cityImg from '../assets/home_service/banners/city_to_city.webp'
 import dayImg from '../assets/home_service/banners/day_service.webp'
-import chauffeurImg from '../assets/home_service/banners/hourly_chauffer.webp'
+import chauffeurImg from '../assets/home_service/banners/hourly_chauffer.jpg'
 import oneWayImg from '../assets/home_service/banners/one_way_ride.webp'
 
 import icon1 from '../assets/home_service/banner_icon/1.svg'

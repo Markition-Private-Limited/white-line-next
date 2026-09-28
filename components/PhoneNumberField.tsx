@@ -120,6 +120,7 @@ export default function PhoneNumberField({
           value={localNumber}
           onChange={e => handleNumberChange(e.target.value)}
           onBlur={onBlur}
+          maxLength={15}
           placeholder={placeholder ?? (active.iso === 'SA' ? '501234567' : '')}
           style={{
             flex: 1,

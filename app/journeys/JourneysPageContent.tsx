@@ -1,7 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
-import { CalendarDays, MapPin, AlertCircle, LogIn, LogOut, Plane } from 'lucide-react'
+import { CalendarDays, MapPin, AlertCircle, LogIn, LogOut, Plane, User, Phone, Car, ChevronRight } from 'lucide-react'
 import Navbar from '../../layouts/Navbar'
 import LogoutConfirmDialog from '../../components/LogoutConfirmDialog'
 import { useLanguage } from '../../context/LanguageContext'
@@ -20,6 +21,9 @@ async function doLogout(token: string | null, router: ReturnType<typeof import('
     if (token) await fetch('/api/auth/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
   } catch { /* best-effort */ }
   try { localStorage.removeItem(CUSTOMER_SESSION_KEY) } catch { /* ignore */ }
+  try { localStorage.removeItem('whiteline.pendingBookingToken') } catch { /* ignore */ }
+  try { localStorage.removeItem('whiteline.pendingBookingRef') } catch { /* ignore */ }
+  try { localStorage.removeItem('whiteline.pendingBookingId') } catch { /* ignore */ }
   window.dispatchEvent(new CustomEvent('whiteline:logout'))
   router.push('/')
 }
@@ -109,9 +113,22 @@ function fmtFare(fare: string | null | undefined) {
 
 // ── Card ───────────────────────────────────────────────────────────────────────
 
-function JourneyCard({ b, lang }: { b: Booking; lang: string }) {
+// Statuses that mean the trip hasn't happened yet — if the scheduled time has
+// already passed while still in one of these, the backend never resolved it.
+const ACTIVE_STATUSES = new Set(['pending', 'assigned', 'accepted', 'en_route', 'arrived', 'started'])
+
+function isOverdue(b: Booking): boolean {
+  if (!b.scheduledDatetime || !ACTIVE_STATUSES.has(b.status)) return false
+  const t = new Date(b.scheduledDatetime).getTime()
+  return !isNaN(t) && t < Date.now()
+}
+
+function JourneyCard({ b, lang, onOpen }: { b: Booking; lang: string; onOpen: (id: string) => void }) {
   const isAr = lang === 'ar'
-  const status = STATUS[b.status] ?? { en: b.status, ar: b.status, color: '#374151', bg: '#f3f4f6' }
+  const overdue = isOverdue(b)
+  const status = overdue
+    ? { en: 'Delayed', ar: 'متأخر', color: '#991b1b', bg: '#fee2e2' }
+    : STATUS[b.status] ?? { en: b.status, ar: b.status, color: '#374151', bg: '#f3f4f6' }
   const payStatus = b.paymentStatus ? PAYMENT_STATUS[b.paymentStatus] ?? null : null
   const service = b.serviceType ? SERVICE[b.serviceType] : null
   const date = fmtDate(b.scheduledDatetime, lang)
@@ -119,7 +136,15 @@ function JourneyCard({ b, lang }: { b: Booking; lang: string }) {
   const fare = fmtFare(b.totalFare)
 
   return (
-    <div style={{ background: '#fff', border: '1px solid #e9e8ec', borderRadius: 18, overflow: 'hidden' }}>
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpen(b.id)}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(b.id) } }}
+      style={{ background: '#fff', border: '1px solid #e9e8ec', borderRadius: 18, overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.15s ease, border-color 0.15s ease' }}
+      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 16px rgba(0,0,0,0.06)'; (e.currentTarget as HTMLDivElement).style.borderColor = '#d1d5db' }}
+      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; (e.currentTarget as HTMLDivElement).style.borderColor = '#e9e8ec' }}
+    >
       {/* Vehicle image strip — only when imageUrl exists */}
       {b.vehicleClass?.imageUrl && (
         <div style={{ height: 90, background: '#f3f4f6', overflow: 'hidden', position: 'relative' }}>
@@ -224,25 +249,332 @@ function JourneyCard({ b, lang }: { b: Booking; lang: string }) {
             )}
           </div>
         )}
+
+        {/* Affordance: this card is clickable for more detail */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, paddingTop: (fare || payStatus) ? 0 : 8, borderTop: (fare || payStatus) ? 'none' : '1px solid #f3f4f6', marginTop: (fare || payStatus) ? -4 : 0 }}>
+          <span style={{ fontSize: 11.5, fontWeight: 600, color: '#005C66', fontFamily: 'Inter, sans-serif' }}>
+            {isAr ? 'عرض التفاصيل' : 'View details'}
+          </span>
+          <ChevronRight size={13} style={{ color: '#005C66', transform: isAr ? 'rotate(180deg)' : 'none' }} />
+        </div>
       </div>
     </div>
   )
 }
 
+// ── Detail dialog ────────────────────────────────────────────────────────────────
+
+type VehicleClassDetail = VehicleClass & {
+  description: string | null
+  passengerCapacity: number | null
+  luggageCapacity: number | null
+  exampleModels: string | null
+}
+
+type BookingDetail = Omit<Booking, 'vehicleClass'> & {
+  vehicleClass: VehicleClassDetail | null
+  driverName: string | null
+  driverPhone: string | null
+  vehiclePlate: string | null
+  vehicleColor: string | null
+  baseFare: string | null
+  distanceFare: string | null
+  serviceFee: string | null
+  vatAmount: string | null
+}
+
+function parseDetail(json: unknown): BookingDetail | null {
+  const dataBlock = (json as Record<string, unknown>)?.data ?? json
+  if (!dataBlock || typeof dataBlock !== 'object') return null
+  const rec = dataBlock as Record<string, unknown>
+  const driver = rec.driver as Record<string, unknown> | undefined
+  const vehicle = rec.vehicle as Record<string, unknown> | undefined
+  const vehicleClass = rec.vehicleClass as Record<string, unknown> | undefined
+  return {
+    id: String(rec.id ?? ''),
+    bookingNumber: (rec.bookingNumber as string) ?? null,
+    serviceType: (rec.serviceType as string) ?? null,
+    status: (rec.status as string) ?? 'pending',
+    paymentStatus: (rec.paymentStatus as string) ?? null,
+    paymentMethod: (rec.paymentMethod as string) ?? null,
+    pickupAddress: (rec.pickupAddress as string) ?? null,
+    dropoffAddress: (rec.dropoffAddress as string) ?? null,
+    scheduledDatetime: (rec.scheduledDatetime as string) ?? null,
+    totalFare: (rec.totalFare as string) ?? null,
+    flightNumber: (rec.flightNumber as string) ?? null,
+    vehicleClass: vehicleClass
+      ? {
+          className: (vehicleClass.className as string) ?? '',
+          imageUrl: (vehicleClass.imageUrl as string) ?? null,
+          description: (vehicleClass.description as string) ?? null,
+          passengerCapacity: typeof vehicleClass.passengerCapacity === 'number' ? vehicleClass.passengerCapacity : null,
+          luggageCapacity: typeof vehicleClass.luggageCapacity === 'number' ? vehicleClass.luggageCapacity : null,
+          exampleModels: (vehicleClass.exampleModels as string) ?? null,
+        }
+      : null,
+    driverName: (driver?.fullName as string) ?? (driver?.name as string) ?? null,
+    driverPhone: (driver?.phone as string) ?? (driver?.phoneNumber as string) ?? null,
+    vehiclePlate: (vehicle?.plateNumber as string) ?? (vehicle?.plate as string) ?? null,
+    vehicleColor: (vehicle?.color as string) ?? null,
+    baseFare: (rec.baseFare as string) ?? null,
+    distanceFare: (rec.distanceFare as string) ?? null,
+    serviceFee: (rec.serviceFee as string) ?? null,
+    vatAmount: (rec.vatAmount as string) ?? null,
+  }
+}
+
+function DetailRow({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+      <span style={{ color: '#9ca3af', flexShrink: 0, marginTop: 1 }}>{icon}</span>
+      <span style={{ fontSize: 13, color: '#374151', fontFamily: 'Inter, sans-serif', lineHeight: 1.5 }}>{children}</span>
+    </div>
+  )
+}
+
+function BookingDetailDialog({ id, lang, dir, onClose }: {
+  id: string | null
+  lang: string
+  dir: string
+  onClose: () => void
+}) {
+  const isAr = lang === 'ar'
+  const [detail, setDetail] = useState<BookingDetail | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [err, setErr] = useState<'auth' | 'network' | null>(null)
+  const [imgFailed, setImgFailed] = useState(false)
+
+  useEffect(() => {
+    setDetail(null); setErr(null); setImgFailed(false)
+    if (!id) return
+    const token = readToken()
+    if (!token) { setErr('auth'); return }
+    setLoading(true)
+    fetch(`/api/customers/bookings/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(json => setDetail(parseDetail(json)))
+      .catch(() => setErr('network'))
+      .finally(() => setLoading(false))
+  }, [id])
+
+  // Lock background scroll (and pause Lenis smooth-scroll) while the dialog is open
+  useEffect(() => {
+    if (id) {
+      document.body.style.overflow = 'hidden'
+      window.dispatchEvent(new CustomEvent('lenis:stop'))
+    } else {
+      document.body.style.overflow = ''
+      window.dispatchEvent(new CustomEvent('lenis:start'))
+    }
+    return () => {
+      document.body.style.overflow = ''
+      window.dispatchEvent(new CustomEvent('lenis:start'))
+    }
+  }, [id])
+
+  const status = detail ? (STATUS[detail.status] ?? { en: detail.status, ar: detail.status, color: '#374151', bg: '#f3f4f6' }) : null
+  const service = detail?.serviceType ? SERVICE[detail.serviceType] : null
+  const date = detail ? fmtDate(detail.scheduledDatetime, lang) : ''
+  const time = detail ? fmtTime(detail.scheduledDatetime) : ''
+  const fare = detail ? fmtFare(detail.totalFare) : null
+
+  return (
+    <AnimatePresence>
+      {id && (
+        <motion.div
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
+          style={{ position: 'fixed', inset: 0, zIndex: 1100, display: 'grid', placeItems: 'center', padding: 'clamp(10px, 4vw, 18px)', boxSizing: 'border-box', background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(5px)', WebkitBackdropFilter: 'blur(5px)' }}
+          role="dialog" aria-modal="true"
+          onClick={e => { if (e.target === e.currentTarget) onClose() }}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 10 }}
+            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            dir={dir}
+            style={{ width: 'min(420px, 100%)', maxWidth: '100%', maxHeight: '90vh', overflowY: 'auto', borderRadius: 18, background: '#fff', boxShadow: '0 16px 48px rgba(0,0,0,0.28)', overflowX: 'hidden', boxSizing: 'border-box' }}
+          >
+            {loading && (
+              <div style={{ padding: '40px 24px', textAlign: 'center' }}>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#9ca3af' }}>
+                  {isAr ? 'جاري التحميل…' : 'Loading…'}
+                </span>
+              </div>
+            )}
+
+            {!loading && err && (
+              <div style={{ padding: '40px 24px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                <AlertCircle size={28} style={{ color: '#ef4444' }} />
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6b7280' }}>
+                  {err === 'auth'
+                    ? (isAr ? 'يرجى تسجيل الدخول.' : 'Please sign in.')
+                    : (isAr ? 'تعذر تحميل تفاصيل الحجز.' : 'Could not load booking details.')}
+                </span>
+                <button type="button" onClick={onClose} style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#374151', background: 'transparent', border: '1px solid #e5e7eb', borderRadius: 8, padding: '8px 16px', cursor: 'pointer' }}>
+                  {isAr ? 'إغلاق' : 'Close'}
+                </button>
+              </div>
+            )}
+
+            {!loading && !err && detail && (() => {
+              const hasImage = !!detail.vehicleClass?.imageUrl && !imgFailed
+              return (
+              <>
+                {hasImage && (
+                  <div style={{ height: 130, background: '#f3f4f6', overflow: 'hidden' }}>
+                    <img
+                      src={detail.vehicleClass!.imageUrl!}
+                      alt={detail.vehicleClass!.className}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={() => setImgFailed(true)}
+                    />
+                  </div>
+                )}
+
+                <div style={{ padding: 'clamp(14px, 5vw, 22px)', display: 'flex', flexDirection: 'column', gap: 14, boxSizing: 'border-box' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+                    <div>
+                      <p style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 15, color: '#111118', margin: '0 0 3px' }}>
+                        {detail.bookingNumber ?? detail.id.slice(0, 8).toUpperCase()}
+                      </p>
+                      {service && (
+                        <span style={{ fontSize: 12, color: '#6b7280', fontFamily: 'Inter, sans-serif' }}>{isAr ? service.ar : service.en}</span>
+                      )}
+                    </div>
+                    {status && (
+                      <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: status.color, background: status.bg, borderRadius: 8, padding: '3px 10px', whiteSpace: 'nowrap', fontFamily: 'Inter, sans-serif', flexShrink: 0 }}>
+                        {isAr ? status.ar : status.en}
+                      </span>
+                    )}
+                  </div>
+
+                  {(date || time) && <DetailRow icon={<CalendarDays size={14} />}>{[date, time].filter(Boolean).join(' · ')}</DetailRow>}
+                  {detail.flightNumber && <DetailRow icon={<Plane size={14} />}>{detail.flightNumber}</DetailRow>}
+
+                  {/* Fleet details */}
+                  {detail.vehicleClass?.className && (
+                    <div style={{ background: '#f9fafb', border: '1px solid #f3f4f6', borderRadius: 12, padding: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Car size={14} style={{ color: '#005C66', flexShrink: 0 }} />
+                        <span style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 13, color: '#111118' }}>
+                          {detail.vehicleClass.className}
+                        </span>
+                        {detail.vehiclePlate && (
+                          <span style={{ fontSize: 11, color: '#6b7280', fontFamily: 'Inter, sans-serif', background: '#fff', border: '1px solid #e5e7eb', borderRadius: 6, padding: '1px 7px' }}>
+                            {detail.vehiclePlate}
+                          </span>
+                        )}
+                      </div>
+                      {detail.vehicleClass.exampleModels && (
+                        <span style={{ fontSize: 12, color: '#6b7280', fontFamily: 'Inter, sans-serif', wordBreak: 'break-word' }}>{detail.vehicleClass.exampleModels}</span>
+                      )}
+                      {detail.vehicleClass.description && (
+                        <span style={{ fontSize: 12, color: '#6b7280', fontFamily: 'Inter, sans-serif', lineHeight: 1.5, wordBreak: 'break-word' }}>{detail.vehicleClass.description}</span>
+                      )}
+                    </div>
+                  )}
+
+                  {detail.driverName && <DetailRow icon={<User size={14} />}>{detail.driverName}</DetailRow>}
+                  {detail.driverPhone && <DetailRow icon={<Phone size={14} />}>{detail.driverPhone}</DetailRow>}
+
+                  {(detail.pickupAddress || detail.dropoffAddress) && (
+                    <div style={{ display: 'flex', gap: 10 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 3, flexShrink: 0 }}>
+                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#005C66' }} />
+                        {detail.dropoffAddress && (
+                          <>
+                            <div style={{ width: 1, flex: 1, background: '#d1d5db', minHeight: 16, margin: '3px 0' }} />
+                            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff', border: '2px solid #ef4444' }} />
+                          </>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1, minWidth: 0 }}>
+                        {detail.pickupAddress && <span style={{ fontSize: 13, color: '#1a1a2e', fontFamily: 'Inter, sans-serif', lineHeight: 1.4, wordBreak: 'break-word' }}>{detail.pickupAddress}</span>}
+                        {detail.dropoffAddress && <span style={{ fontSize: 13, color: '#6b7280', fontFamily: 'Inter, sans-serif', lineHeight: 1.4, wordBreak: 'break-word' }}>{detail.dropoffAddress}</span>}
+                      </div>
+                    </div>
+                  )}
+
+                  {(detail.baseFare || detail.distanceFare || detail.serviceFee || detail.vatAmount || fare) && (
+                    <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <p style={{ margin: '0 0 2px', fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 11, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        {isAr ? 'تفاصيل السعر' : 'Fare breakdown'}
+                      </p>
+                      {detail.baseFare && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: 12.5, color: '#6b7280', fontFamily: 'Inter, sans-serif' }}>{isAr ? 'سعر الرحلة' : 'Trip fare'}</span>
+                          <span style={{ fontSize: 12.5, color: '#374151', fontFamily: 'Inter, sans-serif' }}>{fmtFare(detail.baseFare)}</span>
+                        </div>
+                      )}
+                      {/* distanceFare/serviceFee are components already folded into baseFare on this
+                          endpoint (verified: baseFare + vatAmount ≈ totalFare) — shown as notes only,
+                          not summed, to avoid a breakdown that visibly doesn't add up. */}
+                      {(!!detail.distanceFare || !!detail.serviceFee) && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 3, paddingInlineStart: 10 }}>
+                          {detail.distanceFare && (
+                            <span style={{ fontSize: 11.5, color: '#9ca3af', fontFamily: 'Inter, sans-serif' }}>
+                              {isAr ? `يشمل مسافة: ${fmtFare(detail.distanceFare)}` : `includes distance: ${fmtFare(detail.distanceFare)}`}
+                            </span>
+                          )}
+                          {detail.serviceFee && Number(detail.serviceFee) > 0 && (
+                            <span style={{ fontSize: 11.5, color: '#9ca3af', fontFamily: 'Inter, sans-serif' }}>
+                              {isAr ? `يشمل رسوم خدمة: ${fmtFare(detail.serviceFee)}` : `includes service fee: ${fmtFare(detail.serviceFee)}`}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {detail.vatAmount && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: 12.5, color: '#6b7280', fontFamily: 'Inter, sans-serif' }}>{isAr ? 'ضريبة القيمة المضافة' : 'VAT'}</span>
+                          <span style={{ fontSize: 12.5, color: '#374151', fontFamily: 'Inter, sans-serif' }}>{fmtFare(detail.vatAmount)}</span>
+                        </div>
+                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 8, marginTop: 2, borderTop: '1px dashed #e5e7eb' }}>
+                        <span style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 13, color: '#1a1a2e' }}>{isAr ? 'الإجمالي' : 'Total'}</span>
+                        {fare && <span style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 16, color: '#1a1a2e' }}>{fare}</span>}
+                      </div>
+                      {detail.paymentStatus && PAYMENT_STATUS[detail.paymentStatus] && (
+                        <span style={{ display: 'inline-flex', alignSelf: 'flex-start', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: PAYMENT_STATUS[detail.paymentStatus].color, background: PAYMENT_STATUS[detail.paymentStatus].bg, borderRadius: 8, padding: '3px 9px', fontFamily: 'Inter, sans-serif' }}>
+                          <span style={{ width: 6, height: 6, borderRadius: '50%', background: PAYMENT_STATUS[detail.paymentStatus].dot, display: 'inline-block' }} />
+                          {isAr ? PAYMENT_STATUS[detail.paymentStatus].ar : PAYMENT_STATUS[detail.paymentStatus].en}
+                          {detail.paymentMethod && <span style={{ fontWeight: 400, opacity: 0.7 }}>· {detail.paymentMethod}</span>}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  <button
+                    type="button" onClick={onClose}
+                    style={{ alignSelf: 'flex-end', marginTop: 4, fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 12.5, color: '#dc2626', background: 'transparent', border: '1px solid #fca5a5', borderRadius: 10, padding: '9px 18px', cursor: 'pointer' }}
+                  >
+                    {isAr ? 'إغلاق' : 'Close'}
+                  </button>
+                </div>
+              </>
+              )
+            })()}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
+
 // ── Tabs ───────────────────────────────────────────────────────────────────────
 
-const TAB_STATUS: Record<'upcoming' | 'past' | 'canceled', string> = {
-  upcoming: 'scheduled',
-  past:     'completed',
-  canceled: 'cancelled',
+const TAB_STATUS: Record<'upcoming' | 'in_progress' | 'past' | 'canceled', string> = {
+  upcoming:    'scheduled',
+  in_progress: 'in_progress',
+  past:        'completed',
+  canceled:    'cancelled',
 }
-const TABS: { key: 'upcoming' | 'past' | 'canceled'; en: string; ar: string }[] = [
-  { key: 'upcoming', en: 'Upcoming', ar: 'القادمة' },
-  { key: 'past',     en: 'Past',     ar: 'السابقة' },
-  { key: 'canceled', en: 'Cancelled', ar: 'الملغاة'  },
+const TABS: { key: 'upcoming' | 'in_progress' | 'past' | 'canceled'; en: string; ar: string }[] = [
+  { key: 'upcoming',    en: 'Scheduled',   ar: 'المجدولة' },
+  { key: 'in_progress', en: 'In Progress', ar: 'الجارية' },
+  { key: 'past',        en: 'Completed',   ar: 'المكتملة' },
+  { key: 'canceled',    en: 'Cancelled',   ar: 'الملغاة'  },
 ]
 
-type Tab = 'upcoming' | 'past' | 'canceled'
+type Tab = 'upcoming' | 'in_progress' | 'past' | 'canceled'
 
 type TabCache = { items: Booking[]; total: number; page: number }
 
@@ -287,6 +619,7 @@ export default function JourneysPageContent() {
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<'auth' | 'network' | null>(null)
   const [logoutOpen, setLogoutOpen] = useState(false)
+  const [detailId, setDetailId] = useState<string | null>(null)
 
   const current = cache[tab]
   const shown = current?.items
@@ -332,7 +665,7 @@ export default function JourneysPageContent() {
   if (error === 'auth') {
     return (
       <div className="min-h-screen flex flex-col" style={{ background: '#f8f8fa' }}>
-        <Navbar solid minimal />
+        <Navbar frosted />
         <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
           <div style={{ background: '#fff', border: '1px solid #e9e8ec', borderRadius: 16, padding: '40px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center', maxWidth: 360 }}>
             <LogIn size={36} style={{ color: '#9ca3af' }} />
@@ -350,7 +683,7 @@ export default function JourneysPageContent() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#f8f8fa' }}>
-      <Navbar solid minimal />
+      <Navbar frosted />
 
       <main style={{ flex: 1, maxWidth: 760, width: '100%', margin: '0 auto', padding: '36px 16px 72px' }} dir={dir}>
         <h1 style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 'clamp(20px, 3vw, 26px)', color: '#111118', margin: '0 0 24px', letterSpacing: '-0.01em' }}>
@@ -358,7 +691,10 @@ export default function JourneysPageContent() {
         </h1>
 
         {/* Tab strip */}
-        <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: '#ebebf0', borderRadius: 12, padding: 4 }}>
+        <div
+          className="no-scrollbar"
+          style={{ display: 'flex', gap: 4, marginBottom: 20, background: '#ebebf0', borderRadius: 12, padding: 4, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}
+        >
           {TABS.map(t => {
             const active = tab === t.key
             return (
@@ -367,8 +703,8 @@ export default function JourneysPageContent() {
                 type="button"
                 onClick={() => setTab(t.key)}
                 style={{
-                  flex: 1, fontFamily: 'Montserrat, sans-serif', fontWeight: 600, fontSize: 13,
-                  padding: '9px 4px', borderRadius: 9, border: 'none', cursor: 'pointer',
+                  flex: '1 1 110px', whiteSpace: 'nowrap', textAlign: 'center', fontFamily: 'Montserrat, sans-serif', fontWeight: 600, fontSize: 13,
+                  padding: '9px 12px', borderRadius: 9, border: 'none', cursor: 'pointer',
                   transition: 'all 0.18s ease',
                   background: active ? '#fff' : 'transparent',
                   color: active ? '#1a1a2e' : '#9ca3af',
@@ -425,7 +761,7 @@ export default function JourneysPageContent() {
               </div>
             ) : (
               <>
-                {shown.filter(b => b.paymentStatus === 'paid').map(b => <JourneyCard key={b.id} b={b} lang={lang} />)}
+                {shown.filter(b => b.paymentStatus === 'paid').map(b => <JourneyCard key={b.id} b={b} lang={lang} onOpen={setDetailId} />)}
                 {hasMore && (
                   <button
                     type="button"
@@ -469,6 +805,12 @@ export default function JourneysPageContent() {
           open={logoutOpen}
           onKeep={() => setLogoutOpen(false)}
           onConfirm={() => { setLogoutOpen(false); doLogout(readToken(), router) }}
+        />
+        <BookingDetailDialog
+          id={detailId}
+          lang={lang}
+          dir={dir}
+          onClose={() => setDetailId(null)}
         />
       </main>
     </div>

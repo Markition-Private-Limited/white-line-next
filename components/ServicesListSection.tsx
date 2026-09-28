@@ -4,11 +4,11 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useLanguage } from '../context/LanguageContext'
-import _airportTransferImg from '../assets/home_service/banners/airport_transfer.webp'
+import _airportTransferImg from '../assets/home_service/banners/airport_transfer.jpg'
 import _oneWayRideImg from '../assets/home_service/banners/one_way_ride.webp'
 import _cityToCityImg from '../assets/home_service/banners/city_to_city.webp'
 import _dayServiceImg from '../assets/home_service/banners/day_service.webp'
-import _hourlyImg from '../assets/home_service/banners/hourly_chauffer.webp'
+import _hourlyImg from '../assets/home_service/banners/hourly_chauffer.jpg'
 
 // Order: Airport Transfer, City to City, City Trip (one-way), Day Service, Hourly Chauffeur
 const STATIC = [

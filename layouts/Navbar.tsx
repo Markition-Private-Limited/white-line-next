@@ -122,6 +122,9 @@ async function performLogout(router: ReturnType<typeof useRouter>) {
     }
   } catch { /* best-effort — always clear locally */ }
   try { localStorage.removeItem(CUSTOMER_SESSION_KEY_LOGOUT) } catch { /* ignore */ }
+  try { localStorage.removeItem('whiteline.pendingBookingToken') } catch { /* ignore */ }
+  try { localStorage.removeItem('whiteline.pendingBookingRef') } catch { /* ignore */ }
+  try { localStorage.removeItem('whiteline.pendingBookingId') } catch { /* ignore */ }
   window.dispatchEvent(new CustomEvent('whiteline:logout'))
   router.push('/')
 }
@@ -289,7 +292,7 @@ function MobileLangSwitcher() {
 }
 
 // ── Navbar ────────────────────────────────────────────────────────────────────
-export default function Navbar({ solid = false, minimal = false }: { solid?: boolean; minimal?: boolean }) {
+export default function Navbar({ solid = false, minimal = false, frosted = false }: { solid?: boolean; minimal?: boolean; frosted?: boolean }) {
   const { trans, dir, lang } = useLanguage()
   const isRtl = dir === 'rtl'
   const isAr = lang === 'ar'
@@ -358,29 +361,32 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
 
   const handleLogout = () => setLogoutOpen(true)
 
+  const isSolidLike = solid || frosted
   const isActive = (to: string) => to === '/' ? pathname === '/' : pathname.startsWith(to)
-  const linkColor = solid
+  const linkColor = isSolidLike
     ? (to: string) => isActive(to) ? '#005C66' : '#374151'
     : (to: string) => isActive(to) ? '#ffffff' : 'rgba(255,255,255,0.75)'
 
   return (
     <>
       <nav
-        className={solid ? 'relative z-20 w-full' : 'absolute top-0 left-0 right-0 z-20'}
+        className={solid ? 'relative z-20 w-full' : 'relative z-20 w-full'}
         style={solid
           ? { background: '#ffffff', borderBottom: '1px solid #e5e7eb', padding: '0 clamp(16px, 3vw, 40px)' }
-          : { padding: '16px 24px' }}
+          : { padding: '16px clamp(16px, 3vw, 40px)' }}
       >
         <div
           className="mx-auto flex max-w-7xl items-center justify-between"
           style={solid
             ? { height: 64 }
-            : { background: 'transparent', border: '1px solid #4A4F4B', borderRadius: 999, padding: '12px 20px' }}
+            : frosted
+              ? { background: 'rgba(255,255,255,0.72)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.35)', borderRadius: 999, padding: '12px 20px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }
+              : { background: 'transparent', border: '1px solid #4A4F4B', borderRadius: 999, padding: '12px 20px' }}
         >
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5">
-            <img src={logoSvg.src ?? logoSvg} alt="White Line logo" style={{ width: 28, height: 30, filter: solid ? 'none' : 'brightness(0) invert(1)' }} />
-            <span className="font-semibold tracking-[0.18em] text-sm uppercase" style={{ fontFamily: 'Montserrat, sans-serif', color: solid ? '#111118' : '#fff' }}>
+            <img src={logoSvg.src ?? logoSvg} alt="White Line logo" style={{ width: 28, height: 30, filter: isSolidLike ? 'none' : 'brightness(0) invert(1)' }} />
+            <span className="font-semibold tracking-[0.18em] text-sm uppercase" style={{ fontFamily: 'Montserrat, sans-serif', color: isSolidLike ? '#111118' : '#fff' }}>
               White Line
             </span>
           </Link>
@@ -400,7 +406,7 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
 
           {/* Right side */}
           <div className="flex items-center gap-3">
-            <LangDropdown solid={solid} />
+            <LangDropdown solid={isSolidLike} />
 
             {/* Download Now — always visible */}
             <button
@@ -408,8 +414,8 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
               className="group hidden sm:inline-flex relative h-10 items-center justify-center overflow-hidden rounded-full text-sm font-semibold"
               style={{
                 fontFamily: 'Inter, sans-serif',
-                background: solid ? '#005C66' : BUTTON_BG,
-                border: solid ? 'none' : '1px solid rgba(255,255,255,0.18)',
+                background: isSolidLike ? '#005C66' : BUTTON_BG,
+                border: isSolidLike ? 'none' : '1px solid rgba(255,255,255,0.18)',
                 color: '#fff',
                 minWidth: 140,
               }}
@@ -418,7 +424,7 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
                 {trans.nav.download}
               </span>
               <span className="absolute inline-flex h-full w-full translate-y-[100%] items-center justify-center transition duration-500 group-hover:translate-y-0">
-                <span className={`absolute inset-0 translate-y-full skew-y-12 scale-y-0 transition duration-500 group-hover:translate-y-0 group-hover:scale-150 ${solid ? 'bg-[#004d57]' : 'bg-white/20'}`} />
+                <span className={`absolute inset-0 translate-y-full skew-y-12 scale-y-0 transition duration-500 group-hover:translate-y-0 group-hover:scale-150 ${isSolidLike ? 'bg-[#004d57]' : 'bg-white/20'}`} />
                 <span className="relative z-10 inline-flex items-center gap-1.5">
                   {trans.nav.download} {isRtl ? <ArrowUpLeft size={13} /> : <ArrowUpRight size={13} />}
                 </span>
@@ -427,7 +433,7 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
 
             {/* Auth: user pill when logged in, Sign In button when logged out */}
             {userName
-              ? <UserDropdown solid={solid} userName={userName} onLogout={handleLogout} />
+              ? <UserDropdown solid={isSolidLike} userName={userName} onLogout={handleLogout} />
               : (
                 <button
                   type="button"
@@ -436,9 +442,9 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
                   style={{
                     fontFamily: 'Inter, sans-serif',
                     padding: '0 20px',
-                    background: solid ? 'rgba(0,92,102,0.08)' : 'rgba(255,255,255,0.14)',
-                    border: solid ? '1px solid rgba(0,92,102,0.22)' : '1px solid rgba(255,255,255,0.28)',
-                    color: solid ? '#005C66' : '#fff',
+                    background: isSolidLike ? 'rgba(0,92,102,0.08)' : 'rgba(255,255,255,0.14)',
+                    border: isSolidLike ? '1px solid rgba(0,92,102,0.22)' : '1px solid rgba(255,255,255,0.28)',
+                    color: isSolidLike ? '#005C66' : '#fff',
                     backdropFilter: 'blur(8px)',
                     WebkitBackdropFilter: 'blur(8px)',
                     cursor: 'pointer',
@@ -452,11 +458,11 @@ export default function Navbar({ solid = false, minimal = false }: { solid?: boo
             {/* Hamburger */}
             <button
               className="lg:hidden flex items-center justify-center w-10 h-10 rounded-full transition-colors"
-              style={{ border: solid ? '1px solid #e5e7eb' : '1px solid rgba(255,255,255,0.15)' }}
+              style={{ border: isSolidLike ? '1px solid #e5e7eb' : '1px solid rgba(255,255,255,0.15)' }}
               onClick={() => setDrawerOpen(true)}
               aria-label="Open menu"
             >
-              <img src={hamburgerSvg.src ?? hamburgerSvg} alt="" style={{ width: 18, height: 18, filter: solid ? 'brightness(0)' : 'none' }} />
+              <img src={hamburgerSvg.src ?? hamburgerSvg} alt="" style={{ width: 18, height: 18, filter: isSolidLike ? 'brightness(0)' : 'none' }} />
             </button>
           </div>
         </div>

@@ -377,14 +377,12 @@ export default function LoginDialog({ open, onClose, onSuccess }: Props) {
         window.dispatchEvent(new CustomEvent('whiteline:login'))
         onSuccess?.(newSession)
         setStep('done')
-        setTimeout(() => window.location.reload(), 1400)
       } else {
         const fetched = await fetchProfile(newSession.accessToken)
         if (fetched?.profileComplete) {
           window.dispatchEvent(new CustomEvent('whiteline:login'))
           onSuccess?.(newSession)
           setStep('done')
-          setTimeout(() => window.location.reload(), 1400)
         } else {
           const fallback = fetched ?? inlineProfile ?? { fullName: '', phone: normalizedPhone, email: '', profileComplete: false }
           setProfile({ name: fallback.fullName, email: fallback.email })
@@ -418,7 +416,6 @@ export default function LoginDialog({ open, onClose, onSuccess }: Props) {
       window.dispatchEvent(new CustomEvent('whiteline:login'))
       onSuccess?.(session)
       setStep('done')
-      setTimeout(() => window.location.reload(), 1400)
     } catch {
       setError(isAr ? 'فشل حفظ البيانات. حاول مجدداً.' : 'Failed to save profile. Please try again.')
     } finally {

@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useLanguage } from '../context/LanguageContext'
 
@@ -23,17 +23,17 @@ type Category = 'All' | 'First Class' | 'Business Premium' | 'SUV' | 'Business S
 const FILTER_KEYS: Category[] = ['All', 'First Class', 'Business Premium', 'SUV', 'Business Sedan', 'Economy Sedan', 'Van']
 const CATEGORIES_ORDER = FILTER_KEYS.slice(1) as Exclude<Category, 'All'>[]
 
-const CARS: { name: string; luggages: number; persons: number; category: Exclude<Category, 'All'>; img: string }[] = [
-  { name: 'Mercedes-Benz S-Class', luggages: 3, persons: 3, category: 'First Class', img: _src(img1) },
-  { name: 'BMW 7 Series', luggages: 3, persons: 3, category: 'First Class', img: _src(img2) },
-  { name: 'BMW 5 Series', luggages: 3, persons: 3, category: 'Business Premium', img: _src(img4) },
-  { name: 'Chevrolet Suburban', luggages: 6, persons: 7, category: 'SUV', img: _src(img5) },
-  { name: 'Chevrolet Tahoe', luggages: 6, persons: 7, category: 'SUV', img: _src(img6) },
-  { name: 'GMC Yukon XL', luggages: 6, persons: 7, category: 'SUV', img: _src(img7) },
-  { name: 'GMC Yukon', luggages: 6, persons: 7, category: 'SUV', img: _src(img8) },
-  { name: 'Lexus ES350', luggages: 3, persons: 3, category: 'Business Sedan', img: _src(img9) },
-  { name: 'Ford Taurus', luggages: 3, persons: 3, category: 'Economy Sedan', img: _src(img10) },
-  { name: 'Hyundai Staria', luggages: 7, persons: 7, category: 'Van', img: _src(img11) },
+const CARS: { name: string; luggages: number; persons: number; category: Exclude<Category, 'All'>; img: string; descIdx: number }[] = [
+  { name: 'Mercedes-Benz S-Class', luggages: 3, persons: 3, category: 'First Class', img: _src(img1), descIdx: 0 },
+  { name: 'BMW 7 Series', luggages: 3, persons: 3, category: 'First Class', img: _src(img2), descIdx: 1 },
+  { name: 'BMW 5 Series', luggages: 3, persons: 3, category: 'Business Premium', img: _src(img4), descIdx: 2 },
+  { name: 'Chevrolet Suburban', luggages: 6, persons: 7, category: 'SUV', img: _src(img5), descIdx: 3 },
+  { name: 'Chevrolet Tahoe', luggages: 6, persons: 7, category: 'SUV', img: _src(img6), descIdx: 4 },
+  { name: 'GMC Yukon XL', luggages: 6, persons: 7, category: 'SUV', img: _src(img7), descIdx: 5 },
+  { name: 'GMC Yukon', luggages: 6, persons: 7, category: 'SUV', img: _src(img8), descIdx: 6 },
+  { name: 'Lexus ES350', luggages: 3, persons: 3, category: 'Business Sedan', img: _src(img9), descIdx: 7 },
+  { name: 'Ford Taurus', luggages: 3, persons: 3, category: 'Economy Sedan', img: _src(img10), descIdx: 8 },
+  { name: 'Hyundai Staria', luggages: 7, persons: 7, category: 'Van', img: _src(img11), descIdx: 9 },
 ]
 
 function LuggageIcon() {
@@ -52,9 +52,9 @@ function PersonIcon() {
   )
 }
 
-function CarCard({ car, desc, luggages, persons, index }: {
+function CarCard({ car, descs, luggages, persons, index }: {
   car: typeof CARS[0]
-  desc: string
+  descs: string[]
   luggages: string
   persons: string
   index: number
@@ -77,7 +77,7 @@ function CarCard({ car, desc, luggages, persons, index }: {
           {car.name}
         </p>
         <p className="mb-4" style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(12px, 1vw, 13px)', color: '#9ca3af' }}>
-          {desc}
+          {descs[car.descIdx] ?? descs[0]}
         </p>
         <div className="flex items-center gap-5">
           <div className="flex items-center gap-1.5">
@@ -102,6 +102,7 @@ export default function FleetCarsSection() {
   const { trans, dir } = useLanguage()
   const { cars: c } = trans.fleetPage
   const searchParams = useSearchParams()
+  const router = useRouter()
 
   const [activeIdx, setActiveIdx] = useState(0)
   const [filterScrolledPast, setFilterScrolledPast] = useState(false)
@@ -109,27 +110,40 @@ export default function FleetCarsSection() {
   const filterBarRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
   const sectionRef = useRef<HTMLElement>(null)
-  // Re-runs whenever ?category= changes (including same-page navigation on /fleet)
+  // Re-runs whenever ?category= changes via React (initial load + cross-page nav)
   useEffect(() => {
     const raw = searchParams.get('category')
-    if (!raw) return
-    const requested = decodeURIComponent(raw).toLowerCase()
-    const idx = FILTER_KEYS.findIndex(item => item.toLowerCase() === requested)
+    if (!raw) { setActiveIdx(0); return }
+    const idx = FILTER_KEYS.findIndex(k => k.toLowerCase() === decodeURIComponent(raw).toLowerCase())
     if (idx !== -1) setActiveIdx(idx)
-
-    let attempts = 0
-    const tryScroll = () => {
-      const el = gridRef.current ?? sectionRef.current
-      if (el) {
-        const top = el.getBoundingClientRect().top + window.scrollY - 120
-        window.scrollTo({ top, behavior: 'smooth' })
-      } else if (attempts++ < 10) {
-        setTimeout(tryScroll, 100)
-      }
-    }
-    const raf = requestAnimationFrame(() => setTimeout(tryScroll, 200))
-    return () => cancelAnimationFrame(raf)
   }, [searchParams])
+
+  // Catches same-page Next.js <Link> navigation (pushState) and browser back/forward (popstate)
+  useEffect(() => {
+    const FLEET_URL_CHANGE = 'fleet:url-change'
+
+    const syncFromUrl = () => {
+      const raw = new URLSearchParams(window.location.search).get('category')
+      if (!raw) { setActiveIdx(0); return }
+      const idx = FILTER_KEYS.findIndex(k => k.toLowerCase() === decodeURIComponent(raw).toLowerCase())
+      if (idx !== -1) setActiveIdx(idx)
+    }
+
+    const origPush = history.pushState.bind(history)
+    history.pushState = function (...args: Parameters<typeof history.pushState>) {
+      origPush(...args)
+      // defer via custom event so state update happens outside React's render phase
+      window.dispatchEvent(new Event(FLEET_URL_CHANGE))
+    }
+
+    window.addEventListener(FLEET_URL_CHANGE, syncFromUrl)
+    window.addEventListener('popstate', syncFromUrl)
+    return () => {
+      history.pushState = origPush
+      window.removeEventListener(FLEET_URL_CHANGE, syncFromUrl)
+      window.removeEventListener('popstate', syncFromUrl)
+    }
+  }, [])
 
   useEffect(() => {
     const filterEl = filterBarRef.current
@@ -156,6 +170,9 @@ export default function FleetCarsSection() {
 
   const handleFilterClick = (idx: number, fromFloating = false) => {
     setActiveIdx(idx)
+    const key = FILTER_KEYS[idx]
+    const url = key === 'All' ? '/fleet' : `/fleet?category=${encodeURIComponent(key)}`
+    router.replace(url, { scroll: false })
     if (fromFloating && gridRef.current) {
       const top = gridRef.current.getBoundingClientRect().top + window.scrollY - 80
       window.scrollTo({ top, behavior: 'smooth' })
@@ -269,7 +286,7 @@ export default function FleetCarsSection() {
                       style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))' }}
                     >
                       {catCars.map((car, i) => (
-                        <CarCard key={car.name} car={car} desc={c.desc} luggages={c.luggages} persons={c.persons} index={i} />
+                        <CarCard key={car.name} car={car} descs={c.descs} luggages={c.luggages} persons={c.persons} index={i} />
                       ))}
                     </div>
                   </div>
@@ -282,7 +299,7 @@ export default function FleetCarsSection() {
               style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))' }}
             >
               {filtered.map((car, i) => (
-                <CarCard key={`${car.name}-${car.category}`} car={car} desc={c.desc} luggages={c.luggages} persons={c.persons} index={i} />
+                <CarCard key={`${car.name}-${car.category}`} car={car} descs={c.descs} luggages={c.luggages} persons={c.persons} index={i} />
               ))}
             </div>
           )}

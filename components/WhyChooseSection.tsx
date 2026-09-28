@@ -18,7 +18,7 @@ function useIsMobile() {
 }
 
 import img1 from '../assets/home_carousel/carousel-image-3.png'
-import img2 from '../assets/home_carousel/carousel-image-diff-format.png'
+import img2 from '../assets/home_carousel/carousel-image-diff-format.jpg'
 import img3 from '../assets/services_1/services/day_service/3.png'
 
 const imageSrc = (image: StaticImageData) => image.src

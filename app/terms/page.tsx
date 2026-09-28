@@ -4,7 +4,7 @@ import TermsHero from '@/components/TermsHero'
 import TermsContent from '@/components/TermsContent'
 
 export const metadata: Metadata = {
-  title: 'Terms & Conditions | White Line',
+  title: 'Terms & Conditions',
   description: 'Read the Terms & Conditions governing your use of White Line premium chauffeur and executive transportation services.',
 }
 

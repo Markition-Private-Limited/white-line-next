@@ -1838,7 +1838,13 @@ function BookingReviewSummary({ booking, category, vehicleLabel }: { booking: Bo
   const categorySummary = category || '--'
   const vehicleSummary = vehicleLabel || '--'
   const l = copy.summaryLabels
-  const summaryRows = isHourly
+  const isGuest = booking.bookingFor === 'guest'
+  const passengerName = (isGuest ? booking.guest.name : booking.name).trim()
+  const passengerPhone = (isGuest ? booking.guest.phone : booking.phone).trim()
+  const passengerRows: string[][] = passengerName || passengerPhone
+    ? [[l.passenger, passengerName || '--'], [l.phone, passengerPhone || '--']]
+    : []
+  const summaryRows = (isHourly
     ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.duration, `${booking.duration} ${copy.hours}`], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
     : isCity
       ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.journey, copy.summaryValues.city], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
@@ -1847,6 +1853,7 @@ function BookingReviewSummary({ booking, category, vehicleLabel }: { booking: Bo
         : isOneWay
           ? [[l.pickupDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.journey, copy.summaryValues.oneWay], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
           : [[l.flight, booking.flightNumber || '--'], [l.flightDate, formatBookingDate(booking.date, copy.calendar.locale)], [l.pickupTime, formatBookingTime(booking.time, lang)], [l.category, categorySummary], [l.vehicle, vehicleSummary]]
+  ).concat(passengerRows)
   const SummaryArrow = dir === 'rtl' ? ArrowLeft : ArrowRight
 
   return (

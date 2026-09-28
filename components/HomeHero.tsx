@@ -8,7 +8,7 @@ import { useLanguage } from '../context/LanguageContext'
 import AirportTransferBookingDialog, { type BookingService } from './AirportTransferBookingDialog'
 import LoginDialog from './LoginDialog'
 import heroBanner from '../assets/home/home_banner.webp'
-import heroBannerMobile from '../assets/home/home_banner_mobile.png'
+import heroBannerMobile from '../assets/home/home_banner_mobile.jpg'
 import servicesBanner from '../assets/services_1/service_1_banner.webp'
 import contactBanner from '../assets/contact_us/contact_banner.png'
 

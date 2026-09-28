@@ -4,7 +4,7 @@ import PrivacyPolicyHero from '@/components/PrivacyPolicyHero'
 import PrivacyPolicyContent from '@/components/PrivacyPolicyContent'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | White Line',
+  title: 'Privacy Policy',
   description: 'Learn how White Line collects, uses, and protects your personal information when you use our premium chauffeur services.',
 }
 

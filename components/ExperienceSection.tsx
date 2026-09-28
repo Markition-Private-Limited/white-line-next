@@ -7,7 +7,7 @@ import carouselImg1 from '../assets/home_carousel/carousel-image-1.jpg'
 import carouselImg2 from '../assets/home_carousel/carousel-image-2.jpg'
 import carouselImg3 from '../assets/home_carousel/carousel-image-3.png'
 import carouselImg4 from '../assets/home_carousel/carousel-image-4.png'
-import carouselImg5 from '../assets/home_carousel/carousel-image-diff-format.png'
+import carouselImg5 from '../assets/home_carousel/carousel-image-diff-format.jpg'
 
 const IMAGES = [carouselImg1, carouselImg2, carouselImg3, carouselImg4, carouselImg5].map((image: StaticImageData) => image.src)
 

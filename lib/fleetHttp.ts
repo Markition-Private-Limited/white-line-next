@@ -76,6 +76,6 @@ export function fleetPut(path: string, body: unknown, options?: FleetRequestOpti
   return fleetRequest('PUT', path, body, options)
 }
 
-export function fleetDelete(path: string, options?: FleetRequestOptions): Promise<FleetHttpResult> {
-  return fleetRequest('DELETE', path, undefined, options)
+export function fleetDelete(path: string, body?: unknown, options?: FleetRequestOptions): Promise<FleetHttpResult> {
+  return fleetRequest('DELETE', path, body, options)
 }

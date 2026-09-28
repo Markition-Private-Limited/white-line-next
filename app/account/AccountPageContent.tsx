@@ -20,6 +20,9 @@ async function doLogout(token: string | null, router: ReturnType<typeof import('
     if (token) await fetch('/api/auth/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
   } catch { /* best-effort */ }
   try { localStorage.removeItem(CUSTOMER_SESSION_KEY) } catch { /* ignore */ }
+  try { localStorage.removeItem('whiteline.pendingBookingToken') } catch { /* ignore */ }
+  try { localStorage.removeItem('whiteline.pendingBookingRef') } catch { /* ignore */ }
+  try { localStorage.removeItem('whiteline.pendingBookingId') } catch { /* ignore */ }
   window.dispatchEvent(new CustomEvent('whiteline:logout'))
   router.push('/')
 }
@@ -95,8 +98,8 @@ function NameField({ value, token, onSaved, lang }: {
     return (
       <div>
         <p style={LABEL}>{isAr ? 'الاسم الكامل' : 'Full Name'}</p>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <p style={VALUE}>{value || '—'}</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+          <p style={{ ...VALUE, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>{value || '—'}</p>
           <button
             type="button"
             onClick={() => { setDraft(value ?? ''); setEditing(true) }}
@@ -120,10 +123,11 @@ function NameField({ value, token, onSaved, lang }: {
           onChange={e => setDraft(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(false) }}
           disabled={saving}
+          maxLength={12}
           style={{
             fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#1a1a2e',
             border: '1.5px solid #005C66', borderRadius: 8, padding: '6px 10px',
-            outline: 'none', minWidth: 180, background: '#fff',
+            outline: 'none', minWidth: 180, background: '#fff', caretColor: '#005C66',
           }}
         />
         <button
@@ -139,9 +143,10 @@ function NameField({ value, token, onSaved, lang }: {
           type="button"
           onClick={() => { setEditing(false); setErr(null) }}
           disabled={saving}
-          style={{ display: 'inline-flex', alignItems: 'center', fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6b7280', background: 'transparent', border: '1px solid #e5e7eb', borderRadius: 8, padding: '6px 10px', cursor: 'pointer' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6b7280', background: 'transparent', border: '1px solid #e5e7eb', borderRadius: 8, padding: '6px 10px', cursor: 'pointer' }}
         >
           <X size={13} />
+          {isAr ? 'إلغاء' : 'Cancel'}
         </button>
       </div>
       {err && <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#ef4444', margin: '4px 0 0' }}>{err}</p>}
@@ -211,7 +216,7 @@ export default function AccountPageContent() {
   if (!loading && error === 'auth') {
     return (
       <div className="min-h-screen flex flex-col" style={{ background: '#f8f8fa' }}>
-        <Navbar solid minimal />
+        <Navbar frosted />
         <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
           <div style={{ background: '#fff', border: '1px solid #e9e8ec', borderRadius: 16, padding: '40px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center', maxWidth: 360 }}>
             <LogIn size={36} style={{ color: '#9ca3af' }} />
@@ -229,7 +234,7 @@ export default function AccountPageContent() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#f8f8fa' }}>
-      <Navbar solid minimal />
+      <Navbar frosted />
       <main style={{ flex: 1, maxWidth: 760, width: '100%', margin: '0 auto', padding: '36px 16px 72px' }} dir={dir}>
         <h1 style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 'clamp(20px, 3vw, 26px)', color: '#111118', margin: '0 0 24px', letterSpacing: '-0.01em' }}>
           {isAr ? 'حسابي' : 'My Account'}
