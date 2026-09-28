@@ -123,7 +123,7 @@ function NameField({ value, token, onSaved, lang }: {
           onChange={e => setDraft(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(false) }}
           disabled={saving}
-          maxLength={12}
+          maxLength={18}
           style={{
             fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#1a1a2e',
             border: '1.5px solid #005C66', borderRadius: 8, padding: '6px 10px',

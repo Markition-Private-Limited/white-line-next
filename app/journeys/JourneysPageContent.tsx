@@ -277,6 +277,9 @@ type BookingDetail = Omit<Booking, 'vehicleClass'> & {
   driverPhone: string | null
   vehiclePlate: string | null
   vehicleColor: string | null
+  vehicleMake: string | null
+  vehicleModel: string | null
+  vehicleYear: number | null
   baseFare: string | null
   distanceFare: string | null
   serviceFee: string | null
@@ -314,8 +317,11 @@ function parseDetail(json: unknown): BookingDetail | null {
       : null,
     driverName: (driver?.fullName as string) ?? (driver?.name as string) ?? null,
     driverPhone: (driver?.phone as string) ?? (driver?.phoneNumber as string) ?? null,
-    vehiclePlate: (vehicle?.plateNumber as string) ?? (vehicle?.plate as string) ?? null,
+    vehiclePlate: (vehicle?.plateNumber as string) ?? (vehicle?.plate_number as string) ?? (vehicle?.plate as string) ?? null,
     vehicleColor: (vehicle?.color as string) ?? null,
+    vehicleMake: (vehicle?.make as string) ?? null,
+    vehicleModel: (vehicle?.model as string) ?? null,
+    vehicleYear: typeof vehicle?.year === 'number' ? (vehicle.year as number) : null,
     baseFare: (rec.baseFare as string) ?? null,
     distanceFare: (rec.distanceFare as string) ?? null,
     serviceFee: (rec.serviceFee as string) ?? null,
@@ -451,27 +457,37 @@ function BookingDetailDialog({ id, lang, dir, onClose }: {
                   {detail.flightNumber && <DetailRow icon={<Plane size={14} />}>{detail.flightNumber}</DetailRow>}
 
                   {/* Fleet details */}
-                  {detail.vehicleClass?.className && (
+                  {(detail.vehicleClass?.className || detail.vehicleMake) && (() => {
+                    const exactName = [detail.vehicleMake, detail.vehicleModel, detail.vehicleYear].filter(Boolean).join(' ')
+                    return (
                     <div style={{ background: '#f9fafb', border: '1px solid #f3f4f6', borderRadius: 12, padding: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                         <Car size={14} style={{ color: '#005C66', flexShrink: 0 }} />
                         <span style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 13, color: '#111118' }}>
-                          {detail.vehicleClass.className}
+                          {exactName || detail.vehicleClass?.className}
                         </span>
+                        {exactName && detail.vehicleClass?.className && (
+                          <span style={{ fontSize: 11, color: '#9ca3af', fontFamily: 'Inter, sans-serif' }}>
+                            {detail.vehicleClass.className}
+                          </span>
+                        )}
                         {detail.vehiclePlate && (
                           <span style={{ fontSize: 11, color: '#6b7280', fontFamily: 'Inter, sans-serif', background: '#fff', border: '1px solid #e5e7eb', borderRadius: 6, padding: '1px 7px' }}>
                             {detail.vehiclePlate}
                           </span>
                         )}
                       </div>
-                      {detail.vehicleClass.exampleModels && (
-                        <span style={{ fontSize: 12, color: '#6b7280', fontFamily: 'Inter, sans-serif', wordBreak: 'break-word' }}>{detail.vehicleClass.exampleModels}</span>
+                      {!exactName && detail.vehicleClass?.exampleModels && !detail.vehiclePlate && (
+                        <span style={{ fontSize: 11.5, color: '#9ca3af', fontFamily: 'Inter, sans-serif', wordBreak: 'break-word' }}>
+                          {isAr ? `أمثلة على السيارات: ${detail.vehicleClass.exampleModels}` : `e.g. ${detail.vehicleClass.exampleModels}`}
+                        </span>
                       )}
-                      {detail.vehicleClass.description && (
+                      {detail.vehicleClass?.description && (
                         <span style={{ fontSize: 12, color: '#6b7280', fontFamily: 'Inter, sans-serif', lineHeight: 1.5, wordBreak: 'break-word' }}>{detail.vehicleClass.description}</span>
                       )}
                     </div>
-                  )}
+                    )
+                  })()}
 
                   {detail.driverName && <DetailRow icon={<User size={14} />}>{detail.driverName}</DetailRow>}
                   {detail.driverPhone && <DetailRow icon={<Phone size={14} />}>{detail.driverPhone}</DetailRow>}
