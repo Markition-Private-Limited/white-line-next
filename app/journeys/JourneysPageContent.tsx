@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { CalendarDays, MapPin, AlertCircle, LogIn, LogOut, Plane, User, Phone, Car, ChevronRight } from 'lucide-react'
@@ -116,6 +116,7 @@ function fmtFare(fare: string | null | undefined) {
 // Statuses that mean the trip hasn't happened yet — if the scheduled time has
 // already passed while still in one of these, the backend never resolved it.
 const ACTIVE_STATUSES = new Set(['pending', 'assigned', 'accepted', 'en_route', 'arrived', 'started'])
+const CANCELLABLE_STATUSES = new Set(['pending', 'assigned', 'accepted'])
 
 function isOverdue(b: Booking): boolean {
   if (!b.scheduledDatetime || !ACTIVE_STATUSES.has(b.status)) return false
@@ -338,20 +339,25 @@ function DetailRow({ icon, children }: { icon: React.ReactNode; children: React.
   )
 }
 
-function BookingDetailDialog({ id, lang, dir, onClose }: {
+function BookingDetailDialog({ id, lang, dir, onClose, onCancelled }: {
   id: string | null
   lang: string
   dir: string
   onClose: () => void
+  onCancelled: (bookingId: string) => void
 }) {
   const isAr = lang === 'ar'
   const [detail, setDetail] = useState<BookingDetail | null>(null)
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState<'auth' | 'network' | null>(null)
   const [imgFailed, setImgFailed] = useState(false)
+  const [cancelStep, setCancelStep] = useState<null | 'confirm' | 'loading' | 'done' | 'error'>(null)
+  const [cancelReason, setCancelReason] = useState('')
+  const [cancelErrMsg, setCancelErrMsg] = useState<string | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    setDetail(null); setErr(null); setImgFailed(false)
+    setDetail(null); setErr(null); setImgFailed(false); setCancelStep(null); setCancelReason(''); setCancelErrMsg(null)
     if (!id) return
     const token = readToken()
     if (!token) { setErr('auth'); return }
@@ -378,6 +384,60 @@ function BookingDetailDialog({ id, lang, dir, onClose }: {
     }
   }, [id])
 
+  // Prevent Lenis from intercepting wheel/touch events inside the dialog so
+  // native overflow-y: auto scroll works. stopPropagation stops the event before
+  // it reaches Lenis's listener on window; we don't call preventDefault so the
+  // browser still handles the scroll natively.
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el || !id) return
+    const stop = (e: WheelEvent | TouchEvent) => e.stopPropagation()
+    el.addEventListener('wheel', stop, { passive: true })
+    el.addEventListener('touchmove', stop, { passive: true })
+    return () => {
+      el.removeEventListener('wheel', stop)
+      el.removeEventListener('touchmove', stop)
+    }
+  }, [id])
+
+  // Cancellation is blocked within 2 hours of pickup (backend rule — we mirror it client-side)
+  const cutoffPassed = detail?.scheduledDatetime
+    ? (() => {
+        const ms = new Date(detail.scheduledDatetime!).getTime()
+        return !isNaN(ms) && (ms - Date.now()) < 2 * 60 * 60 * 1000
+      })()
+    : false
+  const canCancel = detail ? CANCELLABLE_STATUSES.has(detail.status) && !cutoffPassed : false
+  const showCutoffNotice = detail ? CANCELLABLE_STATUSES.has(detail.status) && cutoffPassed : false
+
+  async function cancelBooking() {
+    const token = readToken()
+    if (!token || !detail) return
+    setCancelStep('loading')
+    try {
+      const res = await fetch(`/api/bookings/${detail.id}/cancel`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ reason: cancelReason.trim() }),
+      })
+      if (res.ok) {
+        setCancelStep('done')
+        setTimeout(() => { onCancelled(detail.id); onClose() }, 2200)
+      } else if (res.status === 400) {
+        setCancelErrMsg(isAr
+          ? 'انتهت فترة الإلغاء. يُسمح بالإلغاء قبل ساعتين أو أكثر من موعد الرحلة.'
+          : 'Cancellation window has passed. Cancellations must be made more than 2 hours before pickup.')
+        setCancelStep('error')
+      } else {
+        setCancelErrMsg(isAr ? 'تعذر إلغاء الحجز. يرجى المحاولة مجدداً.' : 'Could not cancel booking. Please try again.')
+        setCancelStep('error')
+      }
+    } catch {
+      setCancelErrMsg(isAr ? 'تعذر إلغاء الحجز. يرجى المحاولة مجدداً.' : 'Could not cancel booking. Please try again.')
+      setCancelStep('error')
+    }
+  }
+
   const status = detail ? (STATUS[detail.status] ?? { en: detail.status, ar: detail.status, color: '#374151', bg: '#f3f4f6' }) : null
   const service = detail?.serviceType ? SERVICE[detail.serviceType] : null
   const date = detail ? fmtDate(detail.scheduledDatetime, lang) : ''
@@ -394,10 +454,12 @@ function BookingDetailDialog({ id, lang, dir, onClose }: {
           onClick={e => { if (e.target === e.currentTarget) onClose() }}
         >
           <motion.div
+            ref={scrollRef}
             initial={{ opacity: 0, scale: 0.96, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 10 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             dir={dir}
-            style={{ width: 'min(420px, 100%)', maxWidth: '100%', maxHeight: '90vh', overflowY: 'auto', borderRadius: 18, background: '#fff', boxShadow: '0 16px 48px rgba(0,0,0,0.28)', overflowX: 'hidden', boxSizing: 'border-box' }}
+            data-lenis-prevent
+            style={{ width: 'min(420px, 100%)', maxWidth: '100%', maxHeight: 'calc(100dvh - 40px)', overflowY: 'auto', borderRadius: 18, background: '#fff', boxShadow: '0 16px 48px rgba(0,0,0,0.28)', overflowX: 'hidden', boxSizing: 'border-box' }}
           >
             {loading && (
               <div style={{ padding: '40px 24px', textAlign: 'center' }}>
@@ -561,12 +623,135 @@ function BookingDetailDialog({ id, lang, dir, onClose }: {
                     </div>
                   )}
 
-                  <button
-                    type="button" onClick={onClose}
-                    style={{ alignSelf: 'flex-end', marginTop: 4, fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 12.5, color: '#dc2626', background: 'transparent', border: '1px solid #fca5a5', borderRadius: 10, padding: '9px 18px', cursor: 'pointer' }}
-                  >
-                    {isAr ? 'إغلاق' : 'Close'}
-                  </button>
+                  {/* Cancel flow */}
+                  {cancelStep === 'confirm' && (
+                    <div style={{ background: '#fff7f7', border: '1px solid #fecaca', borderRadius: 12, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                        <AlertCircle size={16} style={{ color: '#dc2626', flexShrink: 0, marginTop: 1 }} />
+                        <div>
+                          <p style={{ margin: '0 0 3px', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13, color: '#dc2626' }}>
+                            {isAr ? 'هل تريد إلغاء هذا الحجز؟' : 'Cancel this booking?'}
+                          </p>
+                          <p style={{ margin: 0, fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6b7280', lineHeight: 1.5 }}>
+                            {isAr ? 'لا يمكن التراجع عن هذا الإجراء. تتم معالجة المبالغ المستردة خارج النظام.' : 'This cannot be undone. Refunds are handled outside the system.'}
+                          </p>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <textarea
+                          value={cancelReason}
+                          onChange={e => setCancelReason(e.target.value.slice(0, 100))}
+                          placeholder={isAr ? 'سبب الإلغاء' : 'Reason for cancellation'}
+                          rows={2}
+                          maxLength={100}
+                          style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#374151', background: '#fff', border: `1px solid ${cancelReason.trim() ? '#fca5a5' : '#ef4444'}`, borderRadius: 8, padding: '8px 10px', resize: 'vertical', outline: 'none', width: '100%', boxSizing: 'border-box' }}
+                          dir={dir}
+                        />
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          {!cancelReason.trim() && (
+                            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#dc2626' }}>
+                              {isAr ? 'مطلوب' : 'Required'}
+                            </span>
+                          )}
+                          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: cancelReason.length >= 90 ? '#dc2626' : '#9ca3af', marginInlineStart: 'auto' }}>
+                            {cancelReason.length}/100
+                          </span>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          type="button"
+                          onClick={cancelBooking}
+                          disabled={!cancelReason.trim()}
+                          style={{ flex: 1, fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 12.5, color: '#fff', background: cancelReason.trim() ? '#dc2626' : '#fca5a5', border: 'none', borderRadius: 10, padding: '9px 14px', cursor: cancelReason.trim() ? 'pointer' : 'not-allowed' }}
+                        >
+                          {isAr ? 'تأكيد الإلغاء' : 'Confirm Cancellation'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCancelStep(null)}
+                          style={{ flex: 1, fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 12.5, color: '#374151', background: 'transparent', border: '1px solid #e5e7eb', borderRadius: 10, padding: '9px 14px', cursor: 'pointer' }}
+                        >
+                          {isAr ? 'احتفظ بالحجز' : 'Keep Booking'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {cancelStep === 'loading' && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 0' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#005C66" strokeWidth="2.5" strokeLinecap="round" style={{ animation: 'spin 0.8s linear infinite' }}>
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                      </svg>
+                      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#005C66' }}>
+                        {isAr ? 'جاري الإلغاء…' : 'Cancelling…'}
+                      </span>
+                      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+                    </div>
+                  )}
+
+                  {cancelStep === 'done' && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '12px 14px' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#166534' }}>
+                        {isAr ? 'تم إلغاء الحجز بنجاح.' : 'Booking cancelled successfully.'}
+                      </span>
+                    </div>
+                  )}
+
+                  {cancelStep === 'error' && (
+                    <div style={{ background: '#fff7f7', border: '1px solid #fecaca', borderRadius: 10, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                        <AlertCircle size={14} style={{ color: '#dc2626', flexShrink: 0, marginTop: 1 }} />
+                        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12.5, color: '#dc2626', lineHeight: 1.5 }}>{cancelErrMsg}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setCancelStep(null)}
+                        style={{ alignSelf: 'flex-start', fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600, color: '#374151', background: 'transparent', border: '1px solid #e5e7eb', borderRadius: 8, padding: '6px 14px', cursor: 'pointer' }}
+                      >
+                        {isAr ? 'حسناً' : 'OK'}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Cutoff notice — status is cancellable but window has passed */}
+                  {showCutoffNotice && !cancelStep && (
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 7, background: '#fefce8', border: '1px solid #fde68a', borderRadius: 10, padding: '10px 12px' }}>
+                      <AlertCircle size={14} style={{ color: '#b45309', flexShrink: 0, marginTop: 1 }} />
+                      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12.5, color: '#92400e', lineHeight: 1.5 }}>
+                        {isAr
+                          ? 'لا يمكن الإلغاء — انتهت فترة الإلغاء (أقل من ساعتين قبل الرحلة).'
+                          : 'Cancellation unavailable — less than 2 hours before pickup.'}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Bottom action row */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                    {canCancel && !cancelStep && (
+                      <button
+                        type="button"
+                        onClick={() => setCancelStep('confirm')}
+                        style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 12.5, color: '#dc2626', background: 'transparent', border: '1px solid #fca5a5', borderRadius: 10, padding: '9px 18px', cursor: 'pointer' }}
+                      >
+                        {isAr ? 'إلغاء الحجز' : 'Cancel Booking'}
+                      </button>
+                    )}
+                    <span style={{ flex: 1 }} />
+                    {cancelStep !== 'done' && (
+                      <button
+                        type="button"
+                        onClick={onClose}
+                        disabled={cancelStep === 'loading'}
+                        style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 12.5, color: '#374151', background: 'transparent', border: '1px solid #e5e7eb', borderRadius: 10, padding: '9px 18px', cursor: cancelStep === 'loading' ? 'not-allowed' : 'pointer', opacity: cancelStep === 'loading' ? 0.5 : 1 }}
+                      >
+                        {isAr ? 'إغلاق' : 'Close'}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </>
               )
@@ -639,6 +824,23 @@ export default function JourneysPageContent() {
   const [error, setError] = useState<'auth' | 'network' | null>(null)
   const [logoutOpen, setLogoutOpen] = useState(false)
   const [detailId, setDetailId] = useState<string | null>(null)
+
+  function handleCancelled(bookingId: string) {
+    setCache(prev => {
+      const next = { ...prev }
+      for (const key of Object.keys(next) as Tab[]) {
+        if (next[key]) {
+          next[key] = {
+            ...next[key]!,
+            items: next[key]!.items.filter(b => b.id !== bookingId),
+            total: Math.max(0, next[key]!.total - 1),
+          }
+        }
+      }
+      return next
+    })
+    setDetailId(null)
+  }
 
   const current = cache[tab]
   const shown = current?.items
@@ -830,6 +1032,7 @@ export default function JourneysPageContent() {
           lang={lang}
           dir={dir}
           onClose={() => setDetailId(null)}
+          onCancelled={handleCancelled}
         />
       </main>
     </div>

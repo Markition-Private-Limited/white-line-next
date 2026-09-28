@@ -79,6 +79,7 @@ export default function AboutGoldStandardSection() {
           >
             <img
               src={(favIcon as any).src ?? favIcon}
+              alt=""
               aria-hidden="true"
               style={{ position: 'absolute', bottom: '-12%', right: '-8%', width: '38%', opacity: 0.055, pointerEvents: 'none', userSelect: 'none' }}
             />
