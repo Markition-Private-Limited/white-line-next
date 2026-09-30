@@ -1722,7 +1722,7 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
           )}
         </>
       )}
-      <div className={styles.vehiclePanel}>
+      <div className={`${styles.vehiclePanel}${service === 'oneWay' ? ` ${styles.vehiclePanelNoDisclaimer}` : ''}`}>
         {category && <p>{copy.availableVehicles(category)}</p>}
         {!category ? (
           <p className={styles.vehicleEmpty}>{lang === 'ar' ? 'اختر فئة مركبة لعرض السيارات.' : 'Choose a vehicle class to view vehicles.'}</p>
@@ -1822,6 +1822,7 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
             )}
           </>
         )}
+        {service !== 'oneWay' && <p className={styles.fareDisclaimer}>{copy.fareDisclaimer}</p>}
       </div>
       <FooterActions back={back} next={next} showNext={rideSelectionComplete} />
     </>

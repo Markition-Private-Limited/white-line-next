@@ -961,7 +961,8 @@
 [dir='rtl'] .categoryPlaceholder { transform: scaleX(-1); }
 [dir='rtl'] .categoryIntro { text-align: right; }
 
-.vehiclePanel { margin-top: 16px; padding: 16px 18px 17px; }
+.vehiclePanel { margin-top: 16px; padding: 16px 18px 0; }
+.vehiclePanelNoDisclaimer { padding-bottom: 14px; }
 .vehiclePanel > p { margin: 0 0 12px; max-width: 100%; font-size: 12px; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; text-align: start; }
 .vehicleGrid {
   display: grid;
@@ -970,7 +971,7 @@
   gap: 14px;
   overflow-x: auto;
   overscroll-behavior-x: contain;
-  padding: 2px 2px 6px;
+  padding: 2px 2px 0;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
 }
@@ -1068,12 +1069,13 @@
   text-align: end;
 }
 .vehicleFareLabel {
-  font-size: 7px;
-  font-weight: 800;
+  font-size: 8.5px;
+  font-weight: 600;
   line-height: 1;
   letter-spacing: .07em;
   text-transform: uppercase;
-  opacity: .62;
+  color: #003f46;
+  opacity: 1;
 }
 .vehicleFareAmount {
   display: inline-flex;
@@ -1113,6 +1115,9 @@
 .vehicleSelected .vehicleFareMeta {
   color: #fff;
 }
+.vehicleSelected .vehicleFareLabel {
+  color: #fff;
+}
 .vehicleSelected .vehicleFareCurrency {
   filter: brightness(0) invert(1);
 }
@@ -1134,8 +1139,18 @@
   align-items: center;
   justify-content: center;
   gap: 7px;
-  min-height: 18px;
-  margin-top: 7px;
+  min-height: 10px;
+  margin-top: 5px;
+}
+
+.fareDisclaimer {
+  margin: 0;
+  padding: 10px 0px 4px;
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #fff;
+  text-align: center;
 }
 
 .sliderDot {
@@ -1369,7 +1384,7 @@
 
   .vehiclePanel {
     margin-top: 18px;
-    padding: 12px 12px 14px;
+    padding: 12px 12px 0;
     border-radius: 18px;
   }
   .vehiclePanel > p {
