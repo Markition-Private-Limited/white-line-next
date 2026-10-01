@@ -1000,7 +1000,7 @@ const en = {
         subsections: [
           {
             title: '3.1 Booking Process',
-            body: 'Bookings may be made through our mobile application, website, or by contacting our concierge team directly. A booking is confirmed only upon receipt of a written or in-app confirmation from White Line. We reserve the right to decline any booking request at our sole discretion.',
+            body: 'Bookings may be made through our mobile application, website, or by contacting our concierge team directly. You may book in advance for a future date and time. Before submitting your booking, a fare estimate will be displayed for your review and acceptance. A booking is confirmed only upon receipt of a written or in-app confirmation from White Line, which is typically delivered within minutes of submission. We reserve the right to decline any booking request at our sole discretion.',
             items: [],
           },
           {
@@ -1011,6 +1011,11 @@ const en = {
           {
             title: '3.3 Booking Modifications',
             body: 'Modifications to confirmed bookings must be requested through the app or by contacting support. Changes are subject to availability and may result in fare adjustments. White Line will communicate any pricing changes transparently before they are applied.',
+            items: [],
+          },
+          {
+            title: '3.4 Service Delivery',
+            body: 'White Line will provide the booked service at the confirmed pickup time and location. Upon chauffeur assignment, you will receive live driver tracking and real-time ride-status notifications through the app. Our chauffeurs are required to arrive at the designated pickup point on time; in the event of an unexpected delay, you will be notified immediately.',
             items: [],
           },
         ],
@@ -1026,7 +1031,7 @@ const en = {
           },
           {
             title: '4.2 Payment Methods',
-            body: 'White Line accepts payments through approved methods including credit and debit cards, digital wallets, and corporate invoicing for authorized accounts. Payment is due at the time of booking or as otherwise agreed for corporate accounts.',
+            body: 'White Line accepts payments through approved methods including credit and debit cards, digital wallets, and corporate invoicing for authorized accounts. Accepted payment methods include Visa, Mastercard, mada, and Apple Pay, processed through our secure payment gateway. Payment is due at the time of booking or as otherwise agreed for corporate accounts.',
             items: [],
           },
           {
@@ -1042,8 +1047,13 @@ const en = {
         subsections: [
           {
             title: '5.1 User Cancellations',
-            body: 'Cancellations made within the permitted timeframe as communicated at booking will be processed without penalty. Late cancellations or no-shows may be subject to a cancellation fee equivalent to a portion or the full fare of the booked service, as detailed in our Cancellation Policy.',
-            items: [],
+            body: 'Cancellation fees are applied based on notice given before the scheduled pickup time:',
+            items: [
+              'More than 4 hours before pickup — eligible for a 100% full refund.',
+              '2 to 4 hours before pickup — eligible for a 50% partial refund.',
+              'Less than 2 hours before pickup — no refund (non-refundable notice period).',
+              'No-show or cancellation after the service has started — full fare will be charged.',
+            ],
           },
           {
             title: '5.2 White Line Cancellations',
@@ -1052,7 +1062,7 @@ const en = {
           },
           {
             title: '5.3 Refunds',
-            body: 'Eligible refunds will be processed to the original payment method within 5–10 business days, subject to the policies of the relevant payment provider. White Line is not responsible for delays caused by third-party payment processors.',
+            body: 'Eligible refunds will be processed to the original payment method within 7 business days, subject to the policies of the relevant payment provider. White Line is not responsible for delays caused by third-party payment processors.',
             items: [],
           },
         ],
@@ -1127,6 +1137,18 @@ const en = {
         ],
       },
     ],
+  },
+
+  cancellationPolicy: {
+    title: 'Cancellation Policy',
+    intro: 'Cancellation is allowed at any time. Refund and charges will be applied according to our cancellation policy.',
+    tiers: [
+      { heading: 'More than 4 hours before pickup', sub: 'Eligible for a 100% full refund.' },
+      { heading: '2 to 4 hours before pickup', sub: 'Eligible for a 50% partial refund.' },
+      { heading: 'Less than 2 hours before pickup', sub: 'Non-refundable notice period.' },
+      { heading: 'No-show or cancellation after start', sub: 'Full fare will be charged to your account.' },
+    ],
+    gotIt: 'Got it',
   },
 
   cookieConsent: {
@@ -2083,19 +2105,20 @@ const ar: typeof en = {
       { title: '1. قبول الشروط', body: 'بإنشاء حساب أو إجراء حجز أو استخدام أي خدمة من خدمات وايت لاين، تُقرّ بأنك تجاوزت سن الثامنة عشرة، وتمتلك الأهلية القانونية لإبرام اتفاقية ملزمة، وتقبل هذه الشروط كاملة.', subsections: [] },
       { title: '2. الخدمات المقدمة', body: 'تقدم وايت لاين خدمات نقل راقية ومتنوعة تشمل:', subsections: [{ title: '', body: '', items: ['رحلة أحادية — نقل مباشر من نقطة لأخرى', 'سائق بالساعة — سائق خاص مخصص يُحتسب بالساعة', 'رحلة المدن — سفر تنفيذي بين المدن', 'خدمة اليوم — مركبة وسائق مخصصان ليوم كامل', 'نقل المطار — استقبال وتوصيل مع تتبع الرحلات'], footer: 'جميع الخدمات خاضعة للتوفر والتسعير والشروط المحددة عند الحجز. تحتفظ وايت لاين بحق تعديل أو تعليق أو إيقاف أي خدمة في أي وقت.' }] },
       { title: '3. الحجز والاستئجار', body: '', subsections: [
-        { title: '3.1 عملية الحجز', body: 'يمكن إجراء الحجوزات عبر التطبيق أو الموقع الإلكتروني أو التواصل مع فريق الكونسيرج. يُعدّ الحجز مؤكداً فقط عند استلام تأكيد مكتوب أو داخل التطبيق من وايت لاين.', items: [] },
+        { title: '3.1 عملية الحجز', body: 'يمكن إجراء الحجوزات عبر التطبيق أو الموقع الإلكتروني أو التواصل مع فريق الكونسيرج. يمكنك الحجز مسبقاً لتاريخ ووقت مستقبلي. قبل إتمام الحجز، سيُعرض عليك تقدير السعر لمراجعته والموافقة عليه. يُعدّ الحجز مؤكداً فقط عند استلام تأكيد مكتوب أو داخل التطبيق من وايت لاين، ويُسلَّم عادةً في غضون دقائق من تقديم الطلب.', items: [] },
         { title: '3.2 دقة المعلومات', body: 'أنت مسؤول عن تقديم معلومات دقيقة وكاملة عند الحجز، بما تشمل مواقع الاستلام والتسليم والتواريخ وعدد الركاب وأي متطلبات خاصة.', items: [] },
         { title: '3.3 تعديل الحجوزات', body: 'يجب طلب تعديلات الحجوزات المؤكدة عبر التطبيق أو بالتواصل مع الدعم. التعديلات خاضعة للتوفر وقد تستلزم تعديل الأسعار.', items: [] },
+        { title: '3.4 تنفيذ الخدمة', body: 'ستُقدّم وايت لاين الخدمة المحجوزة في موعد ومكان الاستلام المؤكدَين. عند تعيين السائق، ستتلقى تتبعاً مباشراً للسائق وإشعارات فورية بحالة الرحلة عبر التطبيق. يُلزَم سائقونا بالوصول في الوقت المحدد، وفي حال أي تأخير غير متوقع سيتم إخطارك فوراً.', items: [] },
       ]},
       { title: '4. التسعير والدفع', body: '', subsections: [
         { title: '4.1 الأسعار', body: 'تُعرض جميع الأسعار بالعملة المحلية المعمول بها وتشمل الضرائب المنطبقة ما لم يُذكر خلاف ذلك. قد تنشأ رسوم إضافية عن أوقات الانتظار أو الانحراف عن المسار أو المحطات الإضافية.', items: [] },
-        { title: '4.2 طرق الدفع', body: 'تقبل وايت لاين المدفوعات عبر بطاقات الائتمان والخصم والمحافظ الرقمية والفوترة المؤسسية للحسابات المعتمدة.', items: [] },
+        { title: '4.2 طرق الدفع', body: 'تقبل وايت لاين المدفوعات عبر بطاقات الائتمان والخصم والمحافظ الرقمية والفوترة المؤسسية للحسابات المعتمدة. تشمل طرق الدفع المقبولة: Visa وMastercard ومدى وApple Pay، وتتم المعالجة عبر بوابة دفع آمنة.', items: [] },
         { title: '4.3 فواتير الشركات وB2B', body: 'يحق للعملاء المؤسسيين المعتمدين الحصول على فواتير شهرية وفق اتفاقيات حساباتهم وحدود الائتمان المحددة.', items: [] },
       ]},
       { title: '5. سياسة الإلغاء والاسترداد', body: '', subsections: [
-        { title: '5.1 الإلغاء من قبل المستخدم', body: 'الإلغاءات ضمن الإطار الزمني المسموح به لن تُطبَّق عليها أي رسوم. الإلغاء المتأخر أو عدم الحضور قد يُخضع لرسوم إلغاء تعادل جزءاً من الأجرة أو كاملها.', items: [] },
+        { title: '5.1 الإلغاء من قبل المستخدم', body: 'تُطبَّق رسوم الإلغاء بناءً على مدة الإشعار المُقدَّم قبل موعد الاستلام:', items: ['قبل أكثر من 4 ساعات من الاستلام — مؤهل لاسترداد كامل بنسبة 100٪.', 'من ساعتين إلى 4 ساعات قبل الاستلام — مؤهل لاسترداد جزئي بنسبة 50٪.', 'أقل من ساعتين قبل الاستلام — لا استرداد (فترة غير قابلة للاسترداد).', 'عدم الحضور أو الإلغاء بعد بدء الخدمة — سيُحتسب كامل مبلغ الأجرة.'] },
         { title: '5.2 الإلغاء من قبل وايت لاين', body: 'في الحالات النادرة التي تضطر فيها وايت لاين لإلغاء حجز مؤكد، سنُخطرك فوراً ونقدم استرداداً كاملاً أو إعادة جدولة دون رسوم.', items: [] },
-        { title: '5.3 المبالغ المستردة', body: 'تُعالَج المبالغ المستردة المؤهلة على وسيلة الدفع الأصلية خلال 5–10 أيام عمل.', items: [] },
+        { title: '5.3 المبالغ المستردة', body: 'تُعالَج المبالغ المستردة المؤهلة على وسيلة الدفع الأصلية خلال 7 أيام عمل، وفقاً لسياسات مزود الدفع ذي الصلة. لا تتحمل وايت لاين المسؤولية عن التأخيرات الناجمة عن معالجات الدفع الخارجية.', items: [] },
       ]},
       { title: '6. سلوك المستخدم ومسؤولياته', body: 'عند استخدام خدمات وايت لاين، توافق على:', subsections: [{ title: '', body: '', items: ['معاملة جميع السائقين والموظفين باحترام', 'عدم الانخراط في أي سلوك غير قانوني أو مسيء أو مهدد', 'عدم تناول الكحول أو المواد الخاضعة للرقابة داخل المركبة إلا بإذن صريح', 'عدم التدخين أو الاستخدام في أي مركبة تابعة لوايت لاين', 'ضمان امتثال جميع ركاب حجزك لهذه المعايير', 'تعويض وايت لاين عن أي أضرار تلحق بالمركبة', 'الامتثال لجميع القوانين واللوائح المعمول بها'], footer: 'تحتفظ وايت لاين بحق إنهاء الرحلة ورفض الخدمة مستقبلاً لأي مستخدم ينتهك هذه المعايير.' }] },
       { title: '7. معايير السائقين', body: 'جميع سائقي وايت لاين مدربون مهنياً وخاضعون للتحقق من الخلفية ومُلزمون بمعايير خدمة صارمة. تراقب وايت لاين أداء السائقين باستمرار من خلال تقييمات الركاب ومراجعات الجودة الداخلية.', subsections: [] },
@@ -2110,6 +2133,18 @@ const ar: typeof en = {
       { title: '12. التعديلات', body: 'تحتفظ وايت لاين بحق تحديث أو تعديل هذه الشروط في أي وقت. يُعدّ استمرارك في استخدام خدماتنا بعد أي تعديل قبولاً للشروط المعدّلة.', subsections: [] },
       { title: '13. تواصل معنا', body: 'لأي استفسارات أو مخاوف تتعلق بهذه الشروط، يُرجى التواصل معنا:', subsections: [{ title: '', body: '', items: ['White Line', 'البريد الإلكتروني: booking@whitelineglobal.com', 'الهاتف: 7770 311 56 966+', 'العنوان: الرياض، المملكة العربية السعودية'] }] },
     ],
+  },
+
+  cancellationPolicy: {
+    title: 'سياسة الإلغاء',
+    intro: 'يُسمح بالإلغاء في أي وقت. سيتم تطبيق سياسة الاسترداد والرسوم وفقاً لسياسة الإلغاء لدينا.',
+    tiers: [
+      { heading: 'قبل أكثر من 4 ساعات من موعد الاستلام', sub: 'مؤهل لاسترداد كامل بنسبة 100٪.' },
+      { heading: 'من ساعتين إلى 4 ساعات قبل الاستلام', sub: 'مؤهل لاسترداد جزئي بنسبة 50٪.' },
+      { heading: 'أقل من ساعتين قبل الاستلام', sub: 'فترة غير قابلة للاسترداد.' },
+      { heading: 'عدم الحضور أو الإلغاء بعد بدء الخدمة', sub: 'سيُحتسب كامل مبلغ الأجرة على حسابك.' },
+    ],
+    gotIt: 'حسناً، فهمت',
   },
 
   cookieConsent: {

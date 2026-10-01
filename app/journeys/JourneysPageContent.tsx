@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { CalendarDays, MapPin, AlertCircle, LogIn, LogOut, Plane, User, Phone, Car, ChevronRight } from 'lucide-react'
 import Navbar from '../../layouts/Navbar'
 import LogoutConfirmDialog from '../../components/LogoutConfirmDialog'
+import CancellationPolicySheet from '../../components/CancellationPolicySheet'
 import { useLanguage } from '../../context/LanguageContext'
 
 const CUSTOMER_SESSION_KEY = 'whiteline.customerSession'
@@ -351,7 +352,7 @@ function BookingDetailDialog({ id, lang, dir, onClose, onCancelled }: {
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState<'auth' | 'network' | null>(null)
   const [imgFailed, setImgFailed] = useState(false)
-  const [cancelStep, setCancelStep] = useState<null | 'confirm' | 'loading' | 'done' | 'error'>(null)
+  const [cancelStep, setCancelStep] = useState<null | 'policy' | 'confirm' | 'loading' | 'done' | 'error'>(null)
   const [cancelReason, setCancelReason] = useState('')
   const [cancelErrMsg, setCancelErrMsg] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -624,6 +625,11 @@ function BookingDetailDialog({ id, lang, dir, onClose, onCancelled }: {
                   )}
 
                   {/* Cancel flow */}
+                  <CancellationPolicySheet
+                    open={cancelStep === 'policy'}
+                    onGotIt={() => setCancelStep('confirm')}
+                  />
+
                   {cancelStep === 'confirm' && (
                     <div style={{ background: '#fff7f7', border: '1px solid #fecaca', borderRadius: 12, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
@@ -734,7 +740,7 @@ function BookingDetailDialog({ id, lang, dir, onClose, onCancelled }: {
                     {canCancel && !cancelStep && (
                       <button
                         type="button"
-                        onClick={() => setCancelStep('confirm')}
+                        onClick={() => setCancelStep('policy')}
                         style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 12.5, color: '#dc2626', background: 'transparent', border: '1px solid #fca5a5', borderRadius: 10, padding: '9px 18px', cursor: 'pointer' }}
                       >
                         {isAr ? 'إلغاء الحجز' : 'Cancel Booking'}

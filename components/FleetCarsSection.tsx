@@ -12,7 +12,7 @@ import img5  from '../assets/fleet/fleet_cars/chevrolet-suburban.png'
 import img6  from '../assets/fleet/fleet_cars/chevrolet-tahoe.png'
 import img7  from '../assets/fleet/fleet_cars/gmc-yukon-xl.png'
 import img8  from '../assets/fleet/fleet_cars/gmc-yukon.png'
-import img9  from '../assets/fleet/fleet_cars/lexus-es350.png'
+import img9  from '../assets/fleet/fleet_cars/lexus-350-2026.png'
 import img10 from '../assets/fleet/fleet_cars/ford-taurus.png'
 import img11 from '../assets/fleet/fleet_cars/hyundai-staria.png'
 
@@ -132,8 +132,8 @@ export default function FleetCarsSection() {
     const origPush = history.pushState.bind(history)
     history.pushState = function (...args: Parameters<typeof history.pushState>) {
       origPush(...args)
-      // defer via custom event so state update happens outside React's render phase
-      window.dispatchEvent(new Event(FLEET_URL_CHANGE))
+      // defer to next macrotask — React 19 disallows setState during useInsertionEffect
+      setTimeout(() => window.dispatchEvent(new Event(FLEET_URL_CHANGE)), 0)
     }
 
     window.addEventListener(FLEET_URL_CHANGE, syncFromUrl)

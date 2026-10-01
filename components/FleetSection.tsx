@@ -6,7 +6,7 @@ import { useLanguage } from '../context/LanguageContext'
 import fleetFirstClass from '../assets/fleet/fleet_cars/mercedes-benz-s-class.png'
 import fleetBusinessPremium from '../assets/fleet/fleet_cars/bmw-7-series-business-premium.png'
 import fleetSuv from '../assets/fleet/fleet_cars/gmc-yukon-xl.png'
-import fleetBusinessSedan from '../assets/fleet/fleet_cars/lexus-es350.png'
+import fleetBusinessSedan from '../assets/fleet/fleet_cars/lexus-350-2026.png'
 import fleetEconomySedan from '../assets/fleet/fleet_cars/ford-taurus.png'
 import fleetVan from '../assets/fleet/fleet_cars/hyundai-staria.png'
 

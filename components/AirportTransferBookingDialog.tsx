@@ -2115,6 +2115,29 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
           <div className={`${styles.fareRow} ${styles.fareErrorRow}`}><span>{copy.bookingSubmitError}</span></div>
         </div>
       )}
+
+      {/* Payment method logos */}
+      <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#9ca3af', letterSpacing: '0.04em' }}>
+          {copy.acceptedPayments}
+        </span>
+        <div style={{ display: 'flex', flexDirection: 'row', gap: 8 }} dir="ltr">
+          {/* mada first (LTR = left, RTL container reversal makes it right) */}
+          <div style={{ width: 44, height: 32, borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 4, overflow: 'hidden' }}>
+            <img src="/payment/mada.png" alt="mada" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+          </div>
+          <div style={{ width: 44, height: 32, borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 4 }}>
+            <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/visa/default.svg" alt="Visa" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+          </div>
+          <div style={{ width: 44, height: 32, borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 4 }}>
+            <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/mastercard/default.svg" alt="Mastercard" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+          </div>
+          <div style={{ width: 44, height: 32, borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 4 }}>
+            <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/apple-pay/default.svg" alt="Apple Pay" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+          </div>
+        </div>
+      </div>
+
       <div className={styles.footerActions}>
         <button type="button" className={styles.back} onClick={back}><BackIcon size={20} /> {copy.back}</button>
         <button
