@@ -995,27 +995,45 @@ const en = {
         ],
       },
       {
-        title: '3. Booking & Reservations',
-        body: '',
+        title: '3. Service Terms',
+        body: 'This section explains how advance booking works, how and when a booking is confirmed, and when the service will be provided.',
         subsections: [
           {
             title: '3.1 Booking Process',
-            body: 'Bookings may be made through our mobile application, website, or by contacting our concierge team directly. You may book in advance for a future date and time. Before submitting your booking, a fare estimate will be displayed for your review and acceptance. A booking is confirmed only upon receipt of a written or in-app confirmation from White Line, which is typically delivered within minutes of submission. We reserve the right to decline any booking request at our sole discretion.',
+            body: 'Bookings may be made through our website, our mobile application, or by contacting our concierge team directly. Before you submit a booking, the fare for your selected trip and vehicle is calculated and displayed for your review, and you will be asked to complete payment through our secure payment gateway. We reserve the right to decline any booking request at our sole discretion.',
             items: [],
           },
           {
-            title: '3.2 Accuracy of Information',
+            title: '3.2 Advance Booking Requirements',
+            body: 'All bookings are made in advance for a scheduled date and time, subject to the following requirements:',
+            items: [
+              'Minimum notice: the requested pickup time must be at least 2 hours from the time you make the booking, for every service type.',
+              'Airport Transfer: a valid flight number is required so that we can track your flight and schedule your pickup.',
+              'Hourly Chauffeur: bookings are made for a 2-hour minimum duration. For longer needs, please choose a Half Day or Full Day booking.',
+              'City Trip: available within Riyadh.',
+              'One-Way Ride (city to city): pickup is from Riyadh, with destinations including Dammam, Al Khobar, Jeddah, Makkah, Madinah, Taif, Al Ahsa, Al Ula, Al Kharj, and Al Qasim.',
+              'Airport Transfers are available at Riyadh, Jeddah, Dammam, and Madinah airports.',
+            ],
+            footer: 'All bookings remain subject to vehicle and chauffeur availability.',
+          },
+          {
+            title: '3.3 Booking Confirmation',
+            body: 'After you submit a booking, we will record your request and our team will review it. Your booking is confirmed only when you receive a confirmation from White Line at the email address you provided. Until then, your request is treated as pending. You can follow the status of your booking at any time under My Journeys, where it progresses through Awaiting Driver, Driver Assigned, and Confirmed. If you have not received a confirmation and your pickup time is approaching, please contact us using the details in Section 13.',
+            items: [],
+          },
+          {
+            title: '3.4 When the Service Will Be Provided',
+            body: 'Once your booking is confirmed, White Line will provide the service on the date and time and at the pickup location stated in your booking. A chauffeur and vehicle are assigned to your booking by our operations team, and you can follow the progress of your trip under My Journeys as it moves through Driver Assigned, En Route, Driver Arrived, and In Progress. The service ends when you reach your destination or when the booked duration is completed. Additional waiting time, route changes, or extra stops are handled as described in Section 4.1.',
+            items: [],
+          },
+          {
+            title: '3.5 Accuracy of Information',
             body: 'You are responsible for providing accurate and complete information when making a booking, including pickup and drop-off locations, travel dates, passenger count, and any special requirements. White Line shall not be liable for service failures resulting from inaccurate information provided by the user.',
             items: [],
           },
           {
-            title: '3.3 Booking Modifications',
-            body: 'Modifications to confirmed bookings must be requested through the app or by contacting support. Changes are subject to availability and may result in fare adjustments. White Line will communicate any pricing changes transparently before they are applied.',
-            items: [],
-          },
-          {
-            title: '3.4 Service Delivery',
-            body: 'White Line will provide the booked service at the confirmed pickup time and location. Upon chauffeur assignment, you will receive live driver tracking and real-time ride-status notifications through the app. Our chauffeurs are required to arrive at the designated pickup point on time; in the event of an unexpected delay, you will be notified immediately.',
+            title: '3.6 Booking Modifications',
+            body: 'Modifications to confirmed bookings must be requested by contacting support. Changes are subject to availability and may result in fare adjustments. White Line will communicate any pricing changes transparently before they are applied.',
             items: [],
           },
         ],
@@ -2104,11 +2122,13 @@ const ar: typeof en = {
     sections: [
       { title: '1. قبول الشروط', body: 'بإنشاء حساب أو إجراء حجز أو استخدام أي خدمة من خدمات وايت لاين، تُقرّ بأنك تجاوزت سن الثامنة عشرة، وتمتلك الأهلية القانونية لإبرام اتفاقية ملزمة، وتقبل هذه الشروط كاملة.', subsections: [] },
       { title: '2. الخدمات المقدمة', body: 'تقدم وايت لاين خدمات نقل راقية ومتنوعة تشمل:', subsections: [{ title: '', body: '', items: ['رحلة أحادية — نقل مباشر من نقطة لأخرى', 'سائق بالساعة — سائق خاص مخصص يُحتسب بالساعة', 'رحلة المدن — سفر تنفيذي بين المدن', 'خدمة اليوم — مركبة وسائق مخصصان ليوم كامل', 'نقل المطار — استقبال وتوصيل مع تتبع الرحلات'], footer: 'جميع الخدمات خاضعة للتوفر والتسعير والشروط المحددة عند الحجز. تحتفظ وايت لاين بحق تعديل أو تعليق أو إيقاف أي خدمة في أي وقت.' }] },
-      { title: '3. الحجز والاستئجار', body: '', subsections: [
-        { title: '3.1 عملية الحجز', body: 'يمكن إجراء الحجوزات عبر التطبيق أو الموقع الإلكتروني أو التواصل مع فريق الكونسيرج. يمكنك الحجز مسبقاً لتاريخ ووقت مستقبلي. قبل إتمام الحجز، سيُعرض عليك تقدير السعر لمراجعته والموافقة عليه. يُعدّ الحجز مؤكداً فقط عند استلام تأكيد مكتوب أو داخل التطبيق من وايت لاين، ويُسلَّم عادةً في غضون دقائق من تقديم الطلب.', items: [] },
-        { title: '3.2 دقة المعلومات', body: 'أنت مسؤول عن تقديم معلومات دقيقة وكاملة عند الحجز، بما تشمل مواقع الاستلام والتسليم والتواريخ وعدد الركاب وأي متطلبات خاصة.', items: [] },
-        { title: '3.3 تعديل الحجوزات', body: 'يجب طلب تعديلات الحجوزات المؤكدة عبر التطبيق أو بالتواصل مع الدعم. التعديلات خاضعة للتوفر وقد تستلزم تعديل الأسعار.', items: [] },
-        { title: '3.4 تنفيذ الخدمة', body: 'ستُقدّم وايت لاين الخدمة المحجوزة في موعد ومكان الاستلام المؤكدَين. عند تعيين السائق، ستتلقى تتبعاً مباشراً للسائق وإشعارات فورية بحالة الرحلة عبر التطبيق. يُلزَم سائقونا بالوصول في الوقت المحدد، وفي حال أي تأخير غير متوقع سيتم إخطارك فوراً.', items: [] },
+      { title: '3. شروط الخدمة', body: 'يوضح هذا القسم آلية الحجز المسبق، وكيفية تأكيد الحجز ووقته، وموعد تقديم الخدمة.', subsections: [
+        { title: '3.1 عملية الحجز', body: 'يمكن إجراء الحجوزات عبر موقعنا الإلكتروني أو تطبيق الجوال أو بالتواصل مع فريق الكونسيرج مباشرة. قبل إتمام الحجز، يُحتسب السعر للرحلة والمركبة المختارتين ويُعرض عليك لمراجعته، وسيُطلب منك إتمام الدفع عبر بوابة الدفع الآمنة لدينا. تحتفظ وايت لاين بحق رفض أي طلب حجز وفق تقديرها الخاص.', items: [] },
+        { title: '3.2 متطلبات الحجز المسبق', body: 'تُجرى جميع الحجوزات مسبقاً لتاريخ ووقت محددين، وفق المتطلبات التالية:', items: ['الحد الأدنى للإشعار المسبق: يجب أن يكون وقت الاستلام المطلوب بعد ساعتين على الأقل من وقت إجراء الحجز، لجميع أنواع الخدمات.', 'نقل المطار: يلزم إدخال رقم رحلة صحيح لنتمكن من تتبع رحلتك وجدولة الاستلام.', 'سائق بالساعة: تُجرى الحجوزات لمدة أدنى قدرها ساعتان. للمدد الأطول يُرجى اختيار حجز نصف يوم أو يوم كامل.', 'رحلة المدينة: متاحة داخل مدينة الرياض.', 'رحلة أحادية (بين المدن): يكون الاستلام من الرياض، وتشمل الوجهات: الدمام والخبر وجدة ومكة المكرمة والمدينة المنورة والطائف والأحساء والعلا والخرج والقصيم.', 'نقل المطار متاح في مطارات الرياض وجدة والدمام والمدينة المنورة.'], footer: 'تظل جميع الحجوزات خاضعة لتوفر المركبات والسائقين.' },
+        { title: '3.3 تأكيد الحجز', body: 'بعد تقديم الحجز، نسجّل طلبك ويقوم فريقنا بمراجعته. يُعدّ حجزك مؤكداً فقط عند استلامك تأكيداً من وايت لاين على البريد الإلكتروني الذي قدّمته، وحتى ذلك الحين يُعامل طلبك على أنه قيد الانتظار. يمكنك متابعة حالة حجزك في أي وقت ضمن «رحلاتي»، حيث تنتقل من «بانتظار السائق» إلى «تم تعيين السائق» ثم «مؤكد». إذا لم تستلم تأكيداً واقترب موعد الاستلام، يُرجى التواصل معنا عبر البيانات الواردة في القسم 13.', items: [] },
+        { title: '3.4 موعد تقديم الخدمة', body: 'بعد تأكيد حجزك، ستقدّم وايت لاين الخدمة في التاريخ والوقت وموقع الاستلام المذكورة في حجزك. يعيّن فريق العمليات لدينا سائقاً ومركبة لحجزك، ويمكنك متابعة تقدم رحلتك ضمن «رحلاتي» وهي تنتقل بين «تم تعيين السائق» و«في الطريق» و«وصل السائق» و«جارٍ المشوار». تنتهي الخدمة عند وصولك إلى وجهتك أو عند انتهاء المدة المحجوزة. يجري التعامل مع وقت الانتظار الإضافي أو تغيير المسار أو المحطات الإضافية وفق ما ورد في القسم 4.1.', items: [] },
+        { title: '3.5 دقة المعلومات', body: 'أنت مسؤول عن تقديم معلومات دقيقة وكاملة عند الحجز، بما تشمل مواقع الاستلام والتسليم والتواريخ وعدد الركاب وأي متطلبات خاصة.', items: [] },
+        { title: '3.6 تعديل الحجوزات', body: 'يجب طلب تعديلات الحجوزات المؤكدة بالتواصل مع الدعم. التعديلات خاضعة للتوفر وقد تستلزم تعديل الأسعار.', items: [] },
       ]},
       { title: '4. التسعير والدفع', body: '', subsections: [
         { title: '4.1 الأسعار', body: 'تُعرض جميع الأسعار بالعملة المحلية المعمول بها وتشمل الضرائب المنطبقة ما لم يُذكر خلاف ذلك. قد تنشأ رسوم إضافية عن أوقات الانتظار أو الانحراف عن المسار أو المحطات الإضافية.', items: [] },
