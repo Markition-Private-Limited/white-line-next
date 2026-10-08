@@ -267,6 +267,8 @@ export default function PlacesAutocompleteField({ label, placeholder, value: sel
         const lng = pos.coords.longitude
         const addr = await reverseGeocode(lat, lng)
         if (geoResetTimer.current) clearTimeout(geoResetTimer.current)
+        // Dismiss keyboard before opening the map modal
+        if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
         setPendingCoords({ lat, lng })
         setPendingAddress(addr)
         setGeoState('confirming')
