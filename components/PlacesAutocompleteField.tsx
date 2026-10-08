@@ -327,15 +327,24 @@ export default function PlacesAutocompleteField({ label, placeholder, value: sel
       title: isAr ? 'اسحب لضبط الموقع' : 'Drag to adjust',
     })
 
-    marker.addListener('dragend', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pos = (marker as any).getPosition()
-      const lat = pos.lat()
-      const lng = pos.lng()
+    const updateMarker = (lat: number, lng: number) => {
+      marker.setPosition({ lat, lng })
       setPendingCoords({ lat, lng })
       setPendingAddress('')
       setModalError('')
       reverseGeocode(lat, lng).then(addr => setPendingAddress(addr))
+    }
+
+    marker.addListener('dragend', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pos = (marker as any).getPosition()
+      updateMarker(pos.lat(), pos.lng())
+    })
+
+    // Tap/click anywhere on the map to reposition the marker
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    map.addListener('click', (e: any) => {
+      updateMarker(e.latLng.lat(), e.latLng.lng())
     })
 
     return () => {
@@ -391,14 +400,14 @@ export default function PlacesAutocompleteField({ label, placeholder, value: sel
               maxHeight: 'calc(100dvh - 36px)',
               background: '#fff',
               borderRadius: 16,
-              overflow: 'hidden',
+              overflow: 'visible',
               display: 'flex',
               flexDirection: 'column',
               boxShadow: '0 24px 60px rgba(0,0,0,0.35)',
             }}
           >
             {/* Header */}
-            <div style={{ padding: '14px 18px 12px', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+            <div style={{ padding: '14px 18px 12px', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, borderRadius: '16px 16px 0 0', background: '#fff' }}>
               <span style={{ fontFamily: 'var(--font-montserrat), Montserrat, sans-serif', fontWeight: 700, fontSize: 16, color: '#0f172a' }}>
                 {copy.geoConfirmTitle}
               </span>
@@ -413,7 +422,7 @@ export default function PlacesAutocompleteField({ label, placeholder, value: sel
             </div>
 
             {/* Map */}
-            <div ref={mapDivRef} className="wl-geo-map-div" style={{ width: '100%', height: 260, flexShrink: 0 }} />
+            <div ref={mapDivRef} className="wl-geo-map-div" style={{ width: '100%', height: 260, flexShrink: 0, overflow: 'hidden' }} />
 
             {/* Address + drag hint */}
             <div style={{ padding: '12px 18px 8px', borderTop: '1px solid #f1f5f9', minHeight: 68 }}>
@@ -431,7 +440,7 @@ export default function PlacesAutocompleteField({ label, placeholder, value: sel
             </div>
 
             {/* Actions */}
-            <div style={{ padding: '8px 18px 18px', display: 'flex', gap: 8 }}>
+            <div style={{ padding: '8px 18px 18px', display: 'flex', gap: 8, borderRadius: '0 0 16px 16px', background: '#fff' }}>
               <button
                 type="button"
                 onClick={handleCancelGeo}
