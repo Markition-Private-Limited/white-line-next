@@ -616,7 +616,7 @@ function PhoneField({ label, value, onChange, attempted, readOnly }: { label: st
   )
 }
 
-function DropdownField({ label, placeholder, value, options, onChange, attempted }: { label: string; placeholder: string; value: PlaceValue | null; options: string[]; onChange: (value: PlaceValue) => void; attempted?: boolean }) {
+function DropdownField({ label, placeholder, value, options, onChange, attempted, disabled }: { label: string; placeholder: string; value: PlaceValue | null; options: string[]; onChange: (value: PlaceValue) => void; attempted?: boolean; disabled?: boolean }) {
   const { copy } = useBookingDialogCopy()
   const [open, setOpen] = useState(false)
   const fieldRef = useRef<HTMLDivElement>(null)
@@ -633,9 +633,9 @@ function DropdownField({ label, placeholder, value, options, onChange, attempted
   const isEmpty = attempted && !value
 
   return (
-    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField} ${isEmpty ? styles.fieldInvalid : ''}`}>
+    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField} ${isEmpty ? styles.fieldInvalid : ''}`} style={disabled ? { opacity: 0.45, pointerEvents: 'none' } : undefined}>
       <label>{label}</label>
-      <button type="button" className={styles.pickerControl} aria-expanded={open} aria-haspopup="listbox" onClick={() => setOpen(current => !current)}>
+      <button type="button" className={styles.pickerControl} disabled={disabled} aria-expanded={open} aria-haspopup="listbox" onClick={() => setOpen(current => !current)}>
         <span className={`${styles.pickerControlText} ${value ? '' : styles.pickerPlaceholder}`}>{value?.address || placeholder}</span>
         <span className={styles.controlIcon}><LocateFixed size={15} /></span>
       </button>
@@ -1103,7 +1103,7 @@ function LocationScheduleFields({ booking, updateBooking, pickupLabel, pickupPla
         {attempted && booking.pickup && pickupCityError && <small className={styles.fieldError}>{pickupCityError}</small>}
       </div>
       <div>
-        <PlacesAutocompleteField label={destinationLabel ?? copy.destination} placeholder={destinationPlaceholder ?? copy.selectDropOff} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} types={supportedCitiesOnly ? undefined : cityTypes} locationRestriction={destinationLocationRestriction} filterPrediction={destinationFilter} disableGeo={booking.pickup?.source === 'geo'} disabled={supportedCitiesOnly && !destinationCity} />
+        <PlacesAutocompleteField label={destinationLabel ?? copy.destination} placeholder={destinationPlaceholder ?? copy.selectDropOff} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} types={supportedCitiesOnly ? undefined : cityTypes} locationRestriction={destinationLocationRestriction} filterPrediction={destinationFilter} disableGeo={booking.pickup?.source === 'geo'} disabled={!isSelectedPlace(booking.pickup) || (supportedCitiesOnly && !destinationCity)} />
         {attempted && booking.destination && destinationCityError && <small className={styles.fieldError}>{destinationCityError}</small>}
       </div>
       {sameLocation && <small className={styles.fieldError} style={{ gridColumn: '1 / -1' }}>{copy.validation.sameLocation}</small>}
@@ -1329,12 +1329,12 @@ function TripDetails({ booking, updateBooking, next, back, onLoginRequest }: {
         {booking.isDeparture ? (
           <>
             <PlacesAutocompleteField key="departure-pickup" label={copy.pickupLocation} placeholder={copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} locationRestriction={locationRestriction} filterPrediction={filterPrediction} />
-            <DropdownField key="departure-airport" label={copy.dropOffAirport} placeholder={copy.selectAirport} value={booking.destination} options={copy.airports} attempted={attempted} onChange={value => updateBooking({ destination: value, pickup: null })} />
+            <DropdownField key="departure-airport" label={copy.dropOffAirport} placeholder={copy.selectAirport} value={booking.destination} options={copy.airports} attempted={attempted} disabled={!isSelectedPlace(booking.pickup)} onChange={value => updateBooking({ destination: value, pickup: null })} />
           </>
         ) : (
           <>
             <DropdownField key="arrival-airport" label={copy.pickupAirport} placeholder={copy.selectAirport} value={booking.pickup} options={copy.airports} attempted={attempted} onChange={value => updateBooking({ pickup: value, destination: null })} />
-            <PlacesAutocompleteField key="arrival-destination" label={copy.dropOff} placeholder={copy.enterDestination} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} locationRestriction={locationRestriction} filterPrediction={filterPrediction} />
+            <PlacesAutocompleteField key="arrival-destination" label={copy.dropOff} placeholder={copy.enterDestination} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} locationRestriction={locationRestriction} filterPrediction={filterPrediction} disabled={!isSelectedPlace(booking.pickup)} />
           </>
         )}
 
