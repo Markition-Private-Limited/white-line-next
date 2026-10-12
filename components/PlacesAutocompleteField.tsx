@@ -19,6 +19,7 @@ interface Props {
   locationRestriction?: { lat: number; lng: number; radius: number }
   filterPrediction?: (p: Prediction) => boolean
   disableGeo?: boolean
+  disabled?: boolean
 }
 
 type Prediction = {
@@ -79,7 +80,7 @@ function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): nu
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-export default function PlacesAutocompleteField({ label, placeholder, value: selectedPlace, onSelect, onChange, attempted, types, locationRestriction, filterPrediction, disableGeo }: Props) {
+export default function PlacesAutocompleteField({ label, placeholder, value: selectedPlace, onSelect, onChange, attempted, types, locationRestriction, filterPrediction, disableGeo, disabled }: Props) {
   const { lang, dir } = useLanguage()
   const copy = bookingDialogCopy[lang]
   const isAr = lang === 'ar'
@@ -465,7 +466,7 @@ export default function PlacesAutocompleteField({ label, placeholder, value: sel
     : null
 
   return (
-    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField} ${invalid ? styles.fieldInvalid : ''}`}>
+    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField} ${invalid ? styles.fieldInvalid : ''}`} style={disabled ? { opacity: 0.45, pointerEvents: 'none' } : undefined}>
       <label>{label}</label>
       <div className={styles.control}>
         <input
@@ -477,6 +478,7 @@ export default function PlacesAutocompleteField({ label, placeholder, value: sel
           aria-label={label}
           aria-invalid={invalid}
           autoComplete="off"
+          disabled={disabled}
         />
         <span
           className={styles.controlIcon}

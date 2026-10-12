@@ -973,6 +973,29 @@ const tripIsComplete = (booking: BookingState) => Boolean(isSelectedPlace(bookin
 
 const RIYADH_RESTRICTION = { lat: 24.7136, lng: 46.6753, radius: 30000 }
 
+// City-center coordinates for each supported drop-off city (radius 35 km covers metro area)
+const CITY_RESTRICTIONS: Record<string, { lat: number; lng: number; radius: number }> = {
+  Riyadh:      { lat: 24.7136, lng: 46.6753, radius: 35000 },
+  Dammam:      { lat: 26.4207, lng: 50.0888, radius: 35000 },
+  'Al Khobar': { lat: 26.2173, lng: 50.1971, radius: 35000 },
+  Jeddah:      { lat: 21.4858, lng: 39.1925, radius: 35000 },
+  Makkah:      { lat: 21.3891, lng: 39.8579, radius: 35000 },
+  Madinah:     { lat: 24.5247, lng: 39.5692, radius: 35000 },
+  Taif:        { lat: 21.2854, lng: 40.4152, radius: 35000 },
+  'Al Ahsa':   { lat: 25.3747, lng: 49.5872, radius: 35000 },
+  'Al Ula':    { lat: 26.6163, lng: 37.9242, radius: 35000 },
+  'Al Kharj':  { lat: 24.1556, lng: 47.3111, radius: 35000 },
+  'Al Qasim':  { lat: 26.3286, lng: 43.9753, radius: 35000 },
+}
+
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371
+  const dLat = ((lat2 - lat1) * Math.PI) / 180
+  const dLng = ((lng2 - lng1) * Math.PI) / 180
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
+
 // Matches any of the 10 BE-supported city_to_city destinations (EN + AR)
 const CITY_TO_CITY_DESTINATIONS = ['Dammam', 'Al Khobar', 'Jeddah', 'Makkah', 'Madinah', 'Taif', 'Al Ahsa', 'Al Ula', 'Al Kharj', 'Al Qasim'] as const
 
@@ -997,7 +1020,16 @@ function cityMatchesText(text: string, city: string): boolean {
 }
 
 function cityMatchesPlace(place: PlaceValue | null, city: string): boolean {
-  if (!place || place.source !== 'google' || !place.placeId) return false
+  if (!place) return false
+  // Geo results: validate by coordinates against the city's restriction circle
+  if (place.source === 'geo') {
+    if (city === 'Riyadh' && typeof place.lat === 'number' && typeof place.lng === 'number') {
+      return haversineKm(place.lat, place.lng, RIYADH_RESTRICTION.lat, RIYADH_RESTRICTION.lng) <= RIYADH_RESTRICTION.radius / 1000
+    }
+    // For other cities fall back to address text
+    return cityMatchesText(place.address, city)
+  }
+  if (place.source !== 'google' || !place.placeId) return false
   const text = `${place.address} ${place.prediction?.structured_formatting?.secondary_text ?? ''}`
   return cityMatchesText(text, city)
 }
@@ -1018,7 +1050,7 @@ function CitySelectField({ label, value, options, placeholder, attempted, disabl
   }, [open])
 
   return (
-    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField} ${isEmpty ? styles.fieldInvalid : ''}`}>
+    <div ref={fieldRef} className={`${styles.field} ${styles.pickerField} ${isEmpty ? styles.fieldInvalid : ''}`} style={disabled ? { opacity: 0.45, pointerEvents: 'none' } : undefined}>
       <label>{label}</label>
       <button type="button" className={styles.pickerControl} disabled={disabled} aria-expanded={open} aria-haspopup="listbox" onClick={() => setOpen(current => !current)}>
         <span className={`${styles.pickerControlText} ${value ? '' : styles.pickerPlaceholder}`}>{value || placeholder || 'Select city'}</span>
@@ -1039,7 +1071,7 @@ function CitySelectField({ label, value, options, placeholder, attempted, disabl
     </div>
   )
 }
-function LocationScheduleFields({ booking, updateBooking, pickupLabel, pickupPlaceholder, destinationLabel, destinationPlaceholder, attempted, citiesOnly, riyadhOnly, pickupRiyadhOnly, supportedCitiesOnly, destinationCity }: { booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void; pickupLabel?: string; pickupPlaceholder?: string; destinationLabel?: string; destinationPlaceholder?: string; attempted: boolean; citiesOnly?: boolean; riyadhOnly?: boolean; pickupRiyadhOnly?: boolean; supportedCitiesOnly?: boolean; destinationCity?: string }) {
+function LocationScheduleFields({ booking, updateBooking, pickupLabel, pickupPlaceholder, destinationLabel, destinationPlaceholder, attempted, citiesOnly, riyadhOnly, pickupRiyadhOnly, supportedCitiesOnly, destinationCity, pickupCityError, destinationCityError }: { booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void; pickupLabel?: string; pickupPlaceholder?: string; destinationLabel?: string; destinationPlaceholder?: string; attempted: boolean; citiesOnly?: boolean; riyadhOnly?: boolean; pickupRiyadhOnly?: boolean; supportedCitiesOnly?: boolean; destinationCity?: string; pickupCityError?: string; destinationCityError?: string }) {
   const { copy } = useBookingDialogCopy()
   const cityTypes = citiesOnly ? ['(cities)'] : undefined
   const locationRestriction = riyadhOnly ? RIYADH_RESTRICTION : undefined
@@ -1051,7 +1083,12 @@ function LocationScheduleFields({ booking, updateBooking, pickupLabel, pickupPla
   const pickupFilter = pickupRiyadhOnly
     ? (p: { description: string }) => /riyadh/i.test(p.description)
     : riyadhFilter
-  // supportedCitiesOnly: destination filtered to the 10 BE-supported city_to_city cities
+  // supportedCitiesOnly: destination filtered to the 10 BE-supported city_to_city cities.
+  // When a specific destinationCity is chosen, bias Google Places toward that city's center
+  // so searches like "cine" return local results. Text filter is still applied on top so that
+  // nearby cities (e.g. Al Khobar appearing in a Dammam search) are removed.
+  const destinationCityRestriction = destinationCity ? CITY_RESTRICTIONS[destinationCity] : undefined
+  const destinationLocationRestriction = destinationCityRestriction ?? locationRestriction
   const destinationFilter = destinationCity
     ? (p: { description: string }) => cityMatchesText(p.description, destinationCity)
     : supportedCitiesOnly
@@ -1061,8 +1098,14 @@ function LocationScheduleFields({ booking, updateBooking, pickupLabel, pickupPla
   const leadTimeInvalid = attempted && Boolean(booking.date && booking.time) && !hasMinLeadTime(booking.date, booking.time)
   return (
     <div className={styles.fieldGrid}>
-      <PlacesAutocompleteField label={pickupLabel ?? copy.pickupLocation} placeholder={pickupPlaceholder ?? copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} types={pickupRiyadhOnly ? undefined : cityTypes} locationRestriction={pickupLocationRestriction} filterPrediction={pickupFilter} disableGeo={booking.destination?.source === 'geo'} />
-      <PlacesAutocompleteField label={destinationLabel ?? copy.destination} placeholder={destinationPlaceholder ?? copy.selectDropOff} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} types={supportedCitiesOnly ? undefined : cityTypes} locationRestriction={locationRestriction} filterPrediction={destinationFilter} disableGeo={booking.pickup?.source === 'geo'} />
+      <div>
+        <PlacesAutocompleteField label={pickupLabel ?? copy.pickupLocation} placeholder={pickupPlaceholder ?? copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} types={pickupRiyadhOnly ? undefined : cityTypes} locationRestriction={pickupLocationRestriction} filterPrediction={pickupFilter} disableGeo={booking.destination?.source === 'geo'} />
+        {attempted && booking.pickup && pickupCityError && <small className={styles.fieldError}>{pickupCityError}</small>}
+      </div>
+      <div>
+        <PlacesAutocompleteField label={destinationLabel ?? copy.destination} placeholder={destinationPlaceholder ?? copy.selectDropOff} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} types={supportedCitiesOnly ? undefined : cityTypes} locationRestriction={destinationLocationRestriction} filterPrediction={destinationFilter} disableGeo={booking.pickup?.source === 'geo'} disabled={supportedCitiesOnly && !destinationCity} />
+        {attempted && booking.destination && destinationCityError && <small className={styles.fieldError}>{destinationCityError}</small>}
+      </div>
       {sameLocation && <small className={styles.fieldError} style={{ gridColumn: '1 / -1' }}>{copy.validation.sameLocation}</small>}
       <DatePickerField label={copy.pickupDate} value={booking.date} attempted={attempted} onChange={date => updateBooking({ date })} />
       <TimePickerField label={copy.pickupTime} value={booking.time} attempted={attempted} onChange={time => updateBooking({ time })} />
@@ -1414,6 +1457,7 @@ function OneWayTripDetails({ booking, updateBooking, next, back, onLoginRequest 
           value={destinationCity}
           options={CITY_TO_CITY_DESTINATIONS}
           attempted={attempted}
+          disabled={!isSelectedPlace(booking.pickup)}
           onChange={city => updateBooking({ cityToCityDropoffCity: city, destination: null })}
         />
       </div>
@@ -1428,10 +1472,9 @@ function OneWayTripDetails({ booking, updateBooking, next, back, onLoginRequest 
         pickupRiyadhOnly
         supportedCitiesOnly
         destinationCity={destinationCity}
+        pickupCityError={!pickupMatchesRiyadh ? 'Pick up location must be in Riyadh.' : undefined}
+        destinationCityError={destinationCity && !destinationMatchesCity ? `Drop off location must be in ${destinationCity}.` : undefined}
       />
-
-      {attempted && booking.pickup && !pickupMatchesRiyadh && <small className={styles.fieldError}>Pick up location must be in Riyadh.</small>}
-      {attempted && booking.destination && destinationCity && !destinationMatchesCity && <small className={styles.fieldError}>Drop off location must be in {destinationCity}.</small>}
 
       <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripComplete} onAttempt={() => setAttempted(true)} onLoginRequest={onLoginRequest} />
     </>
