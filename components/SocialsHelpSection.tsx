@@ -94,8 +94,8 @@ export default function SocialsHelpSection() {
           </motion.h2>
 
           <motion.p
-            className="mb-7 text-white/55 leading-relaxed"
-            style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(12px, 1vw, 14px)', maxWidth: 340 }}
+            className="mb-7 text-white/90 leading-relaxed"
+            style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(12px, 1vw, 14px)', fontWeight: 500, maxWidth: 340 }}
             initial={{ opacity: 0, y: 14 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.46 }}

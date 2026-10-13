@@ -13,7 +13,7 @@ export default function SocialsHero() {
 
   return (
     <div style={{ background: '#ffffff', padding: 'clamp(6px, 0.8vw, 10px)' }}>
-      <section className="relative min-h-screen bg-[#0d0d14]" style={{ borderRadius: 'clamp(14px, 1.5vw, 20px)' }}>
+      <section className="relative min-h-[82vh] bg-[#0d0d14]" style={{ borderRadius: 'clamp(14px, 1.5vw, 20px)' }}>
         <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 'inherit' }}>
           <Image
             src={heroBannerMobile}
@@ -39,7 +39,7 @@ export default function SocialsHero() {
 
         <Navbar />
 
-        <div className="relative z-10 flex min-h-screen flex-col justify-center px-6 pb-10 pt-32 sm:px-10 lg:px-16">
+        <div className="relative z-10 flex min-h-[82vh] flex-col justify-center px-6 pb-10 pt-32 sm:px-10 lg:px-16">
           <motion.div
             className="max-w-2xl lg:max-w-4xl"
             initial={{ opacity: 0, y: 40 }}

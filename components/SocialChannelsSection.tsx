@@ -200,9 +200,6 @@ export default function SocialChannelsSection() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d14]/72 via-[#0d0d14]/20 to-transparent" />
         <div className="absolute bottom-5 left-5 right-5">
-          <p className="text-[#5d8a7a] text-[10px] font-semibold uppercase tracking-widest mb-1.5" style={{ fontFamily: 'Inter, sans-serif' }}>
-            {channels.gridLabel}
-          </p>
           <p className="text-white leading-tight" style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(18px, 2vw, 26px)', fontWeight: 300 }}>
             {channels.gridH1}
             <br />
