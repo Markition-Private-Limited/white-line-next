@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import PageTitle from '@/components/PageTitle'
-import SocialsHero from '@/components/SocialsHero'
+import Navbar from '@/layouts/Navbar'
 import SocialChannelsSection from '@/components/SocialChannelsSection'
 import SocialsMapSection from '@/components/SocialsMapSection'
 import SocialsHelpSection from '@/components/SocialsHelpSection'
@@ -15,7 +15,9 @@ export default function SocialsPage() {
   return (
     <>
       <PageTitle en="Stay Connected | White Line" ar="ابقَ على تواصل | White Line" />
-      <SocialsHero />
+      <div style={{ background: '#ffffff' }}>
+        <Navbar frosted />
+      </div>
       <SocialChannelsSection />
       <SocialsMapSection />
       <SocialsHelpSection />
