@@ -253,7 +253,7 @@ export default function PageLoader() {
               left: '50%',
               bottom: '8%',
               transform: 'translateX(-50%)',
-              width: 'min(390px, 40vw)',
+              width: 'min(390px, 86vw)',
               textAlign: 'center',
               zIndex: 20,
             }}
@@ -263,6 +263,7 @@ export default function PageLoader() {
               color: 'rgba(255,255,255,.45)',
               font: '500 9px/1 Arial, sans-serif',
               letterSpacing: isRtl ? '.12em' : '.46em',
+              paddingInlineStart: isRtl ? '.12em' : '.46em',
               textTransform: isRtl ? 'none' : 'uppercase',
               whiteSpace: 'nowrap',
               fontFamily: isRtl ? 'Arial, sans-serif' : 'Arial, sans-serif',
