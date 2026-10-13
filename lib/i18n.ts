@@ -22,7 +22,7 @@ const en = {
       { label: 'About Us',           to: '/about' },
       { label: 'Our Services',       to: '/services' },
       { label: 'Our Fleet',          to: '/fleet' },
-      { label: 'White Line Partners', to: '/partner/login' },
+      { label: 'White Line Partners', to: 'https://b2b.whitelineglobal.com/login?redirect=%2F' },
       { label: 'Contact Us', to: '/contact' },
     ],
     download: 'Download Now',
@@ -221,7 +221,7 @@ const en = {
       company:   { title: 'Company',   links: ['About Us', 'Terms & Conditions', 'Privacy Policy'] },
       services:  { title: 'Services',  links: ['City to City', 'Hourly Chauffeur', 'City Trip', 'Day Service', 'Airport Transfer'] },
       resources: { title: 'Our Fleet', links: ['First Class', 'Business Premium', 'SUV', 'Business Sedan', 'Economy Sedan', 'Van'] },
-      support:   { title: 'Support',   links: ['Contact Us'] },
+      support:   { title: 'Support',   links: ['Contact Us', 'Socials'] },
     },
   },
 
@@ -1263,6 +1263,54 @@ const en = {
   loader: {
     label: 'LOADING YOUR EXPERIENCE',
   },
+
+  socialsPage: {
+    hero: {
+      label: 'Contact & Socials',
+      h1a: 'Stay Connected',
+      h1b: 'With White Line.',
+      sub: 'Whether you have a question, a special request, or simply want to stay updated — we\'re always here to assist you.',
+    },
+    channels: {
+      label: 'Follow Our Journey',
+      h1: 'Our Social Channels',
+      sub: 'Stay connected for updates, offers and a closer look at our luxury experiences.',
+      items: [
+        { name: 'Instagram', desc: 'Behind the scenes, latest updates', url: 'https://www.instagram.com/whiteline_global' },
+        { name: 'Facebook',  desc: 'News, offers and announcements',    url: 'https://www.facebook.com/profile.php?id=61593680866369' },
+        { name: 'LinkedIn',  desc: 'Company news and partnerships',     url: 'https://www.linkedin.com/company/whitelineglobal' },
+        { name: 'Website',   desc: 'Explore our services and fleet',    url: 'https://whitelineglobal.com' },
+        { name: 'WhatsApp',  desc: 'Connect with us directly',          url: 'https://wa.me/966563117770' },
+      ],
+      gridLabel: 'More Than A Ride',
+      gridH1: 'A Connected',
+      gridH2: 'Experience.',
+      gridSub1: 'Follow.',
+      gridSub2: 'Explore.',
+      gridSub3: 'Be Part Of',
+      gridSub4: 'Our Journey.',
+      gridInfo1: 'Updates',
+      gridInfo2: 'Offers',
+      gridInfo3: 'New Routes',
+      gridInfo4: 'And More.',
+    },
+    map: {
+      label: 'Our Location',
+      h1: 'Visit Our Office',
+      h1b: "Let's Plan Your Next Journey.",
+      sub: "We're based in Riyadh, Saudi Arabia and welcome you to visit our office or get in touch online.",
+      address1: 'White Line',
+      address2: 'Secondary No 4240, Al Murooj District',
+      address3: 'Riyadh 12282',
+      address4: 'Saudi Arabia',
+    },
+    help: {
+      label: 'Questions or Special Requests?',
+      h1: "We're Here To Help.",
+      sub: 'Have a special itinerary, corporate request or need assistance? Our team is just a message away.',
+      btn: 'Send Us a Message',
+    },
+  },
 }
 
 // ─── Arabic translations (Riyadh / Saudi dialect in formal written form) ──────
@@ -1273,7 +1321,7 @@ const ar: typeof en = {
       { label: 'من نحن',         to: '/about' },
       { label: 'خدماتنا',       to: '/services' },
       { label: 'أسطولنا',       to: '/fleet' },
-      { label: 'شركاء وايت لاين', to: '/partner/login' },
+      { label: 'شركاء وايت لاين', to: 'https://b2b.whitelineglobal.com/login?redirect=%2F' },
       { label: 'تواصل معنا', to: '/contact' },
     ],
     download: 'تحميل الآن',
@@ -1496,7 +1544,7 @@ const ar: typeof en = {
       company:   { title: 'الشركة',   links: ['من نحن', 'الشروط والأحكام', 'سياسة الخصوصية'] },
       services:  { title: 'الخدمات', links: ['من مدينة إلى مدينة', 'سائق بالساعة', 'رحلة المدن', 'خدمة اليوم', 'نقل المطار'] },
       resources: { title: 'أسطولنا', links: ['الدرجة الأولى', 'درجة الأعمال الممتازة', 'SUV', 'سيدان الأعمال', 'سيدان اقتصادية', 'فان'] },
-      support:   { title: 'الدعم',   links: ['تواصل معنا'] },
+      support:   { title: 'الدعم',   links: ['تواصل معنا', 'التواصل الاجتماعي'] },
     },
   },
 
@@ -2260,6 +2308,54 @@ const ar: typeof en = {
   },
   loader: {
     label: 'جارٍ تحميل تجربتك',
+  },
+
+  socialsPage: {
+    hero: {
+      label: 'تواصل وتابعنا',
+      h1a: 'ابقَ على تواصل',
+      h1b: 'مع وايت لاين.',
+      sub: 'سواء كان لديك سؤال أو طلب خاص أو تريد ببساطة متابعة آخر أخبارنا — نحن هنا دائماً للمساعدة.',
+    },
+    channels: {
+      label: 'تابع رحلتنا',
+      h1: 'قنواتنا الاجتماعية',
+      sub: 'ابقَ على تواصل للاطلاع على المستجدات والعروض ونظرة أقرب على تجاربنا الفاخرة.',
+      items: [
+        { name: 'إنستغرام', desc: 'خلف الكواليس وآخر المستجدات', url: 'https://www.instagram.com/whiteline_global' },
+        { name: 'فيسبوك',   desc: 'الأخبار والعروض والإعلانات',   url: 'https://www.facebook.com/profile.php?id=61593680866369' },
+        { name: 'لينكدإن',  desc: 'أخبار الشركة والشراكات',        url: 'https://www.linkedin.com/company/whitelineglobal' },
+        { name: 'الموقع',   desc: 'استكشف خدماتنا وأسطولنا',      url: 'https://whitelineglobal.com' },
+        { name: 'واتساب',   desc: 'تواصل معنا مباشرةً',            url: 'https://wa.me/966563117770' },
+      ],
+      gridLabel: 'أكثر من مجرد رحلة',
+      gridH1: 'تجربة',
+      gridH2: 'متصلة.',
+      gridSub1: 'تابع.',
+      gridSub2: 'استكشف.',
+      gridSub3: 'كن جزءاً من',
+      gridSub4: 'رحلتنا.',
+      gridInfo1: 'تحديثات',
+      gridInfo2: 'عروض',
+      gridInfo3: 'مسارات جديدة',
+      gridInfo4: 'والمزيد.',
+    },
+    map: {
+      label: 'موقعنا',
+      h1: 'زيارة مكتبنا',
+      h1b: 'دعنا نخطط لرحلتك القادمة.',
+      sub: 'مقرنا في الرياض بالمملكة العربية السعودية ونرحب بزيارتك لمكتبنا أو التواصل معنا عبر الإنترنت.',
+      address1: 'وايت لاين',
+      address2: 'الطريق الفرعي رقم 4240، حي المروج',
+      address3: 'الرياض 12282',
+      address4: 'المملكة العربية السعودية',
+    },
+    help: {
+      label: 'أسئلة أو طلبات خاصة؟',
+      h1: 'نحن هنا للمساعدة.',
+      sub: 'هل لديك خط سير مميز أو طلب مؤسسي أو تحتاج مساعدة؟ فريقنا على بُعد رسالة.',
+      btn: 'أرسل لنا رسالة',
+    },
   },
 }
 

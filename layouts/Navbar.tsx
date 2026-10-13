@@ -396,7 +396,7 @@ export default function Navbar({ solid = false, minimal = false, frosted = false
             <ul className="hidden lg:flex items-center gap-7 list-none m-0 p-0">
               {trans.nav.links.map(item => (
                 <li key={item.to}>
-                  <Link href={item.to} className="flex items-center gap-1 transition-colors text-sm font-medium" style={{ fontFamily: 'Inter, sans-serif', color: linkColor(item.to) }}>
+                  <Link href={item.to} {...(item.to.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className="flex items-center gap-1 transition-colors text-sm font-medium" style={{ fontFamily: 'Inter, sans-serif', color: linkColor(item.to) }}>
                     {item.label}
                   </Link>
                 </li>
@@ -492,7 +492,7 @@ export default function Navbar({ solid = false, minimal = false, frosted = false
               key="drawer"
               className="fixed top-0 bottom-0 z-50 flex flex-col"
               style={{ insetInlineEnd: 0, width: 'min(340px, 88vw)', background: 'rgba(6,8,12,0.97)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', borderInlineStart: '1px solid rgba(255,255,255,0.07)' }}
-              initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+              initial={{ x: isRtl ? '-100%' : '100%' }} animate={{ x: 0 }} exit={{ x: isRtl ? '-100%' : '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 280 }}
             >
               <div className="flex items-center justify-between px-7 pt-8 pb-8">
@@ -520,15 +520,15 @@ export default function Navbar({ solid = false, minimal = false, frosted = false
                     { to: '/journeys', label: isAr ? 'رحلاتي' : 'My Journeys' },
                     { to: '/account',  label: isAr ? 'حسابي'  : 'My Account'  },
                   ].map((item, i) => (
-                    <motion.li key={item.to} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.07 + i * 0.055 }}>
-                      <Link href={item.to} onClick={() => setDrawerOpen(false)} className="flex items-center justify-between py-5 transition-colors" style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(17px, 4vw, 20px)', fontWeight: 500, borderBottom: '1px solid rgba(255,255,255,0.06)', letterSpacing: '0.02em', color: isActive(item.to) ? '#fff' : 'rgba(255,255,255,0.55)' }}>
+                    <motion.li key={item.to} initial={{ opacity: 0, x: isRtl ? -20 : 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.07 + i * 0.055 }}>
+                      <Link href={item.to} {...(item.to.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})} onClick={() => setDrawerOpen(false)} className="flex items-center justify-between py-5 transition-colors" style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(17px, 4vw, 20px)', fontWeight: 500, borderBottom: '1px solid rgba(255,255,255,0.06)', letterSpacing: '0.02em', color: isActive(item.to) ? '#fff' : 'rgba(255,255,255,0.55)' }}>
                         {item.label}
                         <span style={{ opacity: 0.2, fontSize: 18 }}>›</span>
                       </Link>
                     </motion.li>
                   ))}
                   {userName && (
-                    <motion.li initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.07 + 2 * 0.055 }}>
+                    <motion.li initial={{ opacity: 0, x: isRtl ? -20 : 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.07 + 2 * 0.055 }}>
                       <button
                         type="button"
                         onClick={() => { setDrawerOpen(false); handleLogout() }}
@@ -543,7 +543,7 @@ export default function Navbar({ solid = false, minimal = false, frosted = false
 
                   {/* Login option for unauthenticated users in drawer */}
                   {!userName && (
-                    <motion.li initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.07 }}>
+                    <motion.li initial={{ opacity: 0, x: isRtl ? -20 : 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.07 }}>
                       <button
                         type="button"
                         onClick={() => { setDrawerOpen(false); setLoginOpen(true) }}
@@ -558,8 +558,8 @@ export default function Navbar({ solid = false, minimal = false, frosted = false
 
                   {/* Regular nav links — hidden on minimal pages */}
                   {!minimal && trans.nav.links.map((item, i) => (
-                    <motion.li key={item.to} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.07 + (userName ? 2 : 0) * 0.055 + i * 0.055 }}>
-                      <Link href={item.to} onClick={() => setDrawerOpen(false)} className="flex items-center justify-between py-5 transition-colors" style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(17px, 4vw, 20px)', fontWeight: 500, borderBottom: '1px solid rgba(255,255,255,0.06)', letterSpacing: '0.02em', color: isActive(item.to) ? '#fff' : 'rgba(255,255,255,0.55)' }}>
+                    <motion.li key={item.to} initial={{ opacity: 0, x: isRtl ? -20 : 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.07 + (userName ? 2 : 0) * 0.055 + i * 0.055 }}>
+                      <Link href={item.to} {...(item.to.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})} onClick={() => setDrawerOpen(false)} className="flex items-center justify-between py-5 transition-colors" style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(17px, 4vw, 20px)', fontWeight: 500, borderBottom: '1px solid rgba(255,255,255,0.06)', letterSpacing: '0.02em', color: isActive(item.to) ? '#fff' : 'rgba(255,255,255,0.55)' }}>
                         {item.label}
                         <span style={{ opacity: 0.2, fontSize: 18 }}>›</span>
                       </Link>
