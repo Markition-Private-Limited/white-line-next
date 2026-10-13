@@ -223,6 +223,14 @@ const en = {
   pickupEstimatorAfterArrival: (min: number) => `${min} minutes after arrival`,
   pickupEstimatorConfirm: 'Set Pickup Time',
   pickupEstimatorBack: 'Back',
+  useCurrentLocation: 'Use my current location',
+  geoLocating: 'Getting your location…',
+  geoDenied: 'Location access denied. Please type your address.',
+  geoConfirmTitle: 'Confirm Your Location',
+  geoDragHint: 'Drag the pin to adjust your location',
+  geoConfirmBtn: 'Confirm Location',
+  geoCancel: 'Cancel',
+  geoOutOfArea: 'Your location is outside the service area for this field.',
 }
 
 const ar: typeof en = {
@@ -448,6 +456,14 @@ const ar: typeof en = {
   pickupEstimatorAfterArrival: (min: number) => `${min} دقيقة بعد الوصول`,
   pickupEstimatorConfirm: 'تحديد وقت الاستقبال',
   pickupEstimatorBack: 'رجوع',
+  useCurrentLocation: 'استخدام موقعي الحالي',
+  geoLocating: 'جارٍ تحديد موقعك…',
+  geoDenied: 'تم رفض الوصول إلى الموقع. يرجى كتابة عنوانك.',
+  geoConfirmTitle: 'تأكيد موقعك',
+  geoDragHint: 'اسحب الدبوس لضبط موقعك',
+  geoConfirmBtn: 'تأكيد الموقع',
+  geoCancel: 'إلغاء',
+  geoOutOfArea: 'موقعك خارج نطاق الخدمة لهذا الحقل.',
 }
 
 export type BookingDialogCopy = typeof en

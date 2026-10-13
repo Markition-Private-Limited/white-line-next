@@ -668,7 +668,7 @@ export default function LoginDialog({ open, onClose, onSuccess }: Props) {
                     <p style={{ margin: '0 0 24px', fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 14, color: '#0f172a', direction: 'ltr', textAlign: isAr ? 'right' : 'left' }}>
                       {normalizedPhone}
                     </p>
-                    <div style={{ display: 'flex', gap: 10, marginBottom: 16, justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', gap: 10, marginBottom: 16, justifyContent: 'center' }} dir="ltr">
                       {otp.map((digit, i) => (
                         <input
                           key={i}
