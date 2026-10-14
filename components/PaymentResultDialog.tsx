@@ -154,7 +154,7 @@ export default function PaymentResultDialog({ type, bookingId, onClose }: Props)
                 {/* WhatsApp */}
                 <div style={{ marginTop: 14, display: 'flex', justifyContent: 'center' }}>
                   <a
-                    href="https://wa.me/966563117770"
+                    href="https://wa.me/966550735956"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
@@ -201,7 +201,7 @@ export default function PaymentResultDialog({ type, bookingId, onClose }: Props)
 
                 <div style={{ marginTop: 24, display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
                   <a
-                    href="https://wa.me/966563117770"
+                    href="https://wa.me/966550735956"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
