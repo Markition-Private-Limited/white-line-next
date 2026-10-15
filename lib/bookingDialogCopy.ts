@@ -80,6 +80,7 @@ const en = {
     sameLocation: 'Pick-up and drop-off locations cannot be the same.',
     selectFromList: 'Please select a location from the suggestions.',
     minLeadTime: 'Pickup time must be at least 2 hours from now.',
+    oneEndMustBeRiyadh: 'One city must be Riyadh.',
   },
   calendar: {
     locale: 'en-GB',
@@ -313,6 +314,7 @@ const ar: typeof en = {
     sameLocation: 'لا يمكن أن يكون موقع الانطلاق والوجهة نفس الموقع.',
     selectFromList: 'الرجاء اختيار موقع من قائمة الاقتراحات.',
     minLeadTime: 'يجب أن يكون موعد الاستلام بعد ساعتين على الأقل من الآن.',
+    oneEndMustBeRiyadh: 'إحدى المدينتين يجب أن تكون الرياض.',
   },
   calendar: {
     locale: 'ar-SA-u-ca-gregory',

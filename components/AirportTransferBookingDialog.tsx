@@ -39,6 +39,7 @@ type BookingState = {
   service: BookingService
   pickup: PlaceValue | null
   destination: PlaceValue | null
+  cityToCityPickupCity: string
   cityToCityDropoffCity: string
   date: Date | null
   time: TimeValue | null
@@ -244,6 +245,7 @@ const createInitialBookingState = (service: BookingService): BookingState => ({
   service,
   pickup: null,
   destination: null,
+  cityToCityPickupCity: 'Riyadh',
   cityToCityDropoffCity: '',
   date: null,
   time: null,
@@ -998,6 +1000,7 @@ function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): nu
 
 // Matches any of the 10 BE-supported city_to_city destinations (EN + AR)
 const CITY_TO_CITY_DESTINATIONS = ['Dammam', 'Al Khobar', 'Jeddah', 'Makkah', 'Madinah', 'Taif', 'Al Ahsa', 'Al Ula', 'Al Kharj', 'Al Qasim'] as const
+const ALL_CITY_TO_CITY_OPTIONS = ['Riyadh', ...CITY_TO_CITY_DESTINATIONS] as const
 
 const CITY_TO_CITY_REGEX = /dammam|al[\s-]?khobar|jeddah|jiddah|makkah|mecca|madinah|medina|taif|ta'if|al[\s-]?ahsa|al[\s-]?hasa|al[\s-]?ula|al[\s-]?kharj|al[\s-]?qasim|qassim|buraydah|دمام|الخبر|جدة|مكة|المدينة|الطائف|الأحساء|العلا|الخرج|القصيم/i
 
@@ -1071,18 +1074,21 @@ function CitySelectField({ label, value, options, placeholder, attempted, disabl
     </div>
   )
 }
-function LocationScheduleFields({ booking, updateBooking, pickupLabel, pickupPlaceholder, destinationLabel, destinationPlaceholder, attempted, citiesOnly, riyadhOnly, pickupRiyadhOnly, supportedCitiesOnly, destinationCity, pickupCityError, destinationCityError }: { booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void; pickupLabel?: string; pickupPlaceholder?: string; destinationLabel?: string; destinationPlaceholder?: string; attempted: boolean; citiesOnly?: boolean; riyadhOnly?: boolean; pickupRiyadhOnly?: boolean; supportedCitiesOnly?: boolean; destinationCity?: string; pickupCityError?: string; destinationCityError?: string }) {
+function LocationScheduleFields({ booking, updateBooking, pickupLabel, pickupPlaceholder, destinationLabel, destinationPlaceholder, attempted, citiesOnly, riyadhOnly, pickupRiyadhOnly, pickupCity, supportedCitiesOnly, destinationCity, pickupCityError, destinationCityError }: { booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void; pickupLabel?: string; pickupPlaceholder?: string; destinationLabel?: string; destinationPlaceholder?: string; attempted: boolean; citiesOnly?: boolean; riyadhOnly?: boolean; pickupRiyadhOnly?: boolean; pickupCity?: string; supportedCitiesOnly?: boolean; destinationCity?: string; pickupCityError?: string; destinationCityError?: string }) {
   const { copy } = useBookingDialogCopy()
   const cityTypes = citiesOnly ? ['(cities)'] : undefined
   const locationRestriction = riyadhOnly ? RIYADH_RESTRICTION : undefined
   const riyadhFilter = riyadhOnly
     ? (p: { description: string }) => /riyadh/i.test(p.description)
     : undefined
-  // pickupRiyadhOnly: pickup is Riyadh-restricted but destination uses the default (citiesOnly) types
-  const pickupLocationRestriction = pickupRiyadhOnly ? RIYADH_RESTRICTION : locationRestriction
-  const pickupFilter = pickupRiyadhOnly
-    ? (p: { description: string }) => /riyadh/i.test(p.description)
-    : riyadhFilter
+  // pickupCity: restrict pickup autocomplete to a specific city (overrides pickupRiyadhOnly)
+  const pickupCityRestriction = pickupCity ? CITY_RESTRICTIONS[pickupCity] : undefined
+  const pickupLocationRestriction = pickupCityRestriction ?? (pickupRiyadhOnly ? RIYADH_RESTRICTION : locationRestriction)
+  const pickupFilter = pickupCity
+    ? (p: { description: string }) => cityMatchesText(p.description, pickupCity)
+    : pickupRiyadhOnly
+      ? (p: { description: string }) => /riyadh/i.test(p.description)
+      : riyadhFilter
   // supportedCitiesOnly: destination filtered to the 10 BE-supported city_to_city cities.
   // When a specific destinationCity is chosen, bias Google Places toward that city's center
   // so searches like "cine" return local results. Text filter is still applied on top so that
@@ -1099,7 +1105,7 @@ function LocationScheduleFields({ booking, updateBooking, pickupLabel, pickupPla
   return (
     <div className={styles.fieldGrid}>
       <div>
-        <PlacesAutocompleteField label={pickupLabel ?? copy.pickupLocation} placeholder={pickupPlaceholder ?? copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} types={pickupRiyadhOnly ? undefined : cityTypes} locationRestriction={pickupLocationRestriction} filterPrediction={pickupFilter} disableGeo={booking.destination?.source === 'geo'} />
+        <PlacesAutocompleteField label={pickupLabel ?? copy.pickupLocation} placeholder={pickupPlaceholder ?? copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} types={(pickupCity || pickupRiyadhOnly) ? undefined : cityTypes} locationRestriction={pickupLocationRestriction} filterPrediction={pickupFilter} disableGeo={booking.destination?.source === 'geo'} />
         {attempted && booking.pickup && pickupCityError && <small className={styles.fieldError}>{pickupCityError}</small>}
       </div>
       <div>
@@ -1439,10 +1445,37 @@ function OneWayTripDetails({ booking, updateBooking, next, back, onLoginRequest 
 }) {
   const { copy } = useBookingDialogCopy()
   const [attempted, setAttempted] = useState(false)
-  const destinationCity = booking.cityToCityDropoffCity
-  const pickupMatchesRiyadh = cityMatchesPlace(booking.pickup, 'Riyadh')
-  const destinationMatchesCity = cityMatchesPlace(booking.destination, destinationCity)
-  const tripComplete = Boolean(tripIsComplete(booking) && pickupMatchesRiyadh && destinationCity && destinationMatchesCity)
+  const pickupCityState = booking.cityToCityPickupCity || 'Riyadh'
+  const dropoffCityState = booking.cityToCityDropoffCity
+  // Exactly one side must be Riyadh (XOR)
+  const exactlyOneRiyadh = (pickupCityState === 'Riyadh') !== (dropoffCityState === 'Riyadh')
+  const pickupMatchesCity = cityMatchesPlace(booking.pickup, pickupCityState)
+  const destinationMatchesCity = cityMatchesPlace(booking.destination, dropoffCityState)
+  const tripComplete = Boolean(
+    tripIsComplete(booking) && exactlyOneRiyadh && pickupCityState && dropoffCityState && pickupMatchesCity && destinationMatchesCity
+  )
+  const cityConflict = attempted && pickupCityState && dropoffCityState && !exactlyOneRiyadh
+
+  function handlePickupCityChange(city: string) {
+    if (city !== 'Riyadh') {
+      // Non-Riyadh pickup → auto-force Riyadh dropoff so constraint is met
+      updateBooking({ cityToCityPickupCity: city, cityToCityDropoffCity: 'Riyadh', pickup: null, destination: null })
+    } else {
+      // Riyadh pickup → clear pickup location only; keep dropoff city unless it's also Riyadh
+      const newDropoff = dropoffCityState === 'Riyadh' ? '' : dropoffCityState
+      updateBooking({ cityToCityPickupCity: city, cityToCityDropoffCity: newDropoff, pickup: null })
+    }
+  }
+
+  function handleDropoffCityChange(city: string) {
+    if (city !== 'Riyadh') {
+      // Non-Riyadh dropoff → auto-force Riyadh pickup so constraint is met
+      updateBooking({ cityToCityPickupCity: 'Riyadh', cityToCityDropoffCity: city, pickup: null, destination: null })
+    } else {
+      // Riyadh dropoff → clear destination only
+      updateBooking({ cityToCityDropoffCity: city, destination: null })
+    }
+  }
 
   return (
     <>
@@ -1451,29 +1484,37 @@ function OneWayTripDetails({ booking, updateBooking, next, back, onLoginRequest 
       <p className={styles.subtitle}>{copy.tripSubtitle}</p>
 
       <div className={styles.citySelectorGrid}>
-        <CitySelectField label={copy.pickupCity} value="Riyadh" options={['Riyadh']} />
+        <CitySelectField
+          label={copy.pickupCity}
+          value={pickupCityState}
+          options={ALL_CITY_TO_CITY_OPTIONS}
+          attempted={attempted}
+          onChange={handlePickupCityChange}
+        />
         <CitySelectField
           label={copy.dropOffCity}
-          value={destinationCity}
-          options={CITY_TO_CITY_DESTINATIONS}
+          value={dropoffCityState}
+          options={ALL_CITY_TO_CITY_OPTIONS}
           attempted={attempted}
-          disabled={!isSelectedPlace(booking.pickup)}
-          onChange={city => updateBooking({ cityToCityDropoffCity: city, destination: null })}
+          onChange={handleDropoffCityChange}
         />
       </div>
+      {cityConflict && (
+        <small className={styles.fieldError}>{copy.validation.oneEndMustBeRiyadh}</small>
+      )}
 
       <LocationScheduleFields
         booking={booking}
         updateBooking={updateBooking}
         destinationLabel={copy.dropOff}
-        destinationPlaceholder={destinationCity ? copy.enterDestination : copy.selectDropOffCityFirst}
+        destinationPlaceholder={dropoffCityState ? copy.enterDestination : copy.selectDropOffCityFirst}
         attempted={attempted}
         citiesOnly
-        pickupRiyadhOnly
+        pickupCity={pickupCityState}
         supportedCitiesOnly
-        destinationCity={destinationCity}
-        pickupCityError={!pickupMatchesRiyadh ? 'Pick up location must be in Riyadh.' : undefined}
-        destinationCityError={destinationCity && !destinationMatchesCity ? `Drop off location must be in ${destinationCity}.` : undefined}
+        destinationCity={dropoffCityState}
+        pickupCityError={attempted && booking.pickup && !pickupMatchesCity ? `Pick up location must be in ${pickupCityState}.` : undefined}
+        destinationCityError={dropoffCityState && attempted && booking.destination && !destinationMatchesCity ? `Drop off location must be in ${dropoffCityState}.` : undefined}
       />
 
       <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripComplete} onAttempt={() => setAttempted(true)} onLoginRequest={onLoginRequest} />
