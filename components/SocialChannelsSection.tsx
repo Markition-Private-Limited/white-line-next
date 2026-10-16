@@ -257,17 +257,8 @@ export default function SocialChannelsSection() {
         }}
       >
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
-          {isRtl ? (
-            <>
-              {rightCol}
-              {leftCol}
-            </>
-          ) : (
-            <>
-              {leftCol}
-              {rightCol}
-            </>
-          )}
+          {leftCol}
+          {rightCol}
         </div>
       </div>
     </section>

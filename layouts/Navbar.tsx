@@ -53,7 +53,7 @@ function LangDropdown({ solid }: { solid: boolean }) {
   const available = Object.entries(LANG_META) as [LangCode, typeof LANG_META[LangCode]][]
 
   return (
-    <div ref={ref} className="relative hidden md:block">
+    <div ref={ref} className="relative" style={{ zIndex: 100 }}>
       <button
         onClick={() => setOpen(o => !o)}
         className="flex items-center gap-1.5 text-sm transition-colors"
@@ -64,7 +64,8 @@ function LangDropdown({ solid }: { solid: boolean }) {
         }}
       >
         <span className={`fi fi-${current.flagCode}`} style={{ fontSize: 18, borderRadius: 3 }} />
-        <span>{current.nativeLabel}</span>
+        <span className="lg:hidden">{lang === 'ar' ? 'ع' : 'EN'}</span>
+        <span className="hidden lg:inline">{current.nativeLabel}</span>
         <ChevronDown size={14} className="opacity-70 transition-transform duration-200" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
       </button>
 
@@ -75,8 +76,9 @@ function LangDropdown({ solid }: { solid: boolean }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.97 }}
             transition={{ duration: 0.18 }}
-            className="absolute top-full mt-2 z-50 overflow-hidden rounded-xl"
+            className="absolute top-full mt-2 overflow-hidden rounded-xl"
             style={{
+              zIndex: 9999,
               insetInlineStart: 0, minWidth: 148,
               background: 'rgba(12,14,20,0.96)',
               backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
@@ -261,6 +263,49 @@ function UserDropdown({ solid, userName, onLogout }: { solid: boolean; userName:
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  )
+}
+
+// ── Mobile header lang pill (outside hamburger) ───────────────────────────────
+function MobileHeaderLangPill({ solid }: { solid: boolean }) {
+  const { lang, setLang } = useLanguage()
+  const opts: { code: LangCode; label: string }[] = [
+    { code: 'en', label: 'EN' },
+    { code: 'ar', label: 'ع' },
+  ]
+  return (
+    <div
+      className="lg:hidden flex items-center"
+      style={{
+        borderRadius: 99, padding: 3,
+        background: solid ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.1)',
+        border: solid ? '1px solid rgba(0,0,0,0.09)' : '1px solid rgba(255,255,255,0.18)',
+      }}
+    >
+      {opts.map(({ code, label }) => (
+        <button
+          key={code}
+          onClick={() => setLang(code)}
+          aria-label={`Switch to ${code === 'en' ? 'English' : 'Arabic'}`}
+          style={{
+            height: 28, padding: '0 11px', borderRadius: 99,
+            background: lang === code
+              ? (solid ? '#111118' : 'rgba(255,255,255,0.92)')
+              : 'transparent',
+            border: 'none', cursor: 'pointer',
+            fontSize: 11, fontWeight: 700,
+            fontFamily: 'Inter, sans-serif',
+            letterSpacing: '0.05em',
+            color: lang === code
+              ? (solid ? '#fff' : '#0d0d14')
+              : (solid ? 'rgba(0,0,0,0.38)' : 'rgba(255,255,255,0.42)'),
+            transition: 'background 0.22s, color 0.22s',
+          }}
+        >
+          {label}
+        </button>
+      ))}
     </div>
   )
 }
