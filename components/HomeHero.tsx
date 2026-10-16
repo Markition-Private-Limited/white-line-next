@@ -291,11 +291,11 @@ export default function HomeHero() {
 
         <Navbar />
 
-        <div className="relative z-10 flex min-h-screen flex-col justify-between px-6 pb-10 pt-32 sm:px-10 lg:px-16">
+        <div className="relative z-10 flex min-h-screen flex-col justify-start sm:justify-between px-6 pb-10 pt-20 sm:pt-32 sm:px-10 lg:px-16">
 
           {/* Heading */}
           <motion.div
-            className="max-w-xl pt-6 sm:pt-10 lg:max-w-3xl"
+            className="max-w-xl pt-0 sm:pt-10 lg:max-w-3xl"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.4, ease: [0.25, 0.46, 0.45, 0.94] }}
