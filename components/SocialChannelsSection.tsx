@@ -7,6 +7,15 @@ import hourlyImg2 from '../assets/services_1/services/hourly/2.png'
 import dayServiceImg3 from '../assets/services_1/services/day_service/3.png'
 
 /* ── brand icons ─────────────────────────────────────────────────── */
+function TwitterIcon() {
+  return (
+    <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" width={44} height={44}>
+      <rect width="44" height="44" rx="11" fill="#1DA1F2" />
+      <path d="M34 14.46a9.2 9.2 0 0 1-2.64.72 4.6 4.6 0 0 0 2.02-2.54 9.22 9.22 0 0 1-2.92 1.11 4.6 4.6 0 0 0-7.84 4.2A13.06 13.06 0 0 1 13.14 13a4.6 4.6 0 0 0 1.42 6.14 4.58 4.58 0 0 1-2.08-.57v.06a4.6 4.6 0 0 0 3.69 4.51 4.63 4.63 0 0 1-2.08.08 4.6 4.6 0 0 0 4.3 3.2A9.24 9.24 0 0 1 11 28.28a13.03 13.03 0 0 0 7.06 2.07c8.47 0 13.1-7.01 13.1-13.1 0-.2 0-.4-.02-.6A9.36 9.36 0 0 0 34 14.46z" fill="white" />
+    </svg>
+  )
+}
+
 function InstagramIcon() {
   return (
     <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" width={44} height={44}>
@@ -47,17 +56,6 @@ function LinkedInIcon() {
   )
 }
 
-function WebsiteIcon() {
-  return (
-    <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" width={44} height={44}>
-      <rect width="44" height="44" rx="11" fill="#1a1a2e" />
-      <circle cx="22" cy="22" r="10" stroke="white" strokeWidth="2" fill="none" />
-      <ellipse cx="22" cy="22" rx="5" ry="10" stroke="white" strokeWidth="2" fill="none" />
-      <line x1="12" y1="18.5" x2="32" y2="18.5" stroke="white" strokeWidth="2" />
-      <line x1="12" y1="25.5" x2="32" y2="25.5" stroke="white" strokeWidth="2" />
-    </svg>
-  )
-}
 
 function WhatsAppIcon() {
   return (
@@ -74,15 +72,15 @@ function WhatsAppIcon() {
 }
 
 const ICONS: Record<string, React.ReactNode> = {
-  Instagram: <InstagramIcon />,
+  Twitter:   <TwitterIcon />,
   Facebook:  <FacebookIcon />,
+  Instagram: <InstagramIcon />,
   LinkedIn:  <LinkedInIcon />,
-  Website:   <WebsiteIcon />,
   WhatsApp:  <WhatsAppIcon />,
-  إنستغرام: <InstagramIcon />,
+  تويتر:    <TwitterIcon />,
   فيسبوك:   <FacebookIcon />,
+  إنستغرام: <InstagramIcon />,
   لينكدإن:  <LinkedInIcon />,
-  الموقع:   <WebsiteIcon />,
   واتساب:   <WhatsAppIcon />,
 }
 
@@ -162,7 +160,7 @@ export default function SocialChannelsSection() {
             }}
           >
             <div className="flex-shrink-0">
-              {ICONS[item.name] ?? <WebsiteIcon />}
+              {ICONS[item.name]}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-[#0d0d14] leading-tight" style={{ fontFamily: 'Inter, sans-serif', fontSize: 14 }}>
