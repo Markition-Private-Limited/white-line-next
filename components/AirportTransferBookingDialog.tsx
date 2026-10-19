@@ -1445,7 +1445,6 @@ function OneWayTripDetails({ booking, updateBooking, next, back, onLoginRequest 
 }) {
   const { copy } = useBookingDialogCopy()
   const [attempted, setAttempted] = useState(false)
-  const [conflictPopup, setConflictPopup] = useState<{ message: string } | null>(null)
   const pickupCityState = booking.cityToCityPickupCity || 'Riyadh'
   const dropoffCityState = booking.cityToCityDropoffCity
   // Exactly one side must be Riyadh (XOR)
@@ -1457,20 +1456,27 @@ function OneWayTripDetails({ booking, updateBooking, next, back, onLoginRequest 
   )
   const cityConflict = attempted && pickupCityState && dropoffCityState && !exactlyOneRiyadh
 
+  // Derived option lists enforcing the "one side must be Riyadh" rule
+  const dropoffOptions = pickupCityState === 'Riyadh'
+    ? ALL_CITY_TO_CITY_OPTIONS.filter(c => c !== 'Riyadh')
+    : ['Riyadh']
+  const pickupOptions = dropoffCityState === 'Riyadh'
+    ? ALL_CITY_TO_CITY_OPTIONS.filter(c => c !== 'Riyadh')
+    : ALL_CITY_TO_CITY_OPTIONS
+
   function handlePickupCityChange(city: string) {
-    if (city === dropoffCityState) {
-      setConflictPopup({ message: copy.validation.sameCityDropoff(city) })
+    if (city !== 'Riyadh') {
+      // Non-Riyadh pickup → force dropoff to Riyadh (only valid option)
+      updateBooking({ cityToCityPickupCity: city, cityToCityDropoffCity: 'Riyadh', pickup: null, destination: null })
     } else {
-      updateBooking({ cityToCityPickupCity: city, pickup: null })
+      // Riyadh pickup → clear dropoff if it was also Riyadh
+      const newDropoff = dropoffCityState === 'Riyadh' ? '' : dropoffCityState
+      updateBooking({ cityToCityPickupCity: city, cityToCityDropoffCity: newDropoff, pickup: null })
     }
   }
 
   function handleDropoffCityChange(city: string) {
-    if (city === pickupCityState) {
-      setConflictPopup({ message: copy.validation.sameCityPickup(city) })
-    } else {
-      updateBooking({ cityToCityDropoffCity: city, destination: null })
-    }
+    updateBooking({ cityToCityDropoffCity: city, destination: null })
   }
 
   return (
@@ -1483,21 +1489,18 @@ function OneWayTripDetails({ booking, updateBooking, next, back, onLoginRequest 
         <CitySelectField
           label={copy.pickupCity}
           value={pickupCityState}
-          options={ALL_CITY_TO_CITY_OPTIONS}
+          options={pickupOptions}
           attempted={attempted}
           onChange={handlePickupCityChange}
         />
         <CitySelectField
           label={copy.dropOffCity}
           value={dropoffCityState}
-          options={ALL_CITY_TO_CITY_OPTIONS}
+          options={dropoffOptions}
           attempted={attempted}
           onChange={handleDropoffCityChange}
         />
       </div>
-      {cityConflict && (
-        <small className={styles.fieldError} style={{ marginBlock: '10px 14px' }}>{copy.validation.oneEndMustBeRiyadh}</small>
-      )}
 
       <LocationScheduleFields
         booking={booking}
@@ -1514,17 +1517,6 @@ function OneWayTripDetails({ booking, updateBooking, next, back, onLoginRequest 
       />
 
       <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripComplete} onAttempt={() => setAttempted(true)} onLoginRequest={onLoginRequest} />
-
-      <AnimatePresence>
-        {conflictPopup && (
-          <CitySamePopup
-            title={copy.validation.sameCityTitle}
-            message={conflictPopup.message}
-            okLabel={copy.validation.sameCityOk}
-            onClose={() => setConflictPopup(null)}
-          />
-        )}
-      </AnimatePresence>
     </>
   )
 }
