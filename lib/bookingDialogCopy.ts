@@ -81,6 +81,10 @@ const en = {
     selectFromList: 'Please select a location from the suggestions.',
     minLeadTime: 'Pickup time must be at least 2 hours from now.',
     oneEndMustBeRiyadh: 'One city must be Riyadh.',
+    sameCityTitle: 'Same City Selected',
+    sameCityPickup: (city: string) => `"${city}" is already your Pick-up City. Please choose a different Drop-off City.`,
+    sameCityDropoff: (city: string) => `"${city}" is already your Drop-off City. Please choose a different Pick-up City.`,
+    sameCityOk: 'Got it',
   },
   calendar: {
     locale: 'en-GB',
@@ -315,6 +319,10 @@ const ar: typeof en = {
     selectFromList: 'الرجاء اختيار موقع من قائمة الاقتراحات.',
     minLeadTime: 'يجب أن يكون موعد الاستلام بعد ساعتين على الأقل من الآن.',
     oneEndMustBeRiyadh: 'إحدى المدينتين يجب أن تكون الرياض.',
+    sameCityTitle: 'تم اختيار نفس المدينة',
+    sameCityPickup: (city: string) => `"${city}" هي مدينة الانطلاق بالفعل. يرجى اختيار مدينة مختلفة للوصول.`,
+    sameCityDropoff: (city: string) => `"${city}" هي مدينة الوصول بالفعل. يرجى اختيار مدينة مختلفة للانطلاق.`,
+    sameCityOk: 'حسناً',
   },
   calendar: {
     locale: 'ar-SA-u-ca-gregory',

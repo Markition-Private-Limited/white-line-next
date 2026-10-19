@@ -1445,6 +1445,7 @@ function OneWayTripDetails({ booking, updateBooking, next, back, onLoginRequest 
 }) {
   const { copy } = useBookingDialogCopy()
   const [attempted, setAttempted] = useState(false)
+  const [conflictPopup, setConflictPopup] = useState<{ message: string } | null>(null)
   const pickupCityState = booking.cityToCityPickupCity || 'Riyadh'
   const dropoffCityState = booking.cityToCityDropoffCity
   // Exactly one side must be Riyadh (XOR)
@@ -1457,22 +1458,17 @@ function OneWayTripDetails({ booking, updateBooking, next, back, onLoginRequest 
   const cityConflict = attempted && pickupCityState && dropoffCityState && !exactlyOneRiyadh
 
   function handlePickupCityChange(city: string) {
-    if (city !== 'Riyadh') {
-      // Non-Riyadh pickup → auto-force Riyadh dropoff so constraint is met
-      updateBooking({ cityToCityPickupCity: city, cityToCityDropoffCity: 'Riyadh', pickup: null, destination: null })
+    if (city === dropoffCityState) {
+      setConflictPopup({ message: copy.validation.sameCityDropoff(city) })
     } else {
-      // Riyadh pickup → clear pickup location only; keep dropoff city unless it's also Riyadh
-      const newDropoff = dropoffCityState === 'Riyadh' ? '' : dropoffCityState
-      updateBooking({ cityToCityPickupCity: city, cityToCityDropoffCity: newDropoff, pickup: null })
+      updateBooking({ cityToCityPickupCity: city, pickup: null })
     }
   }
 
   function handleDropoffCityChange(city: string) {
-    if (city !== 'Riyadh') {
-      // Non-Riyadh dropoff → auto-force Riyadh pickup so constraint is met
-      updateBooking({ cityToCityPickupCity: 'Riyadh', cityToCityDropoffCity: city, pickup: null, destination: null })
+    if (city === pickupCityState) {
+      setConflictPopup({ message: copy.validation.sameCityPickup(city) })
     } else {
-      // Riyadh dropoff → clear destination only
       updateBooking({ cityToCityDropoffCity: city, destination: null })
     }
   }
@@ -1500,7 +1496,7 @@ function OneWayTripDetails({ booking, updateBooking, next, back, onLoginRequest 
         />
       </div>
       {cityConflict && (
-        <small className={styles.fieldError}>{copy.validation.oneEndMustBeRiyadh}</small>
+        <small className={styles.fieldError} style={{ marginBlock: '10px 14px' }}>{copy.validation.oneEndMustBeRiyadh}</small>
       )}
 
       <LocationScheduleFields
@@ -1518,6 +1514,17 @@ function OneWayTripDetails({ booking, updateBooking, next, back, onLoginRequest 
       />
 
       <BookingForSection booking={booking} updateBooking={updateBooking} back={back} next={next} tripComplete={tripComplete} onAttempt={() => setAttempted(true)} onLoginRequest={onLoginRequest} />
+
+      <AnimatePresence>
+        {conflictPopup && (
+          <CitySamePopup
+            title={copy.validation.sameCityTitle}
+            message={conflictPopup.message}
+            okLabel={copy.validation.sameCityOk}
+            onClose={() => setConflictPopup(null)}
+          />
+        )}
+      </AnimatePresence>
     </>
   )
 }
@@ -2288,6 +2295,31 @@ function SuccessStep({ back, onDone, booking, bookingId }: { back: () => void; o
         />
       </div>
       <FooterActions back={back} next={onDone} nextLabel={copy.downloadApp} />
+    </div>
+  )
+}
+
+function CitySamePopup({ message, title, okLabel, onClose }: { message: string; title: string; okLabel: string; onClose: () => void }) {
+  const { dir } = useBookingDialogCopy()
+  return (
+    <div className={styles.cancelOverlay} role="dialog" aria-modal="true" aria-labelledby="city-same-title">
+      <motion.div
+        className={styles.cancelCard}
+        dir={dir}
+        initial={{ opacity: 0, scale: 0.94, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.94, y: 10 }}
+        transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className={styles.cancelStripe} />
+        <div className={styles.cancelCardBody}>
+          <h3 id="city-same-title" className={styles.cancelTitle}>{title}</h3>
+          <p className={styles.cancelBody}>{message}</p>
+          <div className={styles.cancelActions}>
+            <button type="button" className={styles.cancelKeep} style={{ flex: 'none', width: '100%' }} onClick={onClose}>{okLabel}</button>
+          </div>
+        </div>
+      </motion.div>
     </div>
   )
 }
