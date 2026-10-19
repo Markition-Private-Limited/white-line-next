@@ -1456,13 +1456,10 @@ function OneWayTripDetails({ booking, updateBooking, next, back, onLoginRequest 
   )
   const cityConflict = attempted && pickupCityState && dropoffCityState && !exactlyOneRiyadh
 
-  // Derived option lists enforcing the "one side must be Riyadh" rule
+  // Dropoff options depend on pickup: Riyadh pickup → all except Riyadh; non-Riyadh pickup → only Riyadh
   const dropoffOptions = pickupCityState === 'Riyadh'
     ? ALL_CITY_TO_CITY_OPTIONS.filter(c => c !== 'Riyadh')
     : ['Riyadh']
-  const pickupOptions = dropoffCityState === 'Riyadh'
-    ? ALL_CITY_TO_CITY_OPTIONS.filter(c => c !== 'Riyadh')
-    : ALL_CITY_TO_CITY_OPTIONS
 
   function handlePickupCityChange(city: string) {
     if (city !== 'Riyadh') {
@@ -1489,7 +1486,7 @@ function OneWayTripDetails({ booking, updateBooking, next, back, onLoginRequest 
         <CitySelectField
           label={copy.pickupCity}
           value={pickupCityState}
-          options={pickupOptions}
+          options={ALL_CITY_TO_CITY_OPTIONS}
           attempted={attempted}
           onChange={handlePickupCityChange}
         />
