@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { X, ChevronDown, ChevronUp, Globe, Check } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useLanguage } from '../context/LanguageContext'
 import { LANG_META, type LangCode } from '../lib/i18n'
 import logoSvg from '../assets/fav_icon_black.svg'
@@ -80,50 +81,66 @@ export default function CookieConsent() {
 
   return (
     <>
-      {/* ── Bottom banner ───────────────────────────────────────────── */}
-      {visible && !modalOpen && (
-        <div
-          dir={dir}
-          style={{ fontFamily, zIndex: 9998 }}
-          className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-4px_24px_rgba(0,0,0,0.08)]"
-        >
-          <div className={`w-full px-6 sm:px-10 py-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5 sm:gap-12 ${isRtl ? 'sm:flex-row-reverse' : ''}`}>
-            {/* Logo stacked above text */}
-            <div className={`flex flex-col gap-2.5 min-w-0 flex-1 ${isRtl ? 'items-end' : 'items-start'}`}>
-              <Image src={logoSvg} alt="White Line" width={34} height={34} className="shrink-0" />
-              <p className={`text-sm leading-relaxed text-gray-600 ${isRtl ? 'text-right' : 'text-left'}`}>
-                {t.banner.text}
-              </p>
-              <div className={`flex gap-5 ${isRtl ? 'justify-end' : 'justify-start'}`}>
-                <Link href="/privacy" className="text-sm text-[#005C66] hover:underline font-medium">{t.modal.privacyPolicy}</Link>
-                <Link href="/terms" className="text-sm text-[#005C66] hover:underline font-medium">{t.modal.legalNotice}</Link>
+      {/* ── Floating pill banner ────────────────────────────────────── */}
+      <AnimatePresence>
+        {visible && !modalOpen && (
+          <motion.div
+            dir={dir}
+            style={{ fontFamily, zIndex: 9998 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-5xl"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="bg-white rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.14)] border border-gray-100 px-6 sm:px-8 py-5">
+              <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-8 ${isRtl ? 'sm:flex-row-reverse' : ''}`}>
+                {/* Heading + text + links */}
+                <div className={`flex flex-col gap-1.5 min-w-0 flex-1 ${isRtl ? 'items-end' : 'items-start'}`}>
+                  <div className={`flex items-center gap-2 ${isRtl ? 'flex-row-reverse' : ''}`}>
+                    <Image src={logoSvg} alt="White Line" width={20} height={20} className="shrink-0" />
+                    <h3 className="text-sm font-bold text-gray-900 tracking-wide uppercase">{t.banner.title}</h3>
+                  </div>
+                  <p className={`text-xs leading-relaxed text-gray-600 ${isRtl ? 'text-right' : 'text-left'}`}>
+                    {t.banner.text}
+                  </p>
+                  <div className={`flex gap-4 ${isRtl ? 'justify-end' : 'justify-start'}`}>
+                    <Link href="/privacy" className="text-xs text-[#005C66] hover:underline font-medium">{t.modal.privacyPolicy}</Link>
+                    <Link href="/terms" className="text-xs text-[#005C66] hover:underline font-medium">{t.modal.legalNotice}</Link>
+                  </div>
+                </div>
+                {/* Buttons */}
+                <div className={`flex gap-2.5 shrink-0 ${isRtl ? 'flex-row-reverse' : ''}`}>
+                  <button
+                    onClick={() => { setModalOpen(true); setVisible(false) }}
+                    className="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors whitespace-nowrap"
+                  >
+                    {t.banner.moreInfo}
+                  </button>
+                  <button
+                    onClick={acceptAll}
+                    className="px-5 py-2.5 text-sm font-semibold text-white rounded-full transition-opacity hover:opacity-90 whitespace-nowrap"
+                    style={{ background: '#005C66' }}
+                  >
+                    {t.banner.acceptAll}
+                  </button>
+                </div>
               </div>
             </div>
-            {/* Buttons — full width on mobile, side-by-side on desktop, pinned to bottom */}
-            <div className={`flex gap-3 shrink-0 ${isRtl ? 'flex-row-reverse' : ''}`}>
-              <button
-                onClick={() => { setModalOpen(true); setVisible(false) }}
-                className="flex-1 sm:flex-none sm:min-w-[180px] px-6 py-3 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors whitespace-nowrap"
-              >
-                {t.banner.moreInfo}
-              </button>
-              <button
-                onClick={acceptAll}
-                className="flex-1 sm:flex-none sm:min-w-[180px] px-6 py-3 text-sm font-semibold text-white rounded-lg transition-opacity hover:opacity-90 whitespace-nowrap"
-                style={{ background: '#005C66' }}
-              >
-                {t.banner.acceptAll}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Modal ───────────────────────────────────────────────────── */}
+      <AnimatePresence>
       {modalOpen && (
-        <div
+        <motion.div
           style={{ zIndex: 9999 }}
           className="fixed inset-0 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
         >
           <div
             dir={dir}
@@ -339,8 +356,9 @@ export default function CookieConsent() {
               <p className="text-sm text-center text-gray-400">{t.modal.poweredBy}</p>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </>
   )
 }

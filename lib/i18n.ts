@@ -1171,6 +1171,7 @@ const en = {
 
   cookieConsent: {
     banner: {
+      title: 'Cookie Notice',
       text: 'This site uses third-party website tracking technologies to provide and continually improve our services, and to display advertisements according to your interests. I agree and may revoke or change my consent at any time with effect for the future.',
       moreInfo: 'More Information',
       acceptAll: 'Accept All',
@@ -2217,6 +2218,7 @@ const ar: typeof en = {
 
   cookieConsent: {
     banner: {
+      title: 'إشعار ملفات تعريف الارتباط',
       text: 'يستخدم هذا الموقع تقنيات تتبع خارجية لتقديم خدماتنا وتحسينها باستمرار، وعرض إعلانات وفق اهتماماتك. أوافق على ذلك ويحق لي سحب موافقتي أو تعديلها في أي وقت مع سريان الأثر مستقبلاً.',
       moreInfo: 'مزيد من المعلومات',
       acceptAll: 'قبول الكل',
