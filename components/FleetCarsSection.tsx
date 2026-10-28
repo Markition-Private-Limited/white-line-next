@@ -15,6 +15,7 @@ import img8  from '../assets/fleet/fleet_cars/gmc-yukon.png'
 import img9  from '../assets/fleet/fleet_cars/lexus-350-2026.png'
 import img10 from '../assets/fleet/fleet_cars/ford-taurus.png'
 import img11 from '../assets/fleet/fleet_cars/hyundai-staria.png'
+import img12 from '../assets/fleet/fleet_cars/mercedes-sprinter-14-seater.png'
 
 const _src = (i: unknown): string => (i as { src?: string }).src ?? (i as string)
 
@@ -34,6 +35,7 @@ const CARS: { name: string; luggages: number; persons: number; category: Exclude
   { name: 'Lexus ES350', luggages: 3, persons: 3, category: 'Business Sedan', img: _src(img9), descIdx: 7 },
   { name: 'Ford Taurus', luggages: 3, persons: 3, category: 'Economy Sedan', img: _src(img10), descIdx: 8 },
   { name: 'Hyundai Staria', luggages: 7, persons: 7, category: 'Van', img: _src(img11), descIdx: 9 },
+  { name: 'Mercedes Sprinter', luggages: 10, persons: 14, category: 'Van', img: _src(img12), descIdx: 10 },
 ]
 
 function LuggageIcon() {

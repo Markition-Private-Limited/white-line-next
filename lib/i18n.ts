@@ -412,6 +412,7 @@ const en = {
         'Smooth and sophisticated executive sedan with a serene ride and a refined, upscale cabin.',
         'Dependable and comfortable full-size sedan — ideal for efficient, professional everyday travel.',
         'Spacious and versatile luxury van designed for larger groups with maximum comfort and practicality.',
+        'Premium large-capacity van built for group travel with a refined cabin, generous luggage capacity, and a smooth, composed ride.',
       ],
       categoryMeta: [
         { title: 'First Class', desc: 'Our most luxurious vehicles for an exceptional travel experience.' },
@@ -1712,6 +1713,7 @@ const ar: typeof en = {
         'سيدان تنفيذية سلسة وراقية بركوب هادئ ومقصورة فاخرة متطورة.',
         'سيدان كبيرة موثوقة ومريحة — مثالية للتنقل اليومي المهني والفعّال.',
         'فان فاخر فسيح متعدد الاستخدامات مصمم للمجموعات الكبيرة بأقصى راحة وعملية.',
+        'فان فاخر واسع مصمم لرحلات المجموعات بمقصورة راقية ومساحة كبيرة للأمتعة وركوب سلس ومريح.',
       ],
       categoryMeta: [
         { title: 'الدرجة الأولى', desc: 'مركباتنا الأكثر فخامة لتجربة سفر استثنائية.' },
