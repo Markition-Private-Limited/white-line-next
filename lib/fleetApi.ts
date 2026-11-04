@@ -17,6 +17,7 @@ export type VehicleClass = {
   passengerCapacity: number
   luggageCapacity: number
   exampleModels: string
+  sortOrder?: number
   baseFare: string
   perKmRate: string
   perMinuteRate?: string
@@ -51,6 +52,17 @@ export type ClassVehicle = {
   status: string
   vehicle_front_photo_url: string | null
   base_fare?: number
+}
+
+export type PublicVehicle = {
+  id: string
+  make: string
+  model: string
+  year: number
+  color: string
+  displayImage: string | null
+  classId: string
+  className: string
 }
 
 type FleetEnvelope<T> = { success: boolean; data: T; timestamp?: string; message?: string }
@@ -111,4 +123,32 @@ export async function fetchVehiclesForClass(id: string, serviceType?: string): P
       base_fare: typeof item.base_fare === 'number' ? item.base_fare : undefined,
     }))
     : []
+}
+
+type RawPublicVehicle = {
+  id: string
+  make: string
+  model: string
+  year: number
+  color: string
+  display_image?: string | null
+  vehicle_class?: { id: string; class_name: string }
+}
+
+// Public pricing endpoint: one call returns every vehicle with its class and display_image.
+export async function fetchPublicVehicles(): Promise<PublicVehicle[]> {
+  const data = await fleetGetData<{ items: RawPublicVehicle[] }>('/api/v1/public/pricing/vehicles')
+  const items = Array.isArray(data?.items) ? data.items : []
+  return items
+    .filter(v => v.vehicle_class)
+    .map(v => ({
+      id: v.id,
+      make: v.make,
+      model: v.model,
+      year: v.year,
+      color: v.color,
+      displayImage: proxiedFleetImageUrl(v.display_image),
+      classId: v.vehicle_class!.id,
+      className: v.vehicle_class!.class_name,
+    }))
 }

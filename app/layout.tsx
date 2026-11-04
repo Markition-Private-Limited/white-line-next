@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Montserrat, Cairo, Noto_Sans_Arabic } from 'next/font/google'
 import LenisProvider from '@/providers/LenisProvider'
 import { LanguageProvider } from '@/context/LanguageContext'
+import { FleetProvider } from '@/context/FleetContext'
 import Footer from '@/layouts/Footer'
 import ScrollReset from '@/components/ScrollReset'
 import CookieConsent from '@/components/CookieConsent'
@@ -26,13 +27,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} ${montserrat.variable} ${cairo.variable} ${notoSansArabic.variable}`}>
       <body suppressHydrationWarning>
         <LanguageProvider>
-          <LenisProvider>
-            <PageLoader />
-            <ScrollReset />
-            {children}
-            <Footer />
-            <CookieConsent />
-          </LenisProvider>
+          <FleetProvider>
+            <LenisProvider>
+              <PageLoader />
+              <ScrollReset />
+              {children}
+              <Footer />
+              <CookieConsent />
+            </LenisProvider>
+          </FleetProvider>
         </LanguageProvider>
       </body>
     </html>

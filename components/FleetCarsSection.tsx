@@ -3,10 +3,12 @@ import { useEffect, useRef, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useLanguage } from '../context/LanguageContext'
+import { useFleet } from '../context/FleetContext'
+import type { VehicleClass } from '../context/FleetContext'
 
+// ── Fallback images kept for rollback / empty-vehicle scenarios ──────────────
 import img1  from '../assets/fleet/fleet_cars/mercedes-benz-s-class.png'
 import img2  from '../assets/fleet/fleet_cars/bmw-7-series.png'
-import img3  from '../assets/fleet/fleet_cars/mercedes-benz-e-class.png'
 import img4  from '../assets/fleet/fleet_cars/bmw-5-series.png'
 import img5  from '../assets/fleet/fleet_cars/chevrolet-suburban.png'
 import img6  from '../assets/fleet/fleet_cars/chevrolet-tahoe.png'
@@ -19,25 +21,36 @@ import img12 from '../assets/fleet/fleet_cars/mercedes-sprinter-14-seater.png'
 
 const _src = (i: unknown): string => (i as { src?: string }).src ?? (i as string)
 
-type Category = 'All' | 'First Class' | 'Business Premium' | 'SUV' | 'Business Sedan' | 'Economy Sedan' | 'Van'
-
-const FILTER_KEYS: Category[] = ['All', 'First Class', 'Business Premium', 'SUV', 'Business Sedan', 'Economy Sedan', 'Van']
-const CATEGORIES_ORDER = FILTER_KEYS.slice(1) as Exclude<Category, 'All'>[]
-
-const CARS: { name: string; luggages: number; persons: number; category: Exclude<Category, 'All'>; img: string; descIdx: number }[] = [
-  { name: 'Mercedes-Benz S-Class', luggages: 3, persons: 3, category: 'First Class', img: _src(img1), descIdx: 0 },
-  { name: 'BMW 7 Series', luggages: 3, persons: 3, category: 'First Class', img: _src(img2), descIdx: 1 },
-  { name: 'BMW 5 Series', luggages: 3, persons: 3, category: 'Business Premium', img: _src(img4), descIdx: 2 },
-  { name: 'Chevrolet Suburban', luggages: 6, persons: 7, category: 'SUV', img: _src(img5), descIdx: 3 },
-  { name: 'Chevrolet Tahoe', luggages: 6, persons: 7, category: 'SUV', img: _src(img6), descIdx: 4 },
-  { name: 'GMC Yukon XL', luggages: 6, persons: 7, category: 'SUV', img: _src(img7), descIdx: 5 },
-  { name: 'GMC Yukon', luggages: 6, persons: 7, category: 'SUV', img: _src(img8), descIdx: 6 },
-  { name: 'Lexus ES350', luggages: 3, persons: 3, category: 'Business Sedan', img: _src(img9), descIdx: 7 },
-  { name: 'Ford Taurus', luggages: 3, persons: 3, category: 'Economy Sedan', img: _src(img10), descIdx: 8 },
-  { name: 'Hyundai Staria', luggages: 7, persons: 7, category: 'Van', img: _src(img11), descIdx: 9 },
-  { name: 'Mercedes Sprinter', luggages: 10, persons: 14, category: 'Van', img: _src(img12), descIdx: 10 },
+// HARDCODED_DATA — kept for rollback, not used while live data loads
+const _HARDCODED_CARS = [
+  { name: 'Mercedes-Benz S-Class', luggages: 3, persons: 3, category: 'First Class',      img: _src(img1),  descIdx: 0 },
+  { name: 'BMW 7 Series',          luggages: 3, persons: 3, category: 'First Class',      img: _src(img2),  descIdx: 1 },
+  { name: 'BMW 5 Series',          luggages: 3, persons: 3, category: 'Business Premium', img: _src(img4),  descIdx: 2 },
+  { name: 'Chevrolet Suburban',    luggages: 6, persons: 7, category: 'SUV',              img: _src(img5),  descIdx: 3 },
+  { name: 'Chevrolet Tahoe',       luggages: 6, persons: 7, category: 'SUV',              img: _src(img6),  descIdx: 4 },
+  { name: 'GMC Yukon XL',          luggages: 6, persons: 7, category: 'SUV',              img: _src(img7),  descIdx: 5 },
+  { name: 'GMC Yukon',             luggages: 6, persons: 7, category: 'SUV',              img: _src(img8),  descIdx: 6 },
+  { name: 'Lexus ES350',           luggages: 3, persons: 3, category: 'Business Sedan',   img: _src(img9),  descIdx: 7 },
+  { name: 'Ford Taurus',           luggages: 3, persons: 3, category: 'Economy Sedan',    img: _src(img10), descIdx: 8 },
+  { name: 'Hyundai Staria',        luggages: 7, persons: 7, category: 'Van',              img: _src(img11), descIdx: 9 },
+  { name: 'Mercedes Sprinter',     luggages: 10, persons: 14, category: 'Van',            img: _src(img12), descIdx: 10 },
 ]
 
+// ── Live data helpers ────────────────────────────────────────────────────────
+// English class names as defined in i18n — used as a lookup key
+const EN_BASE_CLASSES = ['First Class', 'Business Premium', 'SUV', 'Business Sedan', 'Economy Sedan', 'Van']
+
+// Per-class representative fallback image (used when vehicle has no photo_url)
+const FALLBACK_BY_CLASS: Record<string, string> = {
+  'First Class':      _src(img1),
+  'Business Premium': _src(img4),
+  'SUV':              _src(img5),
+  'Business Sedan':   _src(img9),
+  'Economy Sedan':    _src(img10),
+  'Van':              _src(img11),
+}
+
+// ── Icons ────────────────────────────────────────────────────────────────────
 function LuggageIcon() {
   return (
     <svg width="14" height="15" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -54,11 +67,15 @@ function PersonIcon() {
   )
 }
 
-function CarCard({ car, descs, luggages, persons, index }: {
-  car: typeof CARS[0]
-  descs: string[]
-  luggages: string
-  persons: string
+// ── CarCard (live data) ───────────────────────────────────────────────────────
+function CarCard({ name, img, description, luggages, persons, luggagesLabel, personsLabel, index }: {
+  name: string
+  img: string
+  description: string
+  luggages: number
+  persons: number
+  luggagesLabel: string
+  personsLabel: string
   index: number
 }) {
   return (
@@ -71,27 +88,27 @@ function CarCard({ car, descs, luggages, persons, index }: {
       style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(0,0,0,0.07)', background: '#fff' }}
     >
       <div className="relative" style={{ height: 'clamp(180px, 22vw, 260px)', background: '#0d1117' }}>
-        <img src={car.img} alt={car.name} className="absolute inset-0 w-full h-full object-cover object-center" />
+        <img src={img} alt={name} className="absolute inset-0 w-full h-full object-cover object-center" />
       </div>
 
       <div className="flex flex-col" style={{ padding: 'clamp(14px, 2vw, 20px) clamp(14px, 2vw, 20px) clamp(16px, 2vw, 22px)' }}>
         <p className="mb-1" style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 'clamp(15px, 1.4vw, 17px)', color: '#111118' }}>
-          {car.name}
+          {name}
         </p>
         <p className="mb-4" style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(12px, 1vw, 13px)', color: '#9ca3af' }}>
-          {descs[car.descIdx] ?? descs[0]}
+          {description}
         </p>
         <div className="flex items-center gap-5">
           <div className="flex items-center gap-1.5">
             <LuggageIcon />
             <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#374151', fontWeight: 500 }}>
-              {car.luggages} {luggages}
+              {luggages} {luggagesLabel}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
             <PersonIcon />
             <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#374151', fontWeight: 500 }}>
-              {car.persons} {persons}
+              {persons} {personsLabel}
             </span>
           </div>
         </div>
@@ -103,38 +120,54 @@ function CarCard({ car, descs, luggages, persons, index }: {
 export default function FleetCarsSection() {
   const { trans, dir } = useLanguage()
   const { cars: c } = trans.fleetPage
+  const { classes, vehiclesByClass, loading: classesLoading, error: classesError } = useFleet()
   const searchParams = useSearchParams()
   const router = useRouter()
 
+  // ── Build filter keys from live classes ───────────────────────────────────
+  const filterKeys = ['All', ...classes.map(cls => cls.className)]
+
+  // Localized name for a className — falls back to raw className for unknown classes
+  const getLocalizedClassName = (className: string): string => {
+    const idx = EN_BASE_CLASSES.indexOf(className)
+    return idx !== -1 ? (c.filters[idx + 1] ?? className) : className
+  }
+
+  // Localized categoryMeta for a class (title + desc)
+  const getLocalizedMeta = (cls: VehicleClass): { title: string; desc: string } => {
+    const idx = EN_BASE_CLASSES.indexOf(cls.className)
+    const meta = idx !== -1 ? c.categoryMeta[idx] : null
+    return { title: meta?.title ?? getLocalizedClassName(cls.className), desc: meta?.desc ?? cls.description }
+  }
+
+  // ── URL sync ──────────────────────────────────────────────────────────────
   const [activeIdx, setActiveIdx] = useState(0)
   const [filterScrolledPast, setFilterScrolledPast] = useState(false)
   const [sectionVisible, setSectionVisible] = useState(false)
   const filterBarRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
   const sectionRef = useRef<HTMLElement>(null)
-  // Re-runs whenever ?category= changes via React (initial load + cross-page nav)
+
   useEffect(() => {
     const raw = searchParams.get('category')
     if (!raw) { setActiveIdx(0); return }
-    const idx = FILTER_KEYS.findIndex(k => k.toLowerCase() === decodeURIComponent(raw).toLowerCase())
+    const idx = filterKeys.findIndex(k => k.toLowerCase() === decodeURIComponent(raw).toLowerCase())
     if (idx !== -1) setActiveIdx(idx)
-  }, [searchParams])
+  }, [searchParams, filterKeys.join(',')])
 
-  // Catches same-page Next.js <Link> navigation (pushState) and browser back/forward (popstate)
   useEffect(() => {
     const FLEET_URL_CHANGE = 'fleet:url-change'
 
     const syncFromUrl = () => {
       const raw = new URLSearchParams(window.location.search).get('category')
       if (!raw) { setActiveIdx(0); return }
-      const idx = FILTER_KEYS.findIndex(k => k.toLowerCase() === decodeURIComponent(raw).toLowerCase())
+      const idx = filterKeys.findIndex(k => k.toLowerCase() === decodeURIComponent(raw).toLowerCase())
       if (idx !== -1) setActiveIdx(idx)
     }
 
     const origPush = history.pushState.bind(history)
     history.pushState = function (...args: Parameters<typeof history.pushState>) {
       origPush(...args)
-      // defer to next macrotask — React 19 disallows setState during useInsertionEffect
       setTimeout(() => window.dispatchEvent(new Event(FLEET_URL_CHANGE)), 0)
     }
 
@@ -145,7 +178,7 @@ export default function FleetCarsSection() {
       window.removeEventListener(FLEET_URL_CHANGE, syncFromUrl)
       window.removeEventListener('popstate', syncFromUrl)
     }
-  }, [])
+  }, [filterKeys.join(',')])
 
   useEffect(() => {
     const filterEl = filterBarRef.current
@@ -172,8 +205,8 @@ export default function FleetCarsSection() {
 
   const handleFilterClick = (idx: number, fromFloating = false) => {
     setActiveIdx(idx)
-    const key = FILTER_KEYS[idx]
-    const url = key === 'All' ? '/fleet' : `/fleet?category=${encodeURIComponent(key)}`
+    const key = filterKeys[idx]
+    const url = !key || key === 'All' ? '/fleet' : `/fleet?category=${encodeURIComponent(key)}`
     router.replace(url, { scroll: false })
     if (fromFloating && gridRef.current) {
       const top = gridRef.current.getBoundingClientRect().top + window.scrollY - 80
@@ -181,12 +214,12 @@ export default function FleetCarsSection() {
     }
   }
 
-  const activeKey = FILTER_KEYS[activeIdx]
-  const filtered = activeKey === 'All' ? CARS : CARS.filter(car => car.category === activeKey)
+  const activeKey = filterKeys[activeIdx]
 
   const FilterButton = ({ idx, fromFloating = false }: { idx: number; fromFloating?: boolean }) => {
     const isActive = activeIdx === idx
-    const label = c.filters[idx]
+    const className = filterKeys[idx]
+    const label = className === 'All' ? c.filters[0] : getLocalizedClassName(className)
     if (isActive) {
       return (
         <button
@@ -239,6 +272,70 @@ export default function FleetCarsSection() {
     )
   }
 
+  // ── Loading / error helpers ────────────────────────────────────────────────
+  const isLoading = classesLoading
+  const isError = classesError
+
+  function GridSkeleton() {
+    return (
+      <div
+        className="grid gap-5"
+        style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))' }}
+      >
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div
+            key={i}
+            className="animate-pulse flex flex-col"
+            style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(0,0,0,0.07)', background: '#fff' }}
+          >
+            <div style={{ height: 'clamp(180px, 22vw, 260px)', background: '#e5e7eb' }} />
+            <div style={{ padding: '20px' }}>
+              <div style={{ height: 16, background: '#e5e7eb', borderRadius: 6, marginBottom: 10, width: '70%' }} />
+              <div style={{ height: 12, background: '#e5e7eb', borderRadius: 6, marginBottom: 6, width: '90%' }} />
+              <div style={{ height: 12, background: '#e5e7eb', borderRadius: 6, width: '60%' }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  function ErrorState() {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <p style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 600, fontSize: 'clamp(15px, 1.4vw, 17px)', color: '#111118', marginBottom: 8 }}>
+          {c.fetchError}
+        </p>
+      </div>
+    )
+  }
+
+  // ── Build vehicle cards for a class ───────────────────────────────────────
+  function ClassVehicleGrid({ cls, startIndex }: { cls: VehicleClass; startIndex: number }) {
+    const vehicles = vehiclesByClass[cls.id] ?? []
+    const fallback = FALLBACK_BY_CLASS[cls.className]
+
+    if (vehicles.length === 0) return null
+
+    return (
+      <>
+        {vehicles.map((v, i) => (
+          <CarCard
+            key={v.id}
+            name={`${v.make} ${v.model}`}
+            img={v.displayImage ?? fallback ?? ''}
+            description={cls.description}
+            luggages={cls.luggageCapacity}
+            persons={cls.passengerCapacity}
+            luggagesLabel={c.luggages}
+            personsLabel={c.persons}
+            index={startIndex + i}
+          />
+        ))}
+      </>
+    )
+  }
+
   return (
     <section ref={sectionRef} className="w-full bg-white" style={{ padding: 'clamp(40px, 8vw, 112px) 0', scrollMarginTop: 80 }}>
       <div className="px-6 sm:px-10 lg:px-16">
@@ -256,25 +353,37 @@ export default function FleetCarsSection() {
           <div
             ref={filterBarRef}
             className="flex items-center justify-center sm:justify-start flex-wrap sm:flex-nowrap gap-2 no-scrollbar overflow-visible sm:overflow-x-auto"
-            style={{
-              maxWidth: '100%',
-              scrollbarWidth: 'none',
-              WebkitOverflowScrolling: 'touch',
-            }}
+            style={{ maxWidth: '100%', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
           >
-            {FILTER_KEYS.map((_, i) => <FilterButton key={FILTER_KEYS[i]} idx={i} />)}
+            {classesLoading ? (
+              // Skeleton filter buttons while classes load
+              Array.from({ length: 7 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="animate-pulse"
+                  style={{ width: i === 0 ? 44 : 'clamp(80px, 10vw, 120px)', height: 36, borderRadius: 999, background: '#e5e7eb', flexShrink: 0 }}
+                />
+              ))
+            ) : (
+              filterKeys.map((_, i) => <FilterButton key={filterKeys[i]} idx={i} />)
+            )}
           </div>
         </div>
 
         <div ref={gridRef}>
-          {activeKey === 'All' ? (
+          {isError ? (
+            <ErrorState />
+          ) : isLoading ? (
+            <GridSkeleton />
+          ) : activeKey === 'All' ? (
+            // ── All categories view ──────────────────────────────────────────
             <div className="flex flex-col" style={{ gap: 'clamp(48px, 6vw, 80px)' }}>
-              {CATEGORIES_ORDER.map((cat, catIdx) => {
-                const catCars = CARS.filter(car => car.category === cat)
-                if (catCars.length === 0) return null
-                const meta = c.categoryMeta[catIdx]
+              {classes.map((cls) => {
+                const vehicles = vehiclesByClass[cls.id] ?? []
+                if (vehicles.length === 0) return null
+                const meta = getLocalizedMeta(cls)
                 return (
-                  <div key={cat}>
+                  <div key={cls.id}>
                     <div className="mb-6" style={{ textAlign: dir === 'rtl' ? 'right' : 'left' }}>
                       <h3 style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: 'clamp(18px, 2vw, 22px)', color: '#111118', marginBottom: 4 }}>
                         {meta.title}
@@ -287,23 +396,35 @@ export default function FleetCarsSection() {
                       className="grid gap-5"
                       style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))' }}
                     >
-                      {catCars.map((car, i) => (
-                        <CarCard key={car.name} car={car} descs={c.descs} luggages={c.luggages} persons={c.persons} index={i} />
-                      ))}
+                      <ClassVehicleGrid cls={cls} startIndex={0} />
                     </div>
                   </div>
                 )
               })}
             </div>
           ) : (
-            <div
-              className="grid gap-5"
-              style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))' }}
-            >
-              {filtered.map((car, i) => (
-                <CarCard key={`${car.name}-${car.category}`} car={car} descs={c.descs} luggages={c.luggages} persons={c.persons} index={i} />
-              ))}
-            </div>
+            // ── Single category view ─────────────────────────────────────────
+            (() => {
+              const cls = classes.find(cl => cl.className === activeKey)
+              const vehicles = cls ? (vehiclesByClass[cls.id] ?? []) : []
+              if (vehicles.length === 0) {
+                return (
+                  <div className="flex flex-col items-center justify-center py-20 text-center">
+                    <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(13px, 1.1vw, 15px)', color: '#9ca3af' }}>
+                      {c.fetchEmpty}
+                    </p>
+                  </div>
+                )
+              }
+              return (
+                <div
+                  className="grid gap-5"
+                  style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))' }}
+                >
+                  {cls && <ClassVehicleGrid cls={cls} startIndex={0} />}
+                </div>
+              )
+            })()
           )}
         </div>
 
@@ -334,7 +455,7 @@ export default function FleetCarsSection() {
                 scrollbarWidth: 'none',
               }}
             >
-              {FILTER_KEYS.map((_, i) => <FilterButton key={FILTER_KEYS[i]} idx={i} fromFloating />)}
+              {filterKeys.map((_, i) => <FilterButton key={filterKeys[i]} idx={i} fromFloating />)}
             </div>
           </motion.div>
         )}

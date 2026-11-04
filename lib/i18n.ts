@@ -400,6 +400,8 @@ const en = {
       headerDesc: 'Choose from our premium fleet for a comfortable and reliable travel experience.',
       luggages: 'Luggages',
       persons: 'Persons',
+      fetchError: 'Unable to load fleet information. Please try again later.',
+      fetchEmpty: 'No vehicles available at this time.',
       filters: ['All', 'First Class', 'Business Premium', 'SUV', 'Business Sedan', 'Economy Sedan', 'Van'],
       descs: [
         'The pinnacle of automotive luxury — commanding presence, refined silence, and unmatched first-class comfort.',
@@ -1701,6 +1703,8 @@ const ar: typeof en = {
       headerDesc: 'اختر من أسطولنا المتميز لتجربة سفر مريحة وموثوقة.',
       luggages: 'حقيبة',
       persons: 'راكب',
+      fetchError: 'تعذّر تحميل معلومات الأسطول. يرجى المحاولة مرة أخرى لاحقاً.',
+      fetchEmpty: 'لا تتوفر مركبات في الوقت الحالي.',
       filters: ['الكل', 'الدرجة الأولى', 'درجة الأعمال الممتازة', 'SUV', 'سيدان الأعمال', 'سيدان اقتصادية', 'فان'],
       descs: [
         'قمة الفخامة الأوتوماتيكية — حضور طاغٍ وصمت رفيع وراحة استثنائية لا تُضاهى.',

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import logoSvg from '../assets/fav_icon_black.svg'
 import { useLanguage } from '../context/LanguageContext'
 import { LANG_META } from '../lib/i18n'
+import { useFleet } from '../context/FleetContext'
 
 // hrefs never change — only labels come from translations
 const ENTITY_TYPE_HREFS = ['/about', '/terms', '/privacy']
@@ -105,17 +106,31 @@ function SocialIcon({ href, label, children }: { href: string; label: string; ch
   )
 }
 
+// English class names — used to look up localized labels from i18n resources.links
+const EN_BASE_CLASSES = ['First Class', 'Business Premium', 'SUV', 'Business Sedan', 'Economy Sedan', 'Van']
+
 export default function Footer() {
   const { trans, lang } = useLanguage()
   const { footer: f } = trans
   const { company, services, resources, support } = f.columns
   const isRTL = LANG_META[lang].dir === 'rtl'
+  const { classes } = useFleet()
 
   const comingSoonLabel = isRTL ? 'قريباً' : 'Soon'
+
+  // Build resource links from live classes when available; fall back to hardcoded
+  const resourceLinks = classes.length > 0
+    ? classes.map(cls => {
+        const idx = EN_BASE_CLASSES.indexOf(cls.className)
+        const label = idx !== -1 ? (resources.links[idx] ?? cls.className) : cls.className
+        return { label, to: `/fleet?category=${encodeURIComponent(cls.className)}` }
+      })
+    : resources.links.map((label, i) => ({ label, to: RESOURCE_HREFS[i] ?? '#' }))
+
   const columns = [
     { col: company,   links: company.links.map((label, i) => ({ label, to: ENTITY_TYPE_HREFS[i] ?? '#' })), arrow: false },
     { col: services,  links: services.links.map((label, i) => ({ label, to: SERVICE_HREFS[i] ?? '#' })), arrow: true  },
-    { col: resources, links: resources.links.map((label, i) => ({ label, to: RESOURCE_HREFS[i] ?? '#' })), arrow: false },
+    { col: resources, links: resourceLinks, arrow: false },
     { col: support,   links: support.links.map((label, i) => ({ label, to: SUPPORT_HREFS[i] ?? '#' })), arrow: false },
   ]
 
