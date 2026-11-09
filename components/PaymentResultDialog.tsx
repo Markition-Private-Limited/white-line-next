@@ -41,7 +41,7 @@ export default function PaymentResultDialog({ type, bookingId, onClose }: Props)
       >
         <motion.div
           key="pr-dialog"
-          className={styles.dialog}
+          className={`${styles.dialog} ${styles.resultDialog}`}
           dir={dir}
           role="dialog"
           aria-modal="true"
@@ -58,7 +58,8 @@ export default function PaymentResultDialog({ type, bookingId, onClose }: Props)
 
           <div className={styles.content}>
             {isSuccess ? (
-              <div className={styles.successBody}>
+              <div className={styles.resultBody}>
+                <div className={styles.resultScroll}>
                 {/* Eyebrow */}
                 <p className={styles.eyebrow}>{bc.eyebrow}</p>
 
@@ -84,25 +85,9 @@ export default function PaymentResultDialog({ type, bookingId, onClose }: Props)
                 </div>
 
                 {/* Status list */}
-                <div style={{
-                  marginTop: 18,
-                  borderRadius: 12,
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  overflow: 'hidden',
-                  width: '100%',
-                }}>
+                <div className={styles.resultStatus}>
                   {statusItems.map((item, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 10,
-                        padding: '11px 16px',
-                        borderBottom: i < statusItems.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none',
-                        fontFamily: 'var(--font-inter), sans-serif',
-                      }}
-                    >
+                    <div key={i} className={styles.resultStatusRow}>
                       {item.done ? (
                         <span style={{
                           flexShrink: 0, width: 18, height: 18, borderRadius: '50%',
@@ -122,9 +107,7 @@ export default function PaymentResultDialog({ type, bookingId, onClose }: Props)
                           <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'rgba(255,255,255,0.25)' }} />
                         </span>
                       )}
-                      <span style={{ fontSize: 12.5, fontWeight: 500, color: '#fff' }}>
-                        {item.label}
-                      </span>
+                      <span className={styles.resultStatusLabel}>{item.label}</span>
                       {!item.done && (
                         <span style={{
                           marginInlineStart: 'auto',
@@ -142,17 +125,12 @@ export default function PaymentResultDialog({ type, bookingId, onClose }: Props)
                 </div>
 
                 {/* Note */}
-                <p style={{
-                  marginTop: 12, fontSize: 11, lineHeight: 1.6,
-                  color: 'rgba(255,255,255,0.5)',
-                  textAlign: isRtl ? 'right' : 'left',
-                  fontFamily: 'var(--font-inter), sans-serif',
-                }}>
+                <p className={styles.resultNote} style={{ textAlign: isRtl ? 'right' : 'left' }}>
                   {bc.noteBody}
                 </p>
 
                 {/* WhatsApp */}
-                <div style={{ marginTop: 14, display: 'flex', justifyContent: 'center' }}>
+                <div className={styles.resultWhatsapp}>
                   <a
                     href="https://wa.me/966550735956"
                     target="_blank"
@@ -169,9 +147,10 @@ export default function PaymentResultDialog({ type, bookingId, onClose }: Props)
                     {bc.whatsapp}
                   </a>
                 </div>
+                </div>
 
-                {/* Footer: close */}
-                <div className={styles.footerActions} style={{ justifyContent: 'flex-end' }}>
+                {/* Footer: always pinned at the bottom */}
+                <div className={styles.resultFooter}>
                   <button type="button" className={styles.continue} onClick={onClose}>
                     {copy.downloadApp}
                     {isRtl ? <ArrowLeft size={16} /> : <ArrowRight size={16} />}
@@ -180,7 +159,8 @@ export default function PaymentResultDialog({ type, bookingId, onClose }: Props)
               </div>
             ) : (
               /* Failure state */
-              <div className={styles.successBody}>
+              <div className={styles.resultBody}>
+                <div className={styles.resultScroll}>
                 <p className={styles.eyebrow}>{bf.eyebrow}</p>
                 <h2 className={styles.title}>
                   {bf.title} <em style={{ color: '#f87171' }}>{bf.titleAccent}</em>
@@ -216,8 +196,9 @@ export default function PaymentResultDialog({ type, bookingId, onClose }: Props)
                     {bf.contactSupport}
                   </a>
                 </div>
+                </div>
 
-                <div className={styles.footerActions}>
+                <div className={styles.resultFooter} style={{ justifyContent: 'flex-start' }}>
                   <button type="button" className={styles.back} onClick={onClose}>
                     <BackIcon size={20} /> {bf.tryAgain}
                   </button>
