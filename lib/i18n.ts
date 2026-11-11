@@ -67,6 +67,10 @@ const en = {
       { title: 'City to City',      desc: 'Intercity travel between major cities.' },
     ],
     bookNow: 'Book Now',
+    unavailableTitle: 'Service Unavailable',
+    unavailableMessage: (name: string) => `${name} is not currently available in your area. Please check back soon.`,
+    unavailableClose: 'Got it',
+    unavailableLabel: 'Not Available',
   },
 
   experience: {
@@ -1370,6 +1374,10 @@ const ar: typeof en = {
       { title: 'من مدينة إلى مدينة', desc: 'سفر بين كبرى المدن السعودية.' },
     ],
     bookNow: 'احجز الآن',
+    unavailableTitle: 'الخدمة غير متاحة',
+    unavailableMessage: (name: string) => `خدمة ${name} غير متاحة حالياً في منطقتك. يرجى المراجعة لاحقاً.`,
+    unavailableClose: 'حسناً',
+    unavailableLabel: 'غير متاح',
   },
 
   experience: {

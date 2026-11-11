@@ -1,6 +1,6 @@
 'use client'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, ArrowLeft } from 'lucide-react'
+import { ArrowRight, ArrowLeft, X } from 'lucide-react'
 import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 import Navbar from '../layouts/Navbar'
@@ -37,6 +37,9 @@ function ParallaxCard({
   onBook,
   comingSoon = false,
   comingSoonLabel = 'Coming Soon',
+  unavailable = false,
+  onUnavailableClick,
+  notAvailableLabel = 'Not Available',
 }: {
   img: { src: string } | string
   title: string
@@ -48,6 +51,9 @@ function ParallaxCard({
   onBook?: () => void
   comingSoon?: boolean
   comingSoonLabel?: string
+  unavailable?: boolean
+  onUnavailableClick?: () => void
+  notAvailableLabel?: string
 }) {
   const cardRef = useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = useState<Tilt>({ rotX: 0, rotY: 0, imgX: 0, imgY: 0 })
@@ -56,6 +62,7 @@ function ParallaxCard({
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = cardRef.current
     if (!el) return
+    if (comingSoon || unavailable) return
     const { left, top, width, height } = el.getBoundingClientRect()
     const x = (e.clientX - left) / width - 0.5
     const y = (e.clientY - top) / height - 0.5
@@ -72,8 +79,8 @@ function ParallaxCard({
   return (
     <div
       ref={cardRef}
-      onClick={comingSoon ? undefined : onBook}
-      onMouseMove={comingSoon ? undefined : handleMove}
+      onClick={unavailable ? onUnavailableClick : comingSoon ? undefined : onBook}
+      onMouseMove={handleMove}
       onMouseEnter={() => setActive(true)}
       onMouseLeave={reset}
       className="rounded-2xl p-3"
@@ -87,8 +94,9 @@ function ParallaxCard({
           : '0 4px 24px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.4)',
         position: 'relative',
         zIndex: active ? 10 : 1,
-        transition: 'box-shadow 0.4s ease',
-        cursor: (!comingSoon && onBook) ? 'pointer' : undefined,
+        transition: 'box-shadow 0.4s ease, opacity 0.4s ease',
+        cursor: unavailable ? 'pointer' : (!comingSoon && onBook) ? 'pointer' : undefined,
+        opacity: unavailable ? 0.5 : 1,
         width: 'calc(100% + 3px)',
         height: '100%',
         minHeight: 'calc(100% + 3px)',
@@ -132,7 +140,7 @@ function ParallaxCard({
           style={{
             objectPosition,
             transform: `translate(${tilt.imgX}px, ${tilt.imgY}px) scale(1.1)`,
-            filter: active ? 'grayscale(0%)' : 'grayscale(100%)',
+            filter: (unavailable || !active) ? 'grayscale(100%)' : 'grayscale(0%)',
             transition: active
               ? 'transform 0.08s linear, filter 0.4s ease'
               : 'transform 0.5s ease, filter 0.6s ease',
@@ -160,7 +168,7 @@ function ParallaxCard({
       >
         {desc}
       </p>
-      {comingSoon ? (
+      {(comingSoon || unavailable) ? (
         <span style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -175,7 +183,7 @@ function ParallaxCard({
           marginTop: 'auto',
           alignSelf: 'flex-start',
         }}>
-          {comingSoonLabel}
+          {unavailable ? notAvailableLabel : comingSoonLabel}
         </span>
       ) : (
         <button
@@ -204,6 +212,9 @@ const cardVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 1.1, ease: [0.25, 0.46, 0.45, 0.94] as const } },
 }
 
+// Map each hero service card (by original index) to the API service_type key
+const SERVICE_API_KEYS = ['airport', 'city_trip', 'day_service', 'hourly', 'city_to_city'] as const
+
 export default function HomeHero() {
   const { trans, dir } = useLanguage()
   const isRtl = dir === 'rtl'
@@ -211,10 +222,23 @@ export default function HomeHero() {
   const [bannerIndex, setBannerIndex] = useState(0)
   const heroSlide = hero.slides[bannerIndex] ?? hero.slides[0]
   const [loginOpen, setLoginOpen] = useState(false)
+  const [availableKeys, setAvailableKeys] = useState<string[] | null>(null)
+  const [unavailableDialog, setUnavailableDialog] = useState<string | null>(null)
 
   useEffect(() => {
     const timer = setInterval(() => setBannerIndex(i => (i + 1) % 3), 5000)
     return () => clearInterval(timer)
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/home/config')
+      .then(r => r.json())
+      .then(json => {
+        if (json?.success && Array.isArray(json.data?.service_types)) {
+          setAvailableKeys(json.data.service_types.map((s: { key: string }) => s.key))
+        }
+      })
+      .catch(() => {/* keep availableKeys null — treat all as available */})
   }, [])
 
   const [bookingType, setBookingType] = useState<BookingService | null>(() => {
@@ -234,13 +258,23 @@ export default function HomeHero() {
     }
   }, [])
 
-  const bookingForCard = (index: number) => {
-    if (index === 0) return () => setBookingType('airport')
-    if (index === 1) return () => setBookingType('city')
-    if (index === 2) return () => setBookingType('day')
-    if (index === 3) return () => setBookingType('hourly')
-    if (index === 4) return () => setBookingType('oneWay')
-    return undefined
+  const BOOKING_TYPES: BookingService[] = ['airport', 'city', 'day', 'hourly', 'oneWay']
+
+  const isCardAvailable = (originalIndex: number) => {
+    if (availableKeys === null) return true
+    return availableKeys.includes(SERVICE_API_KEYS[originalIndex])
+  }
+
+  // Sort: available cards first, unavailable ones at the end (preserving relative order)
+  const sortedIndices = [...Array(hero.services.length).keys()].sort((a, b) => {
+    const aAvail = isCardAvailable(a) ? 0 : 1
+    const bAvail = isCardAvailable(b) ? 0 : 1
+    return aAvail - bAvail
+  })
+
+  const bookingForCard = (originalIndex: number) => {
+    const type = BOOKING_TYPES[originalIndex]
+    return () => setBookingType(type)
   }
 
   return (
@@ -333,49 +367,108 @@ export default function HomeHero() {
             animate="visible"
             variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1, delayChildren: 0.75 } } }}
           >
-            {hero.services.map((s, i) => (
-              <motion.div key={i} className="relative h-full" variants={cardVariants}>
-                {/* ── Mobile: direct render, taller image ── */}
-                <div className="sm:hidden h-full">
-                  <ParallaxCard
-                    img={CARD_IMAGES[i]}
-                    title={s.title}
-                    desc={s.desc}
-                    bookNow={hero.bookNow}
-                    isRtl={isRtl}
-                    defaultPb="70%"
-                    objectPosition="center"
-                    onBook={bookingForCard(i)}
-                  />
-                </div>
-                {/* ── Sm+: ghost sizes the cell; card expands upward on hover ── */}
-                <div className="hidden sm:block">
-                  <div className="rounded-2xl p-3 pointer-events-none select-none" style={{ visibility: 'hidden' }} aria-hidden="true">
-                    <div className="mb-2.5 w-full" style={{ paddingBottom: '50%' }} />
-                    <p className="mb-0.5 text-sm font-semibold leading-tight line-clamp-1">&nbsp;</p>
-                    <p className="mb-2.5 text-xs leading-tight line-clamp-2">&nbsp;<br />&nbsp;</p>
-                    <span className="text-sm font-medium">&nbsp;</span>
-                  </div>
-                  <div className="absolute inset-x-0 bottom-0">
+            {sortedIndices.map((origIdx) => {
+              const s = hero.services[origIdx]
+              const unavail = !isCardAvailable(origIdx)
+              return (
+                <motion.div key={origIdx} className="relative h-full" variants={cardVariants}>
+                  {/* ── Mobile: direct render, taller image ── */}
+                  <div className="sm:hidden h-full">
                     <ParallaxCard
-                      img={CARD_IMAGES[i]}
+                      img={CARD_IMAGES[origIdx]}
                       title={s.title}
                       desc={s.desc}
                       bookNow={hero.bookNow}
                       isRtl={isRtl}
+                      defaultPb="70%"
                       objectPosition="center"
-                      onBook={bookingForCard(i)}
+                      onBook={unavail ? undefined : bookingForCard(origIdx)}
+                      unavailable={unavail}
+                      onUnavailableClick={unavail ? () => setUnavailableDialog(s.title) : undefined}
+                      notAvailableLabel={hero.unavailableLabel}
                     />
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                  {/* ── Sm+: ghost sizes the cell; card expands upward on hover ── */}
+                  <div className="hidden sm:block">
+                    <div className="rounded-2xl p-3 pointer-events-none select-none" style={{ visibility: 'hidden' }} aria-hidden="true">
+                      <div className="mb-2.5 w-full" style={{ paddingBottom: '50%' }} />
+                      <p className="mb-0.5 text-sm font-semibold leading-tight line-clamp-1">&nbsp;</p>
+                      <p className="mb-2.5 text-xs leading-tight line-clamp-2">&nbsp;<br />&nbsp;</p>
+                      <span className="text-sm font-medium">&nbsp;</span>
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0">
+                      <ParallaxCard
+                        img={CARD_IMAGES[origIdx]}
+                        title={s.title}
+                        desc={s.desc}
+                        bookNow={hero.bookNow}
+                        isRtl={isRtl}
+                        objectPosition="center"
+                        onBook={unavail ? undefined : bookingForCard(origIdx)}
+                        unavailable={unavail}
+                        onUnavailableClick={unavail ? () => setUnavailableDialog(s.title) : undefined}
+                        notAvailableLabel={hero.unavailableLabel}
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              )
+            })}
           </motion.div>
 
         </div>
       </section>
       <AirportTransferBookingDialog key={bookingType ?? 'closed'} open={bookingType !== null} service={bookingType ?? 'airport'} onClose={() => setBookingType(null)} />
       <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} onSuccess={() => setLoginOpen(false)} />
+
+      {/* Unavailable service dialog */}
+      <AnimatePresence>
+        {unavailableDialog && (
+          <motion.div
+            className="fixed inset-0 z-[200] flex items-center justify-center px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setUnavailableDialog(null)}
+          >
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <motion.div
+              className="relative z-10 w-full max-w-sm rounded-2xl p-6"
+              style={{ background: '#1a1a24', border: '1px solid rgba(255,255,255,0.12)' }}
+              initial={{ opacity: 0, scale: 0.92, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 16 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+              onClick={e => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setUnavailableDialog(null)}
+                className={`absolute top-4 text-white/50 hover:text-white/90 transition-colors ${isRtl ? 'left-4' : 'right-4'}`}
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+              <p className="text-xs uppercase tracking-widest font-semibold mb-3" style={{ color: '#005C66', fontFamily: 'Inter, sans-serif' }}>
+                {hero.unavailableTitle}
+              </p>
+              <h3 className="text-white font-semibold mb-2 text-lg" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                {unavailableDialog}
+              </h3>
+              <p className="text-white/60 text-sm leading-relaxed mb-5" style={{ fontFamily: 'Inter, sans-serif' }}>
+                {hero.unavailableMessage(unavailableDialog)}
+              </p>
+              <button
+                onClick={() => setUnavailableDialog(null)}
+                className="w-full py-2.5 rounded-xl text-sm font-semibold transition-opacity hover:opacity-80"
+                style={{ background: '#005C66', color: '#fff', fontFamily: 'Inter, sans-serif' }}
+              >
+                {hero.unavailableClose}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
