@@ -362,10 +362,9 @@ function BookingDetailDialog({ id, lang, dir, onClose, onCancelled, cutoffHours 
     setDetail(null); setErr(null); setImgFailed(false); setCancelStep(null); setCancelReason(''); setCancelErrMsg(null)
     if (!id) return
     const token = readToken()
-    if (!token && process.env.NODE_ENV !== 'development') { setErr('auth'); return }
+    if (!token) { setErr('auth'); return }
     setLoading(true)
-    const authHeader: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {}
-    fetch(`/api/customers/bookings/${id}`, { headers: authHeader })
+    fetch(`/api/customers/bookings/${id}`, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
       .then(json => setDetail(parseDetail(json)))
       .catch(() => setErr('network'))
@@ -868,15 +867,13 @@ export default function JourneysPageContent() {
 
   async function fetchPage(pageNum: number, append: boolean) {
     const token = readToken()
-    if (!token && process.env.NODE_ENV !== 'development') { setError('auth'); return }
+    if (!token) { setError('auth'); return }
 
     append ? setLoadingMore(true) : setLoading(true)
-    const headers: Record<string, string> = {}
-    if (token) headers['Authorization'] = `Bearer ${token}`
     try {
       const res = await fetch(
         `/api/customers/bookings?status=${TAB_STATUS[tab]}&page=${pageNum}&limit=10`,
-        { headers }
+        { headers: { Authorization: `Bearer ${token}` } }
       )
       if (res.status === 401) { setError('auth'); return }
       if (!res.ok) { setError('network'); return }
