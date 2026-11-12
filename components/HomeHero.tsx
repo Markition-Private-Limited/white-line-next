@@ -418,7 +418,7 @@ export default function HomeHero() {
 
         </div>
       </section>
-      <AirportTransferBookingDialog key={bookingType ?? 'closed'} open={bookingType !== null} service={bookingType ?? 'airport'} onClose={() => setBookingType(null)} />
+      <AirportTransferBookingDialog key={bookingType ?? 'closed'} open={bookingType !== null} service={bookingType ?? 'airport'} onClose={() => setBookingType(null)} availableKeys={availableKeys} />
       <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} onSuccess={() => setLoginOpen(false)} />
 
       {/* Unavailable service dialog */}

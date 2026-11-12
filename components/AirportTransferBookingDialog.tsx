@@ -32,7 +32,7 @@ import LoginDialog from './LoginDialog'
 type BookingFor = 'self' | 'guest' | null
 export type BookingService = 'airport' | 'hourly' | 'city' | 'day' | 'oneWay'
 type DayDuration = 'half' | 'full'
-type Props = { open: boolean; onClose: () => void; service?: BookingService }
+type Props = { open: boolean; onClose: () => void; service?: BookingService; availableKeys?: string[] | null }
 type TimeValue = { hour: number; minute: number; use24Hour: boolean }
 type GuestDetails = { name: string; phone: string; email: string }
 type BookingState = {
@@ -1517,12 +1517,14 @@ function OneWayTripDetails({ booking, updateBooking, next, back, onLoginRequest 
     </>
   )
 }
-function DayTripDetails({ booking, updateBooking, next, back, onLoginRequest }: {
+function DayTripDetails({ booking, updateBooking, next, back, onLoginRequest, halfDayAvailable, fullDayAvailable }: {
   booking: BookingState
   updateBooking: (updates: Partial<BookingState>) => void
   next: () => void
   back: () => void
   onLoginRequest: () => void
+  halfDayAvailable: boolean
+  fullDayAvailable: boolean
 }) {
   const { copy } = useBookingDialogCopy()
   const [attempted, setAttempted] = useState(false)
@@ -1535,15 +1537,25 @@ function DayTripDetails({ booking, updateBooking, next, back, onLoginRequest }: 
       <div className={styles.dayDurationField}>
         <p>{copy.bookingDuration}</p>
         <div className={styles.dayDurationGrid}>
-          <button type="button" className={`${styles.dayDurationOption} ${booking.dayDuration === 'half' ? styles.dayDurationActive : ''}`} onClick={() => updateBooking({ dayDuration: 'half' })}>
+          <button
+            type="button"
+            disabled={!halfDayAvailable}
+            className={`${styles.dayDurationOption} ${booking.dayDuration === 'half' ? styles.dayDurationActive : ''} ${!halfDayAvailable ? styles.dayDurationDisabled : ''}`}
+            onClick={() => halfDayAvailable && updateBooking({ dayDuration: 'half' })}
+          >
             <span className={styles.dayDurationIcon}><Clock3 size={16} /></span>
-            <span><strong>{copy.halfDay}</strong><small>{copy.upTo4Hours}</small></span>
-            {booking.dayDuration === 'half' && <Check className={styles.dayDurationCheck} size={11} strokeWidth={3} />}
+            <span><strong>{copy.halfDay}</strong><small>{halfDayAvailable ? copy.upTo4Hours : copy.notAvailable}</small></span>
+            {halfDayAvailable && booking.dayDuration === 'half' && <Check className={styles.dayDurationCheck} size={11} strokeWidth={3} />}
           </button>
-          <button type="button" className={`${styles.dayDurationOption} ${booking.dayDuration === 'full' ? styles.dayDurationActive : ''}`} onClick={() => updateBooking({ dayDuration: 'full' })}>
+          <button
+            type="button"
+            disabled={!fullDayAvailable}
+            className={`${styles.dayDurationOption} ${booking.dayDuration === 'full' ? styles.dayDurationActive : ''} ${!fullDayAvailable ? styles.dayDurationDisabled : ''}`}
+            onClick={() => fullDayAvailable && updateBooking({ dayDuration: 'full' })}
+          >
             <span className={styles.dayDurationIcon}><Clock3 size={16} /></span>
-            <span><strong>{copy.fullDay}</strong><small>{copy.upTo10Hours}</small></span>
-            {booking.dayDuration === 'full' && <Check className={styles.dayDurationCheck} size={11} strokeWidth={3} />}
+            <span><strong>{copy.fullDay}</strong><small>{fullDayAvailable ? copy.upTo10Hours : copy.notAvailable}</small></span>
+            {fullDayAvailable && booking.dayDuration === 'full' && <Check className={styles.dayDurationCheck} size={11} strokeWidth={3} />}
           </button>
         </div>
       </div>
@@ -2010,7 +2022,7 @@ function FareAmount({ value }: { value: number | undefined }) {
   )
 }
 
-function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => void; onSuccess: (bookingId: string) => void; onRedirecting?: () => void; booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void }) {
+function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => void; onSuccess: (bookingId: string) => void; onRedirecting?: (checkoutUrl: string) => void; booking: BookingState; updateBooking: (updates: Partial<BookingState>) => void }) {
   const { copy, dir } = useBookingDialogCopy()
   const { category, vehicleLabel } = useSelectedFleetLabels(booking)
   const service = booking.service
@@ -2142,8 +2154,10 @@ function FareStep({ back, onSuccess, onRedirecting, booking }: { back: () => voi
         const pendingAuthToken: string = json?.auth_token ?? json?.data?.auth_token ?? ''
         if (pendingBookingId) { try { localStorage.setItem('whiteline.pendingBookingId', pendingBookingId) } catch {} }
         if (pendingAuthToken) { try { localStorage.setItem('whiteline.pendingBookingToken', pendingAuthToken) } catch {} }
-        onRedirecting?.()
-        window.location.href = checkoutUrl
+        // Opened asynchronously (after the await above), so popup blockers may silently
+        // block this — the redirecting overlay always offers a manual button as fallback.
+        window.open(checkoutUrl, '_blank', 'noopener,noreferrer')
+        onRedirecting?.(checkoutUrl)
       } else {
         onSuccess(bookingNumber || json?.booking_id || json?.data?.booking_id || '')
       }
@@ -2339,14 +2353,17 @@ function CancelConfirmDialog({ onKeep, onConfirm }: { onKeep: () => void; onConf
   )
 }
 
-export default function AirportTransferBookingDialog({ open, onClose, service = 'airport' }: Props) {
+export default function AirportTransferBookingDialog({ open, onClose, service = 'airport', availableKeys = null }: Props) {
   const { copy, dir } = useBookingDialogCopy()
   const [step, setStep] = useState(0)
   const [booking, setBooking] = useState<BookingState>(() => createInitialBookingState(service))
+  const halfDayAvailable = availableKeys === null || availableKeys.includes('half_day')
+  const fullDayAvailable = availableKeys === null || availableKeys.includes('full_day')
   const [confirmClose, setConfirmClose] = useState(false)
   const [bookingId, setBookingId] = useState<string | null>(null)
   const [loginOpen, setLoginOpen] = useState(false)
   const [redirecting, setRedirecting] = useState(false)
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null)
   const redirectingRef = useRef(false)
   const overlayRef = useRef<HTMLDivElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
@@ -2373,6 +2390,15 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
   useEffect(() => {
     if (open) dialogRef.current?.focus()
   }, [open])
+
+  useEffect(() => {
+    if (!open || booking.service !== 'day') return
+    if (booking.dayDuration === 'half' && !halfDayAvailable && fullDayAvailable) {
+      updateBooking({ dayDuration: 'full' })
+    } else if (booking.dayDuration === 'full' && !fullDayAvailable && halfDayAvailable) {
+      updateBooking({ dayDuration: 'half' })
+    }
+  }, [open, booking.service, booking.dayDuration, halfDayAvailable, fullDayAvailable, updateBooking])
 
   useEffect(() => {
     if (!open) return
@@ -2422,11 +2448,11 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
           {step === 0 && booking.service === 'airport' && <TripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} onLoginRequest={() => setLoginOpen(true)} />}
           {step === 0 && booking.service === 'hourly' && <HourlyTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} onLoginRequest={() => setLoginOpen(true)} />}
           {step === 0 && booking.service === 'city' && <CityTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} onLoginRequest={() => setLoginOpen(true)} />}
-          {step === 0 && booking.service === 'day' && <DayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} onLoginRequest={() => setLoginOpen(true)} />}
+          {step === 0 && booking.service === 'day' && <DayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} onLoginRequest={() => setLoginOpen(true)} halfDayAvailable={halfDayAvailable} fullDayAvailable={fullDayAvailable} />}
           {step === 0 && booking.service === 'oneWay' && <OneWayTripDetails booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(1)} onLoginRequest={() => setLoginOpen(true)} />}
           {step === 1 && <RideStep booking={booking} updateBooking={updateBooking} back={goBack} next={() => setStep(2)} />}
           {step === 2 && <ReviewStep booking={booking} back={goBack} next={() => setStep(3)} />}
-          {step === 3 && <FareStep booking={booking} updateBooking={updateBooking} back={goBack} onSuccess={(id) => { setBookingId(id); setStep(4) }} onRedirecting={() => { redirectingRef.current = true; setRedirecting(true) }} />}
+          {step === 3 && <FareStep booking={booking} updateBooking={updateBooking} back={goBack} onSuccess={(id) => { setBookingId(id); setStep(4) }} onRedirecting={(url) => { redirectingRef.current = true; setRedirecting(true); setPaymentUrl(url) }} />}
           {step === 4 && <SuccessStep booking={booking} bookingId={bookingId} back={goBack} onDone={resetAndClose} />}
         </div>
         <AnimatePresence>
@@ -2471,6 +2497,19 @@ export default function AirportTransferBookingDialog({ open, onClose, service = 
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.55)', margin: 0, maxWidth: 280, lineHeight: 1.6 }}>
                 {copy.redirectingBody}
               </p>
+              {paymentUrl && (
+                <button
+                  type="button"
+                  onClick={() => window.open(paymentUrl, '_blank', 'noopener,noreferrer')}
+                  style={{
+                    marginTop: 4, padding: '11px 22px', borderRadius: 999, border: 'none',
+                    background: '#4ecdc4', color: '#0d0d14', fontFamily: 'Inter, sans-serif',
+                    fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                  }}
+                >
+                  {copy.continueToPayment}
+                </button>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

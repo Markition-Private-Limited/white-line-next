@@ -51,7 +51,7 @@
   position: absolute;
   top: 14px;
   inset-inline-end: 14px;
-  z-index: 6;
+  z-index: 61;
   display: grid;
   width: 30px;
   height: 30px;
@@ -781,6 +781,9 @@
 .dayDurationActive small { color: #52767a; }
 .dayDurationActive .dayDurationIcon { color: #fff; background: #82d5df; }
 .dayDurationCheck { position: absolute; top: 8px; inset-inline-end: 9px; padding: 1px; border-radius: 50%; color: #82d5df; background: #fff; }
+.dayDurationDisabled { opacity: .45; cursor: not-allowed; }
+.dayDurationDisabled:hover { transform: none; }
+.dayDurationDisabled .dayDurationIcon { color: rgba(255,255,255,.6); background: rgba(255,255,255,.18); }
 
 .bookingQuestion {
   margin: 16px 0 11px;
