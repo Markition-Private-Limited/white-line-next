@@ -223,6 +223,8 @@ export default function HomeHero() {
   const heroSlide = hero.slides[bannerIndex] ?? hero.slides[0]
   const [loginOpen, setLoginOpen] = useState(false)
   const [availableKeys, setAvailableKeys] = useState<string[] | null>(null)
+  const [halfDayHours, setHalfDayHours] = useState<number>(4)
+  const [fullDayHours, setFullDayHours] = useState<number>(8)
   const [unavailableDialog, setUnavailableDialog] = useState<string | null>(null)
 
   useEffect(() => {
@@ -237,8 +239,12 @@ export default function HomeHero() {
         if (json?.success && Array.isArray(json.data?.service_types)) {
           setAvailableKeys(json.data.service_types.map((s: { key: string }) => s.key))
         }
+        if (json?.success && json.data?.durations) {
+          if (json.data.durations.half_day_hours) setHalfDayHours(json.data.durations.half_day_hours)
+          if (json.data.durations.full_day_hours) setFullDayHours(json.data.durations.full_day_hours)
+        }
       })
-      .catch(() => {/* keep availableKeys null — treat all as available */})
+      .catch(() => {/* keep defaults */})
   }, [])
 
   const [bookingType, setBookingType] = useState<BookingService | null>(() => {
@@ -418,7 +424,7 @@ export default function HomeHero() {
 
         </div>
       </section>
-      <AirportTransferBookingDialog key={bookingType ?? 'closed'} open={bookingType !== null} service={bookingType ?? 'airport'} onClose={() => setBookingType(null)} availableKeys={availableKeys} />
+      <AirportTransferBookingDialog key={bookingType ?? 'closed'} open={bookingType !== null} service={bookingType ?? 'airport'} onClose={() => setBookingType(null)} availableKeys={availableKeys} halfDayHours={halfDayHours} fullDayHours={fullDayHours} />
       <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} onSuccess={() => setLoginOpen(false)} />
 
       {/* Unavailable service dialog */}

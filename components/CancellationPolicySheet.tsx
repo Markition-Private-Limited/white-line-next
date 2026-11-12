@@ -12,7 +12,7 @@ function ClockIcon() {
   )
 }
 
-export default function CancellationPolicySheet({ open, onGotIt }: { open: boolean; onGotIt: () => void }) {
+export default function CancellationPolicySheet({ open, onGotIt, cutoffHours = 4 }: { open: boolean; onGotIt: () => void; cutoffHours?: number }) {
   const { trans, dir } = useLanguage()
   const c = trans.cancellationPolicy
   const [isMobile, setIsMobile] = useState(false)
@@ -123,7 +123,7 @@ export default function CancellationPolicySheet({ open, onGotIt }: { open: boole
 
               {/* Tiers */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {c.tiers.map((tier, i) => (
+                {c.tiers(cutoffHours).map((tier, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
                     <div style={{
                       width: 38,

@@ -1073,8 +1073,8 @@ const en = {
           {
             title: '5.1 User Cancellations',
             body: 'Cancellation fees are applied based on notice given before the scheduled pickup time:',
-            items: [
-              'More than 4 hours before pickup — eligible for a 100% full refund.',
+            items: (cutoff: number) => [
+              `More than ${cutoff} ${cutoff === 1 ? 'hour' : 'hours'} before pickup — eligible for a 100% full refund.`,
               '2 to 4 hours before pickup — eligible for a 50% partial refund.',
               'Less than 2 hours before pickup — no refund (non-refundable notice period).',
               'No-show or cancellation after the service has started — full fare will be charged.',
@@ -1167,8 +1167,8 @@ const en = {
   cancellationPolicy: {
     title: 'Cancellation Policy',
     intro: 'Cancellation is allowed at any time. Refund and charges will be applied according to our cancellation policy.',
-    tiers: [
-      { heading: 'More than 4 hours before pickup', sub: 'Eligible for a 100% full refund.' },
+    tiers: (cutoff: number) => [
+      { heading: `More than ${cutoff} ${cutoff === 1 ? 'hour' : 'hours'} before pickup`, sub: 'Eligible for a 100% full refund.' },
       { heading: '2 to 4 hours before pickup', sub: 'Eligible for a 50% partial refund.' },
       { heading: 'Less than 2 hours before pickup', sub: 'Non-refundable notice period.' },
       { heading: 'No-show or cancellation after start', sub: 'Full fare will be charged to your account.' },
@@ -2199,7 +2199,10 @@ const ar: typeof en = {
         { title: '4.3 فواتير الشركات وB2B', body: 'يحق للعملاء المؤسسيين المعتمدين الحصول على فواتير شهرية وفق اتفاقيات حساباتهم وحدود الائتمان المحددة.', items: [] },
       ]},
       { title: '5. سياسة الإلغاء والاسترداد', body: '', subsections: [
-        { title: '5.1 الإلغاء من قبل المستخدم', body: 'تُطبَّق رسوم الإلغاء بناءً على مدة الإشعار المُقدَّم قبل موعد الاستلام:', items: ['قبل أكثر من 4 ساعات من الاستلام — مؤهل لاسترداد كامل بنسبة 100٪.', 'من ساعتين إلى 4 ساعات قبل الاستلام — مؤهل لاسترداد جزئي بنسبة 50٪.', 'أقل من ساعتين قبل الاستلام — لا استرداد (فترة غير قابلة للاسترداد).', 'عدم الحضور أو الإلغاء بعد بدء الخدمة — سيُحتسب كامل مبلغ الأجرة.'] },
+        { title: '5.1 الإلغاء من قبل المستخدم', body: 'تُطبَّق رسوم الإلغاء بناءً على مدة الإشعار المُقدَّم قبل موعد الاستلام:', items: (cutoff: number) => {
+          const h = cutoff === 1 ? 'ساعة' : cutoff === 2 ? 'ساعتين' : `${cutoff} ساعات`
+          return [`قبل أكثر من ${h} من الاستلام — مؤهل لاسترداد كامل بنسبة 100٪.`, 'من ساعتين إلى 4 ساعات قبل الاستلام — مؤهل لاسترداد جزئي بنسبة 50٪.', 'أقل من ساعتين قبل الاستلام — لا استرداد (فترة غير قابلة للاسترداد).', 'عدم الحضور أو الإلغاء بعد بدء الخدمة — سيُحتسب كامل مبلغ الأجرة.']
+        } },
         { title: '5.2 الإلغاء من قبل وايت لاين', body: 'في الحالات النادرة التي تضطر فيها وايت لاين لإلغاء حجز مؤكد، سنُخطرك فوراً ونقدم استرداداً كاملاً أو إعادة جدولة دون رسوم.', items: [] },
         { title: '5.3 المبالغ المستردة', body: 'تُعالَج المبالغ المستردة المؤهلة على وسيلة الدفع الأصلية خلال 7 أيام عمل، وفقاً لسياسات مزود الدفع ذي الصلة. لا تتحمل وايت لاين المسؤولية عن التأخيرات الناجمة عن معالجات الدفع الخارجية.', items: [] },
       ]},
@@ -2221,12 +2224,15 @@ const ar: typeof en = {
   cancellationPolicy: {
     title: 'سياسة الإلغاء',
     intro: 'يُسمح بالإلغاء في أي وقت. سيتم تطبيق سياسة الاسترداد والرسوم وفقاً لسياسة الإلغاء لدينا.',
-    tiers: [
-      { heading: 'قبل أكثر من 4 ساعات من موعد الاستلام', sub: 'مؤهل لاسترداد كامل بنسبة 100٪.' },
-      { heading: 'من ساعتين إلى 4 ساعات قبل الاستلام', sub: 'مؤهل لاسترداد جزئي بنسبة 50٪.' },
-      { heading: 'أقل من ساعتين قبل الاستلام', sub: 'فترة غير قابلة للاسترداد.' },
-      { heading: 'عدم الحضور أو الإلغاء بعد بدء الخدمة', sub: 'سيُحتسب كامل مبلغ الأجرة على حسابك.' },
-    ],
+    tiers: (cutoff: number) => {
+      const h = cutoff === 1 ? 'ساعة' : cutoff === 2 ? 'ساعتين' : `${cutoff} ساعات`
+      return [
+        { heading: `قبل أكثر من ${h} من موعد الاستلام`, sub: 'مؤهل لاسترداد كامل بنسبة 100٪.' },
+        { heading: 'من ساعتين إلى 4 ساعات قبل الاستلام', sub: 'مؤهل لاسترداد جزئي بنسبة 50٪.' },
+        { heading: 'أقل من ساعتين قبل الاستلام', sub: 'فترة غير قابلة للاسترداد.' },
+        { heading: 'عدم الحضور أو الإلغاء بعد بدء الخدمة', sub: 'سيُحتسب كامل مبلغ الأجرة على حسابك.' },
+      ]
+    },
     gotIt: 'حسناً، فهمت',
   },
 

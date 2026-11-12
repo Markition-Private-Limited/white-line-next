@@ -340,12 +340,13 @@ function DetailRow({ icon, children }: { icon: React.ReactNode; children: React.
   )
 }
 
-function BookingDetailDialog({ id, lang, dir, onClose, onCancelled }: {
+function BookingDetailDialog({ id, lang, dir, onClose, onCancelled, cutoffHours = 4 }: {
   id: string | null
   lang: string
   dir: string
   onClose: () => void
   onCancelled: (bookingId: string) => void
+  cutoffHours?: number
 }) {
   const isAr = lang === 'ar'
   const [detail, setDetail] = useState<BookingDetail | null>(null)
@@ -361,9 +362,10 @@ function BookingDetailDialog({ id, lang, dir, onClose, onCancelled }: {
     setDetail(null); setErr(null); setImgFailed(false); setCancelStep(null); setCancelReason(''); setCancelErrMsg(null)
     if (!id) return
     const token = readToken()
-    if (!token) { setErr('auth'); return }
+    if (!token && process.env.NODE_ENV !== 'development') { setErr('auth'); return }
     setLoading(true)
-    fetch(`/api/customers/bookings/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+    const authHeader: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {}
+    fetch(`/api/customers/bookings/${id}`, { headers: authHeader })
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
       .then(json => setDetail(parseDetail(json)))
       .catch(() => setErr('network'))
@@ -628,6 +630,7 @@ function BookingDetailDialog({ id, lang, dir, onClose, onCancelled }: {
                   <CancellationPolicySheet
                     open={cancelStep === 'policy'}
                     onGotIt={() => setCancelStep('confirm')}
+                    cutoffHours={cutoffHours}
                   />
 
                   {cancelStep === 'confirm' && (
@@ -830,6 +833,17 @@ export default function JourneysPageContent() {
   const [error, setError] = useState<'auth' | 'network' | null>(null)
   const [logoutOpen, setLogoutOpen] = useState(false)
   const [detailId, setDetailId] = useState<string | null>(null)
+  const [cancellationCutoffHours, setCancellationCutoffHours] = useState(4)
+
+  useEffect(() => {
+    fetch('/api/home/config')
+      .then(r => r.ok ? r.json() : null)
+      .then(json => {
+        const cutoff = json?.data?.cancellation_cutoff_hours
+        if (typeof cutoff === 'number') setCancellationCutoffHours(cutoff)
+      })
+      .catch(() => {/* keep default */})
+  }, [])
 
   function handleCancelled(bookingId: string) {
     setCache(prev => {
@@ -854,13 +868,15 @@ export default function JourneysPageContent() {
 
   async function fetchPage(pageNum: number, append: boolean) {
     const token = readToken()
-    if (!token) { setError('auth'); return }
+    if (!token && process.env.NODE_ENV !== 'development') { setError('auth'); return }
 
     append ? setLoadingMore(true) : setLoading(true)
+    const headers: Record<string, string> = {}
+    if (token) headers['Authorization'] = `Bearer ${token}`
     try {
       const res = await fetch(
         `/api/customers/bookings?status=${TAB_STATUS[tab]}&page=${pageNum}&limit=10`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers }
       )
       if (res.status === 401) { setError('auth'); return }
       if (!res.ok) { setError('network'); return }
@@ -1039,6 +1055,7 @@ export default function JourneysPageContent() {
           dir={dir}
           onClose={() => setDetailId(null)}
           onCancelled={handleCancelled}
+          cutoffHours={cancellationCutoffHours}
         />
       </main>
     </div>

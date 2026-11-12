@@ -1,10 +1,22 @@
 'use client'
+import { useEffect, useState } from 'react'
 import { useLanguage } from '../context/LanguageContext'
 
 export default function TermsContent() {
   const { trans, dir } = useLanguage()
   const isRtl = dir === 'rtl'
   const { effectiveDate, copyright, intro, sections } = trans.termsPage
+  const [cancellationCutoffHours, setCancellationCutoffHours] = useState(4)
+
+  useEffect(() => {
+    fetch('/api/home/config')
+      .then(r => r.ok ? r.json() : null)
+      .then(json => {
+        const cutoff = json?.data?.cancellation_cutoff_hours
+        if (typeof cutoff === 'number') setCancellationCutoffHours(cutoff)
+      })
+      .catch(() => {/* keep default */})
+  }, [])
 
   return (
     <section className="w-full bg-white">
@@ -78,12 +90,12 @@ export default function TermsContent() {
                           {sub.body}
                         </p>
                       )}
-                      {sub.items && sub.items.length > 0 && (
+                      {sub.items && (typeof sub.items === 'function' ? sub.items(cancellationCutoffHours) : sub.items).length > 0 && (
                         <ul
                           className="mb-3 space-y-1"
                           style={{ paddingLeft: isRtl ? 0 : '1.2rem', paddingRight: isRtl ? '1.2rem' : 0 }}
                         >
-                          {sub.items.map((item, ii) => (
+                          {(typeof sub.items === 'function' ? sub.items(cancellationCutoffHours) : sub.items).map((item, ii) => (
                             <li
                               key={ii}
                               style={{
