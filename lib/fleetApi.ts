@@ -52,6 +52,7 @@ export type ClassVehicle = {
   status: string
   vehicle_front_photo_url: string | null
   base_fare?: number
+  total_price?: number
 }
 
 export type PublicVehicle = {
@@ -107,9 +108,25 @@ export async function fetchVehicleClasses(serviceType?: string): Promise<Vehicle
     : []
 }
 
-export async function fetchVehiclesForClass(id: string, serviceType?: string): Promise<ClassVehicle[]> {
-  const qs = serviceType ? `?service_type=${encodeURIComponent(serviceType)}` : ''
-  const data = await fleetGetData<ClassVehicle[]>(`/api/v1/public/customers/vehicle-classes/${encodeURIComponent(id)}/vehicles${qs}`)
+type VehicleQueryParams = {
+  serviceType?: string
+  pickupLat?: number
+  pickupLng?: number
+  dropoffLat?: number
+  dropoffLng?: number
+  durationHours?: number
+}
+
+export async function fetchVehiclesForClass(id: string, params: VehicleQueryParams = {}): Promise<ClassVehicle[]> {
+  const qs = new URLSearchParams()
+  if (params.serviceType) qs.set('service_type', params.serviceType)
+  if (params.pickupLat !== undefined) qs.set('pickup_lat', String(params.pickupLat))
+  if (params.pickupLng !== undefined) qs.set('pickup_lng', String(params.pickupLng))
+  if (params.dropoffLat !== undefined) qs.set('dropoff_lat', String(params.dropoffLat))
+  if (params.dropoffLng !== undefined) qs.set('dropoff_lng', String(params.dropoffLng))
+  if (params.durationHours !== undefined) qs.set('duration_hours', String(params.durationHours))
+  const qStr = qs.toString()
+  const data = await fleetGetData<ClassVehicle[]>(`/api/v1/public/customers/vehicle-classes/${encodeURIComponent(id)}/vehicles${qStr ? `?${qStr}` : ''}`)
   return Array.isArray(data)
     ? data.map(item => ({
       id: item.id,
@@ -121,6 +138,7 @@ export async function fetchVehiclesForClass(id: string, serviceType?: string): P
       status: item.status,
       vehicle_front_photo_url: proxiedFleetImageUrl(item.vehicle_front_photo_url),
       base_fare: typeof item.base_fare === 'number' ? item.base_fare : undefined,
+      total_price: typeof item.total_price === 'number' ? item.total_price : undefined,
     }))
     : []
 }

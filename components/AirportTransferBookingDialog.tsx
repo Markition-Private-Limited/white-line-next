@@ -104,7 +104,7 @@ type VehicleClass = {
   airport_transfer_rate?: string | number
   airport_extra_km_rate?: string | number
 }
-type ClassVehicle = { id: string; make: string; model: string; year: number; plate_number: string; color: string; status: string; vehicle_front_photo_url: string | null; base_fare?: number }
+type ClassVehicle = { id: string; make: string; model: string; year: number; plate_number: string; color: string; status: string; vehicle_front_photo_url: string | null; base_fare?: number; total_price?: number }
 
 const FLEET_CACHE_TTL_MS = 5 * 60 * 1000
 const fleetClassesCache = new Map<string, { data: VehicleClass[]; timestamp: number }>()
@@ -126,13 +126,23 @@ async function getFleetClasses(serviceType?: string): Promise<VehicleClass[]> {
   }
 }
 
-async function getFleetVehicles(classId: string, serviceType?: string): Promise<ClassVehicle[]> {
-  const cacheKey = serviceType ? `${classId}:${serviceType}` : classId
+type FleetVehicleParams = { serviceType?: string; pickupLat?: number; pickupLng?: number; dropoffLat?: number; dropoffLng?: number; durationHours?: number }
+
+async function getFleetVehicles(classId: string, params: FleetVehicleParams = {}): Promise<ClassVehicle[]> {
+  const { serviceType, pickupLat, pickupLng, dropoffLat, dropoffLng, durationHours } = params
+  const cacheKey = [classId, serviceType, pickupLat, pickupLng, dropoffLat, dropoffLng, durationHours].join(':')
   const cached = fleetVehiclesCache.get(cacheKey)
   if (cached && Date.now() - cached.timestamp < FLEET_CACHE_TTL_MS) return cached.data
   try {
-    const qs = serviceType ? `?service_type=${encodeURIComponent(serviceType)}` : ''
-    const res = await fetch(`/api/fleet/vehicle-classes/${encodeURIComponent(classId)}/vehicles${qs}`)
+    const qs = new URLSearchParams()
+    if (serviceType) qs.set('service_type', serviceType)
+    if (pickupLat !== undefined) qs.set('pickup_lat', String(pickupLat))
+    if (pickupLng !== undefined) qs.set('pickup_lng', String(pickupLng))
+    if (dropoffLat !== undefined) qs.set('dropoff_lat', String(dropoffLat))
+    if (dropoffLng !== undefined) qs.set('dropoff_lng', String(dropoffLng))
+    if (durationHours !== undefined) qs.set('duration_hours', String(durationHours))
+    const qStr = qs.toString()
+    const res = await fetch(`/api/fleet/vehicle-classes/${encodeURIComponent(classId)}/vehicles${qStr ? `?${qStr}` : ''}`)
     const data = res.ok ? await res.json() : []
     const list: ClassVehicle[] = Array.isArray(data) ? data : []
     fleetVehiclesCache.set(cacheKey, { data: list, timestamp: Date.now() })
@@ -234,8 +244,8 @@ function buildVehicleCards(activeVehicles: ClassVehicle[], activeClass: VehicleC
   return activeVehicles.map(vehicle => {
     const title = vehicleTitle(vehicle)
     const image = vehicle.vehicle_front_photo_url ?? getTempFleetImage(title)
-    const fareAmount = typeof vehicle.base_fare === 'number' ? vehicle.base_fare : classFare.amount
-    const fareMeta = typeof vehicle.base_fare === 'number' ? null : classFare.meta
+    const fareAmount = typeof vehicle.total_price === 'number' ? vehicle.total_price : classFare.amount
+    const fareMeta = typeof vehicle.total_price === 'number' ? null : classFare.meta
     return { key: vehicle.id, image, title, passengers, bags, fareAmount, fareMeta }
   })
 }
@@ -1310,11 +1320,7 @@ function TripDetails({ booking, updateBooking, next, back, onLoginRequest }: {
     updateBooking({ isDeparture: departure, pickup: null, destination: null })
   }
 
-  // Restrict the free-text location field to the city served by the selected airport
-  const selectedAirportName = booking.isDeparture ? booking.destination?.address : booking.pickup?.address
-  const cityRestriction = selectedAirportName ? (AIRPORT_CITY_RESTRICTIONS[selectedAirportName] ?? null) : null
-  const locationRestriction = cityRestriction ? { lat: cityRestriction.lat, lng: cityRestriction.lng, radius: cityRestriction.radius } : undefined
-  const filterPrediction = cityRestriction ? (p: { description: string }) => cityRestriction.filter.test(p.description) : undefined
+  // Allow any Saudi location as pickup/dropoff — inter-city airport transfers are valid across the Kingdom
 
   return (
     <>
@@ -1334,13 +1340,13 @@ function TripDetails({ booking, updateBooking, next, back, onLoginRequest }: {
       <div className={styles.fieldGrid}>
         {booking.isDeparture ? (
           <>
-            <PlacesAutocompleteField key="departure-pickup" label={copy.pickupLocation} placeholder={copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} locationRestriction={locationRestriction} filterPrediction={filterPrediction} />
+            <PlacesAutocompleteField key="departure-pickup" label={copy.pickupLocation} placeholder={copy.selectPickup} value={booking.pickup} attempted={attempted} onChange={value => updateBooking({ pickup: value })} />
             <DropdownField key="departure-airport" label={copy.dropOffAirport} placeholder={copy.selectAirport} value={booking.destination} options={copy.airports} attempted={attempted} disabled={!isSelectedPlace(booking.pickup)} onChange={value => updateBooking({ destination: value, pickup: null })} />
           </>
         ) : (
           <>
             <DropdownField key="arrival-airport" label={copy.pickupAirport} placeholder={copy.selectAirport} value={booking.pickup} options={copy.airports} attempted={attempted} onChange={value => updateBooking({ pickup: value, destination: null })} />
-            <PlacesAutocompleteField key="arrival-destination" label={copy.dropOff} placeholder={copy.enterDestination} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} locationRestriction={locationRestriction} filterPrediction={filterPrediction} disabled={!isSelectedPlace(booking.pickup)} />
+            <PlacesAutocompleteField key="arrival-destination" label={copy.dropOff} placeholder={copy.enterDestination} value={booking.destination} attempted={attempted} onChange={value => updateBooking({ destination: value })} disabled={!isSelectedPlace(booking.pickup)} />
           </>
         )}
 
@@ -1596,8 +1602,22 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
   useEffect(() => {
     if (!activeCategoryId) return
     let cancelled = false
-    getFleetVehicles(activeCategoryId, toApiServiceType(booking.service, booking.dayDuration)).then(data => {
-      if (!cancelled) {
+    const serviceType = toApiServiceType(booking.service, booking.dayDuration)
+    Promise.all([
+      booking.pickup ? resolveCoords(booking.pickup) : Promise.resolve(null),
+      booking.destination ? resolveCoords(booking.destination) : Promise.resolve(null),
+    ]).then(([pCoords, dCoords]) => {
+      if (cancelled) return
+      return getFleetVehicles(activeCategoryId, {
+        serviceType,
+        pickupLat: pCoords?.lat,
+        pickupLng: pCoords?.lng,
+        dropoffLat: dCoords?.lat,
+        dropoffLng: dCoords?.lng,
+        durationHours: booking.service === 'hourly' ? booking.duration : undefined,
+      })
+    }).then(data => {
+      if (!cancelled && data) {
         setVehiclesByClass({ classId: activeCategoryId, data })
         if (booking.vehicle === null && data.length > 0) {
           updateBooking({ vehicle: 0, vehicleId: data[0].id })
@@ -1605,7 +1625,7 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
       }
     })
     return () => { cancelled = true }
-  }, [activeCategoryId, booking.service, booking.dayDuration])
+  }, [activeCategoryId, booking.service, booking.dayDuration, booking.pickup, booking.destination, booking.duration])
 
   const service = booking.service
   const activeVehicles = vehiclesByClass && vehiclesByClass.classId === activeCategoryId ? vehiclesByClass.data : null
@@ -1916,7 +1936,7 @@ function RideStep({ back, next, booking, updateBooking }: { back: () => void; ne
             )}
           </>
         )}
-        {service !== 'oneWay' && <p className={styles.fareDisclaimer}>{copy.fareDisclaimer}</p>}
+        <div style={{ height: 14 }} />
       </div>
       <FooterActions back={back} next={next} showNext={rideSelectionComplete} />
     </>
@@ -1983,7 +2003,7 @@ function useSelectedFleetLabels(booking: BookingState) {
   useEffect(() => {
     if (!activeCategoryId) return
     let cancelled = false
-    getFleetVehicles(activeCategoryId, toApiServiceType(booking.service, booking.dayDuration)).then(data => { if (!cancelled) setVehiclesByClass({ classId: activeCategoryId, data }) })
+    getFleetVehicles(activeCategoryId, { serviceType: toApiServiceType(booking.service, booking.dayDuration) }).then(data => { if (!cancelled) setVehiclesByClass({ classId: activeCategoryId, data }) })
     return () => { cancelled = true }
   }, [activeCategoryId, booking.service, booking.dayDuration])
 
